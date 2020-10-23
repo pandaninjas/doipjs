@@ -1,7 +1,7 @@
-exports.verify = (url, fingerprint, opts) => {
+const verify = (url, fingerprint, opts) => {
 
 }
-exports.serviceproviders = {
-  dns: require('./serviceproviders/dns'),
-  xmpp: require('./serviceproviders/xmpp')
-}
+
+exports.verify = verify
+exports.serviceproviders = require('./serviceproviders').serviceproviders
+exports.serviceprovidersList = require('./serviceproviders').serviceprovidersList
