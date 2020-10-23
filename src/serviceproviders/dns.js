@@ -19,19 +19,15 @@ const processURL = (url, opts) => {
 
 const tests = [
   {
-    url: 'dns:example.org',
-    shouldMatch: true,
-    expectedProfileDisplay: 'example.org',
-    expectedProfileURL: 'https://example.org'
+    url: 'dns:domain.org',
+    shouldMatch: true
   },
   {
-    url: 'dns:example.org?type=TXT',
-    shouldMatch: true,
-    expectedProfileDisplay: 'example.org',
-    expectedProfileURL: 'https://example.org'
+    url: 'dns:domain.org?type=TXT',
+    shouldMatch: true
   },
   {
-    url: 'https://example.org',
+    url: 'https://domain.org',
     shouldMatch: false
   }
 ]

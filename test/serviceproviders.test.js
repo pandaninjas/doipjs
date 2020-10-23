@@ -51,11 +51,11 @@ for (let sp in doipjs.serviceproviders) {
     doipjs.serviceproviders[sp].tests.forEach((test, i) => {
       if (test.shouldMatch) {
         it(`should match "${test.url}"`, () => {
-          expect(doipjs.serviceproviders[sp].tests).to.be.true
+          expect(doipjs.serviceproviders[sp].reURL.test(test.url)).to.be.true
         })
       } else {
         it(`should not match "${test.url}"`, () => {
-          expect(doipjs.serviceproviders[sp].tests).to.be.instanceof(Array)
+          expect(doipjs.serviceproviders[sp].reURL.test(test.url)).to.be.false
         })
       }
     });
