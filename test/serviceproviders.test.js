@@ -32,7 +32,7 @@ const assert = require('chai').assert
 const request = require('supertest')
 const doipjs = require('../src')
 
-for (let sp in doipjs.serviceproviders) {
+doipjs.serviceprovidersList.forEach((sp, i) => {
   describe(`serviceproviders.${sp}`, () => {
     it('should be an object', () => {
       expect(doipjs.serviceproviders[sp]).to.be.a('object')
@@ -48,7 +48,7 @@ for (let sp in doipjs.serviceproviders) {
       expect(doipjs.serviceproviders[sp].tests).to.be.instanceof(Array)
     })
 
-    doipjs.serviceproviders[sp].tests.forEach((test, i) => {
+    doipjs.serviceproviders[sp].tests.forEach((test, j) => {
       if (test.shouldMatch) {
         it(`should match "${test.url}"`, () => {
           expect(doipjs.serviceproviders[sp].reURL.test(test.url)).to.be.true
@@ -58,7 +58,7 @@ for (let sp in doipjs.serviceproviders) {
           expect(doipjs.serviceproviders[sp].reURL.test(test.url)).to.be.false
         })
       }
-    });
+    })
 
   })
-}
+})
