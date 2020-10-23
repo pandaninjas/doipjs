@@ -1,0 +1,36 @@
+{
+  "name": "doipjs",
+  "version": "0.1.0",
+  "description": "Decentralized OpenPGP Identity Proofs library in node",
+  "main": "src/index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "license-check-and-add": "^3.0.4",
+    "mocha": "^8.2.0",
+    "sinon": "^9.2.0",
+    "supertest": "^5.0.0"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "NODE_ENV=development node index.js",
+    "license:check": "./node_modules/license-check-and-add/dist/src/cli.js check",
+    "license:add": "./node_modules/license-check-and-add/dist/src/cli.js add",
+    "license:remove": "./node_modules/license-check-and-add/dist/src/cli.js remove",
+    "test": "./node_modules/mocha/bin/mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@codeberg.org:keyoxide/web.git"
+  },
+  "keywords": [
+    "pgp",
+    "gpg",
+    "openpgp",
+    "encryption",
+    "decentralized",
+    "identity"
+  ],
+  "author": "Yarmo Mackenbach <yarmo@yarmo.eu> (https://yarmo.eu)",
+  "license": "AGPL-3.0-or-later"
+}
