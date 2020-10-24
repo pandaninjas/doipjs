@@ -32,9 +32,21 @@ const assert = require('chai').assert
 const request = require('supertest')
 const doipjs = require('../src')
 
-describe('verify', function() {
-  it('should be a function (3 arguments)', function() {
+describe('verify', () => {
+  it('should be a function (3 arguments)', () => {
     expect(doipjs.verify).to.be.a('function')
     expect(doipjs.verify).to.have.length(3)
+  })
+  it('should match "dns:domain.org" to the DNS service provider', () => {
+    const matches = doipjs.verify('dns:domain.org', null, {returnMatchesOnly: true})
+    expect(matches).to.be.a('array')
+    expect(matches).to.be.length(1)
+    expect(matches[0].type).to.be.equal('domain')
+  })
+  it('should match "xmpp:alice@domain.org" to the XMPP service provider', () => {
+    const matches = doipjs.verify('xmpp:alice@domain.org', null, {returnMatchesOnly: true})
+    expect(matches).to.be.a('array')
+    expect(matches).to.be.length(1)
+    expect(matches[0].type).to.be.equal('xmpp')
   })
 })

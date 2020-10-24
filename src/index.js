@@ -1,12 +1,42 @@
 const validUrl = require('valid-url')
-const serviceprovidersList = require('./serviceproviders').serviceprovidersList
+const { serviceprovidersList, serviceproviders } = require('./serviceproviders')
+
+const matchSp = (uri) => {
+  let matches = [], sp
+
+  serviceprovidersList.forEach((spName, i) => {
+    sp = serviceproviders[spName]
+    if (sp.reURI.test(uri)) {
+      matches.push(sp.processURI(uri))
+    }
+  })
+
+  return matches
+}
 
 const verify = (uri, fingerprint, opts) => {
-  if !(validUrl.isUri(uri)) {
+  if (!validUrl.isUri(uri)) {
     throw new Error('The provided URI was not valid')
   }
+
+  const spMatches = matchSp(uri)
+
+  if (opts.returnMatchesOnly) {
+    return spMatches
+  }
+
+  // let claimHasBeenVerified = false
+  // let iSp = 0, sp
+  // while (!claimHasBeenVerified) {
+  //
+  //   if (!sp.reURI.test(uri)) {
+  //     continue;
+  //   }
+  //
+  //   iSP++
+  // }
 }
 
 exports.verify = verify
-exports.serviceproviders = require('./serviceproviders').serviceproviders
+exports.serviceproviders = serviceproviders
 exports.serviceprovidersList = serviceprovidersList
