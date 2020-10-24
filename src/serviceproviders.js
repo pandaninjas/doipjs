@@ -21,10 +21,13 @@ const list = [
   'lobsters',
 ]
 
-const data = {}
-list.forEach((item, i) => {
-  data[item] = require(`./serviceproviders/${item}`)
-})
+const data = {
+  dns: require('./serviceproviders/dns'),
+  xmpp: require('./serviceproviders/xmpp'),
+  twitter: require('./serviceproviders/twitter'),
+  hackernews: require('./serviceproviders/hackernews'),
+  lobsters: require('./serviceproviders/lobsters'),
+}
 
 const match = (uri, opts) => {
   let matches = [], sp
