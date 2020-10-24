@@ -3,12 +3,63 @@
   <head>
     <meta charset="utf-8">
     <title>doip.js browser demo</title>
-    <script src="../bundle/doip.js" charset="utf-8"></script>
-    <script type="text/javascript">
-      console.log(doip.verify('dns:domain.org', null, { 'returnMatchesOnly': true }))
-    </script>
   </head>
   <body>
 
+    <h1>doip.js browser demo</h1>
+    
+    <div id="claims">
+      <div>
+        <h2 class="claim_input">dns:domain.org</h2>
+        <pre class="claim_output"></pre>
+      </div>
+      <div>
+        <h2 class="claim_input">xmpp:alice@domain.org</h2>
+        <pre class="claim_output"></pre>
+      </div>
+      <div>
+        <h2 class="claim_input">xmpp:alice@domain.org</h2>
+        <pre class="claim_output"></pre>
+      </div>
+      <div>
+        <h2 class="claim_input">https://twitter.com/alice/status/1234567890123456789</h2>
+        <pre class="claim_output"></pre>
+      </div>
+      <div>
+        <h2 class="claim_input">https://news.ycombinator.com/user?id=Alice</h2>
+        <pre class="claim_output"></pre>
+      </div>
+      <div>
+        <h2 class="claim_input">https://lobste.rs/u/Alice</h2>
+        <pre class="claim_output"></pre>
+      </div>
+    </div>
+
   </body>
+
+  <script src="../bundle/doip.js" charset="utf-8"></script>
+  <script type="text/javascript" charset="utf-8">
+    window.addEventListener('load', async () => {
+      const claims = document.querySelectorAll('#claims > div')
+      claims.forEach(async (item, i) => {
+        claimInput = item.querySelector('.claim_input').textContent
+        item.querySelector('.claim_output').textContent = JSON.stringify(await doip.verify(claimInput, null, { 'returnMatchesOnly': true, 'xmppVcardServerDomain': 'vcard.server.org' }), null, 2)
+      })
+    })
+  </script>
+  <style>
+    h1, h2 {
+      text-align: center;
+    }
+    #claims > div {
+      padding: 1em 2em;
+    }
+    #claims > div:nth-child(2n-1) {
+      background-color: #ddd;
+    }
+    pre {
+      padding: 1em;
+      border: 1px solid #bbb;
+    }
+  </style>
 </html>
