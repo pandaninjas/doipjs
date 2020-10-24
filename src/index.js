@@ -34,7 +34,7 @@ const verify = async (uri, fingerprint, opts) => {
     return spMatches
   }
 
-  let claimHasBeenVerified = false, sp, iSp = 0, res, proofData
+  let claimHasBeenVerified = false, sp, iSp = 0, res, proofData, spData = null
   while (!claimHasBeenVerified && iSp < spMatches.length) {
     spData = spMatches[iSp]
     spData.claim.fingerprint = fingerprint
@@ -64,6 +64,7 @@ const verify = async (uri, fingerprint, opts) => {
 
   return {
     isVerified: claimHasBeenVerified,
+    matchedServiceprovider: spData ? spData.serviceprovider.name : null,
     verificationData: spData
   }
 }
