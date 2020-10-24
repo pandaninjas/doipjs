@@ -17,10 +17,12 @@ exports.serviceprovidersList = [
   'dns',
   'xmpp',
   'twitter',
+  'hackernews',
 ]
 
 exports.serviceproviders = {
   dns: require('./serviceproviders/dns'),
   xmpp: require('./serviceproviders/xmpp'),
   twitter: require('./serviceproviders/twitter'),
+  hackernews: require('./serviceproviders/hackernews'),
 }

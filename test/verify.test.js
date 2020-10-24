@@ -45,4 +45,10 @@ describe('verify', () => {
     expect(matches).to.be.length(1)
     expect(matches[0].type).to.be.equal('twitter')
   })
+  it('should match "https://news.ycombinator.com/user?id=Alice" to the Hackernews service provider', () => {
+    const matches = doipjs.verify('https://news.ycombinator.com/user?id=Alice', null, {returnMatchesOnly: true})
+    expect(matches).to.be.a('array')
+    expect(matches).to.be.length(1)
+    expect(matches[0].type).to.be.equal('hackernews')
+  })
 })
