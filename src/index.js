@@ -53,17 +53,6 @@ const verify = (uri, fingerprint, opts) => {
   if (opts.returnMatchesOnly) {
     return spMatches
   }
-
-  // let claimHasBeenVerified = false
-  // let iSp = 0, sp
-  // while (!claimHasBeenVerified) {
-  //
-  //   if (!sp.reURI.test(uri)) {
-  //     continue;
-  //   }
-  //
-  //   iSP++
-  // }
 }
 
 exports.verify = verify
