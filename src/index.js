@@ -17,15 +17,17 @@ const validUrl = require('valid-url')
 const bent = require('bent')
 const req = bent('GET')
 const serviceproviders = require('./serviceproviders')
+const claimVerification = require('./claimVerification')
 
 const verify = async (uri, fingerprint, opts) => {
   if (!opts) { opts = {} }
+  if (!fingerprint) { fingerprint = null }
 
   if (!validUrl.isUri(uri)) {
     throw new Error('Not a valid URI')
   }
 
-  const spMatches = serviceproviders.match(uri)
+  const spMatches = serviceproviders.match(uri, fingerprint)
 
   if ('returnMatchesOnly' in opts && opts.returnMatchesOnly) {
     return spMatches
@@ -33,14 +35,15 @@ const verify = async (uri, fingerprint, opts) => {
 
   let claimHasBeenVerified = false, sp, iSp = 0, res, proofData
   while (!claimHasBeenVerified && iSp < spMatches.length) {
-    sp = spMatches[iSp]
+    spData = spMatches[iSp]
+    spData.claim.fingerprint = fingerprint
 
     res = null
 
-    if (!sp.proof.useProxy || 'forceDirectRequest' in opts && opts.forceDirectRequest) {
-      res = await req(sp.proof.fetch ? sp.proof.fetch : sp.proof.uri)
+    if (!spData.proof.useProxy || 'forceDirectRequest' in opts && opts.forceDirectRequest) {
+      res = await req(spData.proof.fetch ? spData.proof.fetch : spData.proof.uri)
 
-      switch (sp.proof.format) {
+      switch (spData.proof.format) {
         case 'json':
           proofData = await res.json()
           break
@@ -53,7 +56,14 @@ const verify = async (uri, fingerprint, opts) => {
       }
     }
 
+    claimHasBeenVerified = claimVerification.run(proofData, spData)
+
     iSp++
+  }
+
+  return {
+    isVerified: claimHasBeenVerified,
+    verificationData: spData
   }
 }
 
