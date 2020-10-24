@@ -13,9 +13,7 @@
     "chai-as-promised": "^7.1.1",
     "chai-match-pattern": "^1.2.0",
     "license-check-and-add": "^3.0.4",
-    "mocha": "^8.2.0",
-    "sinon": "^9.2.0",
-    "supertest": "^5.0.0"
+    "mocha": "^8.2.0"
   },
   "scripts": {
     "bundle": "./node_modules/browserify/bin/cmd.js ./src/index.js --standalone doip -o ./bundle/doip.js",
