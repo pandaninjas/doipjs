@@ -1,13 +1,13 @@
-const generateClaim = (spData) => {
-  switch (spData.claim.format) {
+const generateClaim = (fingerprint, format) => {
+  switch (format) {
     case 'uri':
-      return `openpgp4fpr:${spData.claim.fingerprint}`
+      return `openpgp4fpr:${fingerprint}`
       break;
     case 'message':
-      return `[Verifying my OpenPGP key: openpgp4fpr:${spData.claim.fingerprint}]`
+      return `[Verifying my OpenPGP key: openpgp4fpr:${fingerprint}]`
       break;
     case 'fingerprint':
-      return pData.claim.fingerprint
+      return fingerprint
       break;
     default:
       throw new Error('No valid claim format')

@@ -42,10 +42,10 @@ const runOnJson = (proofData, checkPath, checkClaim, checkRelation) => {
 const run = (proofData, spData) => {
   switch (spData.proof.format) {
     case 'json':
-      return runOnJson(proofData, spData.claim.path, utils.generateClaim(spData), spData.claim.relation)
+      return runOnJson(proofData, spData.claim.path, utils.generateClaim(spData.claim.fingerprint, spData.claim.format), spData.claim.relation)
       break
     case 'text':
-      re = new RegExp(utils.generateClaim(spData), "gi")
+      re = new RegExp(utils.generateClaim(spData.claim.fingerprint, spData.claim.format), "gi")
       return re.test(proofData.replace(/\r?\n|\r/, ''))
       break
   }
