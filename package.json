@@ -4,6 +4,7 @@
   "description": "Decentralized OpenPGP Identity Proofs library in node",
   "main": "src/index.js",
   "dependencies": {
+    "bent": "^7.3.12",
     "browserify": "^17.0.0",
     "valid-url": "^1.0.9"
   },
