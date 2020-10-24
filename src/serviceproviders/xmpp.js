@@ -29,8 +29,8 @@ const processURI = (uri, opts) => {
       uri: uri
     },
     proof: {
-      uri: 'XMPP_VCARD_SERVER_DOMAIN' in opts
-           ? `https://${opts.XMPP_VCARD_SERVER_DOMAIN}/api/vcard/${output.display}/DESC`
+      uri: 'xmppVcardServerDomain' in opts
+           ? `https://${opts.xmppVcardServerDomain}/api/vcard/${match[1]}@${match[2]}/DESC`
            : null,
       fetch: null,
       useProxy: false,
@@ -42,7 +42,7 @@ const processURI = (uri, opts) => {
       path: [],
       relation: 'contains'
     },
-    qr: null
+    qr: uri
   }
 }
 
