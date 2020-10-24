@@ -16,6 +16,7 @@ limitations under the License.
 const reURI = /^dns:([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
 
 const processURI = (uri, opts) => {
+  if (!opts) { opts = {} }
   const match = uri.match(reURI)
 
   return {
