@@ -20,7 +20,6 @@ chai.use(chaiMatchPattern)
 chai.use(require("chai-as-promised"))
 
 const _ = chaiMatchPattern.getLodashModule()
-const request = require('supertest')
 const doipjs = require('../src')
 
 const pattern = {

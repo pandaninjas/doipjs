@@ -16,7 +16,6 @@ limitations under the License.
 const chai = require('chai')
 const expect = chai.expect
 
-const request = require('supertest')
 const doipjs = require('../src')
 
 doipjs.serviceproviders.list.forEach((sp, i) => {
