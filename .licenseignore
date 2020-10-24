@@ -1,0 +1,16 @@
+**/\.git
+
+**/*.html
+**/*.min.js
+**/*.md
+**/*.png
+**/*.svg
+**/*.env
+**/*.pug
+
+package.json
+package-lock.json
+\.editorconfig
+\.gitignore
+\.licenseignore
+Dockerfile

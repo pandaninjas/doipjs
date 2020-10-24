@@ -2,13 +2,6 @@
     "ignore": ".licenseignore",
     "license": "LICENSE.HEADER",
     "licenseFormats": {
-        "php": {
-            "prepend": "<?php",
-            "append": "?>",
-            "eachLine": {
-                "prepend": "// "
-            }
-        },
         "dotfile|licenseignore|gitignore|yml": {
             "eachLine": {
                 "prepend": "# "
