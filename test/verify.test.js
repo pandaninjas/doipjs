@@ -15,8 +15,7 @@ limitations under the License.
 */
 const chai = require('chai')
 const expect = chai.expect
-const chaiAsPromised = require("chai-as-promised")
-chai.use(chaiAsPromised)
+chai.use(require("chai-as-promised"))
 
 const request = require('supertest')
 const doipjs = require('../src')
