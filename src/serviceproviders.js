@@ -18,6 +18,7 @@ const list = [
   'xmpp',
   'twitter',
   'hackernews',
+  'lobsters',
 ]
 
 const data = {
@@ -25,6 +26,7 @@ const data = {
   xmpp: require('./serviceproviders/xmpp'),
   twitter: require('./serviceproviders/twitter'),
   hackernews: require('./serviceproviders/hackernews'),
+  lobsters: require('./serviceproviders/lobsters'),
 }
 
 const match = (uri, opts) => {
