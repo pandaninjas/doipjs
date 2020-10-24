@@ -16,7 +16,7 @@ limitations under the License.
 const validUrl = require('valid-url')
 const { serviceprovidersList, serviceproviders } = require('./serviceproviders')
 
-const matchSp = (uri) => {
+const matchServiceproviders = (uri) => {
   let matches = [], sp
 
   serviceprovidersList.forEach((spName, i) => {
@@ -36,7 +36,7 @@ const verify = (uri, fingerprint, opts) => {
     throw new Error('Not a valid URI')
   }
 
-  const spMatches = matchSp(uri)
+  const spMatches = matchServiceproviders(uri)
 
   if ('returnMatchesOnly' in opts && opts.returnMatchesOnly) {
     return spMatches
