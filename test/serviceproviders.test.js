@@ -37,8 +37,8 @@ doipjs.serviceprovidersList.forEach((sp, i) => {
     it('should be an object', () => {
       expect(doipjs.serviceproviders[sp]).to.be.a('object')
     })
-    it('should have a RegExp instance named "reURL"', () => {
-      expect(doipjs.serviceproviders[sp].reURL).to.be.instanceof(RegExp)
+    it('should have a RegExp instance named "reURI"', () => {
+      expect(doipjs.serviceproviders[sp].reURI).to.be.instanceof(RegExp)
     })
     it('should have a function named "processURL" (2 arguments)', () => {
       expect(doipjs.serviceproviders[sp].processURL).to.be.a('function')
@@ -50,12 +50,12 @@ doipjs.serviceprovidersList.forEach((sp, i) => {
 
     doipjs.serviceproviders[sp].tests.forEach((test, j) => {
       if (test.shouldMatch) {
-        it(`should match "${test.url}"`, () => {
-          expect(doipjs.serviceproviders[sp].reURL.test(test.url)).to.be.true
+        it(`should match "${test.uri}"`, () => {
+          expect(doipjs.serviceproviders[sp].reURI.test(test.uri)).to.be.true
         })
       } else {
-        it(`should not match "${test.url}"`, () => {
-          expect(doipjs.serviceproviders[sp].reURL.test(test.url)).to.be.false
+        it(`should not match "${test.uri}"`, () => {
+          expect(doipjs.serviceproviders[sp].reURI.test(test.uri)).to.be.false
         })
       }
     })
