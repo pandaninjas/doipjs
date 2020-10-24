@@ -19,6 +19,7 @@ The object returned by a service provider consists of:
   - uri           (string: the URI containing the proof to be by humans and machines)
   - fetch         (string: see below)
   - useProxy      (boolean: should the request be sent using a proxy)
+  - format        (string: [json, text])
 - claim           (object)
   - fingerprint   (string: the fingerprint that verifies the claim if found in the proof)
   - format        (string: see below [uri, message, fingerprint])

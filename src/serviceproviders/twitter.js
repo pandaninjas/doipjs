@@ -31,7 +31,8 @@ const processURI = (uri, opts) => {
     proof: {
       uri: uri,
       fetch: `https://mobile.twitter.com/${match[1]}/status/${match[2]}`,
-      useProxy: false
+      useProxy: false,
+      format: 'text'
     },
     claim: {
       fingerprint: null,

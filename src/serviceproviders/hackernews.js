@@ -31,7 +31,8 @@ const processURI = (uri, opts) => {
     proof: {
       uri: `https://hacker-news.firebaseio.com/v0/user/${match[1]}.json`,
       fetch: null,
-      useProxy: true
+      useProxy: true,
+      format: 'json'
     },
     claim: {
       fingerprint: null,

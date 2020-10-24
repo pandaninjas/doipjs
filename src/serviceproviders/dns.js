@@ -31,7 +31,8 @@ const processURI = (uri, opts) => {
     proof: {
       uri: `https://dns.shivering-isles.com/dns-query?name=${match[1]}&type=TXT`,
       fetch: null,
-      useProxy: false
+      useProxy: false,
+      format: 'json'
     },
     claim: {
       fingerprint: null,

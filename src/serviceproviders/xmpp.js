@@ -33,7 +33,8 @@ const processURI = (uri, opts) => {
            ? `https://${opts.XMPP_VCARD_SERVER_DOMAIN}/api/vcard/${output.display}/DESC`
            : null,
       fetch: null,
-      useProxy: false
+      useProxy: false,
+      format: 'json'
     },
     claim: {
       fingerprint: null,
