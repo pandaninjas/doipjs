@@ -18,21 +18,22 @@ The object returned by a service provider consists of:
 - proof           (object)
   - uri           (string: the URI containing the proof to be by humans and machines)
   - fetch         (string: see below)
+  - useProxy      (boolean: should the request be sent using a proxy)
 - claim           (object)
   - fingerprint   (string: the fingerprint that verifies the claim if found in the proof)
   - format        (string: see below [uri, message, fingerprint])
   - path          (string: the path to the claim inside the proof JSON (comma-separated))
-  - relation      (string: how the claim format relates to the proof format [contains, equals, oneOf])
+  - relation      (string: how the claim format relates to the proof format [contains, equals])
 - qr              (string: a URI to be displayed as QR code if the claim is verified)
 ```
 
 ### proof.fetch
 
-Sometimes, the URI used by humans to verify a claim is inadequate for use by machines. Either the JSON is served by a different endpoint or this particular endpoint does not handle CORS requests. In this case, machines will need to use a different URI than the one shown to humans.
+Sometimes, the URI used by humans to verify a claim is inadequate for use by machines. This is needed when the JSON is served by a different endpoint. In this case, machines will use a different URI than the one shown to humans.
 
 ### claim.format
 
-There are three claim types:
+There are three claim formats:
 - uri: the claim is formulated as `openpgp4fpr:FINGEPRPRINT`
 - message: the claim is formulated as `[Verifying my OpenPGP key: openpgp4fpr:FINGEPRPRINT]`
 - fingerprint: the claim is formulated as `FINGEPRPRINT`
