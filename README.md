@@ -24,7 +24,7 @@ The object returned by a service provider consists of:
   - fingerprint   (string: the fingerprint that verifies the claim if found in the proof)
   - format        (string: see below [uri, message, fingerprint])
   - path          (string: the path to the claim inside the proof JSON (comma-separated))
-  - relation      (string: how the claim format relates to the proof format [contains, equals])
+  - relation      (string: how the claim format relates to the proof format [contains, equals, oneOf])
 - qr              (string: a URI to be displayed as QR code if the claim is verified)
 ```
 
