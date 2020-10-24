@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 const validUrl = require('valid-url')
+const bent = require('bent')
+const req = bent('GET')
 const { serviceprovidersList, serviceproviders } = require('./serviceproviders')
 
 const matchServiceproviders = (uri) => {
@@ -29,7 +31,7 @@ const matchServiceproviders = (uri) => {
   return matches
 }
 
-const verify = (uri, fingerprint, opts) => {
+const verify = async (uri, fingerprint, opts) => {
   if (!opts) { opts = {} }
 
   if (!validUrl.isUri(uri)) {
@@ -40,6 +42,31 @@ const verify = (uri, fingerprint, opts) => {
 
   if ('returnMatchesOnly' in opts && opts.returnMatchesOnly) {
     return spMatches
+  }
+
+  let claimHasBeenVerified = false, sp, iSp = 0, res, proofData
+  while (!claimHasBeenVerified && iSp < spMatches.length) {
+    sp = spMatches[iSp]
+
+    res = null
+
+    if (!sp.proof.useProxy || 'forceDirectRequest' in opts && opts.forceDirectRequest) {
+      res = await req(sp.proof.fetch ? sp.proof.fetch : sp.proof.uri)
+
+      switch (sp.proof.format) {
+        case 'json':
+          proofData = await res.json()
+          break
+        case 'text':
+          proofData = await res.text()
+          break
+        default:
+          throw new Error('No specified proof data format')
+          break
+      }
+    }
+
+    iSp++
   }
 }
 
