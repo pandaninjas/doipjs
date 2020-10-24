@@ -16,20 +16,7 @@ limitations under the License.
 const validUrl = require('valid-url')
 const bent = require('bent')
 const req = bent('GET')
-const { serviceprovidersList, serviceproviders } = require('./serviceproviders')
-
-const matchServiceproviders = (uri) => {
-  let matches = [], sp
-
-  serviceprovidersList.forEach((spName, i) => {
-    sp = serviceproviders[spName]
-    if (sp.reURI.test(uri)) {
-      matches.push(sp.processURI(uri))
-    }
-  })
-
-  return matches
-}
+const serviceproviders = require('./serviceproviders')
 
 const verify = async (uri, fingerprint, opts) => {
   if (!opts) { opts = {} }
@@ -38,7 +25,7 @@ const verify = async (uri, fingerprint, opts) => {
     throw new Error('Not a valid URI')
   }
 
-  const spMatches = matchServiceproviders(uri)
+  const spMatches = serviceproviders.match(uri)
 
   if ('returnMatchesOnly' in opts && opts.returnMatchesOnly) {
     return spMatches
@@ -72,4 +59,3 @@ const verify = async (uri, fingerprint, opts) => {
 
 exports.verify = verify
 exports.serviceproviders = serviceproviders
-exports.serviceprovidersList = serviceprovidersList

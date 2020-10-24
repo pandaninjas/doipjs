@@ -18,30 +18,30 @@ const assert = require('chai').assert
 const request = require('supertest')
 const doipjs = require('../src')
 
-doipjs.serviceprovidersList.forEach((sp, i) => {
+doipjs.serviceproviders.list.forEach((sp, i) => {
   describe(`serviceproviders.${sp}`, () => {
     it('should be an object', () => {
-      expect(doipjs.serviceproviders[sp]).to.be.a('object')
+      expect(doipjs.serviceproviders.data[sp]).to.be.a('object')
     })
     it('should have a RegExp instance named "reURI"', () => {
-      expect(doipjs.serviceproviders[sp].reURI).to.be.instanceof(RegExp)
+      expect(doipjs.serviceproviders.data[sp].reURI).to.be.instanceof(RegExp)
     })
     it('should have a function named "processURI" (2 arguments)', () => {
-      expect(doipjs.serviceproviders[sp].processURI).to.be.a('function')
-      expect(doipjs.serviceproviders[sp].processURI).to.have.length(2)
+      expect(doipjs.serviceproviders.data[sp].processURI).to.be.a('function')
+      expect(doipjs.serviceproviders.data[sp].processURI).to.have.length(2)
     })
     it('should have an array named "tests"', () => {
-      expect(doipjs.serviceproviders[sp].tests).to.be.instanceof(Array)
+      expect(doipjs.serviceproviders.data[sp].tests).to.be.instanceof(Array)
     })
 
-    doipjs.serviceproviders[sp].tests.forEach((test, j) => {
+    doipjs.serviceproviders.data[sp].tests.forEach((test, j) => {
       if (test.shouldMatch) {
         it(`should match "${test.uri}"`, () => {
-          expect(doipjs.serviceproviders[sp].reURI.test(test.uri)).to.be.true
+          expect(doipjs.serviceproviders.data[sp].reURI.test(test.uri)).to.be.true
         })
       } else {
         it(`should not match "${test.uri}"`, () => {
-          expect(doipjs.serviceproviders[sp].reURI.test(test.uri)).to.be.false
+          expect(doipjs.serviceproviders.data[sp].reURI.test(test.uri)).to.be.false
         })
       }
     })

@@ -13,16 +13,29 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-exports.serviceprovidersList = [
+exports.list = [
   'dns',
   'xmpp',
   'twitter',
   'hackernews',
 ]
 
-exports.serviceproviders = {
+exports.data = {
   dns: require('./serviceproviders/dns'),
   xmpp: require('./serviceproviders/xmpp'),
   twitter: require('./serviceproviders/twitter'),
   hackernews: require('./serviceproviders/hackernews'),
+}
+
+exports.match = (uri) => {
+  let matches = [], sp
+
+  serviceprovidersList.forEach((spName, i) => {
+    sp = serviceproviders[spName]
+    if (sp.reURI.test(uri)) {
+      matches.push(sp.processURI(uri))
+    }
+  })
+
+  return matches
 }
