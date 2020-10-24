@@ -13,8 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const expect = require('chai').expect
-const assert = require('chai').assert
+const chai = require('chai')
+const expect = chai.expect
+const chaiAsPromised = require("chai-as-promised")
+chai.use(chaiAsPromised)
+
 const request = require('supertest')
 const doipjs = require('../src')
 
