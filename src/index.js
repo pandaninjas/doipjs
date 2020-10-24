@@ -44,13 +44,15 @@ const matchSp = (uri) => {
 }
 
 const verify = (uri, fingerprint, opts) => {
+  if (!opts) { opts = {} }
+
   if (!validUrl.isUri(uri)) {
     throw new Error('Not a valid URI')
   }
 
   const spMatches = matchSp(uri)
 
-  if (opts.returnMatchesOnly) {
+  if ('returnMatchesOnly' in opts && opts.returnMatchesOnly) {
     return spMatches
   }
 }
