@@ -37,7 +37,7 @@ const processURI = (uri, opts) => {
     claim: {
       fingerprint: null,
       format: 'uri',
-      path: 'about',
+      path: ['about'],
       relation: 'contains'
     },
     qr: null

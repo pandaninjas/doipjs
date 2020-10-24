@@ -37,7 +37,7 @@ const processURI = (uri, opts) => {
     claim: {
       fingerprint: null,
       format: 'uri',
-      path: 'Answer.data',
+      path: ['Answer', 'data'],
       relation: 'equals'
     },
     qr: null
