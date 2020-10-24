@@ -1,6 +1,6 @@
 const reURI = /^xmpp:([a-zA-Z0-9\.\-\_]*)@([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
 
-const processURL = (uri, opts) => {
+const processURI = (uri, opts) => {
   const match = uri.match(reURI)
 
   return {
@@ -33,5 +33,5 @@ const tests = [
 ]
 
 exports.reURI = reURI
-exports.processURL = processURL
+exports.processURI = processURI
 exports.tests = tests
