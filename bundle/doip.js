@@ -1,19 +1,135 @@
-/*
-Copyright 2020 Yarmo Mackenbach
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.doip = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+'use strict'
+/* global fetch, btoa, Headers */
+const core = require('./core')
+
+class StatusError extends Error {
+  constructor (res, ...params) {
+    super(...params)
+
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, StatusError)
+    }
+
+    this.name = 'StatusError'
+    this.message = res.statusMessage
+    this.statusCode = res.status
+    this.res = res
+    this.json = res.json.bind(res)
+    this.text = res.text.bind(res)
+    this.arrayBuffer = res.arrayBuffer.bind(res)
+    let buffer
+    const get = () => {
+      if (!buffer) buffer = this.arrayBuffer()
+      return buffer
+    }
+    Object.defineProperty(this, 'responseBody', { get })
+    // match Node.js headers object
+    this.headers = {}
+    for (const [key, value] of res.headers.entries()) {
+      this.headers[key.toLowerCase()] = value
+    }
+  }
+}
+
+const mkrequest = (statusCodes, method, encoding, headers, baseurl) => async (_url, body, _headers = {}) => {
+  _url = baseurl + (_url || '')
+  let parsed = new URL(_url)
+
+  if (!headers) headers = {}
+  if (parsed.username) {
+    headers.Authorization = 'Basic ' + btoa(parsed.username + ':' + parsed.password)
+    parsed = new URL(parsed.protocol + '//' + parsed.host + parsed.pathname + parsed.search)
+  }
+  if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+    throw new Error(`Unknown protocol, ${parsed.protocol}`)
+  }
+
+  if (body) {
+    if (body instanceof ArrayBuffer ||
+      ArrayBuffer.isView(body) ||
+      typeof body === 'string'
+    ) {
+      // noop
+    } else if (typeof body === 'object') {
+      body = JSON.stringify(body)
+      headers['Content-Type'] = 'application/json'
+    } else {
+      throw new Error('Unknown body type.')
+    }
+  }
+
+  _headers = new Headers({ ...(headers || {}), ..._headers })
+
+  const resp = await fetch(parsed, { method, headers: _headers, body })
+  resp.statusCode = resp.status
+
+  if (!statusCodes.has(resp.status)) {
+    throw new StatusError(resp)
+  }
+
+  if (encoding === 'json') return resp.json()
+  else if (encoding === 'buffer') return resp.arrayBuffer()
+  else if (encoding === 'string') return resp.text()
+  else return resp
+}
+
+module.exports = core(mkrequest)
+
+},{"./core":2}],2:[function(require,module,exports){
+'use strict'
+const encodings = new Set(['json', 'buffer', 'string'])
+
+module.exports = mkrequest => (...args) => {
+  const statusCodes = new Set()
+  let method
+  let encoding
+  let headers
+  let baseurl = ''
+
+  args.forEach(arg => {
+    if (typeof arg === 'string') {
+      if (arg.toUpperCase() === arg) {
+        if (method) {
+          const msg = `Can't set method to ${arg}, already set to ${method}.`
+          throw new Error(msg)
+        } else {
+          method = arg
+        }
+      } else if (arg.startsWith('http:') || arg.startsWith('https:')) {
+        baseurl = arg
+      } else {
+        if (encodings.has(arg)) {
+          encoding = arg
+        } else {
+          throw new Error(`Unknown encoding, ${arg}`)
+        }
+      }
+    } else if (typeof arg === 'number') {
+      statusCodes.add(arg)
+    } else if (typeof arg === 'object') {
+      if (Array.isArray(arg) || arg instanceof Set) {
+        arg.forEach(code => statusCodes.add(code))
+      } else {
+        if (headers) {
+          throw new Error('Cannot set headers twice.')
+        }
+        headers = arg
+      }
+    } else {
+      throw new Error(`Unknown type: ${typeof arg}`)
+    }
+  })
+
+  if (!method) method = 'GET'
+  if (statusCodes.size === 0) {
+    statusCodes.add(200)
+  }
+
+  return mkrequest(statusCodes, method, encoding, headers, baseurl)
+}
+
+},{}],3:[function(require,module,exports){
 (function(module) {
     'use strict';
 
@@ -168,219 +284,203 @@ limitations under the License.
 
 })(module);
 
-},{}],2:[function(require,module,exports){
-/*
-Copyright (C) 2020 Yarmo Mackenbach
+},{}],4:[function(require,module,exports){
+const utils = require('./utils')
 
-This program is free software: you can redistribute it and/or modify it under
-the terms of the GNU Affero General Public License as published by the Free
-Software Foundation, either version 3 of the License, or (at your option)
-any later version.
+const runOnJson = (proofData, checkPath, checkClaim, checkRelation) => {
+  let isVerified = false, re
 
-This program is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
-details.
+  if (!proofData) {
+    return isVerified
+  }
 
-You should have received a copy of the GNU Affero General Public License along
-with this program. If not, see <https://www.gnu.org/licenses/>.
-
-Also add information on how to contact you by electronic and paper mail.
-
-If your software can interact with users remotely through a computer network,
-you should also make sure that it provides a way for users to get its source.
-For example, if your program is a web application, its interface could display
-a "Source" link that leads users to an archive of the code. There are many
-ways you could offer source, and different solutions will be better for different
-programs; see section 13 for the specific requirements.
-
-You should also get your employer (if you work as a programmer) or school,
-if any, to sign a "copyright disclaimer" for the program, if necessary. For
-more information on this, and how to apply and follow the GNU AGPL, see <https://www.gnu.org/licenses/>.
-*/
-const validUrl = require('valid-url')
-const { serviceprovidersList, serviceproviders } = require('./serviceproviders')
-
-const matchSp = (uri) => {
-  let matches = [], sp
-
-  serviceprovidersList.forEach((spName, i) => {
-    sp = serviceproviders[spName]
-    if (sp.reURI.test(uri)) {
-      matches.push(sp.processURI(uri))
+  if (checkPath.length == 0) {
+    switch (checkRelation) {
+      default:
+      case 'contains':
+        re = new RegExp(checkClaim, "gi")
+        return re.test(proofData.replace(/\r?\n|\r/, ''))
+        break
+      case 'equals':
+        return proofData.replace(/\r?\n|\r/, '').toLowerCase() == checkClaim.toLowerCase()
+        break
+      case 'oneOf':
+        re = new RegExp(checkClaim, "gi")
+        return re.test(proofData.join("|"))
+        break
     }
-  })
+  }
 
-  return matches
+  if (Array.isArray(proofData)) {
+    proofData.forEach((item, i) => {
+      isVerified = isVerified || runOnJson(item, checkPath, checkClaim, checkRelation)
+    });
+  } else if (Array.isArray(proofData[checkPath[0]])) {
+    proofData[checkPath[0]].forEach((item, i) => {
+      isVerified = isVerified || runOnJson(item, checkPath.slice(1), checkClaim, checkRelation)
+    })
+  } else {
+    isVerified = isVerified || runOnJson(proofData[checkPath[0]], checkPath.slice(1), checkClaim, checkRelation)
+  }
+
+  return isVerified;
 }
 
-const verify = (uri, fingerprint, opts) => {
+const run = (proofData, spData) => {
+  switch (spData.proof.format) {
+    case 'json':
+      return runOnJson(proofData, spData.claim.path, utils.generateClaim(spData.claim.fingerprint, spData.claim.format), spData.claim.relation)
+      break
+    case 'text':
+      re = new RegExp(utils.generateClaim(spData.claim.fingerprint, spData.claim.format), "gi")
+      return re.test(proofData.replace(/\r?\n|\r/, ''))
+      break
+  }
+}
+
+exports.run = run
+
+},{"./utils":7}],5:[function(require,module,exports){
+/*
+Copyright 2020 Yarmo Mackenbach
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+const validUrl = require('valid-url')
+const bent = require('bent')
+const req = bent('GET')
+const serviceproviders = require('./serviceproviders')
+const claimVerification = require('./claimVerification')
+const utils = require('./utils')
+
+const verify = async (uri, fingerprint, opts) => {
+  if (!fingerprint) { fingerprint = null }
   if (!opts) { opts = {} }
 
   if (!validUrl.isUri(uri)) {
     throw new Error('Not a valid URI')
   }
 
-  const spMatches = matchSp(uri)
+  const spMatches = serviceproviders.match(uri, opts)
 
   if ('returnMatchesOnly' in opts && opts.returnMatchesOnly) {
     return spMatches
+  }
+
+  let claimHasBeenVerified = false, sp, iSp = 0, res, proofData, spData = null
+  while (!claimHasBeenVerified && iSp < spMatches.length) {
+    spData = spMatches[iSp]
+    spData.claim.fingerprint = fingerprint
+
+    res = null
+
+    if (!spData.proof.useProxy || 'useProxyWhenNeeded' in opts && !opts.useProxyWhenNeeded) {
+      res = await req(spData.proof.fetch ? spData.proof.fetch : spData.proof.uri)
+
+      switch (spData.proof.format) {
+        case 'json':
+          proofData = await res.json()
+          break
+        case 'text':
+          proofData = await res.text()
+          break
+        default:
+          throw new Error('No specified proof data format')
+          break
+      }
+    }
+
+    claimHasBeenVerified = claimVerification.run(proofData, spData)
+
+    iSp++
+  }
+
+  return {
+    isVerified: claimHasBeenVerified,
+    matchedServiceprovider: spData ? spData.serviceprovider.name : null,
+    verificationData: spData
   }
 }
 
 exports.verify = verify
 exports.serviceproviders = serviceproviders
-exports.serviceprovidersList = serviceprovidersList
+exports.claimVerification = claimVerification
+exports.utils = utils
 
-},{"./serviceproviders":3,"valid-url":1}],3:[function(require,module,exports){
-exports.serviceprovidersList = [
+},{"./claimVerification":4,"./serviceproviders":6,"./utils":7,"bent":1,"valid-url":3}],6:[function(require,module,exports){
+/*
+Copyright 2020 Yarmo Mackenbach
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+const list = [
   'dns',
   'xmpp',
+  'twitter',
+  'hackernews',
+  'lobsters',
 ]
 
-exports.serviceproviders = {
-  dns: require('./serviceproviders/dns'),
-  xmpp: require('./serviceproviders/xmpp')
+const data = {}
+list.forEach((item, i) => {
+  data[item] = require(`./serviceproviders/${item}`)
+})
+
+const match = (uri, opts) => {
+  let matches = [], sp
+
+  list.forEach((spName, i) => {
+    sp = data[spName]
+    if (sp.reURI.test(uri)) {
+      matches.push(sp.processURI(uri, opts))
+    }
+  })
+
+  return matches
 }
 
-},{"./serviceproviders/dns":4,"./serviceproviders/xmpp":5}],4:[function(require,module,exports){
-/*
-Copyright (C) 2020 Yarmo Mackenbach
+exports.list = list
+exports.data = data
+exports.match = match
 
-This program is free software: you can redistribute it and/or modify it under
-the terms of the GNU Affero General Public License as published by the Free
-Software Foundation, either version 3 of the License, or (at your option)
-any later version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
-details.
-
-You should have received a copy of the GNU Affero General Public License along
-with this program. If not, see <https://www.gnu.org/licenses/>.
-
-Also add information on how to contact you by electronic and paper mail.
-
-If your software can interact with users remotely through a computer network,
-you should also make sure that it provides a way for users to get its source.
-For example, if your program is a web application, its interface could display
-a "Source" link that leads users to an archive of the code. There are many
-ways you could offer source, and different solutions will be better for different
-programs; see section 13 for the specific requirements.
-
-You should also get your employer (if you work as a programmer) or school,
-if any, to sign a "copyright disclaimer" for the program, if necessary. For
-more information on this, and how to apply and follow the GNU AGPL, see <https://www.gnu.org/licenses/>.
-*/
-const reURI = /^dns:([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
-
-const processURI = (uri, opts) => {
-  const match = uri.match(reURI)
-
-  return {
-    type: "domain",
-    profile: {
-      display: match[1],
-      uri: `https://${match[1]}`
-    },
-    proof: {
-      uri: `https://dns.shivering-isles.com/dns-query?name=${match[1]}&type=TXT`,
-      fetch: null
-    },
-    qr: null
+},{}],7:[function(require,module,exports){
+const generateClaim = (fingerprint, format) => {
+  switch (format) {
+    case 'uri':
+      return `openpgp4fpr:${fingerprint}`
+      break;
+    case 'message':
+      return `[Verifying my OpenPGP key: openpgp4fpr:${fingerprint}]`
+      break;
+    case 'fingerprint':
+      return fingerprint
+      break;
+    default:
+      throw new Error('No valid claim format')
   }
 }
 
-const tests = [
-  {
-    uri: 'dns:domain.org',
-    shouldMatch: true
-  },
-  {
-    uri: 'dns:domain.org?type=TXT',
-    shouldMatch: true
-  },
-  {
-    uri: 'https://domain.org',
-    shouldMatch: false
-  }
-]
+exports.generateClaim = generateClaim
 
-exports.reURI = reURI
-exports.processURI = processURI
-exports.tests = tests
-
-},{}],5:[function(require,module,exports){
-/*
-Copyright (C) 2020 Yarmo Mackenbach
-
-This program is free software: you can redistribute it and/or modify it under
-the terms of the GNU Affero General Public License as published by the Free
-Software Foundation, either version 3 of the License, or (at your option)
-any later version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
-details.
-
-You should have received a copy of the GNU Affero General Public License along
-with this program. If not, see <https://www.gnu.org/licenses/>.
-
-Also add information on how to contact you by electronic and paper mail.
-
-If your software can interact with users remotely through a computer network,
-you should also make sure that it provides a way for users to get its source.
-For example, if your program is a web application, its interface could display
-a "Source" link that leads users to an archive of the code. There are many
-ways you could offer source, and different solutions will be better for different
-programs; see section 13 for the specific requirements.
-
-You should also get your employer (if you work as a programmer) or school,
-if any, to sign a "copyright disclaimer" for the program, if necessary. For
-more information on this, and how to apply and follow the GNU AGPL, see <https://www.gnu.org/licenses/>.
-*/
-const reURI = /^xmpp:([a-zA-Z0-9\.\-\_]*)@([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
-
-const processURI = (uri, opts) => {
-  if (!opts) { opts = {} }
-  const match = uri.match(reURI)
-
-  return {
-    type: "xmpp",
-    profile: {
-      display: `${match[1]}@${match[2]}`,
-      uri: uri
-    },
-    proof: {
-      uri: 'XMPP_VCARD_SERVER_DOMAIN' in opts
-           ? `https://${opts.XMPP_VCARD_SERVER_DOMAIN}/api/vcard/${output.display}/DESC`
-           : null,
-      fetch: null
-    },
-    qr: null
-  }
-}
-
-const tests = [
-  {
-    uri: 'xmpp:alice@domain.org',
-    shouldMatch: true
-  },
-  {
-    uri: 'xmpp:alice@domain.org?omemo-sid-123456789=A1B2C3D4E5F6G7H8I9',
-    shouldMatch: true
-  },
-  {
-    uri: 'https://domain.org',
-    shouldMatch: false
-  }
-]
-
-exports.reURI = reURI
-exports.processURI = processURI
-exports.tests = tests
-
-},{}]},{},[2])(2)
+},{}]},{},[5])(5)
 });
