@@ -21,14 +21,14 @@ const claimVerification = require('./claimVerification')
 const utils = require('./utils')
 
 const verify = async (uri, fingerprint, opts) => {
-  if (!opts) { opts = {} }
   if (!fingerprint) { fingerprint = null }
+  if (!opts) { opts = {} }
 
   if (!validUrl.isUri(uri)) {
     throw new Error('Not a valid URI')
   }
 
-  const spMatches = serviceproviders.match(uri, fingerprint)
+  const spMatches = serviceproviders.match(uri, opts)
 
   if ('returnMatchesOnly' in opts && opts.returnMatchesOnly) {
     return spMatches

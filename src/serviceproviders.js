@@ -27,13 +27,13 @@ const data = {
   hackernews: require('./serviceproviders/hackernews'),
 }
 
-const match = (uri) => {
+const match = (uri, opts) => {
   let matches = [], sp
 
   list.forEach((spName, i) => {
     sp = data[spName]
     if (sp.reURI.test(uri)) {
-      matches.push(sp.processURI(uri))
+      matches.push(sp.processURI(uri, opts))
     }
   })
 
