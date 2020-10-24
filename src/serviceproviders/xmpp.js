@@ -1,16 +1,16 @@
-const reURL = /^xmpp:([a-zA-Z0-9\.\-\_]*)@([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
+const reURI = /^xmpp:([a-zA-Z0-9\.\-\_]*)@([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
 
-const processURL = (url, opts) => {
-  const match = url.match(reURL)
+const processURL = (uri, opts) => {
+  const match = uri.match(reURI)
 
   return {
     type: "xmpp",
     profile: {
       display: `${match[1]}@${match[2]}`,
-      url: url
+      uri: uri
     },
     proof: {
-      url: `https://${opts.XMPP_VCARD_SERVER_DOMAIN}/api/vcard/${output.display}/DESC`,
+      uri: `https://${opts.XMPP_VCARD_SERVER_DOMAIN}/api/vcard/${output.display}/DESC`,
       fetch: null
     },
     qr: null
@@ -19,19 +19,19 @@ const processURL = (url, opts) => {
 
 const tests = [
   {
-    url: 'xmpp:alice@domain.org',
+    uri: 'xmpp:alice@domain.org',
     shouldMatch: true
   },
   {
-    url: 'xmpp:alice@domain.org?omemo-sid-123456789=A1B2C3D4E5F6G7H8I9',
+    uri: 'xmpp:alice@domain.org?omemo-sid-123456789=A1B2C3D4E5F6G7H8I9',
     shouldMatch: true
   },
   {
-    url: 'https://domain.org',
+    uri: 'https://domain.org',
     shouldMatch: false
   }
 ]
 
-exports.reURL = reURL
+exports.reURI = reURI
 exports.processURL = processURL
 exports.tests = tests
