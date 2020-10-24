@@ -1,6 +1,7 @@
 const reURI = /^xmpp:([a-zA-Z0-9\.\-\_]*)@([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
 
 const processURI = (uri, opts) => {
+  if (!opts) { opts = {} }
   const match = uri.match(reURI)
 
   return {
@@ -10,7 +11,9 @@ const processURI = (uri, opts) => {
       uri: uri
     },
     proof: {
-      uri: `https://${opts.XMPP_VCARD_SERVER_DOMAIN}/api/vcard/${output.display}/DESC`,
+      uri: 'XMPP_VCARD_SERVER_DOMAIN' in opts
+           ? `https://${opts.XMPP_VCARD_SERVER_DOMAIN}/api/vcard/${output.display}/DESC`
+           : null,
       fetch: null
     },
     qr: null
