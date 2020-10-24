@@ -40,9 +40,9 @@ doipjs.serviceprovidersList.forEach((sp, i) => {
     it('should have a RegExp instance named "reURI"', () => {
       expect(doipjs.serviceproviders[sp].reURI).to.be.instanceof(RegExp)
     })
-    it('should have a function named "processURL" (2 arguments)', () => {
-      expect(doipjs.serviceproviders[sp].processURL).to.be.a('function')
-      expect(doipjs.serviceproviders[sp].processURL).to.have.length(2)
+    it('should have a function named "processURI" (2 arguments)', () => {
+      expect(doipjs.serviceproviders[sp].processURI).to.be.a('function')
+      expect(doipjs.serviceproviders[sp].processURI).to.have.length(2)
     })
     it('should have an array named "tests"', () => {
       expect(doipjs.serviceproviders[sp].tests).to.be.instanceof(Array)
