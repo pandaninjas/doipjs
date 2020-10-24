@@ -16,7 +16,7 @@ const matchSp = (uri) => {
 
 const verify = (uri, fingerprint, opts) => {
   if (!validUrl.isUri(uri)) {
-    throw new Error('The provided URI was not valid')
+    throw new Error('Not a valid URI')
   }
 
   const spMatches = matchSp(uri)

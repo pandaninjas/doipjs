@@ -37,6 +37,10 @@ describe('verify', () => {
     expect(doipjs.verify).to.be.a('function')
     expect(doipjs.verify).to.have.length(3)
   })
+  it('should throw an error for non-valid URIs', () => {
+    expect(() => { doipjs.verify('noURI') }).to.throw('Not a valid URI')
+    expect(() => { doipjs.verify('domain.org') }).to.throw('Not a valid URI')
+  })
   it('should match "dns:domain.org" to the DNS service provider', () => {
     const matches = doipjs.verify('dns:domain.org', null, {returnMatchesOnly: true})
     expect(matches).to.be.a('array')
