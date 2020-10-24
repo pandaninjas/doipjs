@@ -41,7 +41,7 @@ const verify = async (uri, fingerprint, opts) => {
 
     res = null
 
-    if (!spData.proof.useProxy || 'forceDirectRequest' in opts && opts.forceDirectRequest) {
+    if (!spData.proof.useProxy || 'useProxyWhenNeeded' in opts && !opts.useProxyWhenNeeded) {
       res = await req(spData.proof.fetch ? spData.proof.fetch : spData.proof.uri)
 
       switch (spData.proof.format) {
