@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "description": "Decentralized OpenPGP Identity Proofs library in node",
   "main": "src/index.js",
-  "dependencies": {},
+  "dependencies": {
+    "valid-url": "^1.0.9"
+  },
   "devDependencies": {
     "chai": "^4.2.0",
     "license-check-and-add": "^3.0.4",
