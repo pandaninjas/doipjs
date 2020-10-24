@@ -39,4 +39,10 @@ describe('verify', () => {
     expect(matches).to.be.length(1)
     expect(matches[0].type).to.be.equal('xmpp')
   })
+  it('should match "https://twitter.com/alice/status/1234567890123456789" to the Twitter service provider', () => {
+    const matches = doipjs.verify('https://twitter.com/alice/status/1234567890123456789', null, {returnMatchesOnly: true})
+    expect(matches).to.be.a('array')
+    expect(matches).to.be.length(1)
+    expect(matches[0].type).to.be.equal('twitter')
+  })
 })

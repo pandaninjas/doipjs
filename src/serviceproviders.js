@@ -16,9 +16,11 @@ limitations under the License.
 exports.serviceprovidersList = [
   'dns',
   'xmpp',
+  'twitter',
 ]
 
 exports.serviceproviders = {
   dns: require('./serviceproviders/dns'),
-  xmpp: require('./serviceproviders/xmpp')
+  xmpp: require('./serviceproviders/xmpp'),
+  twitter: require('./serviceproviders/twitter'),
 }
