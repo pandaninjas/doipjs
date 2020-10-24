@@ -20,19 +20,24 @@ const processURI = (uri, opts) => {
   const match = uri.match(reURI)
 
   return {
-    type: "twitter",
+    serviceprovider: {
+      type: 'web',
+      name: 'twitter'
+    },
     profile: {
       display: `@${match[1]}`,
       uri: `https://twitter.com/${match[1]}`
     },
     proof: {
       uri: uri,
-      fetch: 'DOIP_PROXY_SERVER_DOMAIN' in opts
-             ? `${opts.DOIP_PROXY_SERVER_DOMAIN}/server/verify/twitter
-?tweetId=${encodeURIComponent(match[2])}
-&account=${encodeURIComponent(match[1])}
-&fingerprint=${fingerprint}`
-             : null
+      fetch: `https://mobile.twitter.com/${match[1]}/status/${match[2]}`,
+      useProxy: false
+    },
+    claim: {
+      fingerprint: null,
+      format: 'message',
+      path: null,
+      relation: 'contains'
     },
     qr: null
   }

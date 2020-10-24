@@ -20,14 +20,24 @@ const processURI = (uri, opts) => {
   const match = uri.match(reURI)
 
   return {
-    type: "hackernews",
+    serviceprovider: {
+      type: 'web',
+      name: 'hackernews'
+    },
     profile: {
       display: match[1],
       uri: uri
     },
     proof: {
       uri: `https://hacker-news.firebaseio.com/v0/user/${match[1]}.json`,
-      fetch: null
+      fetch: null,
+      useProxy: true
+    },
+    claim: {
+      fingerprint: null,
+      format: 'uri',
+      path: 'about',
+      relation: 'contains'
     },
     qr: null
   }

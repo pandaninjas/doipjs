@@ -20,7 +20,10 @@ const processURI = (uri, opts) => {
   const match = uri.match(reURI)
 
   return {
-    type: "xmpp",
+    serviceprovider: {
+      type: 'communication',
+      name: 'xmpp'
+    },
     profile: {
       display: `${match[1]}@${match[2]}`,
       uri: uri
@@ -29,7 +32,14 @@ const processURI = (uri, opts) => {
       uri: 'XMPP_VCARD_SERVER_DOMAIN' in opts
            ? `https://${opts.XMPP_VCARD_SERVER_DOMAIN}/api/vcard/${output.display}/DESC`
            : null,
-      fetch: null
+      fetch: null,
+      useProxy: false
+    },
+    claim: {
+      fingerprint: null,
+      format: 'message',
+      path: null,
+      relation: 'contains'
     },
     qr: null
   }

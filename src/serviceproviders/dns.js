@@ -20,14 +20,24 @@ const processURI = (uri, opts) => {
   const match = uri.match(reURI)
 
   return {
-    type: "domain",
+    serviceprovider: {
+      type: 'web',
+      name: 'domain'
+    },
     profile: {
       display: match[1],
       uri: `https://${match[1]}`
     },
     proof: {
       uri: `https://dns.shivering-isles.com/dns-query?name=${match[1]}&type=TXT`,
-      fetch: null
+      fetch: null,
+      useProxy: false
+    },
+    claim: {
+      fingerprint: null,
+      format: 'uri',
+      path: 'Answer',
+      relation: 'equals'
     },
     qr: null
   }
