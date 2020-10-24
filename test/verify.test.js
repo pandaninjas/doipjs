@@ -83,4 +83,11 @@ describe('verify', () => {
     expect(matches[0].serviceprovider.name).to.be.equal('hackernews')
     expect(matches[0]).to.matchPattern(pattern)
   })
+  it('should match "https://lobste.rs/u/Alice" to the Lobsters service provider', async () => {
+    const matches = await doipjs.verify('https://lobste.rs/u/Alice', null, {returnMatchesOnly: true})
+    expect(matches).to.be.a('array')
+    expect(matches).to.be.length(1)
+    expect(matches[0].serviceprovider.name).to.be.equal('lobsters')
+    expect(matches[0]).to.matchPattern(pattern)
+  })
 })
