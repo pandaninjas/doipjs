@@ -23,7 +23,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@codeberg.org:keyoxide/web.git"
+    "url": "git@codeberg.org:keyoxide/doipjs.git"
   },
   "keywords": [
     "pgp",
