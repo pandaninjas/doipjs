@@ -4,6 +4,7 @@
   "description": "Decentralized OpenPGP Identity Proofs library in node",
   "main": "src/index.js",
   "dependencies": {
+    "browserify": "^17.0.0",
     "valid-url": "^1.0.9"
   },
   "devDependencies": {
@@ -14,8 +15,7 @@
     "supertest": "^5.0.0"
   },
   "scripts": {
-    "start": "node index.js",
-    "dev": "NODE_ENV=development node index.js",
+    "bundle": "./node_modules/browserify/bin/cmd.js ./src/index.js --standalone doip -o ./bundle/doip.js",
     "license:check": "./node_modules/license-check-and-add/dist/src/cli.js check",
     "license:add": "./node_modules/license-check-and-add/dist/src/cli.js add",
     "license:remove": "./node_modules/license-check-and-add/dist/src/cli.js remove",
