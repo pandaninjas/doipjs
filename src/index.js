@@ -18,6 +18,7 @@ const bent = require('bent')
 const req = bent('GET')
 const serviceproviders = require('./serviceproviders')
 const claimVerification = require('./claimVerification')
+const utils = require('./utils')
 
 const verify = async (uri, fingerprint, opts) => {
   if (!opts) { opts = {} }
@@ -69,3 +70,5 @@ const verify = async (uri, fingerprint, opts) => {
 
 exports.verify = verify
 exports.serviceproviders = serviceproviders
+exports.claimVerification = claimVerification
+exports.utils = utils
