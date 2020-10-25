@@ -19,6 +19,7 @@ const list = [
   'twitter',
   'hackernews',
   'lobsters',
+  'devto',
 ]
 
 const data = {
@@ -27,6 +28,7 @@ const data = {
   twitter: require('./serviceproviders/twitter'),
   hackernews: require('./serviceproviders/hackernews'),
   lobsters: require('./serviceproviders/lobsters'),
+  devto: require('./serviceproviders/devto'),
 }
 
 const match = (uri, opts) => {
