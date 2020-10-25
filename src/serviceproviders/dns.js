@@ -22,7 +22,7 @@ const processURI = (uri, opts) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'domain'
+      name: 'dns'
     },
     profile: {
       display: match[1],
