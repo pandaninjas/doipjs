@@ -55,39 +55,18 @@ describe('verify', () => {
     return expect(doipjs.verify('noURI')).to.eventually.be.rejectedWith('Not a valid URI')
     return expect(doipjs.verify('domain.org')).to.eventually.be.rejectedWith('Not a valid URI')
   })
-  it('should match "dns:domain.org" to the DNS service provider', async () => {
-    const matches = await doipjs.verify('dns:domain.org', null, {returnMatchesOnly: true})
-    expect(matches).to.be.a('array')
-    expect(matches).to.be.length(1)
-    expect(matches[0].serviceprovider.name).to.be.equal('domain')
-    expect(matches[0]).to.matchPattern(pattern)
-  })
-  it('should match "xmpp:alice@domain.org" to the XMPP service provider', async () => {
-    const matches = await doipjs.verify('xmpp:alice@domain.org', null, {returnMatchesOnly: true})
-    expect(matches).to.be.a('array')
-    expect(matches).to.be.length(1)
-    expect(matches[0].serviceprovider.name).to.be.equal('xmpp')
-    expect(matches[0]).to.matchPattern(pattern)
-  })
-  it('should match "https://twitter.com/alice/status/1234567890123456789" to the Twitter service provider', async () => {
-    const matches = await doipjs.verify('https://twitter.com/alice/status/1234567890123456789', null, {returnMatchesOnly: true})
-    expect(matches).to.be.a('array')
-    expect(matches).to.be.length(1)
-    expect(matches[0].serviceprovider.name).to.be.equal('twitter')
-    expect(matches[0]).to.matchPattern(pattern)
-  })
-  it('should match "https://news.ycombinator.com/user?id=Alice" to the Hackernews service provider', async () => {
-    const matches = await doipjs.verify('https://news.ycombinator.com/user?id=Alice', null, {returnMatchesOnly: true})
-    expect(matches).to.be.a('array')
-    expect(matches).to.be.length(1)
-    expect(matches[0].serviceprovider.name).to.be.equal('hackernews')
-    expect(matches[0]).to.matchPattern(pattern)
-  })
-  it('should match "https://lobste.rs/u/Alice" to the Lobsters service provider', async () => {
-    const matches = await doipjs.verify('https://lobste.rs/u/Alice', null, {returnMatchesOnly: true})
-    expect(matches).to.be.a('array')
-    expect(matches).to.be.length(1)
-    expect(matches[0].serviceprovider.name).to.be.equal('lobsters')
-    expect(matches[0]).to.matchPattern(pattern)
+
+  doipjs.serviceproviders.list.forEach((spName, i) => {
+    const sp = doipjs.serviceproviders.data[spName]
+
+    if (sp.tests.length == 0) { return }
+
+    it(`should return a valid object for the "${spName}" service provider`, async () => {
+      const matches = await doipjs.verify(sp.tests[0].uri, null, {returnMatchesOnly: true})
+      expect(matches).to.be.a('array')
+      expect(matches).to.be.length(1)
+      expect(matches[0].serviceprovider.name).to.be.equal(spName)
+      expect(matches[0]).to.matchPattern(pattern)
+    })
   })
 })
