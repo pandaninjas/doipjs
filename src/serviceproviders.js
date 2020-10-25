@@ -22,6 +22,7 @@ const list = [
   'lobsters',
   'devto',
   'gitea',
+  'github',
 ]
 
 const data = {
@@ -33,6 +34,7 @@ const data = {
   lobsters: require('./serviceproviders/lobsters'),
   devto: require('./serviceproviders/devto'),
   gitea: require('./serviceproviders/gitea'),
+  github: require('./serviceproviders/github'),
 }
 
 const match = (uri, opts) => {
