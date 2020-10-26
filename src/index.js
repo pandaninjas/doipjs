@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 const validUrl = require('valid-url')
-const bent = require('bent')
-const req = bent('GET')
 const serviceproviders = require('./serviceproviders')
 const claimVerification = require('./claimVerification')
 const utils = require('./utils')
@@ -41,20 +39,12 @@ const verify = async (uri, fingerprint, opts) => {
 
     res = null
 
-    if (!spData.proof.useProxy || 'useProxyWhenNeeded' in opts && !opts.useProxyWhenNeeded) {
-      res = await req(spData.proof.fetch ? spData.proof.fetch : spData.proof.uri)
-
-      switch (spData.proof.format) {
-        case 'json':
-          proofData = await res.json()
-          break
-        case 'text':
-          proofData = await res.text()
-          break
-        default:
-          throw new Error('No specified proof data format')
-          break
-      }
+    if (spData.customRequestHandler instanceof Function) {
+      proofData = spData.customRequestHandler(spData, opts)
+    } else if (!spData.proof.useProxy || 'useProxyWhenNeeded' in opts && !opts.useProxyWhenNeeded) {
+      proofData = serviceproviders.directRequestHandler(spData)
+    } else {
+      proofData = serviceproviders.proxyRequestHandler(spData)
     }
 
     claimHasBeenVerified = claimVerification.run(proofData, spData)

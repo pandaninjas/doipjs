@@ -13,6 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const bent = require('bent')
+const req = bent('GET')
+
 const list = [
   'dns',
   'xmpp',
@@ -50,6 +53,28 @@ const match = (uri, opts) => {
   return matches
 }
 
+const directRequestHandler = (spData) => {
+  const res = await req(spData.proof.fetch ? spData.proof.fetch : spData.proof.uri)
+
+  switch (spData.proof.format) {
+    case 'json':
+      return await res.json()
+      break
+    case 'text':
+      return await res.text()
+      break
+    default:
+      throw new Error('No specified proof data format')
+      break
+  }
+}
+
+const proxyRequestHandler = (spData) => {
+  return null
+}
+
 exports.list = list
 exports.data = data
 exports.match = match
+exports.directRequestHandler = directRequestHandler
+exports.proxyRequestHandler = proxyRequestHandler
