@@ -43,7 +43,8 @@ const pattern = {
     path: _.isArray,
     relation: _.isString
   },
-  qr: (x) => { return _.isString(x) || _.isNull(x) }
+  qr: (x) => { return _.isString(x) || _.isNull(x) },
+  customRequestHandler: (x) => { return _.isFunction(x) || _.isNull(x) || _.isUndefined(x) }
 }
 
 describe('verify', () => {
