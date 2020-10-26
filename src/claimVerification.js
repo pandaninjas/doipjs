@@ -11,7 +11,7 @@ const runOnJson = (proofData, checkPath, checkClaim, checkRelation) => {
     switch (checkRelation) {
       default:
       case 'contains':
-        re = new RegExp(checkClaim, "gi")
+        re = new RegExp(checkClaim.replace('[', '\\[').replace(']', '\\]'), "gi")
         return re.test(proofData.replace(/\r?\n|\r/, ''))
         break
       case 'equals':
@@ -27,7 +27,7 @@ const runOnJson = (proofData, checkPath, checkClaim, checkRelation) => {
   if (Array.isArray(proofData)) {
     proofData.forEach((item, i) => {
       isVerified = isVerified || runOnJson(item, checkPath, checkClaim, checkRelation)
-    });
+    })
   } else if (Array.isArray(proofData[checkPath[0]])) {
     proofData[checkPath[0]].forEach((item, i) => {
       isVerified = isVerified || runOnJson(item, checkPath.slice(1), checkClaim, checkRelation)
