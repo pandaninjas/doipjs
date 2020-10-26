@@ -74,15 +74,15 @@ const processURI = (uri, opts) => {
 
 const tests = [
   {
-    uri: 'https://gist.github.com/Alice/123456789',
+    uri: 'https://gitlab.domain.org/alice/gitlab_proof',
     shouldMatch: true
   },
   {
-    uri: 'https://gist.github.com/Alice/123456789/',
+    uri: 'https://gitlab.domain.org/alice/gitlab_proof/',
     shouldMatch: true
   },
   {
-    uri: 'https://domain.org/Alice/123456789',
+    uri: 'https://domain.org/alice/other_proof',
     shouldMatch: false
   }
 ]
