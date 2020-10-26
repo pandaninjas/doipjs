@@ -40,11 +40,11 @@ const verify = async (uri, fingerprint, opts) => {
     res = null
 
     if (spData.customRequestHandler instanceof Function) {
-      proofData = spData.customRequestHandler(spData, opts)
+      proofData = await spData.customRequestHandler(spData, opts)
     } else if (!spData.proof.useProxy || 'useProxyWhenNeeded' in opts && !opts.useProxyWhenNeeded) {
-      proofData = serviceproviders.directRequestHandler(spData)
+      proofData = await serviceproviders.directRequestHandler(spData)
     } else {
-      proofData = serviceproviders.proxyRequestHandler(spData)
+      proofData = await serviceproviders.proxyRequestHandler(spData)
     }
 
     claimHasBeenVerified = claimVerification.run(proofData, spData)

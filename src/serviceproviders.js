@@ -25,6 +25,7 @@ const list = [
   'lobsters',
   'devto',
   'gitea',
+  'gitlab',
   'github',
 ]
 
@@ -37,6 +38,7 @@ const data = {
   lobsters: require('./serviceproviders/lobsters'),
   devto: require('./serviceproviders/devto'),
   gitea: require('./serviceproviders/gitea'),
+  gitlab: require('./serviceproviders/gitlab'),
   github: require('./serviceproviders/github'),
 }
 
@@ -55,7 +57,7 @@ const match = (uri, opts) => {
 
 const directRequestHandler = async (spData) => {
   const res = await req(spData.proof.fetch ? spData.proof.fetch : spData.proof.uri)
-
+  
   switch (spData.proof.format) {
     case 'json':
       return await res.json()
@@ -69,7 +71,7 @@ const directRequestHandler = async (spData) => {
   }
 }
 
-const proxyRequestHandler = (spData) => {
+const proxyRequestHandler = async (spData) => {
   return null
 }
 
