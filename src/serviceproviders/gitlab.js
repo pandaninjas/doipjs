@@ -65,7 +65,7 @@ const processURI = (uri, opts) => {
       fingerprint: null,
       format: 'message',
       path: ['description'],
-      relation: 'contains'
+      relation: 'equals'
     },
     qr: null,
     customRequestHandler: customRequestHandler
