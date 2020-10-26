@@ -53,7 +53,7 @@ const match = (uri, opts) => {
   return matches
 }
 
-const directRequestHandler = (spData) => {
+const directRequestHandler = async (spData) => {
   const res = await req(spData.proof.fetch ? spData.proof.fetch : spData.proof.uri)
 
   switch (spData.proof.format) {
