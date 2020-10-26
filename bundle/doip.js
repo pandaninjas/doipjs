@@ -340,7 +340,7 @@ const run = (proofData, spData) => {
 
 exports.run = run
 
-},{"./utils":12}],5:[function(require,module,exports){
+},{"./utils":16}],5:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -417,7 +417,7 @@ exports.serviceproviders = serviceproviders
 exports.claimVerification = claimVerification
 exports.utils = utils
 
-},{"./claimVerification":4,"./serviceproviders":6,"./utils":12,"bent":1,"valid-url":3}],6:[function(require,module,exports){
+},{"./claimVerification":4,"./serviceproviders":6,"./utils":16,"bent":1,"valid-url":3}],6:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -437,16 +437,24 @@ const list = [
   'dns',
   'xmpp',
   'twitter',
+  'reddit',
   'hackernews',
   'lobsters',
+  'devto',
+  'gitea',
+  'github',
 ]
 
 const data = {
   dns: require('./serviceproviders/dns'),
   xmpp: require('./serviceproviders/xmpp'),
   twitter: require('./serviceproviders/twitter'),
+  reddit: require('./serviceproviders/reddit'),
   hackernews: require('./serviceproviders/hackernews'),
   lobsters: require('./serviceproviders/lobsters'),
+  devto: require('./serviceproviders/devto'),
+  gitea: require('./serviceproviders/gitea'),
+  github: require('./serviceproviders/github'),
 }
 
 const match = (uri, opts) => {
@@ -466,7 +474,73 @@ exports.list = list
 exports.data = data
 exports.match = match
 
-},{"./serviceproviders/dns":7,"./serviceproviders/hackernews":8,"./serviceproviders/lobsters":9,"./serviceproviders/twitter":10,"./serviceproviders/xmpp":11}],7:[function(require,module,exports){
+},{"./serviceproviders/devto":7,"./serviceproviders/dns":8,"./serviceproviders/gitea":9,"./serviceproviders/github":10,"./serviceproviders/hackernews":11,"./serviceproviders/lobsters":12,"./serviceproviders/reddit":13,"./serviceproviders/twitter":14,"./serviceproviders/xmpp":15}],7:[function(require,module,exports){
+/*
+Copyright 2020 Yarmo Mackenbach
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+const reURI = /^https:\/\/dev\.to\/(.*)\/(.*)\/?/
+
+const processURI = (uri, opts) => {
+  if (!opts) { opts = {} }
+  const match = uri.match(reURI)
+
+  return {
+    serviceprovider: {
+      type: 'web',
+      name: 'devto'
+    },
+    profile: {
+      display: match[1],
+      uri: `https://dev.to/${match[1]}`
+    },
+    proof: {
+      uri: uri,
+      fetch: `https://dev.to/api/articles/${match[1]}/${match[2]}`,
+      useProxy: false,
+      format: 'json'
+    },
+    claim: {
+      fingerprint: null,
+      format: 'message',
+      path: ['body_markdown'],
+      relation: 'contains'
+    },
+    qr: null
+  }
+}
+
+const tests = [
+  {
+    uri: 'https://dev.to/alice/post',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://dev.to/alice/post/',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://domain.org/alice/post',
+    shouldMatch: false
+  }
+]
+
+exports.reURI = reURI
+exports.processURI = processURI
+exports.tests = tests
+
+},{}],8:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -491,7 +565,7 @@ const processURI = (uri, opts) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'domain'
+      name: 'dns'
     },
     profile: {
       display: match[1],
@@ -532,7 +606,139 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
+/*
+Copyright 2020 Yarmo Mackenbach
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+const reURI = /^https:\/\/(.*)\/(.*)\/gitea_proof\/?/
+
+const processURI = (uri, opts) => {
+  if (!opts) { opts = {} }
+  const match = uri.match(reURI)
+
+  return {
+    serviceprovider: {
+      type: 'web',
+      name: 'gitea'
+    },
+    profile: {
+      display: `${match[2]}@${match[1]}`,
+      uri: `https://${match[1]}/${match[2]}`
+    },
+    proof: {
+      uri: uri,
+      fetch: `https://${match[1]}/api/v1/repos/${match[2]}/gitea_proof`,
+      useProxy: true,
+      format: 'json'
+    },
+    claim: {
+      fingerprint: null,
+      format: 'message',
+      path: ['description'],
+      relation: 'equals'
+    },
+    qr: null
+  }
+}
+
+const tests = [
+  {
+    uri: 'https://domain.org/alice/gitea_proof',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://domain.org/alice/gitea_proof/',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://domain.org/alice/other_proof',
+    shouldMatch: false
+  }
+]
+
+exports.reURI = reURI
+exports.processURI = processURI
+exports.tests = tests
+
+},{}],10:[function(require,module,exports){
+/*
+Copyright 2020 Yarmo Mackenbach
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+const reURI = /^https:\/\/gist.github.com\/(.*)\/(.*)\/?/
+
+const processURI = (uri, opts) => {
+  if (!opts) { opts = {} }
+  const match = uri.match(reURI)
+
+  return {
+    serviceprovider: {
+      type: 'web',
+      name: 'github'
+    },
+    profile: {
+      display: match[1],
+      uri: `https://github.com/${match[1]}`
+    },
+    proof: {
+      uri: uri,
+      fetch: `https://api.github.com/gists/${match[2]}`,
+      useProxy: false,
+      format: 'json'
+    },
+    claim: {
+      fingerprint: null,
+      format: 'message',
+      path: ['files', 'openpgp.md', 'content'],
+      relation: 'contains'
+    },
+    qr: null
+  }
+}
+
+const tests = [
+  {
+    uri: 'https://gist.github.com/Alice/123456789',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://gist.github.com/Alice/123456789/',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://domain.org/Alice/123456789',
+    shouldMatch: false
+  }
+]
+
+exports.reURI = reURI
+exports.processURI = processURI
+exports.tests = tests
+
+},{}],11:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -598,7 +804,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{}],9:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -664,7 +870,81 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{}],10:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
+/*
+Copyright 2020 Yarmo Mackenbach
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+const reURI = /^https:\/\/(?:www\.)?reddit\.com\/user\/(.*)\/comments\/(.*)\/(.*)\/?/
+
+const processURI = (uri, opts) => {
+  if (!opts) { opts = {} }
+  const match = uri.match(reURI)
+
+  return {
+    serviceprovider: {
+      type: 'web',
+      name: 'reddit'
+    },
+    profile: {
+      display: match[1],
+      uri: `https://www.reddit.com/user/${match[1]}`
+    },
+    proof: {
+      uri: uri,
+      fetch: `https://www.reddit.com/user/${match[1]}/comments/${match[2]}.json`,
+      useProxy: true,
+      format: 'json'
+    },
+    claim: {
+      fingerprint: null,
+      format: 'message',
+      path: ['data', 'children', 'data', 'selftext'],
+      relation: 'contains'
+    },
+    qr: null
+  }
+}
+
+const tests = [
+  {
+    uri: 'https://www.reddit.com/user/Alice/comments/123456/post',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://www.reddit.com/user/Alice/comments/123456/post/',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://reddit.com/user/Alice/comments/123456/post',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://reddit.com/user/Alice/comments/123456/post/',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://domain.org/user/Alice/comments/123456/post',
+    shouldMatch: false
+  }
+]
+
+exports.reURI = reURI
+exports.processURI = processURI
+exports.tests = tests
+
+},{}],14:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -730,7 +1010,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{}],11:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -798,7 +1078,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{}],12:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 const generateClaim = (fingerprint, format) => {
   switch (format) {
     case 'uri':
