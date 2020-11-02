@@ -22,7 +22,7 @@ const customRequestHandler = async (spData, opts) => {
   const match = spData.proof.uri.match(reURI)
 
   const urlUser = `https://${match[1]}/api/v4/users?username=${match[2]}`
-  const resUser = await req(urlUser, {}, { Accept: 'application/json' })
+  const resUser = await req(urlUser, 'json', { Accept: 'application/json' })
   const jsonUser = await resUser.json()
 
   const user = jsonUser.find(user => user.username === match[2])
