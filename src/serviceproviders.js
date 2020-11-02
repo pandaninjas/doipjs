@@ -27,6 +27,7 @@ const list = [
   'gitea',
   'gitlab',
   'github',
+  'mastodon',
 ]
 
 const data = {
@@ -40,6 +41,7 @@ const data = {
   gitea: require('./serviceproviders/gitea'),
   gitlab: require('./serviceproviders/gitlab'),
   github: require('./serviceproviders/github'),
+  mastodon: require('./serviceproviders/mastodon'),
 }
 
 const match = (uri, opts) => {
