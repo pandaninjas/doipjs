@@ -31,9 +31,8 @@ const verify = async (uri, fingerprint, opts) => {
   if ('returnMatchesOnly' in opts && opts.returnMatchesOnly) {
     return spMatches
   }
-
-  let claimHasBeenVerified = false, sp, iSp = 0, res, proofData, spData = null
-  while (!claimHasBeenVerified && iSp < spMatches.length) {
+  let claimVerificationDone = false, claimVerificationResult, sp, iSp = 0, res, proofData, spData
+  while (!claimVerificationDone && iSp < spMatches.length) {
     spData = spMatches[iSp]
     spData.claim.fingerprint = fingerprint
 
@@ -47,13 +46,19 @@ const verify = async (uri, fingerprint, opts) => {
       proofData = await serviceproviders.proxyRequestHandler(spData)
     }
 
-    claimHasBeenVerified = claimVerification.run(proofData, spData)
+    if (!proofData) { continue }
+
+    claimVerificationResult = claimVerification.run(proofData, spData)
+
+    if (claimVerificationResult.errors.length == 0) {
+      claimVerificationDone = true
+    }
 
     iSp++
   }
 
   return {
-    isVerified: claimHasBeenVerified,
+    isVerified: claimVerificationResult.isVerified,
     matchedServiceprovider: spData ? spData.serviceprovider.name : null,
     verificationData: spData
   }

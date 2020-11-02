@@ -1,10 +1,10 @@
 const utils = require('./utils')
 
-const runOnJson = (proofData, checkPath, checkClaim, checkRelation) => {
-  let isVerified = false, re
+const runOnJson = (res, proofData, checkPath, checkClaim, checkRelation) => {
+  let re
 
-  if (!proofData) {
-    return isVerified
+  if (res.isVerified || !proofData) {
+    return res
   }
 
   if (checkPath.length == 0) {
@@ -12,43 +12,56 @@ const runOnJson = (proofData, checkPath, checkClaim, checkRelation) => {
       default:
       case 'contains':
         re = new RegExp(checkClaim.replace('[', '\\[').replace(']', '\\]'), "gi")
-        return re.test(proofData.replace(/\r?\n|\r/, ''))
+        res.isVerified = re.test(proofData.replace(/\r?\n|\r/, ''))
         break
       case 'equals':
-        return proofData.replace(/\r?\n|\r/, '').toLowerCase() == checkClaim.toLowerCase()
+        res.isVerified = proofData.replace(/\r?\n|\r/, '').toLowerCase() == checkClaim.toLowerCase()
         break
       case 'oneOf':
         re = new RegExp(checkClaim, "gi")
-        return re.test(proofData.join("|"))
+        res.isVerified = re.test(proofData.join("|"))
         break
     }
+    return res
+  }
+
+  if (!(checkPath[0] in proofData)) {
+    res.errors.push('err_data_structure_incorrect')
+    return res
   }
 
   if (Array.isArray(proofData)) {
     proofData.forEach((item, i) => {
-      isVerified = isVerified || runOnJson(item, checkPath, checkClaim, checkRelation)
+      res = runOnJson(res, item, checkPath, checkClaim, checkRelation)
     })
   } else if (Array.isArray(proofData[checkPath[0]])) {
     proofData[checkPath[0]].forEach((item, i) => {
-      isVerified = isVerified || runOnJson(item, checkPath.slice(1), checkClaim, checkRelation)
+      res = runOnJson(res, item, checkPath.slice(1), checkClaim, checkRelation)
     })
   } else {
-    isVerified = isVerified || runOnJson(proofData[checkPath[0]], checkPath.slice(1), checkClaim, checkRelation)
+    res = runOnJson(res, proofData[checkPath[0]], checkPath.slice(1), checkClaim, checkRelation)
   }
 
-  return isVerified;
+  return res
 }
 
 const run = (proofData, spData) => {
+  let res = {
+    isVerified: false,
+    errors: []
+  }
+
   switch (spData.proof.format) {
     case 'json':
-      return runOnJson(proofData, spData.claim.path, utils.generateClaim(spData.claim.fingerprint, spData.claim.format), spData.claim.relation)
+      res = runOnJson(res, proofData, spData.claim.path, utils.generateClaim(spData.claim.fingerprint, spData.claim.format), spData.claim.relation)
       break
     case 'text':
       re = new RegExp(utils.generateClaim(spData.claim.fingerprint, spData.claim.format), "gi")
-      return re.test(proofData.replace(/\r?\n|\r/, ''))
+      res = re.test(proofData.replace(/\r?\n|\r/, ''))
       break
   }
+
+  return res
 }
 
 exports.run = run
