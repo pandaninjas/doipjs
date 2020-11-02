@@ -56,8 +56,8 @@ const match = (uri, opts) => {
 }
 
 const directRequestHandler = async (spData) => {
-  const res = await req(spData.proof.fetch ? spData.proof.fetch : spData.proof.uri)
-  
+  const res = await req(spData.proof.fetch ? spData.proof.fetch : spData.proof.uri, {}, { Accept: 'application/json' })
+
   switch (spData.proof.format) {
     case 'json':
       return await res.json()
