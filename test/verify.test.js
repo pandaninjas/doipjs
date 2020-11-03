@@ -65,7 +65,7 @@ describe('verify', () => {
     it(`should return a valid object for the "${spName}" service provider`, async () => {
       const matches = await doipjs.verify(sp.tests[0].uri, null, {returnMatchesOnly: true})
       expect(matches).to.be.a('array')
-      expect(matches).to.be.length(1)
+      expect(matches).to.be.length.above(0)
       expect(matches[0].serviceprovider.name).to.be.equal(spName)
       expect(matches[0]).to.matchPattern(pattern)
     })
