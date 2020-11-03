@@ -287,11 +287,11 @@ module.exports = mkrequest => (...args) => {
 },{}],4:[function(require,module,exports){
 const utils = require('./utils')
 
-const runOnJson = (proofData, checkPath, checkClaim, checkRelation) => {
-  let isVerified = false, re
+const runOnJson = (res, proofData, checkPath, checkClaim, checkRelation) => {
+  let re
 
-  if (!proofData) {
-    return isVerified
+  if (res.isVerified || !proofData) {
+    return res
   }
 
   if (checkPath.length == 0) {
@@ -299,48 +299,61 @@ const runOnJson = (proofData, checkPath, checkClaim, checkRelation) => {
       default:
       case 'contains':
         re = new RegExp(checkClaim.replace('[', '\\[').replace(']', '\\]'), "gi")
-        return re.test(proofData.replace(/\r?\n|\r/, ''))
+        res.isVerified = re.test(proofData.replace(/\r?\n|\r/, ''))
         break
       case 'equals':
-        return proofData.replace(/\r?\n|\r/, '').toLowerCase() == checkClaim.toLowerCase()
+        res.isVerified = proofData.replace(/\r?\n|\r/, '').toLowerCase() == checkClaim.toLowerCase()
         break
       case 'oneOf':
         re = new RegExp(checkClaim, "gi")
-        return re.test(proofData.join("|"))
+        res.isVerified = re.test(proofData.join("|"))
         break
     }
+    return res
+  }
+
+  if (!(checkPath[0] in proofData)) {
+    res.errors.push('err_data_structure_incorrect')
+    return res
   }
 
   if (Array.isArray(proofData)) {
     proofData.forEach((item, i) => {
-      isVerified = isVerified || runOnJson(item, checkPath, checkClaim, checkRelation)
+      res = runOnJson(res, item, checkPath, checkClaim, checkRelation)
     })
   } else if (Array.isArray(proofData[checkPath[0]])) {
     proofData[checkPath[0]].forEach((item, i) => {
-      isVerified = isVerified || runOnJson(item, checkPath.slice(1), checkClaim, checkRelation)
+      res = runOnJson(res, item, checkPath.slice(1), checkClaim, checkRelation)
     })
   } else {
-    isVerified = isVerified || runOnJson(proofData[checkPath[0]], checkPath.slice(1), checkClaim, checkRelation)
+    res = runOnJson(res, proofData[checkPath[0]], checkPath.slice(1), checkClaim, checkRelation)
   }
 
-  return isVerified;
+  return res
 }
 
 const run = (proofData, spData) => {
+  let res = {
+    isVerified: false,
+    errors: []
+  }
+
   switch (spData.proof.format) {
     case 'json':
-      return runOnJson(proofData, spData.claim.path, utils.generateClaim(spData.claim.fingerprint, spData.claim.format), spData.claim.relation)
+      res = runOnJson(res, proofData, spData.claim.path, utils.generateClaim(spData.claim.fingerprint, spData.claim.format), spData.claim.relation)
       break
     case 'text':
       re = new RegExp(utils.generateClaim(spData.claim.fingerprint, spData.claim.format), "gi")
-      return re.test(proofData.replace(/\r?\n|\r/, ''))
+      res = re.test(proofData.replace(/\r?\n|\r/, ''))
       break
   }
+
+  return res
 }
 
 exports.run = run
 
-},{"./utils":17}],5:[function(require,module,exports){
+},{"./utils":20}],5:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -374,9 +387,8 @@ const verify = async (uri, fingerprint, opts) => {
   if ('returnMatchesOnly' in opts && opts.returnMatchesOnly) {
     return spMatches
   }
-
-  let claimHasBeenVerified = false, sp, iSp = 0, res, proofData, spData = null
-  while (!claimHasBeenVerified && iSp < spMatches.length) {
+  let claimVerificationDone = false, claimVerificationResult, sp, iSp = 0, res, proofData, spData
+  while (!claimVerificationDone && iSp < spMatches.length) {
     spData = spMatches[iSp]
     spData.claim.fingerprint = fingerprint
 
@@ -389,14 +401,25 @@ const verify = async (uri, fingerprint, opts) => {
     } else {
       proofData = await serviceproviders.proxyRequestHandler(spData)
     }
+    if (proofData) {
+      claimVerificationResult = claimVerification.run(proofData, spData)
 
-    claimHasBeenVerified = claimVerification.run(proofData, spData)
+      if (claimVerificationResult.errors.length == 0) {
+        claimVerificationDone = true
+      }
+    }
 
     iSp++
   }
 
+  if (!claimVerificationResult) {
+    claimVerificationResult = {
+      isVerified: false
+    }
+  }
+
   return {
-    isVerified: claimHasBeenVerified,
+    isVerified: claimVerificationResult.isVerified,
     matchedServiceprovider: spData ? spData.serviceprovider.name : null,
     verificationData: spData
   }
@@ -407,7 +430,7 @@ exports.serviceproviders = serviceproviders
 exports.claimVerification = claimVerification
 exports.utils = utils
 
-},{"./claimVerification":4,"./serviceproviders":6,"./utils":17,"valid-url":3}],6:[function(require,module,exports){
+},{"./claimVerification":4,"./serviceproviders":6,"./utils":20,"valid-url":3}],6:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -437,6 +460,9 @@ const list = [
   'gitea',
   'gitlab',
   'github',
+  'mastodon',
+  'fediverse',
+  'discourse',
 ]
 
 const data = {
@@ -450,6 +476,9 @@ const data = {
   gitea: require('./serviceproviders/gitea'),
   gitlab: require('./serviceproviders/gitlab'),
   github: require('./serviceproviders/github'),
+  mastodon: require('./serviceproviders/mastodon'),
+  fediverse: require('./serviceproviders/fediverse'),
+  discourse: require('./serviceproviders/discourse'),
 }
 
 const match = (uri, opts) => {
@@ -466,8 +495,8 @@ const match = (uri, opts) => {
 }
 
 const directRequestHandler = async (spData) => {
-  const res = await req(spData.proof.fetch ? spData.proof.fetch : spData.proof.uri)
-  
+  const res = await req(spData.proof.fetch ? spData.proof.fetch : spData.proof.uri, 'json', { Accept: 'application/json' })
+
   switch (spData.proof.format) {
     case 'json':
       return await res.json()
@@ -491,7 +520,7 @@ exports.match = match
 exports.directRequestHandler = directRequestHandler
 exports.proxyRequestHandler = proxyRequestHandler
 
-},{"./serviceproviders/devto":7,"./serviceproviders/dns":8,"./serviceproviders/gitea":9,"./serviceproviders/github":10,"./serviceproviders/gitlab":11,"./serviceproviders/hackernews":12,"./serviceproviders/lobsters":13,"./serviceproviders/reddit":14,"./serviceproviders/twitter":15,"./serviceproviders/xmpp":16,"bent":1}],7:[function(require,module,exports){
+},{"./serviceproviders/devto":7,"./serviceproviders/discourse":8,"./serviceproviders/dns":9,"./serviceproviders/fediverse":10,"./serviceproviders/gitea":11,"./serviceproviders/github":12,"./serviceproviders/gitlab":13,"./serviceproviders/hackernews":14,"./serviceproviders/lobsters":15,"./serviceproviders/mastodon":16,"./serviceproviders/reddit":17,"./serviceproviders/twitter":18,"./serviceproviders/xmpp":19,"bent":1}],7:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -573,6 +602,72 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const reURI = /^https:\/\/(.*)\/u\/(.*)\/?/
+
+const processURI = (uri, opts) => {
+  if (!opts) { opts = {} }
+  const match = uri.match(reURI)
+
+  return {
+    serviceprovider: {
+      type: 'web',
+      name: 'discourse'
+    },
+    profile: {
+      display: `${match[2]}@${match[1]}`,
+      uri: uri
+    },
+    proof: {
+      uri: uri,
+      fetch: `https://${match[1]}/u/${match[2]}.json`,
+      useProxy: true,
+      format: 'json'
+    },
+    claim: {
+      fingerprint: null,
+      format: 'message',
+      path: ['user', 'bio_raw'],
+      relation: 'contains'
+    },
+    qr: null
+  }
+}
+
+const tests = [
+  {
+    uri: 'https://domain.org/u/alice',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://domain.org/u/alice/',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://domain.org/alice',
+    shouldMatch: false
+  }
+]
+
+exports.reURI = reURI
+exports.processURI = processURI
+exports.tests = tests
+
+},{}],9:[function(require,module,exports){
+/*
+Copyright 2020 Yarmo Mackenbach
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 const reURI = /^dns:([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
 
 const processURI = (uri, opts) => {
@@ -623,7 +718,73 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
+/*
+Copyright 2020 Yarmo Mackenbach
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+const reURI = /^https:\/\/(.*)\/users\/(.*)\/?/
+
+const processURI = (uri, opts) => {
+  if (!opts) { opts = {} }
+  const match = uri.match(reURI)
+
+  return {
+    serviceprovider: {
+      type: 'web',
+      name: 'fediverse'
+    },
+    profile: {
+      display: `@${match[2]}@${match[1]}`,
+      uri: uri
+    },
+    proof: {
+      uri: uri,
+      fetch: null,
+      useProxy: false,
+      format: 'json'
+    },
+    claim: {
+      fingerprint: null,
+      format: 'fingerprint',
+      path: ['summary'],
+      relation: 'contains'
+    },
+    qr: null
+  }
+}
+
+const tests = [
+  {
+    uri: 'https://domain.org/users/alice',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://domain.org/users/alice/',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://domain.org/alice',
+    shouldMatch: false
+  }
+]
+
+exports.reURI = reURI
+exports.processURI = processURI
+exports.tests = tests
+
+},{}],11:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -689,7 +850,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -755,7 +916,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -780,7 +941,7 @@ const customRequestHandler = async (spData, opts) => {
   const match = spData.proof.uri.match(reURI)
 
   const urlUser = `https://${match[1]}/api/v4/users?username=${match[2]}`
-  const resUser = await req(urlUser, {}, { Accept: 'application/json' })
+  const resUser = await req(urlUser, 'json', { Accept: 'application/json' })
   const jsonUser = await resUser.json()
 
   const user = jsonUser.find(user => user.username === match[2])
@@ -823,7 +984,7 @@ const processURI = (uri, opts) => {
       fingerprint: null,
       format: 'message',
       path: ['description'],
-      relation: 'contains'
+      relation: 'equals'
     },
     qr: null,
     customRequestHandler: customRequestHandler
@@ -849,7 +1010,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"bent":1}],12:[function(require,module,exports){
+},{"bent":1}],14:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -915,7 +1076,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{}],13:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -981,7 +1142,73 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{}],14:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
+/*
+Copyright 2020 Yarmo Mackenbach
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+const reURI = /^https:\/\/(.*)\/@(.*)\/?/
+
+const processURI = (uri, opts) => {
+  if (!opts) { opts = {} }
+  const match = uri.match(reURI)
+
+  return {
+    serviceprovider: {
+      type: 'web',
+      name: 'mastodon'
+    },
+    profile: {
+      display: `@${match[2]}@${match[1]}`,
+      uri: uri
+    },
+    proof: {
+      uri: uri,
+      fetch: null,
+      useProxy: false,
+      format: 'json'
+    },
+    claim: {
+      fingerprint: null,
+      format: 'fingerprint',
+      path: ['attachment', 'value'],
+      relation: 'contains'
+    },
+    qr: null
+  }
+}
+
+const tests = [
+  {
+    uri: 'https://domain.org/@alice',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://domain.org/@alice/',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://domain.org/alice',
+    shouldMatch: false
+  }
+]
+
+exports.reURI = reURI
+exports.processURI = processURI
+exports.tests = tests
+
+},{}],17:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -1055,7 +1282,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{}],15:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -1121,7 +1348,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{}],16:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -1189,7 +1416,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{}],17:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 const generateClaim = (fingerprint, format) => {
   switch (format) {
     case 'uri':
