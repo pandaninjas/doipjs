@@ -29,6 +29,7 @@ const list = [
   'github',
   'mastodon',
   'fediverse',
+  'discourse',
 ]
 
 const data = {
@@ -44,6 +45,7 @@ const data = {
   github: require('./serviceproviders/github'),
   mastodon: require('./serviceproviders/mastodon'),
   fediverse: require('./serviceproviders/fediverse'),
+  discourse: require('./serviceproviders/discourse'),
 }
 
 const match = (uri, opts) => {
