@@ -45,16 +45,21 @@ const verify = async (uri, fingerprint, opts) => {
     } else {
       proofData = await serviceproviders.proxyRequestHandler(spData)
     }
+    if (proofData) {
+      claimVerificationResult = claimVerification.run(proofData, spData)
 
-    if (!proofData) { continue }
-
-    claimVerificationResult = claimVerification.run(proofData, spData)
-
-    if (claimVerificationResult.errors.length == 0) {
-      claimVerificationDone = true
+      if (claimVerificationResult.errors.length == 0) {
+        claimVerificationDone = true
+      }
     }
 
     iSp++
+  }
+
+  if (!claimVerificationResult) {
+    claimVerificationResult = {
+      isVerified: false
+    }
   }
 
   return {
