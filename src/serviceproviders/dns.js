@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const utils = require('../utils')
 const reURI = /^dns:([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
 
 const processURI = (uri, opts) => {
@@ -29,7 +30,7 @@ const processURI = (uri, opts) => {
       uri: `https://${match[1]}`
     },
     proof: {
-      uri: `https://proxy.keyoxide.org/api/1/get/dns/${match[1]}`,
+      uri: utils.generateProxyURL('dns', match[1]),
       fetch: null,
       useProxy: false,
       format: 'json'
