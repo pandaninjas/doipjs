@@ -6,6 +6,7 @@
   "dependencies": {
     "bent": "^7.3.12",
     "browserify": "^17.0.0",
+    "dotenv": "^8.2.0",
     "valid-url": "^1.0.9"
   },
   "devDependencies": {
