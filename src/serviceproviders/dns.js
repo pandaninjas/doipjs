@@ -29,7 +29,7 @@ const processURI = (uri, opts) => {
       uri: `https://${match[1]}`
     },
     proof: {
-      uri: `https://dns.shivering-isles.com/dns-query?name=${match[1]}&type=TXT`,
+      uri: `https://proxy.keyoxide.org/api/1/get/dns/${match[1]}`,
       fetch: null,
       useProxy: false,
       format: 'json'
@@ -37,7 +37,7 @@ const processURI = (uri, opts) => {
     claim: {
       fingerprint: null,
       format: 'uri',
-      path: ['Answer', 'data'],
+      path: ['records', 'txt'],
       relation: 'contains'
     },
     qr: null
