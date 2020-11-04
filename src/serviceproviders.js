@@ -15,6 +15,7 @@ limitations under the License.
 */
 const bent = require('bent')
 const req = bent('GET')
+const utils = require('./utils')
 
 const list = [
   'dns',
@@ -78,7 +79,10 @@ const directRequestHandler = async (spData) => {
 }
 
 const proxyRequestHandler = async (spData) => {
-  return null
+  const url = spData.proof.fetch ? spData.proof.fetch : spData.proof.uri
+  const res = await req(utils.generateProxyURL(spData.proof.format, url), 'json', { Accept: 'application/json' })
+  const json = await res.json()
+  return json.content
 }
 
 exports.list = list
