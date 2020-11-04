@@ -7,6 +7,13 @@ const runOnJson = (res, proofData, checkPath, checkClaim, checkRelation) => {
     return res
   }
 
+  if (Array.isArray(proofData)) {
+    proofData.forEach((item, i) => {
+      res = runOnJson(res, item, checkPath, checkClaim, checkRelation)
+    })
+    return res
+  }
+
   if (checkPath.length == 0) {
     switch (checkRelation) {
       default:
@@ -30,18 +37,7 @@ const runOnJson = (res, proofData, checkPath, checkClaim, checkRelation) => {
     return res
   }
 
-  if (Array.isArray(proofData)) {
-    proofData.forEach((item, i) => {
-      res = runOnJson(res, item, checkPath, checkClaim, checkRelation)
-    })
-  } else if (Array.isArray(proofData[checkPath[0]])) {
-    proofData[checkPath[0]].forEach((item, i) => {
-      res = runOnJson(res, item, checkPath.slice(1), checkClaim, checkRelation)
-    })
-  } else {
-    res = runOnJson(res, proofData[checkPath[0]], checkPath.slice(1), checkClaim, checkRelation)
-  }
-
+  res = runOnJson(res, proofData[checkPath[0]], checkPath.slice(1), checkClaim, checkRelation)
   return res
 }
 
