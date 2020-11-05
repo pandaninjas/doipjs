@@ -13,8 +13,34 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const dns = require('dns')
+const bent = require('bent')
+const req = bent('GET')
 const utils = require('../utils')
 const reURI = /^dns:([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
+
+const customRequestHandler = async (spData, opts) => {
+  if (('resolveTxt' in dns)) {
+    const prom = async () => {
+      return new Promise((resolve, reject) => {
+        dns.resolveTxt(spData.profile.display, (err, records) => {
+          if (err) reject(err)
+          resolve(records)
+        })
+      })
+    }
+    return {
+      hostname: spData.profile.display,
+      records: {
+        txt: await prom()
+      }
+    }
+  } else {
+    const res = await req(spData.proof.uri, null, { Accept: 'application/json' })
+    const json = await res.json()
+    return json
+  }
+}
 
 const processURI = (uri, opts) => {
   if (!opts) { opts = {} }
@@ -41,7 +67,8 @@ const processURI = (uri, opts) => {
       path: ['records', 'txt'],
       relation: 'contains'
     },
-    qr: null
+    qr: null,
+    customRequestHandler: customRequestHandler
   }
 }
 
