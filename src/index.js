@@ -45,7 +45,7 @@ const verify = async (uri, fingerprint, opts) => {
     } else {
       proofData = await serviceproviders.proxyRequestHandler(spData)
     }
-    
+
     if (proofData) {
       claimVerificationResult = claimVerification.run(proofData, spData)
 
@@ -66,7 +66,7 @@ const verify = async (uri, fingerprint, opts) => {
   return {
     isVerified: claimVerificationResult.isVerified,
     matchedServiceprovider: spData ? spData.serviceprovider.name : null,
-    verificationData: spData
+    serviceproviderData: spData
   }
 }
 
