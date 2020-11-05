@@ -32,7 +32,9 @@ const runOnJson = (res, proofData, checkPath, checkClaim, checkRelation) => {
     return res
   }
 
-  if (!(checkPath[0] in proofData)) {
+  try {
+    checkPath[0] in proofData
+  } catch(e) {
     res.errors.push('err_data_structure_incorrect')
     return res
   }
