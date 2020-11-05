@@ -14,10 +14,12 @@
     "chai-as-promised": "^7.1.1",
     "chai-match-pattern": "^1.2.0",
     "license-check-and-add": "^3.0.4",
+    "minify": "^6.0.1",
     "mocha": "^8.2.0"
   },
   "scripts": {
-    "bundle": "./node_modules/browserify/bin/cmd.js ./src/index.js --standalone doip -o ./dist/doip.js",
+    "release:bundle": "./node_modules/browserify/bin/cmd.js ./src/index.js --standalone doip -o ./dist/doip.js",
+    "release:minify": "./node_modules/minify/bin/minify.js ./dist/doip.js > ./dist/doip.min.js",
     "license:check": "./node_modules/license-check-and-add/dist/src/cli.js check",
     "license:add": "./node_modules/license-check-and-add/dist/src/cli.js add",
     "license:remove": "./node_modules/license-check-and-add/dist/src/cli.js remove",
