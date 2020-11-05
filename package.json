@@ -23,6 +23,7 @@
     "license:check": "./node_modules/license-check-and-add/dist/src/cli.js check",
     "license:add": "./node_modules/license-check-and-add/dist/src/cli.js add",
     "license:remove": "./node_modules/license-check-and-add/dist/src/cli.js remove",
+    "docs": "docsify serve ./docs",
     "test": "./node_modules/mocha/bin/mocha"
   },
   "repository": {
