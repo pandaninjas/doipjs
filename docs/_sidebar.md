@@ -3,15 +3,15 @@
   - [Configuration](configuration.md)
 
 - Reference
-  - API
+  - [API](api.md)
   - [Service provider data object](serviceproviderdataobject.md)
 
 - Concepts
   - [DOIP](doip.md)
-  - [Cryptographic keys](#)
-  - [Proofs](#)
-  - [Claims](#)
-  - [Service providers](#)
+  - [Cryptographic keys](cryptographickeys.md)
+  - [Proofs](proofs.md)
+  - [Claims](claims.nd)
+  - [Service providers](serviceproviders,md)
 
 - Service providers
   - [Liberapay](serviceproviders/liberapay.md)
