@@ -1,9 +1,5 @@
-require('dotenv').config()
-
-const DOIP_PROXY_HOSTNAME = process.env.DOIP_PROXY_HOSTNAME || 'proxy.keyoxide.org'
-
-const generateProxyURL = (type, url) => {
-  return `https://${DOIP_PROXY_HOSTNAME}/api/1/get/${type}/${encodeURIComponent(url)}`
+const generateProxyURL = (type, url, opts) => {
+  return `https://${opts.doipProxyHostname}/api/1/get/${type}/${encodeURIComponent(url)}`
 }
 
 const generateClaim = (fingerprint, format) => {

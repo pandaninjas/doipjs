@@ -22,6 +22,10 @@ const verify = async (uri, fingerprint, opts) => {
   if (!fingerprint) { fingerprint = null }
   if (!opts) { opts = {} }
 
+  if (!('doipProxyHostname' in opts) || !opts.doipProxyHostname) {
+    opts.doipProxyHostname = 'proxy.keyoxide.org'
+  }
+
   if (!validUrl.isUri(uri)) {
     throw new Error('Not a valid URI')
   }
@@ -40,10 +44,10 @@ const verify = async (uri, fingerprint, opts) => {
 
     if (spData.customRequestHandler instanceof Function) {
       proofData = await spData.customRequestHandler(spData, opts)
-    } else if (!spData.proof.useProxy || 'useProxyWhenNeeded' in opts && !opts.useProxyWhenNeeded) {
-      proofData = await serviceproviders.directRequestHandler(spData)
+    } else if (!spData.proof.useProxy || 'proxyPolicy' in opts && !opts.useProxyWhenNeeded) {
+      proofData = await serviceproviders.directRequestHandler(spData, opts)
     } else {
-      proofData = await serviceproviders.proxyRequestHandler(spData)
+      proofData = await serviceproviders.proxyRequestHandler(spData, opts)
     }
 
     if (proofData) {
