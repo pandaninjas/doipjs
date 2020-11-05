@@ -17,7 +17,7 @@
     "mocha": "^8.2.0"
   },
   "scripts": {
-    "bundle": "./node_modules/browserify/bin/cmd.js ./src/index.js --standalone doip -o ./bundle/doip.js",
+    "bundle": "./node_modules/browserify/bin/cmd.js ./src/index.js --standalone doip -o ./dist/doip.js",
     "license:check": "./node_modules/license-check-and-add/dist/src/cli.js check",
     "license:add": "./node_modules/license-check-and-add/dist/src/cli.js add",
     "license:remove": "./node_modules/license-check-and-add/dist/src/cli.js remove",
