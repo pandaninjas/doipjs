@@ -26,7 +26,8 @@ const processURI = (uri, opts) => {
     },
     profile: {
       display: `${match[1]}@${match[2]}`,
-      uri: uri
+      uri: uri,
+      qr: uri
     },
     proof: {
       uri: 'xmppVcardServerDomain' in opts
@@ -42,7 +43,7 @@ const processURI = (uri, opts) => {
       path: [],
       relation: 'contains'
     },
-    qr: uri
+    customRequestHandler: null
   }
 }
 

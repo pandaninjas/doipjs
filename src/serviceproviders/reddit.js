@@ -26,7 +26,8 @@ const processURI = (uri, opts) => {
     },
     profile: {
       display: match[1],
-      uri: `https://www.reddit.com/user/${match[1]}`
+      uri: `https://www.reddit.com/user/${match[1]}`,
+      qr: null
     },
     proof: {
       uri: uri,
@@ -40,7 +41,7 @@ const processURI = (uri, opts) => {
       path: ['data', 'children', 'data', 'selftext'],
       relation: 'contains'
     },
-    qr: null
+    customRequestHandler: null
   }
 }
 

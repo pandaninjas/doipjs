@@ -26,7 +26,8 @@ const processURI = (uri, opts) => {
     },
     profile: {
       display: match[1],
-      uri: uri
+      uri: uri,
+      qr: null
     },
     proof: {
       uri: `https://hacker-news.firebaseio.com/v0/user/${match[1]}.json`,
@@ -40,7 +41,7 @@ const processURI = (uri, opts) => {
       path: ['about'],
       relation: 'contains'
     },
-    qr: null
+    customRequestHandler: null
   }
 }
 

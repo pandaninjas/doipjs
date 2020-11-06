@@ -53,7 +53,8 @@ const processURI = (uri, opts) => {
     },
     profile: {
       display: match[1],
-      uri: `https://${match[1]}`
+      uri: `https://${match[1]}`,
+      qr: null
     },
     proof: {
       uri: utils.generateProxyURL('dns', match[1]),
@@ -67,7 +68,6 @@ const processURI = (uri, opts) => {
       path: ['records', 'txt'],
       relation: 'contains'
     },
-    qr: null,
     customRequestHandler: customRequestHandler
   }
 }

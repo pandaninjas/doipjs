@@ -53,7 +53,8 @@ const processURI = (uri, opts) => {
     },
     profile: {
       display: `${match[2]}@${match[1]}`,
-      uri: `https://${match[1]}/${match[2]}`
+      uri: `https://${match[1]}/${match[2]}`,
+      qr: null
     },
     proof: {
       uri: uri,
@@ -67,7 +68,6 @@ const processURI = (uri, opts) => {
       path: ['description'],
       relation: 'equals'
     },
-    qr: null,
     customRequestHandler: customRequestHandler
   }
 }

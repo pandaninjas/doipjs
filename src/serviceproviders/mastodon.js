@@ -26,7 +26,8 @@ const processURI = (uri, opts) => {
     },
     profile: {
       display: `@${match[2]}@${match[1]}`,
-      uri: uri
+      uri: uri,
+      qr: null
     },
     proof: {
       uri: uri,
@@ -40,7 +41,7 @@ const processURI = (uri, opts) => {
       path: ['attachment', 'value'],
       relation: 'contains'
     },
-    qr: null
+    customRequestHandler: null
   }
 }
 

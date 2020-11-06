@@ -26,7 +26,8 @@ const processURI = (uri, opts) => {
     },
     profile: {
       display: match[1],
-      uri: `https://github.com/${match[1]}`
+      uri: `https://github.com/${match[1]}`,
+      qr: null
     },
     proof: {
       uri: uri,
@@ -40,7 +41,7 @@ const processURI = (uri, opts) => {
       path: ['files', 'openpgp.md', 'content'],
       relation: 'contains'
     },
-    qr: null
+    customRequestHandler: null
   }
 }
 

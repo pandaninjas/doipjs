@@ -26,7 +26,8 @@ const processURI = (uri, opts) => {
     },
     profile: {
       display: match[1],
-      uri: `https://dev.to/${match[1]}`
+      uri: `https://dev.to/${match[1]}`,
+      qr: null
     },
     proof: {
       uri: uri,
@@ -40,7 +41,7 @@ const processURI = (uri, opts) => {
       path: ['body_markdown'],
       relation: 'contains'
     },
-    qr: null
+    customRequestHandler: null
   }
 }
 

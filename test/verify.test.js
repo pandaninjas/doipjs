@@ -29,7 +29,8 @@ const pattern = {
   },
   profile: {
     display: _.isString,
-    uri: _.isString
+    uri: _.isString,
+    qr: (x) => { return _.isString(x) || _.isNull(x) }
   },
   proof: {
     uri: (x) => { return _.isString(x) || _.isNull(x) },
@@ -43,7 +44,6 @@ const pattern = {
     path: _.isArray,
     relation: _.isString
   },
-  qr: (x) => { return _.isString(x) || _.isNull(x) },
   customRequestHandler: (x) => { return _.isFunction(x) || _.isNull(x) || _.isUndefined(x) }
 }
 
