@@ -28,8 +28,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@codeberg.org:keyoxide/doipjs.git"
+    "url": "https://codeberg.org/keyoxide/doipjs"
   },
+  "homepage": "https://js.doip.rocks",
   "keywords": [
     "pgp",
     "gpg",
