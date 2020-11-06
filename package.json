@@ -6,6 +6,7 @@
   "dependencies": {
     "bent": "^7.3.12",
     "browserify": "^17.0.0",
+    "merge-options": "^3.0.3",
     "valid-url": "^1.0.9"
   },
   "devDependencies": {
