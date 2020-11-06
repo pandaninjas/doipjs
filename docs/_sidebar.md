@@ -10,7 +10,7 @@
   - [DOIP](doip.md)
   - [Cryptographic keys](cryptographickeys.md)
   - [Proofs](proofs.md)
-  - [Claims](claims.nd)
+  - [Claims](claims.md)
   - [Service providers](serviceproviders,md)
 
 - Service providers

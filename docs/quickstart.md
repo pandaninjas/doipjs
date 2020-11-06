@@ -2,7 +2,7 @@
 
 ## Installation
 
-Install using **Yarn**:
+Install using **yarn**:
 
 ```bash
 yarn add doipjs
@@ -27,13 +27,13 @@ const verifyIdentity = async (url, fp) => {
 verifyIdentity('dns:doip.rocks', '9f0048ac0b23301e1f77e994909f6bd6f80f485d')
 ```
 
-This snippet works en will verify the [doip.rocks](https://doip.rocks) as
+This snippet works en will verify the [doip.rocks](https://doip.rocks) domain as
 linked to Yarmo's cryptographic key using the [dns](serviceproviders/dns.md)
 service provider.
 
 ## Usage (browser)
 
-Basic example:
+The same code as above, but for the browser:
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/keyoxide@0.3.0/dist/doip.min.js"></script>
