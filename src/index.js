@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const mergeOptions = require('merge-options')
 const validUrl = require('valid-url')
 const serviceproviders = require('./serviceproviders')
 const claimVerification = require('./claimVerification')
@@ -22,9 +23,12 @@ const verify = async (uri, fingerprint, opts) => {
   if (!fingerprint) { fingerprint = null }
   if (!opts) { opts = {} }
 
-  if (!('doipProxyHostname' in opts) || !opts.doipProxyHostname) {
-    opts.doipProxyHostname = 'proxy.keyoxide.org'
+  const defaultOpts = {
+    returnMatchesOnly: false,
+    proxyPolicy: 'adaptive',
+    doipProxyHostname: 'proxy.keyoxide.org'
   }
+  opts = mergeOptions(defaultOpts, opts)
 
   if (!validUrl.isUri(uri)) {
     throw new Error('Not a valid URI')

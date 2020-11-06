@@ -1,4 +1,5 @@
 const generateProxyURL = (type, url, opts) => {
+  if (!opts || !opts.doipProxyHostname) { return null }
   return `https://${opts.doipProxyHostname}/api/1/get/${type}/${encodeURIComponent(url)}`
 }
 
