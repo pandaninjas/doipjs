@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.1
+
+[2020-11-06](https://codeberg.org/keyoxide/doipjs/releases/tag/0.4.1)
+
+### Changed
+- Update README
+- Add image to coverpage
+
 ## 0.4.0
 
 [2020-11-06](https://codeberg.org/keyoxide/doipjs/releases/tag/0.4.0)
