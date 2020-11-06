@@ -73,7 +73,6 @@ const verify = async (uri, fingerprint, opts) => {
 
   return {
     isVerified: claimVerificationResult.isVerified,
-    matchedServiceprovider: spData ? spData.serviceprovider.name : null,
     serviceproviderData: spData
   }
 }
