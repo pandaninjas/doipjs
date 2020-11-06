@@ -1,40 +1,43 @@
 # doip.js
 
-Decentralized OpenPGP Identity Proofs library in node
+doip.js allows websites and Node.js projects to verify decentralized online
+identities based on OpenPGP.
 
-## Technical specifications
+Documentation available at [js.doip.rocks](https://js.doip.rocks).
 
-### Service provider data structure
+## Features
 
-The object returned by a service provider consists of:
+- Verify online identities using profile URLs
+- Regex-based service provider detection
+- [Mocha](https://mochajs.org/) tests
 
-```
-- serviceprovider (object)
-  - type          (string: the service provider's type [web, communication])
-  - name          (string: the service provider's name)
-- profile         (object)
-  - display       (string: the profile's identifier for display)
-  - uri           (string: the profile's URI)
-- proof           (object)
-  - uri           (string: the URI containing the proof to be by humans and machines)
-  - fetch         (string: see below)
-  - useProxy      (boolean: should the request be sent using a proxy)
-  - format        (string: [json, text])
-- claim           (object)
-  - fingerprint   (string: the fingerprint that verifies the claim if found in the proof)
-  - format        (string: see below [uri, message, fingerprint])
-  - path          (string: the path to the claim inside the proof JSON (comma-separated))
-  - relation      (string: how the claim format relates to the proof format [contains, equals, oneOf])
-- qr              (string: a URI to be displayed as QR code if the claim is verified)
-```
+## Todo
 
-### proof.fetch
+- Fetch keys using key servers and WKD
 
-Sometimes, the URI used by humans to verify a claim is inadequate for use by machines. This is needed when the JSON is served by a different endpoint. In this case, machines will use a different URI than the one shown to humans.
+## About Keyoxide
 
-### claim.format
+[Keyoxide](https://keyoxide.org/), made by Yarmo Mackenbach, is a modern, secure
+and privacy-friendly platform to establish decentralized online identities using
+a novel concept know as [DOIP](doip.md). In an effort to make this technology
+accessible for other projects and stimulate the emergence of both complementary
+and competing projects, this project-agnostic library is
+[published on codeberg.org](https://codeberg.org/keyoxide/doipjs) and open
+sourced under the
+[Apache-2.0](https://codeberg.org/keyoxide/doipjs/src/branch/main/LICENSE)
+license.
 
-There are three claim formats:
-- uri: the claim is formulated as `openpgp4fpr:FINGEPRPRINT`
-- message: the claim is formulated as `[Verifying my OpenPGP key: openpgp4fpr:FINGEPRPRINT]`
-- fingerprint: the claim is formulated as `FINGEPRPRINT`
+## Community
+
+There's a [Keyoxide Matrix room](https://matrix.to/#/#keyoxide:matrix.org) where
+we discuss everything DOIP and Keyoxide.
+
+## Donate
+
+Please consider [donating](https://liberapay.com/Keyoxide/) if you think this
+project is a step in the right direction for the internet.
+
+## Funding
+
+This library was realized with funding from
+[NLnet](https://nlnet.nl/project/Keyoxide/).
