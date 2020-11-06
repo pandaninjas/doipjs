@@ -1,4 +1,4 @@
-# doip.js <small>0.3.0</small>
+# doip.js <small>0.4.0</small>
 
 Decentralized OpenPGP Identity Proofs library in Node.js
 
