@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.4.0
+
+[2020-11-06](https://codeberg.org/keyoxide/doipjs/releases/tag/0.4.0)
+
+### Added
+- Custom request handler for DNS service provider
+- Docs
+
+### Changed
+- Service provider data structure
+- More consistent handling of options
+
+### Removed
+- dotenv dependency
+
+### Fixed
+- Crash for unexpected JSON data structure
+- Body in http requests
+
 ## 0.3.0
 
 [2020-11-04](https://codeberg.org/keyoxide/doipjs/releases/tag/0.3.0)

@@ -1,6 +1,6 @@
 {
   "name": "doipjs",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Decentralized OpenPGP Identity Proofs library in node",
   "main": "src/index.js",
   "dependencies": {
