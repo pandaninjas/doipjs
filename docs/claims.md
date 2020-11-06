@@ -8,6 +8,15 @@ identity, the other being a [proof](proofs.md).
 A claim is always a phrase, string or URI that is expected to be found inside
 the proof. **The presence of a claim inside a proof verifies that claim.**
 
+## Claims in OpenPGP keys
+
+DOIP assumes claims are stored in OpenPGP keys as so-called notations. The
+format for all claims is the same:
+
+```
+proof@metacode.biz=...
+```
+
 ## Relation with proof
 
 The relation between proof and claim is defined by three variables: `format`,
