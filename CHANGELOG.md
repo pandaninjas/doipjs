@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Custom request handler for DNS service provider
 
 ### Changed
+- Service provider data structure
 - More consistent handling of options
 
 ### Removed
