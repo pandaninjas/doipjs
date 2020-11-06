@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.2
+
+[2020-11-06](https://codeberg.org/keyoxide/doipjs/releases/tag/0.4.2)
+
+### Changed
+- URLs in package.json
+
 ## 0.4.1
 
 [2020-11-06](https://codeberg.org/keyoxide/doipjs/releases/tag/0.4.1)
