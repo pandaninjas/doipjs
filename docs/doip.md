@@ -79,3 +79,24 @@ By adding at least two profiles, you can create meaningful links between those
 profiles. If someone knows **you**, the physical being **you**, is **Alice** on
 website A, they will also now know that you are **Alice123** on website B,
 simply because "*whoever holds that key also holds both of those profiles*".
+
+## Why the snail logo?
+
+> Aren't snails  associated with slowness?
+
+Well, they are also animals that take their homes with them wherever they go. In
+a sense, they are a nice metaphor for DOIP. Snails are the ultimate
+"decentralized life" species of the animal kingdom. They don't have to rely on
+centralized (social) structures, they are self-sufficient by always having their
+home and their identity&mdash;and their data!&mdash;with them.
+
+> Yeah, but&hellip; Snails are slow, though!
+
+You know what, let's embrace the Big Slow. DOIP is slow. Not computationally
+slow. DOIP is just a slow technology. It doesn't provide a social network, it
+doesn't send notifications or reminders, it doesn't want your attention. DOIP is
+more set-and-forget. Set your identities and the technology handles the rest. As
+long as your public keys are live, they'll just continue to work without your
+intervention.
+
+So yes, it's a **Slow Technology**.
