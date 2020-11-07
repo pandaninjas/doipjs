@@ -1,6 +1,6 @@
 # doip.js <small>0.4.2</small>
 
-<img src="doip.svg" width="120">
+<img src="doip.png" width="120">
 
 Decentralized OpenPGP Identity Proofs library in Node.js
 
