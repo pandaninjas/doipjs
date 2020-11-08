@@ -72,7 +72,7 @@ Assuming the following JSON data:
 To verify any claim, the `path` should be set to:
 
 ```javascript
-['firstField', 'secondField', 'finalField']
+claim.path = ['firstField', 'secondField', 'finalField']
 ```
 
 **JSON data containing arrays**
@@ -101,7 +101,7 @@ Assuming the following JSON data:
 To verify any claim, the `path` should be set to:
 
 ```javascript
-['firstField', 'fieldContainingArray', 'finalField']
+claim.path = ['firstField', 'fieldContainingArray', 'finalField']
 ```
 
 Every `finalField` field for every item in the `fieldContainingArray` array will
