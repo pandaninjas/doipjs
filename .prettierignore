@@ -1,4 +1,6 @@
 .git
+dist
 node_modules
 LICENSE
 LICENSE.HEADER
+CHANGELOG.md
