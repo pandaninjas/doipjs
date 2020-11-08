@@ -2,9 +2,13 @@ const generateProxyURL = (type, url, opts) => {
   if (!opts || !opts.doipProxyHostname) {
     return null
   }
+  let addParam = ''
+  if (type == 'xmpp') {
+    addParam += '/DESC'
+  }
   return `https://${
     opts.doipProxyHostname
-  }/api/1/get/${type}/${encodeURIComponent(url)}`
+  }/api/1/get/${type}/${encodeURIComponent(url)}${addParam}`
 }
 
 const generateClaim = (fingerprint, format) => {

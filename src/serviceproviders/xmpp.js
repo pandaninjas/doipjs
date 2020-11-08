@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const utils = require('../utils')
 const reURI = /^xmpp:([a-zA-Z0-9\.\-\_]*)@([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
 
 const processURI = (uri, opts) => {
@@ -32,10 +33,7 @@ const processURI = (uri, opts) => {
       qr: uri,
     },
     proof: {
-      uri:
-        'xmppVcardServerDomain' in opts
-          ? `https://${opts.xmppVcardServerDomain}/api/vcard/${match[1]}@${match[2]}/DESC`
-          : null,
+      uri: utils.generateProxyURL('xmpp', `${match[1]}@${match[2]}`, opts),
       fetch: null,
       useProxy: false,
       format: 'json',
