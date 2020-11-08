@@ -16,48 +16,50 @@ limitations under the License.
 const reURI = /^https:\/\/(.*)\/(.*)\/gitea_proof\/?/
 
 const processURI = (uri, opts) => {
-  if (!opts) { opts = {} }
+  if (!opts) {
+    opts = {}
+  }
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
       type: 'web',
-      name: 'gitea'
+      name: 'gitea',
     },
     profile: {
       display: `${match[2]}@${match[1]}`,
       uri: `https://${match[1]}/${match[2]}`,
-      qr: null
+      qr: null,
     },
     proof: {
       uri: uri,
       fetch: `https://${match[1]}/api/v1/repos/${match[2]}/gitea_proof`,
       useProxy: true,
-      format: 'json'
+      format: 'json',
     },
     claim: {
       fingerprint: null,
       format: 'message',
       path: ['description'],
-      relation: 'equals'
+      relation: 'equals',
     },
-    customRequestHandler: null
+    customRequestHandler: null,
   }
 }
 
 const tests = [
   {
     uri: 'https://domain.org/alice/gitea_proof',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'https://domain.org/alice/gitea_proof/',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'https://domain.org/alice/other_proof',
-    shouldMatch: false
-  }
+    shouldMatch: false,
+  },
 ]
 
 exports.reURI = reURI

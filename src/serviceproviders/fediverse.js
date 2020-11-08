@@ -16,48 +16,50 @@ limitations under the License.
 const reURI = /^https:\/\/(.*)\/users\/(.*)\/?/
 
 const processURI = (uri, opts) => {
-  if (!opts) { opts = {} }
+  if (!opts) {
+    opts = {}
+  }
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
       type: 'web',
-      name: 'fediverse'
+      name: 'fediverse',
     },
     profile: {
       display: `@${match[2]}@${match[1]}`,
       uri: uri,
-      qr: null
+      qr: null,
     },
     proof: {
       uri: uri,
       fetch: null,
       useProxy: false,
-      format: 'json'
+      format: 'json',
     },
     claim: {
       fingerprint: null,
       format: 'fingerprint',
       path: ['summary'],
-      relation: 'contains'
+      relation: 'contains',
     },
-    customRequestHandler: null
+    customRequestHandler: null,
   }
 }
 
 const tests = [
   {
     uri: 'https://domain.org/users/alice',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'https://domain.org/users/alice/',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'https://domain.org/alice',
-    shouldMatch: false
-  }
+    shouldMatch: false,
+  },
 ]
 
 exports.reURI = reURI

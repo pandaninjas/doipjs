@@ -16,56 +16,58 @@ limitations under the License.
 const reURI = /^https:\/\/(?:www\.)?reddit\.com\/user\/(.*)\/comments\/(.*)\/(.*)\/?/
 
 const processURI = (uri, opts) => {
-  if (!opts) { opts = {} }
+  if (!opts) {
+    opts = {}
+  }
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
       type: 'web',
-      name: 'reddit'
+      name: 'reddit',
     },
     profile: {
       display: match[1],
       uri: `https://www.reddit.com/user/${match[1]}`,
-      qr: null
+      qr: null,
     },
     proof: {
       uri: uri,
       fetch: `https://www.reddit.com/user/${match[1]}/comments/${match[2]}.json`,
       useProxy: true,
-      format: 'json'
+      format: 'json',
     },
     claim: {
       fingerprint: null,
       format: 'message',
       path: ['data', 'children', 'data', 'selftext'],
-      relation: 'contains'
+      relation: 'contains',
     },
-    customRequestHandler: null
+    customRequestHandler: null,
   }
 }
 
 const tests = [
   {
     uri: 'https://www.reddit.com/user/Alice/comments/123456/post',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'https://www.reddit.com/user/Alice/comments/123456/post/',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'https://reddit.com/user/Alice/comments/123456/post',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'https://reddit.com/user/Alice/comments/123456/post/',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'https://domain.org/user/Alice/comments/123456/post',
-    shouldMatch: false
-  }
+    shouldMatch: false,
+  },
 ]
 
 exports.reURI = reURI

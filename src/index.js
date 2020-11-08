@@ -20,13 +20,17 @@ const claimVerification = require('./claimVerification')
 const utils = require('./utils')
 
 const verify = async (uri, fingerprint, opts) => {
-  if (!fingerprint) { fingerprint = null }
-  if (!opts) { opts = {} }
+  if (!fingerprint) {
+    fingerprint = null
+  }
+  if (!opts) {
+    opts = {}
+  }
 
   const defaultOpts = {
     returnMatchesOnly: false,
     proxyPolicy: 'adaptive',
-    doipProxyHostname: 'proxy.keyoxide.org'
+    doipProxyHostname: 'proxy.keyoxide.org',
   }
   opts = mergeOptions(defaultOpts, opts)
 
@@ -39,7 +43,13 @@ const verify = async (uri, fingerprint, opts) => {
   if ('returnMatchesOnly' in opts && opts.returnMatchesOnly) {
     return spMatches
   }
-  let claimVerificationDone = false, claimVerificationResult, sp, iSp = 0, res, proofData, spData
+  let claimVerificationDone = false,
+    claimVerificationResult,
+    sp,
+    iSp = 0,
+    res,
+    proofData,
+    spData
   while (!claimVerificationDone && iSp < spMatches.length) {
     spData = spMatches[iSp]
     spData.claim.fingerprint = fingerprint
@@ -48,7 +58,10 @@ const verify = async (uri, fingerprint, opts) => {
 
     if (spData.customRequestHandler instanceof Function) {
       proofData = await spData.customRequestHandler(spData, opts)
-    } else if (!spData.proof.useProxy || 'proxyPolicy' in opts && !opts.useProxyWhenNeeded) {
+    } else if (
+      !spData.proof.useProxy ||
+      ('proxyPolicy' in opts && !opts.useProxyWhenNeeded)
+    ) {
       proofData = await serviceproviders.directRequestHandler(spData, opts)
     } else {
       proofData = await serviceproviders.proxyRequestHandler(spData, opts)
@@ -67,13 +80,13 @@ const verify = async (uri, fingerprint, opts) => {
 
   if (!claimVerificationResult) {
     claimVerificationResult = {
-      isVerified: false
+      isVerified: false,
     }
   }
 
   return {
     isVerified: claimVerificationResult.isVerified,
-    serviceproviderData: spData
+    serviceproviderData: spData,
   }
 }
 

@@ -24,12 +24,18 @@ describe('utils.generateClaim', () => {
     expect(doipjs.utils.generateClaim).to.have.length(2)
   })
   it('should generate a correct "uri" claim', () => {
-    expect(doipjs.utils.generateClaim('123456789', 'uri')).to.equal('openpgp4fpr:123456789')
+    expect(doipjs.utils.generateClaim('123456789', 'uri')).to.equal(
+      'openpgp4fpr:123456789'
+    )
   })
   it('should generate a correct "message" claim', () => {
-    expect(doipjs.utils.generateClaim('123456789', 'message')).to.equal('[Verifying my OpenPGP key: openpgp4fpr:123456789]')
+    expect(doipjs.utils.generateClaim('123456789', 'message')).to.equal(
+      '[Verifying my OpenPGP key: openpgp4fpr:123456789]'
+    )
   })
   it('should generate a correct "fingerprint" claim', () => {
-    expect(doipjs.utils.generateClaim('123456789', 'fingerprint')).to.equal('123456789')
+    expect(doipjs.utils.generateClaim('123456789', 'fingerprint')).to.equal(
+      '123456789'
+    )
   })
 })

@@ -16,48 +16,50 @@ limitations under the License.
 const reURI = /^https:\/\/twitter\.com\/(.*)\/status\/([0-9]*)(?:\?.*)?/
 
 const processURI = (uri, opts) => {
-  if (!opts) { opts = {} }
+  if (!opts) {
+    opts = {}
+  }
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
       type: 'web',
-      name: 'twitter'
+      name: 'twitter',
     },
     profile: {
       display: `@${match[1]}`,
       uri: `https://twitter.com/${match[1]}`,
-      qr: null
+      qr: null,
     },
     proof: {
       uri: uri,
       fetch: `https://mobile.twitter.com/${match[1]}/status/${match[2]}`,
       useProxy: false,
-      format: 'text'
+      format: 'text',
     },
     claim: {
       fingerprint: null,
       format: 'message',
       path: [],
-      relation: 'contains'
+      relation: 'contains',
     },
-    customRequestHandler: null
+    customRequestHandler: null,
   }
 }
 
 const tests = [
   {
     uri: 'https://twitter.com/alice/status/1234567890123456789',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'https://twitter.com/alice/status/1234567890123456789/',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'https://domain.org/alice/status/1234567890123456789',
-    shouldMatch: false
-  }
+    shouldMatch: false,
+  },
 ]
 
 exports.reURI = reURI

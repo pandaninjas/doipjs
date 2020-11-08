@@ -16,48 +16,50 @@ limitations under the License.
 const reURI = /^https:\/\/dev\.to\/(.*)\/(.*)\/?/
 
 const processURI = (uri, opts) => {
-  if (!opts) { opts = {} }
+  if (!opts) {
+    opts = {}
+  }
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
       type: 'web',
-      name: 'devto'
+      name: 'devto',
     },
     profile: {
       display: match[1],
       uri: `https://dev.to/${match[1]}`,
-      qr: null
+      qr: null,
     },
     proof: {
       uri: uri,
       fetch: `https://dev.to/api/articles/${match[1]}/${match[2]}`,
       useProxy: false,
-      format: 'json'
+      format: 'json',
     },
     claim: {
       fingerprint: null,
       format: 'message',
       path: ['body_markdown'],
-      relation: 'contains'
+      relation: 'contains',
     },
-    customRequestHandler: null
+    customRequestHandler: null,
   }
 }
 
 const tests = [
   {
     uri: 'https://dev.to/alice/post',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'https://dev.to/alice/post/',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'https://domain.org/alice/post',
-    shouldMatch: false
-  }
+    shouldMatch: false,
+  },
 ]
 
 exports.reURI = reURI

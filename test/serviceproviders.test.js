@@ -37,14 +37,15 @@ doipjs.serviceproviders.list.forEach((sp, i) => {
     doipjs.serviceproviders.data[sp].tests.forEach((test, j) => {
       if (test.shouldMatch) {
         it(`should match "${test.uri}"`, () => {
-          expect(doipjs.serviceproviders.data[sp].reURI.test(test.uri)).to.be.true
+          expect(doipjs.serviceproviders.data[sp].reURI.test(test.uri)).to.be
+            .true
         })
       } else {
         it(`should not match "${test.uri}"`, () => {
-          expect(doipjs.serviceproviders.data[sp].reURI.test(test.uri)).to.be.false
+          expect(doipjs.serviceproviders.data[sp].reURI.test(test.uri)).to.be
+            .false
         })
       }
     })
-
   })
 })

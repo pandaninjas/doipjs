@@ -16,48 +16,50 @@ limitations under the License.
 const reURI = /^https:\/\/liberapay\.com\/(.*)\/?/
 
 const processURI = (uri, opts) => {
-  if (!opts) { opts = {} }
+  if (!opts) {
+    opts = {}
+  }
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
       type: 'web',
-      name: 'liberapay'
+      name: 'liberapay',
     },
     profile: {
       display: match[1],
       uri: uri,
-      qr: null
+      qr: null,
     },
     proof: {
       uri: uri,
       fetch: `https://liberapay.com/${match[1]}/public.json`,
       useProxy: false,
-      format: 'json'
+      format: 'json',
     },
     claim: {
       fingerprint: null,
       format: 'message',
       path: ['statements', 'content'],
-      relation: 'contains'
+      relation: 'contains',
     },
-    customRequestHandler: null
+    customRequestHandler: null,
   }
 }
 
 const tests = [
   {
     uri: 'https://liberapay.com/alice',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'https://liberapay.com/alice/',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'https://domain.org/alice',
-    shouldMatch: false
-  }
+    shouldMatch: false,
+  },
 ]
 
 exports.reURI = reURI

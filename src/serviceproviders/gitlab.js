@@ -25,66 +25,68 @@ const customRequestHandler = async (spData, opts) => {
   const resUser = await req(urlUser, 'json', { Accept: 'application/json' })
   const jsonUser = await resUser.json()
 
-  const user = jsonUser.find(user => user.username === match[2])
+  const user = jsonUser.find((user) => user.username === match[2])
   if (!user) {
-    throw new Error(`No user with username ${match[2]}`);
+    throw new Error(`No user with username ${match[2]}`)
   }
 
   const urlProject = `https://${match[1]}/api/v4/users/${user.id}/projects`
   const resProject = await req(urlProject, {}, { Accept: 'application/json' })
   const jsonProject = await resProject.json()
 
-  const project = jsonProject.find(proj => proj.path === 'gitlab_proof')
+  const project = jsonProject.find((proj) => proj.path === 'gitlab_proof')
   if (!project) {
-    throw new Error(`No project at ${spData.proof.uri}`);
+    throw new Error(`No project at ${spData.proof.uri}`)
   }
 
   return project
 }
 
 const processURI = (uri, opts) => {
-  if (!opts) { opts = {} }
+  if (!opts) {
+    opts = {}
+  }
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
       type: 'web',
-      name: 'gitlab'
+      name: 'gitlab',
     },
     profile: {
       display: `${match[2]}@${match[1]}`,
       uri: `https://${match[1]}/${match[2]}`,
-      qr: null
+      qr: null,
     },
     proof: {
       uri: uri,
       fetch: null,
       useProxy: false,
-      format: 'json'
+      format: 'json',
     },
     claim: {
       fingerprint: null,
       format: 'message',
       path: ['description'],
-      relation: 'equals'
+      relation: 'equals',
     },
-    customRequestHandler: customRequestHandler
+    customRequestHandler: customRequestHandler,
   }
 }
 
 const tests = [
   {
     uri: 'https://gitlab.domain.org/alice/gitlab_proof',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'https://gitlab.domain.org/alice/gitlab_proof/',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'https://domain.org/alice/other_proof',
-    shouldMatch: false
-  }
+    shouldMatch: false,
+  },
 ]
 
 exports.reURI = reURI

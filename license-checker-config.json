@@ -1,11 +1,11 @@
 {
-    "ignore": ".licenseignore",
-    "license": "LICENSE.HEADER",
-    "licenseFormats": {
-        "dotfile|licenseignore|gitignore|yml": {
-            "eachLine": {
-                "prepend": "# "
-            }
-        }
+  "ignore": ".licenseignore",
+  "license": "LICENSE.HEADER",
+  "licenseFormats": {
+    "dotfile|licenseignore|gitignore|yml": {
+      "eachLine": {
+        "prepend": "# "
+      }
     }
+  }
 }

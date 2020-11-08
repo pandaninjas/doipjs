@@ -16,50 +16,53 @@ limitations under the License.
 const reURI = /^xmpp:([a-zA-Z0-9\.\-\_]*)@([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
 
 const processURI = (uri, opts) => {
-  if (!opts) { opts = {} }
+  if (!opts) {
+    opts = {}
+  }
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
       type: 'communication',
-      name: 'xmpp'
+      name: 'xmpp',
     },
     profile: {
       display: `${match[1]}@${match[2]}`,
       uri: uri,
-      qr: uri
+      qr: uri,
     },
     proof: {
-      uri: 'xmppVcardServerDomain' in opts
-           ? `https://${opts.xmppVcardServerDomain}/api/vcard/${match[1]}@${match[2]}/DESC`
-           : null,
+      uri:
+        'xmppVcardServerDomain' in opts
+          ? `https://${opts.xmppVcardServerDomain}/api/vcard/${match[1]}@${match[2]}/DESC`
+          : null,
       fetch: null,
       useProxy: false,
-      format: 'json'
+      format: 'json',
     },
     claim: {
       fingerprint: null,
       format: 'message',
       path: [],
-      relation: 'contains'
+      relation: 'contains',
     },
-    customRequestHandler: null
+    customRequestHandler: null,
   }
 }
 
 const tests = [
   {
     uri: 'xmpp:alice@domain.org',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'xmpp:alice@domain.org?omemo-sid-123456789=A1B2C3D4E5F6G7H8I9',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'https://domain.org',
-    shouldMatch: false
-  }
+    shouldMatch: false,
+  },
 ]
 
 exports.reURI = reURI

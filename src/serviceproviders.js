@@ -52,7 +52,8 @@ const data = {
 }
 
 const match = (uri, opts) => {
-  let matches = [], sp
+  let matches = [],
+    sp
 
   list.forEach((spName, i) => {
     sp = data[spName]
@@ -65,7 +66,11 @@ const match = (uri, opts) => {
 }
 
 const directRequestHandler = async (spData, opts) => {
-  const res = await req(spData.proof.fetch ? spData.proof.fetch : spData.proof.uri, null, { Accept: 'application/json' })
+  const res = await req(
+    spData.proof.fetch ? spData.proof.fetch : spData.proof.uri,
+    null,
+    { Accept: 'application/json' }
+  )
 
   switch (spData.proof.format) {
     case 'json':
@@ -82,7 +87,11 @@ const directRequestHandler = async (spData, opts) => {
 
 const proxyRequestHandler = async (spData, opts) => {
   const url = spData.proof.fetch ? spData.proof.fetch : spData.proof.uri
-  const res = await req(utils.generateProxyURL(spData.proof.format, url, opts), null, { Accept: 'application/json' })
+  const res = await req(
+    utils.generateProxyURL(spData.proof.format, url, opts),
+    null,
+    { Accept: 'application/json' }
+  )
   const json = await res.json()
   return json.content
 }

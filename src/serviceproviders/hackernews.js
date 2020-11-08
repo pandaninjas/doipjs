@@ -16,48 +16,50 @@ limitations under the License.
 const reURI = /^https:\/\/news\.ycombinator\.com\/user\?id=(.*)\/?/
 
 const processURI = (uri, opts) => {
-  if (!opts) { opts = {} }
+  if (!opts) {
+    opts = {}
+  }
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
       type: 'web',
-      name: 'hackernews'
+      name: 'hackernews',
     },
     profile: {
       display: match[1],
       uri: uri,
-      qr: null
+      qr: null,
     },
     proof: {
       uri: `https://hacker-news.firebaseio.com/v0/user/${match[1]}.json`,
       fetch: null,
       useProxy: true,
-      format: 'json'
+      format: 'json',
     },
     claim: {
       fingerprint: null,
       format: 'uri',
       path: ['about'],
-      relation: 'contains'
+      relation: 'contains',
     },
-    customRequestHandler: null
+    customRequestHandler: null,
   }
 }
 
 const tests = [
   {
     uri: 'https://news.ycombinator.com/user?id=Alice',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'https://news.ycombinator.com/user?id=Alice/',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'https://domain.org/user?id=Alice',
-    shouldMatch: false
-  }
+    shouldMatch: false,
+  },
 ]
 
 exports.reURI = reURI

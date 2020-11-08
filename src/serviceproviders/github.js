@@ -16,48 +16,50 @@ limitations under the License.
 const reURI = /^https:\/\/gist\.github\.com\/(.*)\/(.*)\/?/
 
 const processURI = (uri, opts) => {
-  if (!opts) { opts = {} }
+  if (!opts) {
+    opts = {}
+  }
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
       type: 'web',
-      name: 'github'
+      name: 'github',
     },
     profile: {
       display: match[1],
       uri: `https://github.com/${match[1]}`,
-      qr: null
+      qr: null,
     },
     proof: {
       uri: uri,
       fetch: `https://api.github.com/gists/${match[2]}`,
       useProxy: false,
-      format: 'json'
+      format: 'json',
     },
     claim: {
       fingerprint: null,
       format: 'message',
       path: ['files', 'openpgp.md', 'content'],
-      relation: 'contains'
+      relation: 'contains',
     },
-    customRequestHandler: null
+    customRequestHandler: null,
   }
 }
 
 const tests = [
   {
     uri: 'https://gist.github.com/Alice/123456789',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'https://gist.github.com/Alice/123456789/',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'https://domain.org/Alice/123456789',
-    shouldMatch: false
-  }
+    shouldMatch: false,
+  },
 ]
 
 exports.reURI = reURI

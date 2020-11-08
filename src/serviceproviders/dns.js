@@ -20,7 +20,7 @@ const utils = require('../utils')
 const reURI = /^dns:([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
 
 const customRequestHandler = async (spData, opts) => {
-  if (('resolveTxt' in dns)) {
+  if ('resolveTxt' in dns) {
     const prom = async () => {
       return new Promise((resolve, reject) => {
         dns.resolveTxt(spData.profile.display, (err, records) => {
@@ -32,59 +32,63 @@ const customRequestHandler = async (spData, opts) => {
     return {
       hostname: spData.profile.display,
       records: {
-        txt: await prom()
-      }
+        txt: await prom(),
+      },
     }
   } else {
-    const res = await req(spData.proof.uri, null, { Accept: 'application/json' })
+    const res = await req(spData.proof.uri, null, {
+      Accept: 'application/json',
+    })
     const json = await res.json()
     return json
   }
 }
 
 const processURI = (uri, opts) => {
-  if (!opts) { opts = {} }
+  if (!opts) {
+    opts = {}
+  }
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
       type: 'web',
-      name: 'dns'
+      name: 'dns',
     },
     profile: {
       display: match[1],
       uri: `https://${match[1]}`,
-      qr: null
+      qr: null,
     },
     proof: {
       uri: utils.generateProxyURL('dns', match[1]),
       fetch: null,
       useProxy: false,
-      format: 'json'
+      format: 'json',
     },
     claim: {
       fingerprint: null,
       format: 'uri',
       path: ['records', 'txt'],
-      relation: 'contains'
+      relation: 'contains',
     },
-    customRequestHandler: customRequestHandler
+    customRequestHandler: customRequestHandler,
   }
 }
 
 const tests = [
   {
     uri: 'dns:domain.org',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'dns:domain.org?type=TXT',
-    shouldMatch: true
+    shouldMatch: true,
   },
   {
     uri: 'https://domain.org',
-    shouldMatch: false
-  }
+    shouldMatch: false,
+  },
 ]
 
 exports.reURI = reURI
