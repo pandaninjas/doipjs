@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>doip.js browser demo</title>
   </head>
   <body>
-
     <h1>doip.js browser demo</h1>
 
     <div id="claims">
@@ -18,11 +17,15 @@
         <pre class="claim_output"></pre>
       </div>
       <div>
-        <h2 class="claim_input">https://twitter.com/alice/status/1234567890123456789</h2>
+        <h2 class="claim_input">
+          https://twitter.com/alice/status/1234567890123456789
+        </h2>
         <pre class="claim_output"></pre>
       </div>
       <div>
-        <h2 class="claim_input">https://www.reddit.com/user/Alice/comments/123456/post</h2>
+        <h2 class="claim_input">
+          https://www.reddit.com/user/Alice/comments/123456/post
+        </h2>
         <pre class="claim_output"></pre>
       </div>
       <div>
@@ -50,7 +53,6 @@
         <pre class="claim_output"></pre>
       </div>
     </div>
-
   </body>
 
   <script src="../dist/doip.min.js" charset="utf-8"></script>
@@ -59,12 +61,20 @@
       const claims = document.querySelectorAll('#claims > div')
       claims.forEach(async (item, i) => {
         claimInput = item.querySelector('.claim_input').textContent
-        item.querySelector('.claim_output').textContent = JSON.stringify(await doip.verify(claimInput, null, { 'returnMatchesOnly': true, 'xmppVcardServerDomain': 'vcard.server.org' }), null, 2)
+        item.querySelector('.claim_output').textContent = JSON.stringify(
+          await doip.verify(claimInput, null, {
+            returnMatchesOnly: true,
+            xmppVcardServerDomain: 'vcard.server.org',
+          }),
+          null,
+          2
+        )
       })
     })
   </script>
   <style>
-    h1, h2 {
+    h1,
+    h2 {
       text-align: center;
     }
     #claims > div {
