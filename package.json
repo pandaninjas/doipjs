@@ -7,6 +7,7 @@
     "bent": "^7.3.12",
     "browserify": "^17.0.0",
     "merge-options": "^3.0.3",
+    "prettier": "^2.1.2",
     "valid-url": "^1.0.9"
   },
   "devDependencies": {
@@ -20,6 +21,8 @@
   "scripts": {
     "release:bundle": "./node_modules/browserify/bin/cmd.js ./src/index.js --standalone doip -o ./dist/doip.js",
     "release:minify": "./node_modules/minify/bin/minify.js ./dist/doip.js > ./dist/doip.min.js",
+    "prettier:check": "./node_modules/prettier/bin-prettier.js --check .",
+    "prettier:write": "./node_modules/prettier/bin-prettier.js --write .",
     "license:check": "./node_modules/license-check-and-add/dist/src/cli.js check",
     "license:add": "./node_modules/license-check-and-add/dist/src/cli.js add",
     "license:remove": "./node_modules/license-check-and-add/dist/src/cli.js remove",

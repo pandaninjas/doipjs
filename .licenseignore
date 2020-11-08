@@ -9,8 +9,10 @@
 **/*.pug
 
 package.json
-package-lock.json
+yarn.lock
 \.editorconfig
 \.gitignore
 \.licenseignore
+\.prettierignore
+\.prettierrc.yaml
 Dockerfile
