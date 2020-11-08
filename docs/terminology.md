@@ -12,11 +12,10 @@ For more detailed information, please refer to [Claims](claims.md).
 
 ## Cryptographic key
 
-
-According to [Wikipedia](https://en.wikipedia.org/wiki/Key_(cryptography)):
+According to [Wikipedia](<https://en.wikipedia.org/wiki/Key_(cryptography)>):
 
 > [...] a piece of information (a parameter) that determines the functional
-output of a cryptographic algorithm.
+> output of a cryptographic algorithm.
 
 Cryptographic keys can be used to encrypt/decrypt data and verify digital
 signatures.

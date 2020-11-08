@@ -6,7 +6,7 @@ The object returned by any service provider has the following layout:
 
 ```json
 {
-  "serviceprovider" : {
+  "serviceprovider": {
     "type": "web",
     "name": "awesome-service"
   },
@@ -40,6 +40,7 @@ Mandatory: true
 ```
 
 Currently, only two types of service providers are supported:
+
 - `web`: traditional website platforms
 - `communication`: platforms for interpersonal communication
 
@@ -124,6 +125,7 @@ Mandatory: true
 ```
 
 The format in which the claim's fingerprint is expected to be found in the proof. There are three supported claim formats:
+
 - `uri`: the claim is formulated as `openpgp4fpr:FINGERPRINT`
 - `message`: the claim is formulated as `[Verifying my OpenPGP key: openpgp4fpr:FINGERPRINT]`
 - `fingerprint`: the claim is formulated as `FINGERPRINT`
@@ -151,6 +153,7 @@ Mandatory: true
 ```
 
 How the claim relates to the proof. There are three supported claim relations:
+
 - `contains`: the proof is a long text containing the claim
 - `equals`: the proof is equal to the claim
 - `oneOf`: the proof is an array of string, one of which is the claim

@@ -73,16 +73,16 @@ verification of DOIPs. Please refer to the [list of supported service providers]
 The endgame of using DOIP is to add at least two profile. Proving that you own
 a single profile&mdash;in a way&mdash;doesn't prove anything. The issue is that
 we cannot prove that **you**, the physical being **you**, holds that key. DOIP
-can only verify that "*whoever holds that key also holds that profile*".
+can only verify that "_whoever holds that key also holds that profile_".
 
 By adding at least two profiles, you can create meaningful links between those
 profiles. If someone knows **you**, the physical being **you**, is **Alice** on
 website A, they will also now know that you are **Alice123** on website B,
-simply because "*whoever holds that key also holds both of those profiles*".
+simply because "_whoever holds that key also holds both of those profiles_".
 
 ## Why the snail logo?
 
-> Aren't snails  associated with slowness?
+> Aren't snails associated with slowness?
 
 Well, they are also animals that take their homes with them wherever they go. In
 a sense, they are a nice metaphor for DOIP. Snails are the ultimate
