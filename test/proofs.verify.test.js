@@ -57,7 +57,7 @@ const pattern = {
   },
 }
 
-describe('verify', () => {
+describe('proofs.verify', () => {
   it('should be a function (3 arguments)', () => {
     expect(doipjs.proofs.verify).to.be.a('function')
     expect(doipjs.proofs.verify).to.have.length(3)
