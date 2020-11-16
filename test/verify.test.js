@@ -66,9 +66,9 @@ describe('verify', () => {
     return expect(doipjs.proofs.verify('noURI')).to.eventually.be.rejectedWith(
       'Not a valid URI'
     )
-    return expect(doipjs.proofs.verify('domain.org')).to.eventually.be.rejectedWith(
-      'Not a valid URI'
-    )
+    return expect(
+      doipjs.proofs.verify('domain.org')
+    ).to.eventually.be.rejectedWith('Not a valid URI')
   })
 
   doipjs.serviceproviders.list.forEach((spName, i) => {
