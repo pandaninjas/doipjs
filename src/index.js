@@ -13,14 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const proofs = require('./proofs')
+const claims = require('./claims')
 const keys = require('./keys')
 const serviceproviders = require('./serviceproviders')
-const claimVerification = require('./claimVerification')
 const utils = require('./utils')
 
-exports.proofs = proofs
+exports.claims = claims
 exports.keys = keys
 exports.serviceproviders = serviceproviders
-exports.claimVerification = claimVerification
 exports.utils = utils

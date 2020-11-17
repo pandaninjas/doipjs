@@ -57,17 +57,17 @@ const pattern = {
   },
 }
 
-describe('proofs.verify', () => {
+describe('claims.verify', () => {
   it('should be a function (3 arguments)', () => {
-    expect(doipjs.proofs.verify).to.be.a('function')
-    expect(doipjs.proofs.verify).to.have.length(3)
+    expect(doipjs.claims.verify).to.be.a('function')
+    expect(doipjs.claims.verify).to.have.length(3)
   })
   it('should throw an error for non-valid URIs', () => {
-    return expect(doipjs.proofs.verify('noURI')).to.eventually.be.rejectedWith(
+    return expect(doipjs.claims.verify('noURI')).to.eventually.be.rejectedWith(
       'Not a valid URI'
     )
     return expect(
-      doipjs.proofs.verify('domain.org')
+      doipjs.claims.verify('domain.org')
     ).to.eventually.be.rejectedWith('Not a valid URI')
   })
 
@@ -79,7 +79,7 @@ describe('proofs.verify', () => {
     }
 
     it(`should return a valid object for the "${spName}" service provider`, async () => {
-      const matches = await doipjs.proofs.verify(sp.tests[0].uri, null, {
+      const matches = await doipjs.claims.verify(sp.tests[0].uri, null, {
         returnMatchesOnly: true,
       })
       expect(matches).to.be.a('array')

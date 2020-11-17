@@ -13,9 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const mergeOptions = require('merge-options')
+const validUrl = require('valid-url')
+const serviceproviders = require('./serviceproviders')
 const utils = require('./utils')
 
-const runOnJson = (res, proofData, checkPath, checkClaim, checkRelation) => {
+const runVerificationJson = (res, proofData, checkPath, checkClaim, checkRelation) => {
   let re
 
   if (res.isVerified || !proofData) {
@@ -24,7 +27,7 @@ const runOnJson = (res, proofData, checkPath, checkClaim, checkRelation) => {
 
   if (Array.isArray(proofData)) {
     proofData.forEach((item, i) => {
-      res = runOnJson(res, item, checkPath, checkClaim, checkRelation)
+      res = runVerificationJson(res, item, checkPath, checkClaim, checkRelation)
     })
     return res
   }
@@ -59,7 +62,7 @@ const runOnJson = (res, proofData, checkPath, checkClaim, checkRelation) => {
     return res
   }
 
-  res = runOnJson(
+  res = runVerificationJson(
     res,
     proofData[checkPath[0]],
     checkPath.slice(1),
@@ -69,7 +72,7 @@ const runOnJson = (res, proofData, checkPath, checkClaim, checkRelation) => {
   return res
 }
 
-const run = (proofData, spData) => {
+const runVerification = (proofData, spData) => {
   let res = {
     isVerified: false,
     errors: [],
@@ -77,7 +80,7 @@ const run = (proofData, spData) => {
 
   switch (spData.proof.format) {
     case 'json':
-      res = runOnJson(
+      res = runVerificationJson(
         res,
         proofData,
         spData.claim.path,
@@ -97,4 +100,75 @@ const run = (proofData, spData) => {
   return res
 }
 
-exports.run = run
+const verify = async (uri, fingerprint, opts) => {
+  if (!fingerprint) {
+    fingerprint = null
+  }
+  if (!opts) {
+    opts = {}
+  }
+
+  const defaultOpts = {
+    returnMatchesOnly: false,
+    proxyPolicy: 'adaptive',
+    doipProxyHostname: 'proxy.keyoxide.org',
+  }
+  opts = mergeOptions(defaultOpts, opts)
+
+  if (!validUrl.isUri(uri)) {
+    throw new Error('Not a valid URI')
+  }
+
+  const spMatches = serviceproviders.match(uri, opts)
+
+  if ('returnMatchesOnly' in opts && opts.returnMatchesOnly) {
+    return spMatches
+  }
+  let claimVerificationDone = false,
+    claimVerificationResult,
+    sp,
+    iSp = 0,
+    res,
+    proofData,
+    spData
+  while (!claimVerificationDone && iSp < spMatches.length) {
+    spData = spMatches[iSp]
+    spData.claim.fingerprint = fingerprint
+
+    res = null
+
+    if (spData.customRequestHandler instanceof Function) {
+      proofData = await spData.customRequestHandler(spData, opts)
+    } else if (
+      !spData.proof.useProxy ||
+      ('proxyPolicy' in opts && !opts.useProxyWhenNeeded)
+    ) {
+      proofData = await serviceproviders.directRequestHandler(spData, opts)
+    } else {
+      proofData = await serviceproviders.proxyRequestHandler(spData, opts)
+    }
+
+    if (proofData) {
+      claimVerificationResult = runVerification(proofData, spData)
+
+      if (claimVerificationResult.errors.length == 0) {
+        claimVerificationDone = true
+      }
+    }
+
+    iSp++
+  }
+
+  if (!claimVerificationResult) {
+    claimVerificationResult = {
+      isVerified: false,
+    }
+  }
+
+  return {
+    isVerified: claimVerificationResult.isVerified,
+    serviceproviderData: spData,
+  }
+}
+
+exports.verify = verify
