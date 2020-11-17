@@ -71,7 +71,10 @@ const directRequestHandler = async (spData, opts) => {
 
   switch (spData.proof.format) {
     case 'json':
-      res = await req(url, null, { Accept: 'application/json' })
+      res = await req(url, null, {
+        Accept: 'application/json',
+        'User-Agent': `doipjs/${require('../package.json').version}`,
+      })
       return await res.json()
       break
     case 'text':
