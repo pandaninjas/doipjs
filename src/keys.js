@@ -16,7 +16,7 @@ limitations under the License.
 const bent = require('bent')
 const req = bent('GET')
 const validUrl = require('valid-url')
-const openpgp = require('openpgp')
+const openpgp = require('../node_modules/openpgp/dist/openpgp.min.js')
 const mergeOptions = require('merge-options')
 
 const fetchHKP = async (identifier, keyserverBaseUrl) => {

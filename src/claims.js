@@ -15,7 +15,7 @@ limitations under the License.
 */
 const mergeOptions = require('merge-options')
 const validUrl = require('valid-url')
-const openpgp = require('openpgp')
+const openpgp = require('../node_modules/openpgp/dist/openpgp.min.js')
 const serviceproviders = require('./serviceproviders')
 const keys = require('./keys')
 const utils = require('./utils')
