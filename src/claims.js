@@ -18,7 +18,13 @@ const validUrl = require('valid-url')
 const serviceproviders = require('./serviceproviders')
 const utils = require('./utils')
 
-const runVerificationJson = (res, proofData, checkPath, checkClaim, checkRelation) => {
+const runVerificationJson = (
+  res,
+  proofData,
+  checkPath,
+  checkClaim,
+  checkRelation
+) => {
   let re
 
   if (res.isVerified || !proofData) {
