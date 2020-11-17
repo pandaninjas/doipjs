@@ -15,7 +15,9 @@ limitations under the License.
 */
 const mergeOptions = require('merge-options')
 const validUrl = require('valid-url')
+const openpgp = require('openpgp')
 const serviceproviders = require('./serviceproviders')
+const keys = require('./keys')
 const utils = require('./utils')
 
 const runVerificationJson = (
@@ -106,12 +108,34 @@ const runVerification = (proofData, spData) => {
   return res
 }
 
-const verify = async (uri, fingerprint, opts) => {
+const verify = async (input, fingerprint, opts) => {
+  if (input instanceof openpgp.key.Key) {
+    const fingerprintLocal = await keys.getFingerprint(input)
+    const claims = await keys.getClaims(input)
+    return await verify(claims, fingerprintLocal, opts)
+  }
+  if (input instanceof Array) {
+    const promises = input.map(async (uri, i) => {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const res = await verify(uri, fingerprint, opts)
+          resolve(res)
+        } catch (e) {
+          console.error(`Claim verification failed: ${uri}`, e)
+          reject(e)
+        }
+      })
+    })
+
+    return Promise.all(promises).then((values) => {
+      return values
+    })
+  }
+
+  const uri = input
+
   if (!fingerprint) {
     fingerprint = null
-  }
-  if (!opts) {
-    opts = {}
   }
 
   const defaultOpts = {
@@ -119,7 +143,7 @@ const verify = async (uri, fingerprint, opts) => {
     proxyPolicy: 'adaptive',
     doipProxyHostname: 'proxy.keyoxide.org',
   }
-  opts = mergeOptions(defaultOpts, opts)
+  opts = mergeOptions(defaultOpts, opts ? opts : {})
 
   if (!validUrl.isUri(uri)) {
     throw new Error('Not a valid URI')
