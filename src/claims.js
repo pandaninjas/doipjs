@@ -99,7 +99,7 @@ const runVerification = (proofData, spData) => {
         utils.generateClaim(spData.claim.fingerprint, spData.claim.format),
         'gi'
       )
-      res = re.test(proofData.replace(/\r?\n|\r/, ''))
+      res.isVerified = re.test(proofData.replace(/\r?\n|\r/, ''))
       break
   }
 
