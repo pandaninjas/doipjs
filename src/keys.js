@@ -35,7 +35,7 @@ const fetchHKP = async (identifier, keyserverBaseUrl) => {
     return publicKey
   } catch (e) {
     console.error(e)
-    return null
+    return undefined
   }
 }
 
@@ -50,7 +50,7 @@ const fetchWKD = async (identifier) => {
     return publicKey
   } catch (e) {
     console.error(e)
-    return null
+    return undefined
   }
 }
 
@@ -66,14 +66,14 @@ const fetchKeybase = async (username, fingerprint) => {
         })
         .then((response) => response.text())
     } catch (e) {
-      return null
+      return undefined
     }
     const publicKey = (await openpgp.key.readArmored(rawKeyContent)).keys[0]
 
     return publicKey
   } catch (e) {
     console.error(e)
-    return null
+    return undefined
   }
 }
 
@@ -84,7 +84,7 @@ const fetchPlaintext = async (rawKeyContent) => {
     return publicKey
   } catch (e) {
     console.error(e)
-    return null
+    return undefined
   }
 }
 
@@ -103,7 +103,7 @@ const fetchSignature = async (rawSignatureContent, keyserverBaseUrl) => {
     return fetchHKP(sigUserId ? sigUserId : sigKeyId, keyserverBaseUrl)
   } catch (e) {
     console.error(e)
-    return null
+    return undefined
   }
 }
 
@@ -136,7 +136,7 @@ const fetchURI = async (uri) => {
     }
   } catch (e) {
     console.error(e)
-    return null
+    return undefined
   }
 }
 
@@ -151,7 +151,7 @@ const process = async (publicKey) => {
     }
   } catch (e) {
     console.error(e)
-    return null
+    return undefined
   }
 }
 
@@ -169,7 +169,7 @@ const getClaims = async (publicKey) => {
     return notations
   } catch (e) {
     console.error(e)
-    return null
+    return undefined
   }
 }
 
@@ -180,7 +180,7 @@ const getFingerprint = async (publicKey) => {
     return keyData.fingerprint
   } catch (e) {
     console.error(e)
-    return null
+    return undefined
   }
 }
 
