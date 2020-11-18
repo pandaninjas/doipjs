@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.5.0
+
+[2020-11-18](https://codeberg.org/keyoxide/doipjs/releases/tag/0.5.0)
+
+### Added
+- Keys fetching using openpgp.js
+- Claims extraction from keys using openpgp.js
+
+### Changed
+- Support xmpp via doip-proxy
+- Module structure
+- Docs
+
+### Fixed
+- Bad verification value return for text proofs
+- Missing User-Agent request header
+
 ## 0.4.2
 
 [2020-11-06](https://codeberg.org/keyoxide/doipjs/releases/tag/0.4.2)
