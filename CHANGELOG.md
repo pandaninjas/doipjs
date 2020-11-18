@@ -5,8 +5,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.5.0] - 2020-11-18
+### Added
+- Keys fetching using openpgp.js
+- Claims extraction from keys using openpgp.js
+
 ### Changed
 - Support xmpp via doip-proxy
+- Module structure
+- Docs
+
+### Fixed
+- Bad verification value return for text proofs
+- Missing User-Agent request header
 
 ## [0.4.2] - 2020-11-06
 ### Changed
