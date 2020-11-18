@@ -1,0 +1,96 @@
+/*
+Copyright 2020 Yarmo Mackenbach
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+const chai = require('chai')
+const expect = chai.expect
+
+const openpgp = require('../node_modules/openpgp/dist/openpgp.min.js')
+const doipjs = require('../src')
+
+const pubKeyFetchPlaintext =`-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+mQGNBF+036UBDACoxWRdp7rBAFB2l/+dxX0XA50NJC92EEacB5L0TnC0lP/MsNHv
+fAv/A9vgTwrPudvcHdE/urAjQswfIU3LpFxbBOWNYWOv6ssrzBH4vVGMyxfu2GGu
+b2mxjWj0eWXnWXnzkO5fscX2y0HqNjBZjDSkYohHZJTbz91NnxK3a8+Erpk+sgEH
+hQH1h75SfaW6GZucuhenxgjwEiGz84UEVS0AEWD9yNgfWCsK/6HuIRnv5Jv5V9z9
+bx9Ik7QNGBks3tpNmdbeaaadkHYZpF3Fm8mCoIt2+Xx9OvyuLssZnVkuQdj8C2/z
+E45If4+pHRnRcCWXpDrHUWoJaeyGuTq5triePI6h/4lgr/m/du0O/lhOrr6MUhAe
+7xc0B+X+bTF/balZmmlbk5bnDoZMzdH8caui5XrkuRif/I0nYPRnc9zrqWJDDO/p
+nltpMPrUMTjoiXZ8DbJ4WMK7QPdsbG8Tz/Vl3wigEmwPLfEGifLpec5RXrti5Zd9
+FiSOIOetP8p8MSMAEQEAAbRBWWFybW8gTWFja2VuYmFjaCAobWF0ZXJpYWwgZm9y
+IHRlc3QgZnJhbWV3b3JrcykgPHRlc3RAZG9pcC5yb2Nrcz6JAfgEEwEKAGICGwMF
+CwkIBwIGFQoJCAsCBBYCAwECHgECF4AWIQQ2NyAlI+fBMJq3npnvLcWCe0RfSwUC
+X7TgDSkUgAAAAAASAA5wcm9vZkBtZXRhY29kZS5iaXpkbnM6ZG9pcC5yb2NrcwAK
+CRDvLcWCe0RfS8XBC/9DtRvmNXI2fjXrhM3+d+bwmg9itY+p0gt+gG13s1aB/jTc
+LlI9mGt/ZgzdgAxG9vtRqAPTSkTK4TaIsB+p02f3JntpaItTIXHPb8dRizpbkPCn
+iZnVSHM4G4qtr4lQawR1xikSBx9SRyd3KUKfIgpCEonXPZ4Z1Rw558/fwcqNH4LW
+Wa18MtVt5Yfc2D7JgBR8nK/YBgZkqdW3u0izn/dbUYtQm8aRIhcB0jbiYVaUFpKq
+dgPFM7Gp8zjKYcEg/vlylny8lKCfQ5xMCIUSCxToHckBfo+9QqcWy0LHFaiq/7+N
+Fsikjo87GjESOd+QTuKdtQBzegLotgeNtCOFBKOoY2g+24FsbSbIm5H27vw/odgV
+cqvy+yineO/jWCWp6pHbALSg1INuVnluwyAqXoM4Gx7rUboISN2nIzYpdjXAUgnX
+XxFjll8b3+FRQAH80qkvtuDDZ/z2CQQ/mdJgNJdMwqvwBQZnCMts0PyqTlzw1mcy
+x77L7mBkREbuZpFoD/c=
+=w7qB
+-----END PGP PUBLIC KEY BLOCK-----`
+
+describe('keys.fetch.uri', () => {
+  it('should be a function (1 argument)', () => {
+    expect(doipjs.keys.fetch.uri).to.be.a('function')
+    expect(doipjs.keys.fetch.uri).to.have.length(1)
+  })
+  it('should return a Key object when provided a hkp: uri', async () => {
+    expect(await doipjs.keys.fetch.uri('hkp:3637202523E7C1309AB79E99EF2DC5827B445F4B')).to.be.instanceOf(
+      openpgp.key.Key
+    )
+  })
+  it('should return undefined when provided an invalid uri', async () => {
+    expect(await doipjs.keys.fetch.uri('inv:3637202523E7C1309AB79E99EF2DC5827B445F4B')).to.be.undefined
+  })
+})
+
+describe('keys.fetch.hkp', () => {
+  it('should be a function (2 arguments)', () => {
+    expect(doipjs.keys.fetch.hkp).to.be.a('function')
+    expect(doipjs.keys.fetch.hkp).to.have.length(2)
+  })
+  it('should return a Key object when provided a valid fingerprint', async () => {
+    expect(await doipjs.keys.fetch.hkp('3637202523E7C1309AB79E99EF2DC5827B445F4B')).to.be.instanceOf(
+      openpgp.key.Key
+    )
+  })
+  it('should return a Key object when provided a valid email address', async () => {
+    expect(await doipjs.keys.fetch.hkp('test@doip.rocks')).to.be.instanceOf(
+      openpgp.key.Key
+    )
+  })
+  it('should return undefined when provided an invalid fingerprint', async () => {
+    expect(await doipjs.keys.fetch.hkp('4637202523E7C1309AB79E99EF2DC5827B445F4B')).to.be.undefined
+  })
+  it('should return undefined when provided an invalid email address', async () => {
+    expect(await doipjs.keys.fetch.hkp('invalid@doip.rocks')).to.be.undefined
+  })
+})
+
+describe('keys.fetch.plaintext', () => {
+  it('should be a function (1 argument)', () => {
+    expect(doipjs.keys.fetch.plaintext).to.be.a('function')
+    expect(doipjs.keys.fetch.plaintext).to.have.length(1)
+  })
+  it('should return a Key object', async () => {
+    expect(await doipjs.keys.fetch.plaintext(pubKeyFetchPlaintext)).to.be.instanceOf(
+      openpgp.key.Key
+    )
+  })
+})
