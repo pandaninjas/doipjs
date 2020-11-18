@@ -15,7 +15,7 @@ npm install --save doipjs
 Install on website by including the following HTML snippet:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/keyoxide@0.3.0/dist/doip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/keyoxide@0.5.0/dist/doip.min.js"></script>
 ```
 
 Next step: [quick start (Node.js)](quickstart-nodejs.md) and [quick start (browser)](quickstart-browser.md)
