@@ -19,7 +19,9 @@ const expect = chai.expect
 const openpgp = require('../node_modules/openpgp/dist/openpgp.min.js')
 const doipjs = require('../src')
 
-const pubKeyFetchPlaintext =`-----BEGIN PGP PUBLIC KEY BLOCK-----
+const pubKeyFingerprint = `3637202523e7c1309ab79e99ef2dc5827b445f4b`
+const pubKeyEmail       = `test@doip.rocks`
+const pubKeyPlaintext   = `-----BEGIN PGP PUBLIC KEY BLOCK-----
 
 mQGNBF+036UBDACoxWRdp7rBAFB2l/+dxX0XA50NJC92EEacB5L0TnC0lP/MsNHv
 fAv/A9vgTwrPudvcHdE/urAjQswfIU3LpFxbBOWNYWOv6ssrzBH4vVGMyxfu2GGu
@@ -51,12 +53,12 @@ describe('keys.fetch.uri', () => {
     expect(doipjs.keys.fetch.uri).to.have.length(1)
   })
   it('should return a Key object when provided a hkp: uri', async () => {
-    expect(await doipjs.keys.fetch.uri('hkp:3637202523E7C1309AB79E99EF2DC5827B445F4B')).to.be.instanceOf(
+    expect(await doipjs.keys.fetch.uri(`hkp:${pubKeyFingerprint}`)).to.be.instanceOf(
       openpgp.key.Key
     )
   })
   it('should return undefined when provided an invalid uri', async () => {
-    expect(await doipjs.keys.fetch.uri('inv:3637202523E7C1309AB79E99EF2DC5827B445F4B')).to.be.undefined
+    expect(await doipjs.keys.fetch.uri(`inv:${pubKeyFingerprint}`)).to.be.undefined
   })
 })
 
@@ -66,17 +68,17 @@ describe('keys.fetch.hkp', () => {
     expect(doipjs.keys.fetch.hkp).to.have.length(2)
   })
   it('should return a Key object when provided a valid fingerprint', async () => {
-    expect(await doipjs.keys.fetch.hkp('3637202523E7C1309AB79E99EF2DC5827B445F4B')).to.be.instanceOf(
+    expect(await doipjs.keys.fetch.hkp(pubKeyFingerprint)).to.be.instanceOf(
       openpgp.key.Key
     )
   })
   it('should return a Key object when provided a valid email address', async () => {
-    expect(await doipjs.keys.fetch.hkp('test@doip.rocks')).to.be.instanceOf(
+    expect(await doipjs.keys.fetch.hkp(pubKeyEmail)).to.be.instanceOf(
       openpgp.key.Key
     )
   })
   it('should return undefined when provided an invalid fingerprint', async () => {
-    expect(await doipjs.keys.fetch.hkp('4637202523E7C1309AB79E99EF2DC5827B445F4B')).to.be.undefined
+    expect(await doipjs.keys.fetch.hkp('4637202523e7c1309ab79e99ef2dc5827b445f4b')).to.be.undefined
   })
   it('should return undefined when provided an invalid email address', async () => {
     expect(await doipjs.keys.fetch.hkp('invalid@doip.rocks')).to.be.undefined
@@ -89,8 +91,45 @@ describe('keys.fetch.plaintext', () => {
     expect(doipjs.keys.fetch.plaintext).to.have.length(1)
   })
   it('should return a Key object', async () => {
-    expect(await doipjs.keys.fetch.plaintext(pubKeyFetchPlaintext)).to.be.instanceOf(
+    expect(await doipjs.keys.fetch.plaintext(pubKeyPlaintext)).to.be.instanceOf(
       openpgp.key.Key
     )
+  })
+})
+
+describe('keys.process', () => {
+  it('should be a function (1 argument)', () => {
+    expect(doipjs.keys.process).to.be.a('function')
+    expect(doipjs.keys.process).to.have.length(1)
+  })
+  it('should return an object with specific keys', async () => {
+    const pubKey = await doipjs.keys.fetch.plaintext(pubKeyPlaintext)
+    const obj = await doipjs.keys.process(pubKey)
+    expect(obj).to.have.keys(['user', 'fingerprint'])
+  })
+})
+
+describe('keys.getFingerprint', () => {
+  it('should be a function (1 argument)', () => {
+    expect(doipjs.keys.getFingerprint).to.be.a('function')
+    expect(doipjs.keys.getFingerprint).to.have.length(1)
+  })
+  it('should return a string', async () => {
+    const pubKey = await doipjs.keys.fetch.plaintext(pubKeyPlaintext)
+    const fp = await doipjs.keys.getFingerprint(pubKey)
+    expect(fp).to.be.equal(pubKeyFingerprint)
+  })
+})
+
+describe('keys.getClaims', () => {
+  it('should be a function (1 argument)', () => {
+    expect(doipjs.keys.getClaims).to.be.a('function')
+    expect(doipjs.keys.getClaims).to.have.length(1)
+  })
+  it('should return an array of strings', async () => {
+    const pubKey = await doipjs.keys.fetch.plaintext(pubKeyPlaintext)
+    const arr = await doipjs.keys.getClaims(pubKey)
+    expect(arr).to.be.lengthOf(1)
+    expect(arr[0]).to.be.equal('dns:doip.rocks')
   })
 })
