@@ -9,10 +9,6 @@ identities based on OpenPGP.
 - Regex-based service provider detection
 - [Mocha](https://mochajs.org/) tests
 
-## Todo
-
-- Fetch keys using key servers and WKD
-
 ## About Keyoxide
 
 [Keyoxide](https://keyoxide.org/), made by Yarmo Mackenbach, is a modern, secure
