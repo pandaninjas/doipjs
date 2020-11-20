@@ -108,9 +108,24 @@ const runVerification = (proofData, spData) => {
 
 const verify = async (input, fingerprint, opts) => {
   if (input instanceof openpgp.key.Key) {
-    const fingerprintLocal = await keys.getFingerprint(input)
-    const claims = await keys.getClaims(input)
-    return await verify(claims, fingerprintLocal, opts)
+    const fingerprintFromKey = await keys.getFingerprint(input)
+    const userData = await keys.getUserData(input)
+
+    const promises = userData.map(async (user, i) => {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const res = await verify(user.notations, fingerprintFromKey, opts)
+          resolve(res)
+        } catch (e) {
+          console.error(`Claim verification failed: ${user.userData.id}`, e)
+          reject(e)
+        }
+      })
+    })
+
+    return Promise.all(promises).then((values) => {
+      return values
+    })
   }
   if (input instanceof Array) {
     const promises = input.map(async (uri, i) => {
