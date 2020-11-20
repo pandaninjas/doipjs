@@ -144,11 +144,33 @@ const fetchURI = async (uri) => {
 const process = async (publicKey) => {
   try {
     const fingerprint = await publicKey.primaryKey.getFingerprint()
-    const user = await publicKey.getPrimaryUser()
+    const primaryUser = await publicKey.getPrimaryUser()
+    const users = publicKey.users
+    let primaryUserIndex, usersOutput = []
+
+    users.forEach((user, i) => {
+      usersOutput[i] = {
+        userData: {
+          id: user.userId.userid,
+          name: user.userId.name,
+          email: user.userId.email,
+          comment: user.userId.comment,
+          isPrimary: primaryUser.index === i
+        }
+      }
+
+      const notations = user.selfCertifications[0].rawNotations
+      usersOutput[i].notations = notations.map(({ name, value, humanReadable }) => {
+        if (humanReadable && name === 'proof@metacode.biz') {
+          return openpgp.util.decode_utf8(value)
+        }
+      })
+    })
 
     return {
       fingerprint: fingerprint,
-      user: user,
+      users: usersOutput,
+      primaryUserIndex: primaryUser.index,
     }
   } catch (e) {
     console.error(e)
@@ -156,18 +178,11 @@ const process = async (publicKey) => {
   }
 }
 
-const getClaims = async (publicKey) => {
+const getUserData = async (publicKey) => {
   try {
     const keyData = await process(publicKey)
-    let notations = keyData.user.selfCertification.rawNotations
 
-    notations = notations.map(({ name, value, humanReadable }) => {
-      if (humanReadable && name === 'proof@metacode.biz') {
-        return openpgp.util.decode_utf8(value)
-      }
-    })
-
-    return notations
+    return keyData.users
   } catch (e) {
     console.error(e)
     return undefined
@@ -194,5 +209,5 @@ exports.fetch = {
   signature: fetchSignature,
 }
 exports.process = process
-exports.getClaims = getClaims
+exports.getUserData = getUserData
 exports.getFingerprint = getFingerprint
