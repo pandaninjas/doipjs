@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.2
+
+[2020-11-20](https://codeberg.org/keyoxide/doipjs/releases/tag/0.5.2)
+
+### Fixed
+
+- Claim verification regex
+
 ## 0.5.1
 
 [2020-11-20](https://codeberg.org/keyoxide/doipjs/releases/tag/0.5.1)

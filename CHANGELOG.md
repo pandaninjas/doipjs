@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.2] - 2020-11-20
+### Fixed
+- Claim verification regex
+
 ## [0.5.1] - 2020-11-20
 ### Fixed
 - Link to bundled openpgp
