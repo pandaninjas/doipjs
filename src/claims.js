@@ -45,15 +45,12 @@ const runVerificationJson = (
     switch (checkRelation) {
       default:
       case 'contains':
-        re = new RegExp(
-          checkClaim.replace('[', '\\[').replace(']', '\\]'),
-          'gi'
-        )
-        res.isVerified = re.test(proofData.replace(/\r?\n|\r/, ''))
+        re = new RegExp(checkClaim, 'gi')
+        res.isVerified = re.test(proofData.replace(/\r?\n|\r|\\/g, ''))
         break
       case 'equals':
         res.isVerified =
-          proofData.replace(/\r?\n|\r/, '').toLowerCase() ==
+          proofData.replace(/\r?\n|\r|\\/g, '').toLowerCase() ==
           checkClaim.toLowerCase()
         break
       case 'oneOf':
