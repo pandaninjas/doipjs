@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2020-11-20
+### Fixed
+- Link to bundled openpgp
+
 ## [0.5.0] - 2020-11-18
 ### Added
 - Keys fetching using openpgp.js

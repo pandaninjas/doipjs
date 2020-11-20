@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.1
+
+[2020-11-20](https://codeberg.org/keyoxide/doipjs/releases/tag/0.5.1)
+
+### Fixed
+- Link to bundled openpgp
+
 ## 0.5.0
 
 [2020-11-18](https://codeberg.org/keyoxide/doipjs/releases/tag/0.5.0)
