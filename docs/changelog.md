@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0]
+
+[2020-11-20](https://codeberg.org/keyoxide/doipjs/releases/tag/0.6.0)
+
+### Changed
+- Handle multiple users in key
+
 ## 0.5.2
 
 [2020-11-20](https://codeberg.org/keyoxide/doipjs/releases/tag/0.5.2)
