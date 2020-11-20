@@ -13,9 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const path = require('path')
 const mergeOptions = require('merge-options')
 const validUrl = require('valid-url')
-const openpgp = require('../node_modules/openpgp/dist/openpgp.min.js')
+const openpgp = require(path.join(require.resolve('openpgp'), '..', 'openpgp.min.js'))
 const serviceproviders = require('./serviceproviders')
 const keys = require('./keys')
 const utils = require('./utils')

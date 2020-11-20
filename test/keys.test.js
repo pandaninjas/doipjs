@@ -16,7 +16,8 @@ limitations under the License.
 const chai = require('chai')
 const expect = chai.expect
 
-const openpgp = require('../node_modules/openpgp/dist/openpgp.min.js')
+const path = require('path')
+const openpgp = require(path.join(require.resolve('openpgp'), '..', 'openpgp.min.js'))
 const doipjs = require('../src')
 
 const pubKeyFingerprint = `3637202523e7c1309ab79e99ef2dc5827b445f4b`
