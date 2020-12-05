@@ -65,37 +65,41 @@ const match = (uri, opts) => {
   return matches
 }
 
-const directRequestHandler = async (spData, opts) => {
-  const url = spData.proof.fetch ? spData.proof.fetch : spData.proof.uri
-  let res
+const directRequestHandler = (spData, opts) => {
+  return new Promise(async (resolve, reject) => {
+    const url = spData.proof.fetch ? spData.proof.fetch : spData.proof.uri
+    let res
 
-  switch (spData.proof.format) {
-    case 'json':
-      res = await req(url, null, {
-        Accept: 'application/json',
-        'User-Agent': `doipjs/${require('../package.json').version}`,
-      })
-      return await res.json()
-      break
-    case 'text':
-      res = await req(url)
-      return await res.text()
-      break
-    default:
-      throw new Error('No specified proof data format')
-      break
-  }
+    switch (spData.proof.format) {
+      case 'json':
+        res = await req(url, null, {
+          Accept: 'application/json',
+          'User-Agent': `doipjs/${require('../package.json').version}`,
+        })
+        resolve(await res.json())
+        break
+      case 'text':
+        res = await req(url)
+        resolve(await res.text())
+        break
+      default:
+        reject('No specified proof data format')
+        break
+    }
+  })
 }
 
-const proxyRequestHandler = async (spData, opts) => {
-  const url = spData.proof.fetch ? spData.proof.fetch : spData.proof.uri
-  const res = await req(
-    utils.generateProxyURL(spData.proof.format, url, opts),
-    null,
-    { Accept: 'application/json' }
-  )
-  const json = await res.json()
-  return json.content
+const proxyRequestHandler = (spData, opts) => {
+  return new Promise(async (resolve, reject) => {
+    const url = spData.proof.fetch ? spData.proof.fetch : spData.proof.uri
+    const res = await req(
+      utils.generateProxyURL(spData.proof.format, url, opts),
+      null,
+      { Accept: 'application/json' }
+    )
+    const json = await res.json()
+    resolve(json.content)
+  })
 }
 
 exports.list = list

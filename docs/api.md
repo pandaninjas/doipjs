@@ -50,11 +50,11 @@ Verifies the identity behind the provided **array of uris** using the **fingerpr
 
 **Parameters**
 
-| Name        | Type   | Mandatory | Description                      |
-| ----------- | ------ | --------- | -------------------------------- |
-| uriArray    | array  | true      | array of uris                    |
-| fingerprint | string | false     | the fingerprint of the claim     |
-| opts        | object | false     | options (see below)              |
+| Name        | Type   | Mandatory | Description                  |
+| ----------- | ------ | --------- | ---------------------------- |
+| uriArray    | array  | true      | array of uris                |
+| fingerprint | string | false     | the fingerprint of the claim |
+| opts        | object | false     | options (see below)          |
 
 **Options**
 
@@ -71,15 +71,15 @@ _(async)_ doip.claims.verify(key, [fingerprint], [opts])
 
 Verifies the identity behind the claims contained within the provided
 **key** using the **fingerprint**. This key is outputted by the
-[keys.fetch.*()](#keysfetchuriuri) commands.
+[keys.fetch.\*()](#keysfetchuriuri) commands.
 
 **Parameters**
 
-| Name        | Type   | Mandatory | Description                      |
-| ----------- | ------ | --------- | -------------------------------- |
-| key         | object | true      | a public key                     |
-| fingerprint | string | false     | the fingerprint of the claim     |
-| opts        | object | false     | options (see below)              |
+| Name        | Type   | Mandatory | Description                  |
+| ----------- | ------ | --------- | ---------------------------- |
+| key         | object | true      | a public key                 |
+| fingerprint | string | false     | the fingerprint of the claim |
+| opts        | object | false     | options (see below)          |
 
 **Options**
 
@@ -99,9 +99,9 @@ other `keys.fetch.*` commands.
 
 **Parameters**
 
-| Name        | Type   | Mandatory | Description                      |
-| ----------- | ------ | --------- | -------------------------------- |
-| uri         | string | true      | public key identifier            |
+| Name | Type   | Mandatory | Description           |
+| ---- | ------ | --------- | --------------------- |
+| uri  | string | true      | public key identifier |
 
 Possible formats for `uri`:
 
@@ -110,7 +110,7 @@ Possible formats for `uri`:
 `hkp:EMAIL` &rArr; `keys.fetch.hkp(EMAIL)`  
 `hkp:EMAIL:KEYSERVER` &rArr; `keys.fetch.hkp(EMAIL, KEYSERVER)`  
 `wkd:EMAIL` &rArr; `keys.fetch.wkd(EMAIL)`  
-`kb:USERNAME:FINGERPRINT` &rArr; `keys.fetch.keybase(USERNAME, FINGERPRINT)`  
+`kb:USERNAME:FINGERPRINT` &rArr; `keys.fetch.keybase(USERNAME, FINGERPRINT)`
 
 **Returns**
 
@@ -124,10 +124,10 @@ Fetches a key using HKP-compatible key servers.
 
 **Parameters**
 
-| Name             | Type   | Mandatory | Description                      |
-| ---------------- | ------ | --------- | -------------------------------- |
-| fingerprint      | string | true      | public key identifier            |
-| keyserverBaseUrl | string | false     | base URL of keyserver            |
+| Name             | Type   | Mandatory | Description           |
+| ---------------- | ------ | --------- | --------------------- |
+| fingerprint      | string | true      | public key identifier |
+| keyserverBaseUrl | string | false     | base URL of keyserver |
 
 `keyserverBaseUrl` defaults to `https://keys.openpgp.org/`.
 
@@ -143,10 +143,10 @@ Fetches a key using HKP-compatible key servers.
 
 **Parameters**
 
-| Name             | Type   | Mandatory | Description                      |
-| ---------------- | ------ | --------- | -------------------------------- |
-| email            | string | true      | public key identifier            |
-| keyserverBaseUrl | string | false     | base URL of keyserver            |
+| Name             | Type   | Mandatory | Description           |
+| ---------------- | ------ | --------- | --------------------- |
+| email            | string | true      | public key identifier |
+| keyserverBaseUrl | string | false     | base URL of keyserver |
 
 `keyserverBaseUrl` defaults to `https://keys.openpgp.org/`.
 
@@ -162,9 +162,9 @@ Fetches a key using the WKD protocol.
 
 **Parameters**
 
-| Name        | Type   | Mandatory | Description                      |
-| ----------- | ------ | --------- | -------------------------------- |
-| wkdId       | string | true      | WKD identifier                   |
+| Name  | Type   | Mandatory | Description    |
+| ----- | ------ | --------- | -------------- |
+| wkdId | string | true      | WKD identifier |
 
 `wkdId` looks like an email address and is formatted as `username@domain.org`.
 
@@ -180,9 +180,9 @@ Parses the `keyPlaintext`.
 
 **Parameters**
 
-| Name         | Type   | Mandatory | Description                      |
-| ------------ | ------ | --------- | -------------------------------- |
-| keyPlaintext | string | true      | ASCII key content                |
+| Name         | Type   | Mandatory | Description       |
+| ------------ | ------ | --------- | ----------------- |
+| keyPlaintext | string | true      | ASCII key content |
 
 **Returns**
 
