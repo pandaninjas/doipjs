@@ -85,14 +85,14 @@ describe('keys.fetch.hkp', () => {
       openpgp.key.Key
     )
   })
-  it('should return undefined when provided an invalid fingerprint', async () => {
+  it('should reject when provided an invalid fingerprint', async () => {
     return expect(
       doipjs.keys.fetch.hkp('4637202523e7c1309ab79e99ef2dc5827b445f4b')
     ).to.eventually.be.rejectedWith(
       'Key does not exist or could not be fetched'
     )
   })
-  it('should return undefined when provided an invalid email address', async () => {
+  it('should reject when provided an invalid email address', async () => {
     return expect(
       doipjs.keys.fetch.hkp('invalid@doip.rocks')
     ).to.eventually.be.rejectedWith(
