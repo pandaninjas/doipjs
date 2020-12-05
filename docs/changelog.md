@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0]
+
+[2020-12-05](https://codeberg.org/keyoxide/doipjs/releases/tag/0.7.0)
+
+### Changed
+- Properly reject promises
+
 ## [0.6.0]
 
 [2020-11-20](https://codeberg.org/keyoxide/doipjs/releases/tag/0.6.0)

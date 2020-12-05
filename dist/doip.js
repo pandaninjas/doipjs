@@ -1193,7 +1193,7 @@ process.umask = function() { return 0; };
 },{}],9:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -1259,7 +1259,11 @@ limitations under the License.
 const path = require('path')
 const mergeOptions = require('merge-options')
 const validUrl = require('valid-url')
-const openpgp = require(path.join(require.resolve('openpgp'), '..', 'openpgp.min.js'))
+const openpgp = require(path.join(
+  require.resolve('openpgp'),
+  '..',
+  'openpgp.min.js'
+))
 const serviceproviders = require('./serviceproviders')
 const keys = require('./keys')
 const utils = require('./utils')
@@ -1288,15 +1292,12 @@ const runVerificationJson = (
     switch (checkRelation) {
       default:
       case 'contains':
-        re = new RegExp(
-          checkClaim.replace('[', '\\[').replace(']', '\\]'),
-          'gi'
-        )
-        res.isVerified = re.test(proofData.replace(/\r?\n|\r/, ''))
+        re = new RegExp(checkClaim, 'gi')
+        res.isVerified = re.test(proofData.replace(/\r?\n|\r|\\/g, ''))
         break
       case 'equals':
         res.isVerified =
-          proofData.replace(/\r?\n|\r/, '').toLowerCase() ==
+          proofData.replace(/\r?\n|\r|\\/g, '').toLowerCase() ==
           checkClaim.toLowerCase()
         break
       case 'oneOf':
@@ -1354,9 +1355,24 @@ const runVerification = (proofData, spData) => {
 
 const verify = async (input, fingerprint, opts) => {
   if (input instanceof openpgp.key.Key) {
-    const fingerprintLocal = await keys.getFingerprint(input)
-    const claims = await keys.getClaims(input)
-    return await verify(claims, fingerprintLocal, opts)
+    const fingerprintFromKey = await keys.getFingerprint(input)
+    const userData = await keys.getUserData(input)
+
+    const promises = userData.map(async (user, i) => {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const res = await verify(user.notations, fingerprintFromKey, opts)
+          resolve(res)
+        } catch (e) {
+          console.error(`Claim verification failed: ${user.userData.id}`, e)
+          reject(e)
+        }
+      })
+    })
+
+    return Promise.all(promises).then((values) => {
+      return values
+    })
   }
   if (input instanceof Array) {
     const promises = input.map(async (uri, i) => {
@@ -1390,7 +1406,7 @@ const verify = async (input, fingerprint, opts) => {
   opts = mergeOptions(defaultOpts, opts ? opts : {})
 
   if (!validUrl.isUri(uri)) {
-    throw new Error('Not a valid URI')
+    throw new Error('Invalid URI')
   }
 
   const spMatches = serviceproviders.match(uri, opts)
@@ -1493,11 +1509,15 @@ const path = require('path')
 const bent = require('bent')
 const req = bent('GET')
 const validUrl = require('valid-url')
-const openpgp = require(path.join(require.resolve('openpgp'), '..', 'openpgp.min.js'))
+const openpgp = require(path.join(
+  require.resolve('openpgp'),
+  '..',
+  'openpgp.min.js'
+))
 const mergeOptions = require('merge-options')
 
-const fetchHKP = async (identifier, keyserverBaseUrl) => {
-  try {
+const fetchHKP = (identifier, keyserverBaseUrl) => {
+  return new Promise(async (resolve, reject) => {
     keyserverBaseUrl = keyserverBaseUrl
       ? keyserverBaseUrl
       : 'https://keys.openpgp.org/'
@@ -1509,64 +1529,64 @@ const fetchHKP = async (identifier, keyserverBaseUrl) => {
     let publicKey = await hkp.lookup(lookupOpts)
     publicKey = (await openpgp.key.readArmored(publicKey)).keys[0]
 
-    return publicKey
-  } catch (e) {
-    console.error(e)
-    return undefined
-  }
+    if (publicKey == undefined) {
+      reject('Key does not exist or could not be fetched')
+    }
+
+    resolve(publicKey)
+  })
 }
 
-const fetchWKD = async (identifier) => {
-  try {
+const fetchWKD = (identifier) => {
+  return new Promise(async (resolve, reject) => {
     const wkd = new openpgp.WKD()
     const lookupOpts = {
       email: identifier,
     }
     const publicKey = (await wkd.lookup(lookupOpts)).keys[0]
 
-    return publicKey
-  } catch (e) {
-    console.error(e)
-    return undefined
-  }
+    if (publicKey == undefined) {
+      reject('Key does not exist or could not be fetched')
+    }
+
+    resolve(publicKey)
+  })
 }
 
-const fetchKeybase = async (username, fingerprint) => {
-  try {
+const fetchKeybase = (username, fingerprint) => {
+  return new Promise(async (resolve, reject) => {
     const keyLink = `https://keybase.io/${username}/pgp_keys.asc?fingerprint=${fingerprint}`
     try {
       const rawKeyContent = await req(opts.keyLink)
-        .then(function (response) {
+        .then((response) => {
           if (response.status === 200) {
             return response
           }
         })
         .then((response) => response.text())
     } catch (e) {
-      return undefined
+      reject(`Error fetching Keybase key: ${e.message}`)
     }
     const publicKey = (await openpgp.key.readArmored(rawKeyContent)).keys[0]
 
-    return publicKey
-  } catch (e) {
-    console.error(e)
-    return undefined
-  }
+    if (publicKey == undefined) {
+      reject('Key does not exist or could not be fetched')
+    }
+
+    resolve(publicKey)
+  })
 }
 
-const fetchPlaintext = async (rawKeyContent) => {
-  try {
+const fetchPlaintext = (rawKeyContent) => {
+  return new Promise(async (resolve, reject) => {
     const publicKey = (await openpgp.key.readArmored(rawKeyContent)).keys[0]
 
-    return publicKey
-  } catch (e) {
-    console.error(e)
-    return undefined
-  }
+    resolve(publicKey)
+  })
 }
 
-const fetchSignature = async (rawSignatureContent, keyserverBaseUrl) => {
-  try {
+const fetchSignature = (rawSignatureContent, keyserverBaseUrl) => {
+  return new Promise(async (resolve, reject) => {
     let sig = await openpgp.signature.readArmored(rawSignatureContent)
     if ('compressed' in sig.packets[0]) {
       sig = sig.packets[0]
@@ -1577,88 +1597,94 @@ const fetchSignature = async (rawSignatureContent, keyserverBaseUrl) => {
     const sigUserId = sig.packets[0].signersUserId
     const sigKeyId = await sig.packets[0].issuerKeyId.toHex()
 
-    return fetchHKP(sigUserId ? sigUserId : sigKeyId, keyserverBaseUrl)
-  } catch (e) {
-    console.error(e)
-    return undefined
-  }
+    resolve(fetchHKP(sigUserId ? sigUserId : sigKeyId, keyserverBaseUrl))
+  })
 }
 
-const fetchURI = async (uri) => {
-  try {
+const fetchURI = (uri) => {
+  return new Promise(async (resolve, reject) => {
     if (!validUrl.isUri(uri)) {
-      throw new Error('Invalid URI')
+      reject('Invalid URI')
     }
 
     const re = /([a-zA-Z0-9]*):([a-zA-Z0-9@._=+\-]*)(\:[a-zA-Z0-9@._=+\-]*)?/
     const match = uri.match(re)
 
     if (!match[1]) {
-      throw new Error('Invalid URI')
+      reject('Invalid URI')
     }
 
     switch (match[1]) {
       case 'hkp':
-        return fetchHKP(match[2], match.length >= 4 ? match[3] : null)
+        resolve(fetchHKP(match[2], match.length >= 4 ? match[3] : null))
         break
       case 'wkd':
-        return fetchWKD(match[2])
+        resolve(fetchWKD(match[2]))
         break
       case 'kb':
-        return fetchKeybase(match[2], match.length >= 4 ? match[3] : null)
+        resolve(fetchKeybase(match[2], match.length >= 4 ? match[3] : null))
         break
       default:
-        throw new Error('Invalid URI protocol')
+        reject('Invalid URI protocol')
         break
     }
-  } catch (e) {
-    console.error(e)
-    return undefined
-  }
+  })
 }
 
-const process = async (publicKey) => {
-  try {
-    const fingerprint = await publicKey.primaryKey.getFingerprint()
-    const user = await publicKey.getPrimaryUser()
-
-    return {
-      fingerprint: fingerprint,
-      user: user,
+const process = (publicKey) => {
+  return new Promise(async (resolve, reject) => {
+    if (!publicKey) {
+      reject('Invalid public key')
     }
-  } catch (e) {
-    console.error(e)
-    return undefined
-  }
-}
+    const fingerprint = await publicKey.primaryKey.getFingerprint()
+    const primaryUser = await publicKey.getPrimaryUser()
+    const users = publicKey.users
+    let primaryUserIndex,
+      usersOutput = []
 
-const getClaims = async (publicKey) => {
-  try {
-    const keyData = await process(publicKey)
-    let notations = keyData.user.selfCertification.rawNotations
-
-    notations = notations.map(({ name, value, humanReadable }) => {
-      if (humanReadable && name === 'proof@metacode.biz') {
-        return openpgp.util.decode_utf8(value)
+    users.forEach((user, i) => {
+      usersOutput[i] = {
+        userData: {
+          id: user.userId.userid,
+          name: user.userId.name,
+          email: user.userId.email,
+          comment: user.userId.comment,
+          isPrimary: primaryUser.index === i,
+        },
       }
+
+      const notations = user.selfCertifications[0].rawNotations
+      usersOutput[i].notations = notations.map(
+        ({ name, value, humanReadable }) => {
+          if (humanReadable && name === 'proof@metacode.biz') {
+            return openpgp.util.decode_utf8(value)
+          }
+        }
+      )
     })
 
-    return notations
-  } catch (e) {
-    console.error(e)
-    return undefined
-  }
+    resolve({
+      fingerprint: fingerprint,
+      users: usersOutput,
+      primaryUserIndex: primaryUser.index,
+    })
+  })
 }
 
-const getFingerprint = async (publicKey) => {
-  try {
+const getUserData = (publicKey) => {
+  return new Promise(async (resolve, reject) => {
     const keyData = await process(publicKey)
 
-    return keyData.fingerprint
-  } catch (e) {
-    console.error(e)
-    return undefined
-  }
+    resolve(keyData.users)
+  })
+}
+
+const getFingerprint = (publicKey) => {
+  return new Promise(async (resolve, reject) => {
+    const keyData = await process(publicKey)
+
+    resolve(keyData.fingerprint)
+  })
 }
 
 exports.fetch = {
@@ -1670,7 +1696,7 @@ exports.fetch = {
   signature: fetchSignature,
 }
 exports.process = process
-exports.getClaims = getClaims
+exports.getUserData = getUserData
 exports.getFingerprint = getFingerprint
 
 },{"bent":1,"merge-options":5,"path":6,"valid-url":8}],13:[function(require,module,exports){
@@ -1741,37 +1767,41 @@ const match = (uri, opts) => {
   return matches
 }
 
-const directRequestHandler = async (spData, opts) => {
-  const url = spData.proof.fetch ? spData.proof.fetch : spData.proof.uri
-  let res
+const directRequestHandler = (spData, opts) => {
+  return new Promise(async (resolve, reject) => {
+    const url = spData.proof.fetch ? spData.proof.fetch : spData.proof.uri
+    let res
 
-  switch (spData.proof.format) {
-    case 'json':
-      res = await req(url, null, {
-        Accept: 'application/json',
-        'User-Agent': `doipjs/${require('../package.json').version}`,
-      })
-      return await res.json()
-      break
-    case 'text':
-      res = await req(url)
-      return await res.text()
-      break
-    default:
-      throw new Error('No specified proof data format')
-      break
-  }
+    switch (spData.proof.format) {
+      case 'json':
+        res = await req(url, null, {
+          Accept: 'application/json',
+          'User-Agent': `doipjs/${require('../package.json').version}`,
+        })
+        resolve(await res.json())
+        break
+      case 'text':
+        res = await req(url)
+        resolve(await res.text())
+        break
+      default:
+        reject('No specified proof data format')
+        break
+    }
+  })
 }
 
-const proxyRequestHandler = async (spData, opts) => {
-  const url = spData.proof.fetch ? spData.proof.fetch : spData.proof.uri
-  const res = await req(
-    utils.generateProxyURL(spData.proof.format, url, opts),
-    null,
-    { Accept: 'application/json' }
-  )
-  const json = await res.json()
-  return json.content
+const proxyRequestHandler = (spData, opts) => {
+  return new Promise(async (resolve, reject) => {
+    const url = spData.proof.fetch ? spData.proof.fetch : spData.proof.uri
+    const res = await req(
+      utils.generateProxyURL(spData.proof.format, url, opts),
+      null,
+      { Accept: 'application/json' }
+    )
+    const json = await res.json()
+    resolve(json.content)
+  })
 }
 
 exports.list = list
