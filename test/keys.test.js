@@ -15,14 +15,19 @@ limitations under the License.
 */
 const chai = require('chai')
 const expect = chai.expect
+chai.use(require('chai-as-promised'))
 
 const path = require('path')
-const openpgp = require(path.join(require.resolve('openpgp'), '..', 'openpgp.min.js'))
+const openpgp = require(path.join(
+  require.resolve('openpgp'),
+  '..',
+  'openpgp.min.js'
+))
 const doipjs = require('../src')
 
 const pubKeyFingerprint = `3637202523e7c1309ab79e99ef2dc5827b445f4b`
-const pubKeyEmail       = `test@doip.rocks`
-const pubKeyPlaintext   = `-----BEGIN PGP PUBLIC KEY BLOCK-----
+const pubKeyEmail = `test@doip.rocks`
+const pubKeyPlaintext = `-----BEGIN PGP PUBLIC KEY BLOCK-----
 
 mQGNBF+036UBDACoxWRdp7rBAFB2l/+dxX0XA50NJC92EEacB5L0TnC0lP/MsNHv
 fAv/A9vgTwrPudvcHdE/urAjQswfIU3LpFxbBOWNYWOv6ssrzBH4vVGMyxfu2GGu
@@ -54,12 +59,14 @@ describe('keys.fetch.uri', () => {
     expect(doipjs.keys.fetch.uri).to.have.length(1)
   })
   it('should return a Key object when provided a hkp: uri', async () => {
-    expect(await doipjs.keys.fetch.uri(`hkp:${pubKeyFingerprint}`)).to.be.instanceOf(
-      openpgp.key.Key
-    )
+    expect(
+      await doipjs.keys.fetch.uri(`hkp:${pubKeyFingerprint}`)
+    ).to.be.instanceOf(openpgp.key.Key)
   })
-  it('should return undefined when provided an invalid uri', async () => {
-    expect(await doipjs.keys.fetch.uri(`inv:${pubKeyFingerprint}`)).to.be.undefined
+  it('should reject when provided an invalid uri', () => {
+    return expect(
+      doipjs.keys.fetch.uri(`inv:${pubKeyFingerprint}`)
+    ).to.eventually.be.rejectedWith('Invalid URI protocol')
   })
 })
 
@@ -79,10 +86,18 @@ describe('keys.fetch.hkp', () => {
     )
   })
   it('should return undefined when provided an invalid fingerprint', async () => {
-    expect(await doipjs.keys.fetch.hkp('4637202523e7c1309ab79e99ef2dc5827b445f4b')).to.be.undefined
+    return expect(
+      doipjs.keys.fetch.hkp('4637202523e7c1309ab79e99ef2dc5827b445f4b')
+    ).to.eventually.be.rejectedWith(
+      'Key does not exist or could not be fetched'
+    )
   })
   it('should return undefined when provided an invalid email address', async () => {
-    expect(await doipjs.keys.fetch.hkp('invalid@doip.rocks')).to.be.undefined
+    return expect(
+      doipjs.keys.fetch.hkp('invalid@doip.rocks')
+    ).to.eventually.be.rejectedWith(
+      'Key does not exist or could not be fetched'
+    )
   })
 })
 

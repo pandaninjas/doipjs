@@ -17,11 +17,15 @@ const path = require('path')
 const bent = require('bent')
 const req = bent('GET')
 const validUrl = require('valid-url')
-const openpgp = require(path.join(require.resolve('openpgp'), '..', 'openpgp.min.js'))
+const openpgp = require(path.join(
+  require.resolve('openpgp'),
+  '..',
+  'openpgp.min.js'
+))
 const mergeOptions = require('merge-options')
 
-const fetchHKP = async (identifier, keyserverBaseUrl) => {
-  try {
+const fetchHKP = (identifier, keyserverBaseUrl) => {
+  return new Promise(async (resolve, reject) => {
     keyserverBaseUrl = keyserverBaseUrl
       ? keyserverBaseUrl
       : 'https://keys.openpgp.org/'
@@ -33,64 +37,64 @@ const fetchHKP = async (identifier, keyserverBaseUrl) => {
     let publicKey = await hkp.lookup(lookupOpts)
     publicKey = (await openpgp.key.readArmored(publicKey)).keys[0]
 
-    return publicKey
-  } catch (e) {
-    console.error(e)
-    return undefined
-  }
+    if (publicKey == undefined) {
+      reject('Key does not exist or could not be fetched')
+    }
+
+    resolve(publicKey)
+  })
 }
 
-const fetchWKD = async (identifier) => {
-  try {
+const fetchWKD = (identifier) => {
+  return new Promise(async (resolve, reject) => {
     const wkd = new openpgp.WKD()
     const lookupOpts = {
       email: identifier,
     }
     const publicKey = (await wkd.lookup(lookupOpts)).keys[0]
 
-    return publicKey
-  } catch (e) {
-    console.error(e)
-    return undefined
-  }
+    if (publicKey == undefined) {
+      reject('Key does not exist or could not be fetched')
+    }
+
+    resolve(publicKey)
+  })
 }
 
-const fetchKeybase = async (username, fingerprint) => {
-  try {
+const fetchKeybase = (username, fingerprint) => {
+  return new Promise(async (resolve, reject) => {
     const keyLink = `https://keybase.io/${username}/pgp_keys.asc?fingerprint=${fingerprint}`
     try {
       const rawKeyContent = await req(opts.keyLink)
-        .then(function (response) {
+        .then((response) => {
           if (response.status === 200) {
             return response
           }
         })
         .then((response) => response.text())
     } catch (e) {
-      return undefined
+      reject(`Error fetching Keybase key: ${e.message}`)
     }
     const publicKey = (await openpgp.key.readArmored(rawKeyContent)).keys[0]
 
-    return publicKey
-  } catch (e) {
-    console.error(e)
-    return undefined
-  }
+    if (publicKey == undefined) {
+      reject('Key does not exist or could not be fetched')
+    }
+
+    resolve(publicKey)
+  })
 }
 
-const fetchPlaintext = async (rawKeyContent) => {
-  try {
+const fetchPlaintext = (rawKeyContent) => {
+  return new Promise(async (resolve, reject) => {
     const publicKey = (await openpgp.key.readArmored(rawKeyContent)).keys[0]
 
-    return publicKey
-  } catch (e) {
-    console.error(e)
-    return undefined
-  }
+    resolve(publicKey)
+  })
 }
 
-const fetchSignature = async (rawSignatureContent, keyserverBaseUrl) => {
-  try {
+const fetchSignature = (rawSignatureContent, keyserverBaseUrl) => {
+  return new Promise(async (resolve, reject) => {
     let sig = await openpgp.signature.readArmored(rawSignatureContent)
     if ('compressed' in sig.packets[0]) {
       sig = sig.packets[0]
@@ -101,52 +105,50 @@ const fetchSignature = async (rawSignatureContent, keyserverBaseUrl) => {
     const sigUserId = sig.packets[0].signersUserId
     const sigKeyId = await sig.packets[0].issuerKeyId.toHex()
 
-    return fetchHKP(sigUserId ? sigUserId : sigKeyId, keyserverBaseUrl)
-  } catch (e) {
-    console.error(e)
-    return undefined
-  }
+    resolve(fetchHKP(sigUserId ? sigUserId : sigKeyId, keyserverBaseUrl))
+  })
 }
 
-const fetchURI = async (uri) => {
-  try {
+const fetchURI = (uri) => {
+  return new Promise(async (resolve, reject) => {
     if (!validUrl.isUri(uri)) {
-      throw new Error('Invalid URI')
+      reject('Invalid URI')
     }
 
     const re = /([a-zA-Z0-9]*):([a-zA-Z0-9@._=+\-]*)(\:[a-zA-Z0-9@._=+\-]*)?/
     const match = uri.match(re)
 
     if (!match[1]) {
-      throw new Error('Invalid URI')
+      reject('Invalid URI')
     }
 
     switch (match[1]) {
       case 'hkp':
-        return fetchHKP(match[2], match.length >= 4 ? match[3] : null)
+        resolve(fetchHKP(match[2], match.length >= 4 ? match[3] : null))
         break
       case 'wkd':
-        return fetchWKD(match[2])
+        resolve(fetchWKD(match[2]))
         break
       case 'kb':
-        return fetchKeybase(match[2], match.length >= 4 ? match[3] : null)
+        resolve(fetchKeybase(match[2], match.length >= 4 ? match[3] : null))
         break
       default:
-        throw new Error('Invalid URI protocol')
+        reject('Invalid URI protocol')
         break
     }
-  } catch (e) {
-    console.error(e)
-    return undefined
-  }
+  })
 }
 
-const process = async (publicKey) => {
-  try {
+const process = (publicKey) => {
+  return new Promise(async (resolve, reject) => {
+    if (!publicKey) {
+      reject('Invalid public key')
+    }
     const fingerprint = await publicKey.primaryKey.getFingerprint()
     const primaryUser = await publicKey.getPrimaryUser()
     const users = publicKey.users
-    let primaryUserIndex, usersOutput = []
+    let primaryUserIndex,
+      usersOutput = []
 
     users.forEach((user, i) => {
       usersOutput[i] = {
@@ -155,49 +157,42 @@ const process = async (publicKey) => {
           name: user.userId.name,
           email: user.userId.email,
           comment: user.userId.comment,
-          isPrimary: primaryUser.index === i
-        }
+          isPrimary: primaryUser.index === i,
+        },
       }
 
       const notations = user.selfCertifications[0].rawNotations
-      usersOutput[i].notations = notations.map(({ name, value, humanReadable }) => {
-        if (humanReadable && name === 'proof@metacode.biz') {
-          return openpgp.util.decode_utf8(value)
+      usersOutput[i].notations = notations.map(
+        ({ name, value, humanReadable }) => {
+          if (humanReadable && name === 'proof@metacode.biz') {
+            return openpgp.util.decode_utf8(value)
+          }
         }
-      })
+      )
     })
 
-    return {
+    resolve({
       fingerprint: fingerprint,
       users: usersOutput,
       primaryUserIndex: primaryUser.index,
-    }
-  } catch (e) {
-    console.error(e)
-    return undefined
-  }
+    })
+  })
 }
 
-const getUserData = async (publicKey) => {
-  try {
+const getUserData = (publicKey) => {
+  return new Promise(async (resolve, reject) => {
     const keyData = await process(publicKey)
 
-    return keyData.users
-  } catch (e) {
-    console.error(e)
-    return undefined
-  }
+    resolve(keyData.users)
+  })
 }
 
-const getFingerprint = async (publicKey) => {
-  try {
+const getFingerprint = (publicKey) => {
+  return new Promise(async (resolve, reject) => {
     const keyData = await process(publicKey)
 
-    return keyData.fingerprint
-  } catch (e) {
-    console.error(e)
-    return undefined
-  }
+    resolve(keyData.fingerprint)
+  })
 }
 
 exports.fetch = {
