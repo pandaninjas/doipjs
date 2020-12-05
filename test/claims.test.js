@@ -64,11 +64,11 @@ describe('claims.verify', () => {
   })
   it('should throw an error for non-valid URIs', () => {
     return expect(doipjs.claims.verify('noURI')).to.eventually.be.rejectedWith(
-      'Not a valid URI'
+      'Invalid URI'
     )
     return expect(
       doipjs.claims.verify('domain.org')
-    ).to.eventually.be.rejectedWith('Not a valid URI')
+    ).to.eventually.be.rejectedWith('Invalid URI')
   })
 
   doipjs.serviceproviders.list.forEach((spName, i) => {

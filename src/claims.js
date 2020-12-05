@@ -159,7 +159,7 @@ const verify = async (input, fingerprint, opts) => {
   opts = mergeOptions(defaultOpts, opts ? opts : {})
 
   if (!validUrl.isUri(uri)) {
-    throw new Error('Not a valid URI')
+    throw new Error('Invalid URI')
   }
 
   const spMatches = serviceproviders.match(uri, opts)
