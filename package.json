@@ -7,7 +7,7 @@
     "bent": "^7.3.12",
     "browserify": "^17.0.0",
     "merge-options": "^3.0.3",
-    "openpgp": "^4.10.8",
+    "openpgp": "^4.10.9",
     "prettier": "^2.1.2",
     "valid-url": "^1.0.9"
   },
