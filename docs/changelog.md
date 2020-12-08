@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.2]
+
+[2020-12-08](https://codeberg.org/keyoxide/doipjs/releases/tag/0.7.2)
+
+### Fixed
+- Support for specifying keyservers
+
 ## [0.7.1]
 
 [2020-12-08](https://codeberg.org/keyoxide/doipjs/releases/tag/0.7.1)
