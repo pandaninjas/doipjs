@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1]
+
+[2020-12-08](https://codeberg.org/keyoxide/doipjs/releases/tag/0.7.1)
+
+### Changed
+- Update openpgpjs dependency
+
 ## [0.7.0]
 
 [2020-12-05](https://codeberg.org/keyoxide/doipjs/releases/tag/0.7.0)
