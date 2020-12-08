@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.3]
+
+[2020-12-08](https://codeberg.org/keyoxide/doipjs/releases/tag/0.7.3)
+
+### Fixed
+- Bundled library for release
+
 ## [0.7.2]
 
 [2020-12-08](https://codeberg.org/keyoxide/doipjs/releases/tag/0.7.2)

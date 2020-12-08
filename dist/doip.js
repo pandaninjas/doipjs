@@ -1193,14 +1193,14 @@ process.umask = function() { return 0; };
 },{}],9:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.6.0",
+  "version": "0.7.3",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
     "bent": "^7.3.12",
     "browserify": "^17.0.0",
     "merge-options": "^3.0.3",
-    "openpgp": "^4.10.8",
+    "openpgp": "^4.10.9",
     "prettier": "^2.1.2",
     "valid-url": "^1.0.9"
   },
@@ -1519,7 +1519,7 @@ const mergeOptions = require('merge-options')
 const fetchHKP = (identifier, keyserverBaseUrl) => {
   return new Promise(async (resolve, reject) => {
     keyserverBaseUrl = keyserverBaseUrl
-      ? keyserverBaseUrl
+      ? `https://${keyserverBaseUrl}/`
       : 'https://keys.openpgp.org/'
 
     const hkp = new openpgp.HKP(keyserverBaseUrl)

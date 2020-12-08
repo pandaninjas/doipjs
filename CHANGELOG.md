@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.3] - 2020-12-08
+### Fixed
+- Bundled library for release
+
 ## [0.7.2] - 2020-12-08
 ### Fixed
 - Support for specifying keyservers
