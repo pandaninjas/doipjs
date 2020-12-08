@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.4]
+
+[2020-12-08](https://codeberg.org/keyoxide/doipjs/releases/tag/0.7.4)
+
+### Fixed
+- Handling HKP URI
+
 ## [0.7.3]
 
 [2020-12-08](https://codeberg.org/keyoxide/doipjs/releases/tag/0.7.3)

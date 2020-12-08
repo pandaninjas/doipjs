@@ -1193,7 +1193,7 @@ process.umask = function() { return 0; };
 },{}],9:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -1607,7 +1607,7 @@ const fetchURI = (uri) => {
       reject('Invalid URI')
     }
 
-    const re = /([a-zA-Z0-9]*):([a-zA-Z0-9@._=+\-]*)(\:[a-zA-Z0-9@._=+\-]*)?/
+    const re = /([a-zA-Z0-9]*):([a-zA-Z0-9@._=+\-]*)(?:\:([a-zA-Z0-9@._=+\-]*))?/
     const match = uri.match(re)
 
     if (!match[1]) {
@@ -1616,7 +1616,7 @@ const fetchURI = (uri) => {
 
     switch (match[1]) {
       case 'hkp':
-        resolve(fetchHKP(match[2], match.length >= 4 ? match[3] : null))
+        resolve(fetchHKP(match[3] ? match[3] : match[2], match[3] ? match[2] : null))
         break
       case 'wkd':
         resolve(fetchWKD(match[2]))
