@@ -22,7 +22,16 @@ const customRequestHandler = async (spData, opts) => {
   const match = spData.proof.uri.match(reURI)
 
   const urlUser = `https://${match[1]}/api/v4/users?username=${match[2]}`
-  const resUser = await req(urlUser, 'json', { Accept: 'application/json' })
+  let resUser
+  try {
+    resUser = await req(urlUser, null, { Accept: 'application/json' })
+  } catch (e) {
+    resUser = await req(
+      utils.generateProxyURL('web', urlUser, opts),
+      null,
+      { Accept: 'application/json' }
+    )
+  }
   const jsonUser = await resUser.json()
 
   const user = jsonUser.find((user) => user.username === match[2])
@@ -31,7 +40,16 @@ const customRequestHandler = async (spData, opts) => {
   }
 
   const urlProject = `https://${match[1]}/api/v4/users/${user.id}/projects`
-  const resProject = await req(urlProject, {}, { Accept: 'application/json' })
+  let resProject
+  try {
+    resProject = await req(urlProject, null, { Accept: 'application/json' })
+  } catch (e) {
+    resProject = await req(
+      utils.generateProxyURL('web', urlProject, opts),
+      null,
+      { Accept: 'application/json' }
+    )
+  }
   const jsonProject = await resProject.json()
 
   const project = jsonProject.find((proj) => proj.path === 'gitlab_proof')
