@@ -1193,7 +1193,7 @@ process.umask = function() { return 0; };
 },{}],9:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -1205,6 +1205,7 @@ module.exports={
     "valid-url": "^1.0.9"
   },
   "devDependencies": {
+    "browserify-shim": "^3.8.14",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-match-pattern": "^1.2.0",
@@ -1213,7 +1214,7 @@ module.exports={
     "mocha": "^8.2.0"
   },
   "scripts": {
-    "release:bundle": "./node_modules/browserify/bin/cmd.js ./src/index.js --standalone doip -o ./dist/doip.js",
+    "release:bundle": "./node_modules/browserify/bin/cmd.js ./src/index.js --standalone doip -x openpgp -o ./dist/doip.js",
     "release:minify": "./node_modules/minify/bin/minify.js ./dist/doip.js > ./dist/doip.min.js",
     "prettier:check": "./node_modules/prettier/bin-prettier.js --check .",
     "prettier:write": "./node_modules/prettier/bin-prettier.js --write .",
@@ -1237,10 +1238,17 @@ module.exports={
     "identity"
   ],
   "author": "Yarmo Mackenbach <yarmo@yarmo.eu> (https://yarmo.eu)",
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "browserify": {
+    "transform": [ "browserify-shim" ]
+  },
+  "browserify-shim": {
+    "openpgp": "global:openpgp"
+  }
 }
 
 },{}],10:[function(require,module,exports){
+(function (global){(function (){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -1259,11 +1267,7 @@ limitations under the License.
 const path = require('path')
 const mergeOptions = require('merge-options')
 const validUrl = require('valid-url')
-const openpgp = require(path.join(
-  require.resolve('openpgp'),
-  '..',
-  'openpgp.min.js'
-))
+const openpgp = (typeof window !== "undefined" ? window['openpgp'] : typeof global !== "undefined" ? global['openpgp'] : null)
 const serviceproviders = require('./serviceproviders')
 const keys = require('./keys')
 const utils = require('./utils')
@@ -1463,6 +1467,7 @@ const verify = async (input, fingerprint, opts) => {
 
 exports.verify = verify
 
+}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./keys":12,"./serviceproviders":13,"./utils":28,"merge-options":5,"path":6,"valid-url":8}],11:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
@@ -1490,6 +1495,7 @@ exports.serviceproviders = serviceproviders
 exports.utils = utils
 
 },{"./claims":10,"./keys":12,"./serviceproviders":13,"./utils":28}],12:[function(require,module,exports){
+(function (global){(function (){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -1509,11 +1515,7 @@ const path = require('path')
 const bent = require('bent')
 const req = bent('GET')
 const validUrl = require('valid-url')
-const openpgp = require(path.join(
-  require.resolve('openpgp'),
-  '..',
-  'openpgp.min.js'
-))
+const openpgp = (typeof window !== "undefined" ? window['openpgp'] : typeof global !== "undefined" ? global['openpgp'] : null)
 const mergeOptions = require('merge-options')
 
 const fetchHKP = (identifier, keyserverBaseUrl) => {
@@ -1699,6 +1701,7 @@ exports.process = process
 exports.getUserData = getUserData
 exports.getFingerprint = getFingerprint
 
+}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"bent":1,"merge-options":5,"path":6,"valid-url":8}],13:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach

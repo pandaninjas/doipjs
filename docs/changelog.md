@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.5]
+
+[2020-12-10](https://codeberg.org/keyoxide/doipjs/releases/tag/0.7.5)
+
+### Fixed
+- Browser bundling
+
 ## [0.7.4]
 
 [2020-12-08](https://codeberg.org/keyoxide/doipjs/releases/tag/0.7.4)
