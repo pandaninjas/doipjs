@@ -18,11 +18,7 @@ const expect = chai.expect
 chai.use(require('chai-as-promised'))
 
 const path = require('path')
-const openpgp = require(path.join(
-  require.resolve('openpgp'),
-  '..',
-  'openpgp.min.js'
-))
+const openpgp = require('openpgp')
 const doipjs = require('../src')
 
 const pubKeyFingerprint = `3637202523e7c1309ab79e99ef2dc5827b445f4b`
