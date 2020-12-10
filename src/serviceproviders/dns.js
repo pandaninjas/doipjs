@@ -61,7 +61,7 @@ const processURI = (uri, opts) => {
       qr: null,
     },
     proof: {
-      uri: utils.generateProxyURL('dns', match[1]),
+      uri: utils.generateProxyURL('dns', match[1], opts),
       fetch: null,
       useProxy: false,
       format: 'json',
