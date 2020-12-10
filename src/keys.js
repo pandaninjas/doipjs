@@ -17,11 +17,7 @@ const path = require('path')
 const bent = require('bent')
 const req = bent('GET')
 const validUrl = require('valid-url')
-const openpgp = require(path.join(
-  require.resolve('openpgp'),
-  '..',
-  'openpgp.min.js'
-))
+const openpgp = require('openpgp')
 const mergeOptions = require('merge-options')
 
 const fetchHKP = (identifier, keyserverBaseUrl) => {

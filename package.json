@@ -12,6 +12,7 @@
     "valid-url": "^1.0.9"
   },
   "devDependencies": {
+    "browserify-shim": "^3.8.14",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-match-pattern": "^1.2.0",
@@ -20,7 +21,7 @@
     "mocha": "^8.2.0"
   },
   "scripts": {
-    "release:bundle": "./node_modules/browserify/bin/cmd.js ./src/index.js --standalone doip -o ./dist/doip.js",
+    "release:bundle": "./node_modules/browserify/bin/cmd.js ./src/index.js --standalone doip -x openpgp -o ./dist/doip.js",
     "release:minify": "./node_modules/minify/bin/minify.js ./dist/doip.js > ./dist/doip.min.js",
     "prettier:check": "./node_modules/prettier/bin-prettier.js --check .",
     "prettier:write": "./node_modules/prettier/bin-prettier.js --write .",
@@ -44,5 +45,11 @@
     "identity"
   ],
   "author": "Yarmo Mackenbach <yarmo@yarmo.eu> (https://yarmo.eu)",
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "browserify": {
+    "transform": [ "browserify-shim" ]
+  },
+  "browserify-shim": {
+    "openpgp": "global:openpgp"
+  }
 }
