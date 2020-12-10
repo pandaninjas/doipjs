@@ -19,7 +19,7 @@ Verifies the identity behind the provided **uri** using the **fingerprint**.
 | Name              | Type    | Default value        | Description                                                         |
 | ----------------- | ------- | -------------------- | ------------------------------------------------------------------- |
 | returnMatchesOnly | boolean | false                | only return matching service providers, do not attempt verification |
-| proxyPolicy       | string  | 'adaptive'           | when to use a proxy ['adaptive', 'always', 'never']                 |
+| proxyPolicy       | string  | 'adaptive'           | when to use a proxy ['adaptive', 'fallback', 'always', 'never']     |
 | doipProxyHostname | string  | 'proxy.keyoxide.org' | the hostname of the proxy server                                    |
 
 When the `proxyPolicy` option is to `adaptive`, the chosen strategy is

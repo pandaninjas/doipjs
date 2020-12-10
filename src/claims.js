@@ -149,7 +149,8 @@ const verify = async (input, fingerprint, opts) => {
     })
   }
 
-  const uri = input
+  const uri = input.replace(/^\s+|\s+$/g, '')
+  let verifErrors = []
 
   if (!fingerprint) {
     fingerprint = null
@@ -171,6 +172,7 @@ const verify = async (input, fingerprint, opts) => {
   if ('returnMatchesOnly' in opts && opts.returnMatchesOnly) {
     return spMatches
   }
+
   let claimVerificationDone = false,
     claimVerificationResult,
     sp,
@@ -178,6 +180,7 @@ const verify = async (input, fingerprint, opts) => {
     res,
     proofData,
     spData
+
   while (!claimVerificationDone && iSp < spMatches.length) {
     spData = spMatches[iSp]
     spData.claim.fingerprint = fingerprint
@@ -185,14 +188,52 @@ const verify = async (input, fingerprint, opts) => {
     res = null
 
     if (spData.customRequestHandler instanceof Function) {
-      proofData = await spData.customRequestHandler(spData, opts)
-    } else if (
-      !spData.proof.useProxy ||
-      ('proxyPolicy' in opts && !opts.useProxyWhenNeeded)
-    ) {
-      proofData = await serviceproviders.directRequestHandler(spData, opts)
+      try {
+        proofData = await spData.customRequestHandler(spData, opts)
+      } catch (e) {
+        verifErrors.push('custom_request_handler_failed')
+      }
     } else {
-      proofData = await serviceproviders.proxyRequestHandler(spData, opts)
+      switch (opts.proxyPolicy) {
+        case 'adaptive':
+          if (spData.proof.useProxy) {
+            try {
+              proofData = await serviceproviders.proxyRequestHandler(spData, opts)
+            } catch(er) {}
+          } else {
+            try {
+              proofData = await serviceproviders.directRequestHandler(spData, opts)
+            } catch(er) {}
+            if (!proofData) {
+              try {
+                proofData = await serviceproviders.proxyRequestHandler(spData, opts)
+              } catch(er) {}
+            }
+          }
+          break;
+        case 'fallback':
+          try {
+            proofData = await serviceproviders.directRequestHandler(spData, opts)
+          } catch(er) {}
+          if (!proofData) {
+            try {
+              proofData = await serviceproviders.proxyRequestHandler(spData, opts)
+            } catch(er) {}
+          }
+          break;
+        case 'always':
+          try {
+            proofData = await serviceproviders.proxyRequestHandler(spData, opts)
+          } catch(er) {}
+          break;
+        case 'never':
+          try {
+            proofData = await serviceproviders.directRequestHandler(spData, opts)
+          } catch(er) {}
+          break;
+        default:
+          verifErrors.push('invalid_proxy_policy')
+      }
     }
 
     if (proofData) {
@@ -201,6 +242,8 @@ const verify = async (input, fingerprint, opts) => {
       if (claimVerificationResult.errors.length == 0) {
         claimVerificationDone = true
       }
+    } else {
+      verifErrors.push('unsuccessful_claim_verification')
     }
 
     iSp++
@@ -214,6 +257,7 @@ const verify = async (input, fingerprint, opts) => {
 
   return {
     isVerified: claimVerificationResult.isVerified,
+    errors: verifErrors,
     serviceproviderData: spData,
   }
 }
