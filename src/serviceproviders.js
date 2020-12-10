@@ -72,15 +72,31 @@ const directRequestHandler = (spData, opts) => {
 
     switch (spData.proof.format) {
       case 'json':
-        res = await req(url, null, {
+        req(url, null, {
           Accept: 'application/json',
           'User-Agent': `doipjs/${require('../package.json').version}`,
         })
-        resolve(await res.json())
+        .then(async (res) => {
+          return await res.json()
+        })
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((e) => {
+          reject(e)
+        })
         break
       case 'text':
-        res = await req(url)
-        resolve(await res.text())
+        req(url)
+        .then(async (res) => {
+          return await res.text()
+        })
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((e) => {
+          reject(e)
+        })
         break
       default:
         reject('No specified proof data format')
@@ -92,13 +108,20 @@ const directRequestHandler = (spData, opts) => {
 const proxyRequestHandler = (spData, opts) => {
   return new Promise(async (resolve, reject) => {
     const url = spData.proof.fetch ? spData.proof.fetch : spData.proof.uri
-    const res = await req(
+    req(
       utils.generateProxyURL(spData.proof.format, url, opts),
       null,
       { Accept: 'application/json' }
     )
-    const json = await res.json()
-    resolve(json.content)
+    .then(async (res) => {
+      return await res.json()
+    })
+    .then((res) => {
+      resolve(res.content)
+    })
+    .catch((e) => {
+      reject(e)
+    })
   })
 }
 
