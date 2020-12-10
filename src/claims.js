@@ -123,8 +123,10 @@ const verify = async (input, fingerprint, opts) => {
       })
     })
 
-    return Promise.all(promises).then((values) => {
-      return values
+    return Promise.allSettled(promises).then((values) => {
+      return values.map((obj, i) => {
+        return obj.value
+      })
     })
   }
   if (input instanceof Array) {
@@ -140,8 +142,10 @@ const verify = async (input, fingerprint, opts) => {
       })
     })
 
-    return Promise.all(promises).then((values) => {
-      return values
+    return Promise.allSettled(promises).then((values) => {
+      return values.map((obj, i) => {
+        return obj.value
+      })
     })
   }
 
