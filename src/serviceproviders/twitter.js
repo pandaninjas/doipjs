@@ -34,7 +34,7 @@ const processURI = (uri, opts) => {
     proof: {
       uri: uri,
       fetch: `https://mobile.twitter.com/${match[1]}/status/${match[2]}`,
-      useProxy: false,
+      useProxy: true,
       format: 'text',
     },
     claim: {

@@ -34,7 +34,7 @@ const processURI = (uri, opts) => {
     proof: {
       uri: uri,
       fetch: `https://dev.to/api/articles/${match[1]}/${match[2]}`,
-      useProxy: false,
+      useProxy: true,
       format: 'json',
     },
     claim: {
