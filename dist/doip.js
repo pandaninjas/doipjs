@@ -1193,7 +1193,7 @@ process.umask = function() { return 0; };
 },{}],9:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.7.5",
+  "version": "0.8.0",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -1374,8 +1374,10 @@ const verify = async (input, fingerprint, opts) => {
       })
     })
 
-    return Promise.all(promises).then((values) => {
-      return values
+    return Promise.allSettled(promises).then((values) => {
+      return values.map((obj, i) => {
+        return obj.value
+      })
     })
   }
   if (input instanceof Array) {
@@ -1391,12 +1393,15 @@ const verify = async (input, fingerprint, opts) => {
       })
     })
 
-    return Promise.all(promises).then((values) => {
-      return values
+    return Promise.allSettled(promises).then((values) => {
+      return values.map((obj, i) => {
+        return obj.value
+      })
     })
   }
 
-  const uri = input
+  const uri = input.replace(/^\s+|\s+$/g, '')
+  let verifErrors = []
 
   if (!fingerprint) {
     fingerprint = null
@@ -1418,6 +1423,7 @@ const verify = async (input, fingerprint, opts) => {
   if ('returnMatchesOnly' in opts && opts.returnMatchesOnly) {
     return spMatches
   }
+
   let claimVerificationDone = false,
     claimVerificationResult,
     sp,
@@ -1425,6 +1431,7 @@ const verify = async (input, fingerprint, opts) => {
     res,
     proofData,
     spData
+
   while (!claimVerificationDone && iSp < spMatches.length) {
     spData = spMatches[iSp]
     spData.claim.fingerprint = fingerprint
@@ -1432,14 +1439,52 @@ const verify = async (input, fingerprint, opts) => {
     res = null
 
     if (spData.customRequestHandler instanceof Function) {
-      proofData = await spData.customRequestHandler(spData, opts)
-    } else if (
-      !spData.proof.useProxy ||
-      ('proxyPolicy' in opts && !opts.useProxyWhenNeeded)
-    ) {
-      proofData = await serviceproviders.directRequestHandler(spData, opts)
+      try {
+        proofData = await spData.customRequestHandler(spData, opts)
+      } catch (e) {
+        verifErrors.push('custom_request_handler_failed')
+      }
     } else {
-      proofData = await serviceproviders.proxyRequestHandler(spData, opts)
+      switch (opts.proxyPolicy) {
+        case 'adaptive':
+          if (spData.proof.useProxy) {
+            try {
+              proofData = await serviceproviders.proxyRequestHandler(spData, opts)
+            } catch(er) {}
+          } else {
+            try {
+              proofData = await serviceproviders.directRequestHandler(spData, opts)
+            } catch(er) {}
+            if (!proofData) {
+              try {
+                proofData = await serviceproviders.proxyRequestHandler(spData, opts)
+              } catch(er) {}
+            }
+          }
+          break;
+        case 'fallback':
+          try {
+            proofData = await serviceproviders.directRequestHandler(spData, opts)
+          } catch(er) {}
+          if (!proofData) {
+            try {
+              proofData = await serviceproviders.proxyRequestHandler(spData, opts)
+            } catch(er) {}
+          }
+          break;
+        case 'always':
+          try {
+            proofData = await serviceproviders.proxyRequestHandler(spData, opts)
+          } catch(er) {}
+          break;
+        case 'never':
+          try {
+            proofData = await serviceproviders.directRequestHandler(spData, opts)
+          } catch(er) {}
+          break;
+        default:
+          verifErrors.push('invalid_proxy_policy')
+      }
     }
 
     if (proofData) {
@@ -1448,6 +1493,8 @@ const verify = async (input, fingerprint, opts) => {
       if (claimVerificationResult.errors.length == 0) {
         claimVerificationDone = true
       }
+    } else {
+      verifErrors.push('unsuccessful_claim_verification')
     }
 
     iSp++
@@ -1461,6 +1508,7 @@ const verify = async (input, fingerprint, opts) => {
 
   return {
     isVerified: claimVerificationResult.isVerified,
+    errors: verifErrors,
     serviceproviderData: spData,
   }
 }
@@ -1777,15 +1825,31 @@ const directRequestHandler = (spData, opts) => {
 
     switch (spData.proof.format) {
       case 'json':
-        res = await req(url, null, {
+        req(url, null, {
           Accept: 'application/json',
           'User-Agent': `doipjs/${require('../package.json').version}`,
         })
-        resolve(await res.json())
+        .then(async (res) => {
+          return await res.json()
+        })
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((e) => {
+          reject(e)
+        })
         break
       case 'text':
-        res = await req(url)
-        resolve(await res.text())
+        req(url)
+        .then(async (res) => {
+          return await res.text()
+        })
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((e) => {
+          reject(e)
+        })
         break
       default:
         reject('No specified proof data format')
@@ -1797,13 +1861,20 @@ const directRequestHandler = (spData, opts) => {
 const proxyRequestHandler = (spData, opts) => {
   return new Promise(async (resolve, reject) => {
     const url = spData.proof.fetch ? spData.proof.fetch : spData.proof.uri
-    const res = await req(
+    req(
       utils.generateProxyURL(spData.proof.format, url, opts),
       null,
       { Accept: 'application/json' }
     )
-    const json = await res.json()
-    resolve(json.content)
+    .then(async (res) => {
+      return await res.json()
+    })
+    .then((res) => {
+      resolve(res.content)
+    })
+    .catch((e) => {
+      reject(e)
+    })
   })
 }
 
@@ -1850,7 +1921,7 @@ const processURI = (uri, opts) => {
     proof: {
       uri: uri,
       fetch: `https://dev.to/api/articles/${match[1]}/${match[2]}`,
-      useProxy: false,
+      useProxy: true,
       format: 'json',
     },
     claim: {
@@ -2015,7 +2086,7 @@ const processURI = (uri, opts) => {
       qr: null,
     },
     proof: {
-      uri: utils.generateProxyURL('dns', match[1]),
+      uri: utils.generateProxyURL('dns', match[1], opts),
       fetch: null,
       useProxy: false,
       format: 'json',
@@ -2281,7 +2352,16 @@ const customRequestHandler = async (spData, opts) => {
   const match = spData.proof.uri.match(reURI)
 
   const urlUser = `https://${match[1]}/api/v4/users?username=${match[2]}`
-  const resUser = await req(urlUser, 'json', { Accept: 'application/json' })
+  let resUser
+  try {
+    resUser = await req(urlUser, null, { Accept: 'application/json' })
+  } catch (e) {
+    resUser = await req(
+      utils.generateProxyURL('web', urlUser, opts),
+      null,
+      { Accept: 'application/json' }
+    )
+  }
   const jsonUser = await resUser.json()
 
   const user = jsonUser.find((user) => user.username === match[2])
@@ -2290,7 +2370,16 @@ const customRequestHandler = async (spData, opts) => {
   }
 
   const urlProject = `https://${match[1]}/api/v4/users/${user.id}/projects`
-  const resProject = await req(urlProject, {}, { Accept: 'application/json' })
+  let resProject
+  try {
+    resProject = await req(urlProject, null, { Accept: 'application/json' })
+  } catch (e) {
+    resProject = await req(
+      utils.generateProxyURL('web', urlProject, opts),
+      null,
+      { Accept: 'application/json' }
+    )
+  }
   const jsonProject = await resProject.json()
 
   const project = jsonProject.find((proj) => proj.path === 'gitlab_proof')
@@ -2742,7 +2831,7 @@ const processURI = (uri, opts) => {
     proof: {
       uri: uri,
       fetch: `https://mobile.twitter.com/${match[1]}/status/${match[2]}`,
-      useProxy: false,
+      useProxy: true,
       format: 'text',
     },
     claim: {

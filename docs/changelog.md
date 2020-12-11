@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.8.0]
+
+[2020-12-11](https://codeberg.org/keyoxide/doipjs/releases/tag/0.8.0)
+
+### Added
+- Add fallback proxy policy
+
+### Fixed
+- Handling of failed network requests
+- Handling of rejected promises
+- DNS proxy URL generation
+- Twitter & Dev.to service provider
+
 ## [0.7.5]
 
 [2020-12-10](https://codeberg.org/keyoxide/doipjs/releases/tag/0.7.5)

@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2020-12-11
+### Added
+- Add fallback proxy policy
+
+### Fixed
+- Handling of failed network requests
+- Handling of rejected promises
+- DNS proxy URL generation
+- Twitter & Dev.to service provider
+
 ## [0.7.5] - 2020-12-08
 ### Fixed
 - Browser bundling
