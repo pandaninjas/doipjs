@@ -55,16 +55,16 @@
     </div>
   </body>
 
-  <script src="../dist/doip.min.js" charset="utf-8"></script>
+  <script src="https://cdn.jsdelivr.net/npm/openpgp/dist/openpgp.min.js"></script>
+  <script src="../dist/doip.js" charset="utf-8"></script>
   <script type="text/javascript" charset="utf-8">
     window.addEventListener('load', async () => {
       const claims = document.querySelectorAll('#claims > div')
       claims.forEach(async (item, i) => {
         claimInput = item.querySelector('.claim_input').textContent
         item.querySelector('.claim_output').textContent = JSON.stringify(
-          await doip.verify(claimInput, null, {
+          await doip.claims.verify(claimInput, null, {
             returnMatchesOnly: true,
-            xmppVcardServerDomain: 'vcard.server.org',
           }),
           null,
           2
