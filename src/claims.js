@@ -157,10 +157,11 @@ const verify = async (input, fingerprint, opts) => {
 
   const promiseClaim = new Promise(async (resolve, reject) => {
     let objResult = {
-      isVerified: null,
+      isVerified: false,
       errors: [],
-      serviceproviderData: null,
+      serviceproviderData: undefined,
     }
+
     const uri = input.replace(/^\s+|\s+$/g, '')
 
     if (!fingerprint) {
@@ -177,12 +178,14 @@ const verify = async (input, fingerprint, opts) => {
     if (!validUrl.isUri(uri)) {
       objResult.errors.push('invalid_uri')
       reject(objResult)
+      return
     }
 
     const spMatches = serviceproviders.match(uri, opts)
 
     if ('returnMatchesOnly' in opts && opts.returnMatchesOnly) {
       resolve(spMatches)
+      return
     }
 
     let claimVerificationDone = false,
@@ -270,15 +273,19 @@ const verify = async (input, fingerprint, opts) => {
     objResult.isVerified = claimVerificationResult.isVerified
     objResult.serviceproviderData = spData
     resolve(objResult)
+    return
   })
 
-  const promiseTimeout = new Promise((res) => {
+  const promiseTimeout = new Promise((resolve) => {
     const objResult = {
       isVerified: false,
       errors: ['verification_timed_out'],
       serviceproviderData: undefined,
     }
-    setTimeout(() => res(objResult), 5000)
+    setTimeout(() => {
+      resolve(objResult)
+      return
+    }, 3000)
   })
 
   return await Promise.race([promiseClaim, promiseTimeout])
