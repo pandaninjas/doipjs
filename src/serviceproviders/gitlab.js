@@ -26,11 +26,9 @@ const customRequestHandler = async (spData, opts) => {
   try {
     resUser = await req(urlUser, null, { Accept: 'application/json' })
   } catch (e) {
-    resUser = await req(
-      utils.generateProxyURL('web', urlUser, opts),
-      null,
-      { Accept: 'application/json' }
-    )
+    resUser = await req(utils.generateProxyURL('web', urlUser, opts), null, {
+      Accept: 'application/json',
+    })
   }
   const jsonUser = await resUser.json()
 

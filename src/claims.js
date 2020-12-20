@@ -213,39 +213,60 @@ const verify = async (input, fingerprint, opts) => {
           case 'adaptive':
             if (spData.proof.useProxy) {
               try {
-                proofData = await serviceproviders.proxyRequestHandler(spData, opts)
-              } catch(er) {}
+                proofData = await serviceproviders.proxyRequestHandler(
+                  spData,
+                  opts
+                )
+              } catch (er) {}
             } else {
               try {
-                proofData = await serviceproviders.directRequestHandler(spData, opts)
-              } catch(er) {}
+                proofData = await serviceproviders.directRequestHandler(
+                  spData,
+                  opts
+                )
+              } catch (er) {}
               if (!proofData) {
                 try {
-                  proofData = await serviceproviders.proxyRequestHandler(spData, opts)
-                } catch(er) {}
+                  proofData = await serviceproviders.proxyRequestHandler(
+                    spData,
+                    opts
+                  )
+                } catch (er) {}
               }
             }
-            break;
+            break
           case 'fallback':
             try {
-              proofData = await serviceproviders.directRequestHandler(spData, opts)
-            } catch(er) {}
+              proofData = await serviceproviders.directRequestHandler(
+                spData,
+                opts
+              )
+            } catch (er) {}
             if (!proofData) {
               try {
-                proofData = await serviceproviders.proxyRequestHandler(spData, opts)
-              } catch(er) {}
+                proofData = await serviceproviders.proxyRequestHandler(
+                  spData,
+                  opts
+                )
+              } catch (er) {}
             }
-            break;
+            break
           case 'always':
             try {
-              proofData = await serviceproviders.proxyRequestHandler(spData, opts)
-            } catch(er) {}
-            break;
+              proofData = await serviceproviders.proxyRequestHandler(
+                spData,
+                opts
+              )
+            } catch (er) {}
+            break
           case 'never':
             try {
-              proofData = await serviceproviders.directRequestHandler(spData, opts)
-            } catch(er) {}
-            break;
+              proofData = await serviceproviders.directRequestHandler(
+                spData,
+                opts
+              )
+            } catch (er) {}
+            break
           default:
             objResult.errors.push('invalid_proxy_policy')
         }

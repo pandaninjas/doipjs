@@ -120,7 +120,9 @@ const fetchURI = (uri) => {
 
     switch (match[1]) {
       case 'hkp':
-        resolve(fetchHKP(match[3] ? match[3] : match[2], match[3] ? match[2] : null))
+        resolve(
+          fetchHKP(match[3] ? match[3] : match[2], match[3] ? match[2] : null)
+        )
         break
       case 'wkd':
         resolve(fetchWKD(match[2]))
