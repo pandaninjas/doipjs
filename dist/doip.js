@@ -1193,7 +1193,7 @@ process.umask = function() { return 0; };
 },{}],9:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -1240,7 +1240,9 @@ module.exports={
   "author": "Yarmo Mackenbach <yarmo@yarmo.eu> (https://yarmo.eu)",
   "license": "Apache-2.0",
   "browserify": {
-    "transform": [ "browserify-shim" ]
+    "transform": [
+      "browserify-shim"
+    ]
   },
   "browserify-shim": {
     "openpgp": "global:openpgp"
@@ -1368,7 +1370,6 @@ const verify = async (input, fingerprint, opts) => {
           const res = await verify(user.notations, fingerprintFromKey, opts)
           resolve(res)
         } catch (e) {
-          console.error(`Claim verification failed: ${user.userData.id}`, e)
           reject(e)
         }
       })
@@ -1376,7 +1377,11 @@ const verify = async (input, fingerprint, opts) => {
 
     return Promise.allSettled(promises).then((values) => {
       return values.map((obj, i) => {
-        return obj.value
+        if (obj.status == 'fulfilled') {
+          return obj.value
+        } else {
+          return obj.reason
+        }
       })
     })
   }
@@ -1387,7 +1392,6 @@ const verify = async (input, fingerprint, opts) => {
           const res = await verify(uri, fingerprint, opts)
           resolve(res)
         } catch (e) {
-          console.error(`Claim verification failed: ${uri}`, e)
           reject(e)
         }
       })
@@ -1395,122 +1399,170 @@ const verify = async (input, fingerprint, opts) => {
 
     return Promise.allSettled(promises).then((values) => {
       return values.map((obj, i) => {
-        return obj.value
+        if (obj.status == 'fulfilled') {
+          return obj.value
+        } else {
+          return obj.reason
+        }
       })
     })
   }
 
-  const uri = input.replace(/^\s+|\s+$/g, '')
-  let verifErrors = []
+  const promiseClaim = new Promise(async (resolve, reject) => {
+    let objResult = {
+      isVerified: false,
+      errors: [],
+      serviceproviderData: undefined,
+    }
 
-  if (!fingerprint) {
-    fingerprint = null
-  }
+    const uri = input.replace(/^\s+|\s+$/g, '')
 
-  const defaultOpts = {
-    returnMatchesOnly: false,
-    proxyPolicy: 'adaptive',
-    doipProxyHostname: 'proxy.keyoxide.org',
-  }
-  opts = mergeOptions(defaultOpts, opts ? opts : {})
+    if (!fingerprint) {
+      fingerprint = null
+    }
 
-  if (!validUrl.isUri(uri)) {
-    throw new Error('Invalid URI')
-  }
+    const defaultOpts = {
+      returnMatchesOnly: false,
+      proxyPolicy: 'adaptive',
+      doipProxyHostname: 'proxy.keyoxide.org',
+    }
+    opts = mergeOptions(defaultOpts, opts ? opts : {})
 
-  const spMatches = serviceproviders.match(uri, opts)
+    if (!validUrl.isUri(uri)) {
+      objResult.errors.push('invalid_uri')
+      reject(objResult)
+      return
+    }
 
-  if ('returnMatchesOnly' in opts && opts.returnMatchesOnly) {
-    return spMatches
-  }
+    const spMatches = serviceproviders.match(uri, opts)
 
-  let claimVerificationDone = false,
-    claimVerificationResult,
-    sp,
-    iSp = 0,
-    res,
-    proofData,
-    spData
+    if ('returnMatchesOnly' in opts && opts.returnMatchesOnly) {
+      resolve(spMatches)
+      return
+    }
 
-  while (!claimVerificationDone && iSp < spMatches.length) {
-    spData = spMatches[iSp]
-    spData.claim.fingerprint = fingerprint
+    let claimVerificationDone = false,
+      claimVerificationResult,
+      sp,
+      iSp = 0,
+      res,
+      proofData,
+      spData
 
-    res = null
+    while (!claimVerificationDone && iSp < spMatches.length) {
+      spData = spMatches[iSp]
+      spData.claim.fingerprint = fingerprint
 
-    if (spData.customRequestHandler instanceof Function) {
-      try {
-        proofData = await spData.customRequestHandler(spData, opts)
-      } catch (e) {
-        verifErrors.push('custom_request_handler_failed')
-      }
-    } else {
-      switch (opts.proxyPolicy) {
-        case 'adaptive':
-          if (spData.proof.useProxy) {
+      res = null
+
+      if (spData.customRequestHandler instanceof Function) {
+        try {
+          proofData = await spData.customRequestHandler(spData, opts)
+        } catch (e) {
+          objResult.errors.push('custom_request_handler_failed')
+        }
+      } else {
+        switch (opts.proxyPolicy) {
+          case 'adaptive':
+            if (spData.proof.useProxy) {
+              try {
+                proofData = await serviceproviders.proxyRequestHandler(
+                  spData,
+                  opts
+                )
+              } catch (er) {}
+            } else {
+              try {
+                proofData = await serviceproviders.directRequestHandler(
+                  spData,
+                  opts
+                )
+              } catch (er) {}
+              if (!proofData) {
+                try {
+                  proofData = await serviceproviders.proxyRequestHandler(
+                    spData,
+                    opts
+                  )
+                } catch (er) {}
+              }
+            }
+            break
+          case 'fallback':
             try {
-              proofData = await serviceproviders.proxyRequestHandler(spData, opts)
-            } catch(er) {}
-          } else {
-            try {
-              proofData = await serviceproviders.directRequestHandler(spData, opts)
-            } catch(er) {}
+              proofData = await serviceproviders.directRequestHandler(
+                spData,
+                opts
+              )
+            } catch (er) {}
             if (!proofData) {
               try {
-                proofData = await serviceproviders.proxyRequestHandler(spData, opts)
-              } catch(er) {}
+                proofData = await serviceproviders.proxyRequestHandler(
+                  spData,
+                  opts
+                )
+              } catch (er) {}
             }
-          }
-          break;
-        case 'fallback':
-          try {
-            proofData = await serviceproviders.directRequestHandler(spData, opts)
-          } catch(er) {}
-          if (!proofData) {
+            break
+          case 'always':
             try {
-              proofData = await serviceproviders.proxyRequestHandler(spData, opts)
-            } catch(er) {}
-          }
-          break;
-        case 'always':
-          try {
-            proofData = await serviceproviders.proxyRequestHandler(spData, opts)
-          } catch(er) {}
-          break;
-        case 'never':
-          try {
-            proofData = await serviceproviders.directRequestHandler(spData, opts)
-          } catch(er) {}
-          break;
-        default:
-          verifErrors.push('invalid_proxy_policy')
+              proofData = await serviceproviders.proxyRequestHandler(
+                spData,
+                opts
+              )
+            } catch (er) {}
+            break
+          case 'never':
+            try {
+              proofData = await serviceproviders.directRequestHandler(
+                spData,
+                opts
+              )
+            } catch (er) {}
+            break
+          default:
+            objResult.errors.push('invalid_proxy_policy')
+        }
+      }
+
+      if (proofData) {
+        claimVerificationResult = runVerification(proofData, spData)
+
+        if (claimVerificationResult.errors.length == 0) {
+          claimVerificationDone = true
+        }
+      } else {
+        objResult.errors.push('unsuccessful_claim_verification')
+      }
+
+      iSp++
+    }
+
+    if (!claimVerificationResult) {
+      claimVerificationResult = {
+        isVerified: false,
       }
     }
 
-    if (proofData) {
-      claimVerificationResult = runVerification(proofData, spData)
+    objResult.isVerified = claimVerificationResult.isVerified
+    objResult.serviceproviderData = spData
+    resolve(objResult)
+    return
+  })
 
-      if (claimVerificationResult.errors.length == 0) {
-        claimVerificationDone = true
-      }
-    } else {
-      verifErrors.push('unsuccessful_claim_verification')
-    }
-
-    iSp++
-  }
-
-  if (!claimVerificationResult) {
-    claimVerificationResult = {
+  const promiseTimeout = new Promise((resolve) => {
+    const objResult = {
       isVerified: false,
+      errors: ['verification_timed_out'],
+      serviceproviderData: undefined,
     }
-  }
+    setTimeout(() => {
+      resolve(objResult)
+      return
+    }, 3000)
+  })
 
-  return {
-    isVerified: claimVerificationResult.isVerified,
-    errors: verifErrors,
-    serviceproviderData: spData,
-  }
+  return await Promise.race([promiseClaim, promiseTimeout])
 }
 
 exports.verify = verify
@@ -1666,7 +1718,9 @@ const fetchURI = (uri) => {
 
     switch (match[1]) {
       case 'hkp':
-        resolve(fetchHKP(match[3] ? match[3] : match[2], match[3] ? match[2] : null))
+        resolve(
+          fetchHKP(match[3] ? match[3] : match[2], match[3] ? match[2] : null)
+        )
         break
       case 'wkd':
         resolve(fetchWKD(match[2]))
@@ -1829,27 +1883,27 @@ const directRequestHandler = (spData, opts) => {
           Accept: 'application/json',
           'User-Agent': `doipjs/${require('../package.json').version}`,
         })
-        .then(async (res) => {
-          return await res.json()
-        })
-        .then((res) => {
-          resolve(res)
-        })
-        .catch((e) => {
-          reject(e)
-        })
+          .then(async (res) => {
+            return await res.json()
+          })
+          .then((res) => {
+            resolve(res)
+          })
+          .catch((e) => {
+            reject(e)
+          })
         break
       case 'text':
         req(url)
-        .then(async (res) => {
-          return await res.text()
-        })
-        .then((res) => {
-          resolve(res)
-        })
-        .catch((e) => {
-          reject(e)
-        })
+          .then(async (res) => {
+            return await res.text()
+          })
+          .then((res) => {
+            resolve(res)
+          })
+          .catch((e) => {
+            reject(e)
+          })
         break
       default:
         reject('No specified proof data format')
@@ -1861,20 +1915,18 @@ const directRequestHandler = (spData, opts) => {
 const proxyRequestHandler = (spData, opts) => {
   return new Promise(async (resolve, reject) => {
     const url = spData.proof.fetch ? spData.proof.fetch : spData.proof.uri
-    req(
-      utils.generateProxyURL(spData.proof.format, url, opts),
-      null,
-      { Accept: 'application/json' }
-    )
-    .then(async (res) => {
-      return await res.json()
+    req(utils.generateProxyURL(spData.proof.format, url, opts), null, {
+      Accept: 'application/json',
     })
-    .then((res) => {
-      resolve(res.content)
-    })
-    .catch((e) => {
-      reject(e)
-    })
+      .then(async (res) => {
+        return await res.json()
+      })
+      .then((res) => {
+        resolve(res.content)
+      })
+      .catch((e) => {
+        reject(e)
+      })
   })
 }
 
@@ -2356,11 +2408,9 @@ const customRequestHandler = async (spData, opts) => {
   try {
     resUser = await req(urlUser, null, { Accept: 'application/json' })
   } catch (e) {
-    resUser = await req(
-      utils.generateProxyURL('web', urlUser, opts),
-      null,
-      { Accept: 'application/json' }
-    )
+    resUser = await req(utils.generateProxyURL('web', urlUser, opts), null, {
+      Accept: 'application/json',
+    })
   }
   const jsonUser = await resUser.json()
 

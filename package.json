@@ -1,6 +1,6 @@
 {
   "name": "doipjs",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -47,7 +47,9 @@
   "author": "Yarmo Mackenbach <yarmo@yarmo.eu> (https://yarmo.eu)",
   "license": "Apache-2.0",
   "browserify": {
-    "transform": [ "browserify-shim" ]
+    "transform": [
+      "browserify-shim"
+    ]
   },
   "browserify-shim": {
     "openpgp": "global:openpgp"

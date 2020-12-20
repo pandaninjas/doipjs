@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1]
+
+[2020-12-20](https://codeberg.org/keyoxide/doipjs/releases/tag/0.8.1)
+
+### Fixed
+- Timeout for claim verification promises
+
 ## [0.8.0]
 
 [2020-12-11](https://codeberg.org/keyoxide/doipjs/releases/tag/0.8.0)
