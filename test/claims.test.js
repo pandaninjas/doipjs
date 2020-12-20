@@ -62,13 +62,13 @@ describe('claims.verify', () => {
     expect(doipjs.claims.verify).to.be.a('function')
     expect(doipjs.claims.verify).to.have.length(3)
   })
-  it('should throw an error for non-valid URIs', () => {
+  it('should return undefined for non-valid URIs', () => {
     return expect(doipjs.claims.verify('noURI')).to.eventually.be.rejectedWith(
-      'Invalid URI'
+      undefined
     )
     return expect(
       doipjs.claims.verify('domain.org')
-    ).to.eventually.be.rejectedWith('Invalid URI')
+    ).to.eventually.be.rejectedWith(undefined)
   })
 
   doipjs.serviceproviders.list.forEach((spName, i) => {

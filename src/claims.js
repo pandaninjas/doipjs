@@ -117,7 +117,6 @@ const verify = async (input, fingerprint, opts) => {
           const res = await verify(user.notations, fingerprintFromKey, opts)
           resolve(res)
         } catch (e) {
-          console.error(`Claim verification failed: ${user.userData.id}`, e)
           reject(e)
         }
       })
@@ -136,7 +135,6 @@ const verify = async (input, fingerprint, opts) => {
           const res = await verify(uri, fingerprint, opts)
           resolve(res)
         } catch (e) {
-          console.error(`Claim verification failed: ${uri}`, e)
           reject(e)
         }
       })
@@ -149,58 +147,75 @@ const verify = async (input, fingerprint, opts) => {
     })
   }
 
-  const uri = input.replace(/^\s+|\s+$/g, '')
-  let verifErrors = []
+  const promiseClaim = new Promise(async (resolve, reject) => {
+    let objResult = {
+      isVerified: null,
+      errors: [],
+      serviceproviderData: null,
+    }
+    const uri = input.replace(/^\s+|\s+$/g, '')
 
-  if (!fingerprint) {
-    fingerprint = null
-  }
+    if (!fingerprint) {
+      fingerprint = null
+    }
 
-  const defaultOpts = {
-    returnMatchesOnly: false,
-    proxyPolicy: 'adaptive',
-    doipProxyHostname: 'proxy.keyoxide.org',
-  }
-  opts = mergeOptions(defaultOpts, opts ? opts : {})
+    const defaultOpts = {
+      returnMatchesOnly: false,
+      proxyPolicy: 'adaptive',
+      doipProxyHostname: 'proxy.keyoxide.org',
+    }
+    opts = mergeOptions(defaultOpts, opts ? opts : {})
 
-  if (!validUrl.isUri(uri)) {
-    throw new Error('Invalid URI')
-  }
+    if (!validUrl.isUri(uri)) {
+      objResult.errors.push('invalid_uri')
+      reject(objResult)
+    }
 
-  const spMatches = serviceproviders.match(uri, opts)
+    const spMatches = serviceproviders.match(uri, opts)
 
-  if ('returnMatchesOnly' in opts && opts.returnMatchesOnly) {
-    return spMatches
-  }
+    if ('returnMatchesOnly' in opts && opts.returnMatchesOnly) {
+      resolve(spMatches)
+    }
 
-  let claimVerificationDone = false,
-    claimVerificationResult,
-    sp,
-    iSp = 0,
-    res,
-    proofData,
-    spData
+    let claimVerificationDone = false,
+      claimVerificationResult,
+      sp,
+      iSp = 0,
+      res,
+      proofData,
+      spData
 
-  while (!claimVerificationDone && iSp < spMatches.length) {
-    spData = spMatches[iSp]
-    spData.claim.fingerprint = fingerprint
+    while (!claimVerificationDone && iSp < spMatches.length) {
+      spData = spMatches[iSp]
+      spData.claim.fingerprint = fingerprint
 
-    res = null
+      res = null
 
-    if (spData.customRequestHandler instanceof Function) {
-      try {
-        proofData = await spData.customRequestHandler(spData, opts)
-      } catch (e) {
-        verifErrors.push('custom_request_handler_failed')
-      }
-    } else {
-      switch (opts.proxyPolicy) {
-        case 'adaptive':
-          if (spData.proof.useProxy) {
-            try {
-              proofData = await serviceproviders.proxyRequestHandler(spData, opts)
-            } catch(er) {}
-          } else {
+      if (spData.customRequestHandler instanceof Function) {
+        try {
+          proofData = await spData.customRequestHandler(spData, opts)
+        } catch (e) {
+          objResult.errors.push('custom_request_handler_failed')
+        }
+      } else {
+        switch (opts.proxyPolicy) {
+          case 'adaptive':
+            if (spData.proof.useProxy) {
+              try {
+                proofData = await serviceproviders.proxyRequestHandler(spData, opts)
+              } catch(er) {}
+            } else {
+              try {
+                proofData = await serviceproviders.directRequestHandler(spData, opts)
+              } catch(er) {}
+              if (!proofData) {
+                try {
+                  proofData = await serviceproviders.proxyRequestHandler(spData, opts)
+                } catch(er) {}
+              }
+            }
+            break;
+          case 'fallback':
             try {
               proofData = await serviceproviders.directRequestHandler(spData, opts)
             } catch(er) {}
@@ -209,57 +224,56 @@ const verify = async (input, fingerprint, opts) => {
                 proofData = await serviceproviders.proxyRequestHandler(spData, opts)
               } catch(er) {}
             }
-          }
-          break;
-        case 'fallback':
-          try {
-            proofData = await serviceproviders.directRequestHandler(spData, opts)
-          } catch(er) {}
-          if (!proofData) {
+            break;
+          case 'always':
             try {
               proofData = await serviceproviders.proxyRequestHandler(spData, opts)
             } catch(er) {}
-          }
-          break;
-        case 'always':
-          try {
-            proofData = await serviceproviders.proxyRequestHandler(spData, opts)
-          } catch(er) {}
-          break;
-        case 'never':
-          try {
-            proofData = await serviceproviders.directRequestHandler(spData, opts)
-          } catch(er) {}
-          break;
-        default:
-          verifErrors.push('invalid_proxy_policy')
+            break;
+          case 'never':
+            try {
+              proofData = await serviceproviders.directRequestHandler(spData, opts)
+            } catch(er) {}
+            break;
+          default:
+            objResult.errors.push('invalid_proxy_policy')
+        }
+      }
+
+      if (proofData) {
+        claimVerificationResult = runVerification(proofData, spData)
+
+        if (claimVerificationResult.errors.length == 0) {
+          claimVerificationDone = true
+        }
+      } else {
+        objResult.errors.push('unsuccessful_claim_verification')
+      }
+
+      iSp++
+    }
+
+    if (!claimVerificationResult) {
+      claimVerificationResult = {
+        isVerified: false,
       }
     }
 
-    if (proofData) {
-      claimVerificationResult = runVerification(proofData, spData)
+    objResult.isVerified = claimVerificationResult.isVerified
+    objResult.serviceproviderData = spData
+    resolve(objResult)
+  })
 
-      if (claimVerificationResult.errors.length == 0) {
-        claimVerificationDone = true
-      }
-    } else {
-      verifErrors.push('unsuccessful_claim_verification')
+  const promiseTimeout = new Promise((res) => {
+    const objResult = {
+      isVerified: null,
+      errors: 'verification_timed_out',
+      serviceproviderData: null,
     }
+    setTimeout(() => res(objResult), 5000)
+  })
 
-    iSp++
-  }
-
-  if (!claimVerificationResult) {
-    claimVerificationResult = {
-      isVerified: false,
-    }
-  }
-
-  return {
-    isVerified: claimVerificationResult.isVerified,
-    errors: verifErrors,
-    serviceproviderData: spData,
-  }
+  return await Promise.race([promiseClaim, promiseTimeout])
 }
 
 exports.verify = verify
