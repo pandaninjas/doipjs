@@ -124,7 +124,11 @@ const verify = async (input, fingerprint, opts) => {
 
     return Promise.allSettled(promises).then((values) => {
       return values.map((obj, i) => {
-        return obj.value
+        if (obj.status == 'fulfilled') {
+          return obj.value
+        } else {
+          return obj.reason
+        }
       })
     })
   }
@@ -142,7 +146,11 @@ const verify = async (input, fingerprint, opts) => {
 
     return Promise.allSettled(promises).then((values) => {
       return values.map((obj, i) => {
-        return obj.value
+        if (obj.status == 'fulfilled') {
+          return obj.value
+        } else {
+          return obj.reason
+        }
       })
     })
   }
@@ -266,9 +274,9 @@ const verify = async (input, fingerprint, opts) => {
 
   const promiseTimeout = new Promise((res) => {
     const objResult = {
-      isVerified: null,
-      errors: 'verification_timed_out',
-      serviceproviderData: null,
+      isVerified: false,
+      errors: ['verification_timed_out'],
+      serviceproviderData: undefined,
     }
     setTimeout(() => res(objResult), 5000)
   })
