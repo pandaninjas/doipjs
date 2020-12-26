@@ -159,14 +159,18 @@ const process = (publicKey) => {
         },
       }
 
-      const notations = user.selfCertifications[0].rawNotations
-      usersOutput[i].notations = notations.map(
-        ({ name, value, humanReadable }) => {
-          if (humanReadable && name === 'proof@metacode.biz') {
-            return openpgp.util.decode_utf8(value)
+      if ('selfCertifications' in user && user.selfCertifications.length >= 0) {
+        const notations = user.selfCertifications[0].rawNotations
+        usersOutput[i].notations = notations.map(
+          ({ name, value, humanReadable }) => {
+            if (humanReadable && name === 'proof@metacode.biz') {
+              return openpgp.util.decode_utf8(value)
+            }
           }
-        }
-      )
+        )
+      } else {
+        usersOutput[i].notations = []
+      }
     })
 
     resolve({
