@@ -1193,7 +1193,7 @@ process.umask = function() { return 0; };
 },{}],9:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -1757,14 +1757,18 @@ const process = (publicKey) => {
         },
       }
 
-      const notations = user.selfCertifications[0].rawNotations
-      usersOutput[i].notations = notations.map(
-        ({ name, value, humanReadable }) => {
-          if (humanReadable && name === 'proof@metacode.biz') {
-            return openpgp.util.decode_utf8(value)
+      if ('selfCertifications' in user && user.selfCertifications.length >= 0) {
+        const notations = user.selfCertifications[0].rawNotations
+        usersOutput[i].notations = notations.map(
+          ({ name, value, humanReadable }) => {
+            if (humanReadable && name === 'proof@metacode.biz') {
+              return openpgp.util.decode_utf8(value)
+            }
           }
-        }
-      )
+        )
+      } else {
+        usersOutput[i].notations = []
+      }
     })
 
     resolve({
