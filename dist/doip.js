@@ -1193,7 +1193,7 @@ process.umask = function() { return 0; };
 },{}],9:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -1749,15 +1749,15 @@ const process = (publicKey) => {
     users.forEach((user, i) => {
       usersOutput[i] = {
         userData: {
-          id: user.userId.userid,
-          name: user.userId.name,
-          email: user.userId.email,
-          comment: user.userId.comment,
+          id: user.userId ? user.userId.userid : null,
+          name: user.userId ? user.userId.name : null,
+          email: user.userId ? user.userId.email : null,
+          comment: user.userId ? user.userId.comment : null,
           isPrimary: primaryUser.index === i,
         },
       }
 
-      if ('selfCertifications' in user && user.selfCertifications.length >= 0) {
+      if ('selfCertifications' in user && user.selfCertifications.length > 0) {
         const notations = user.selfCertifications[0].rawNotations
         usersOutput[i].notations = notations.map(
           ({ name, value, humanReadable }) => {

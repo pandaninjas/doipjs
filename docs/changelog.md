@@ -1,11 +1,18 @@
 # Changelog
 
+## [0.8.3]
+
+[2020-12-26](https://codeberg.org/keyoxide/doipjs/releases/tag/0.8.3)
+
+### Fixed
+- Handling of users without userId
+
 ## [0.8.2]
 
 [2020-12-26](https://codeberg.org/keyoxide/doipjs/releases/tag/0.8.2)
 
 ### Fixed
-- Hanlding of users without selfCertifications
+- Handling of users without selfCertifications
 
 ## [0.8.1]
 
