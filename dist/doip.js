@@ -1193,7 +1193,7 @@ process.umask = function() { return 0; };
 },{}],9:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -2884,7 +2884,7 @@ const processURI = (uri, opts) => {
     },
     proof: {
       uri: uri,
-      fetch: `https://mobile.twitter.com/${match[1]}/status/${match[2]}`,
+      fetch: `https://nitter.net/${match[1]}/status/${match[2]}`,
       useProxy: true,
       format: 'text',
     },

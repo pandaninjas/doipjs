@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.4]
+
+[2021-01-02](https://codeberg.org/keyoxide/doipjs/releases/tag/0.8.4)
+
+### Fixed
+- Fetch Twitter proofs from Nitter
+
 ## [0.8.3]
 
 [2020-12-26](https://codeberg.org/keyoxide/doipjs/releases/tag/0.8.3)

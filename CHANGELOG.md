@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.4] - 2021-01-02
+### Fixed
+- Fetch Twitter proofs from Nitter
+
 ## [0.8.3] - 2020-12-26
 ### Fixed
 - Handling of users without userId
