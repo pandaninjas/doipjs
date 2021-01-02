@@ -33,7 +33,7 @@ const processURI = (uri, opts) => {
     },
     proof: {
       uri: uri,
-      fetch: `https://mobile.twitter.com/${match[1]}/status/${match[2]}`,
+      fetch: `https://nitter.net/${match[1]}/status/${match[2]}`,
       useProxy: true,
       format: 'text',
     },
