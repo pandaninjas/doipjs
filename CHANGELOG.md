@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.5] - 2021-01-03
+### Fixed
+- Remove trailing slash from HKP server URL
+
 ## [0.8.4] - 2021-01-02
 ### Fixed
 - Fetch Twitter proofs from Nitter

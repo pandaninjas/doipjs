@@ -1621,8 +1621,8 @@ const mergeOptions = require('merge-options')
 const fetchHKP = (identifier, keyserverBaseUrl) => {
   return new Promise(async (resolve, reject) => {
     keyserverBaseUrl = keyserverBaseUrl
-      ? `https://${keyserverBaseUrl}/`
-      : 'https://keys.openpgp.org/'
+      ? `https://${keyserverBaseUrl}`
+      : 'https://keys.openpgp.org'
 
     const hkp = new openpgp.HKP(keyserverBaseUrl)
     const lookupOpts = {

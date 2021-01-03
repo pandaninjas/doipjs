@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.5]
+
+[2021-01-03](https://codeberg.org/keyoxide/doipjs/releases/tag/0.8.5)
+
+### Fixed
+- Remove trailing slash from HKP server URL
+
 ## [0.8.4]
 
 [2021-01-02](https://codeberg.org/keyoxide/doipjs/releases/tag/0.8.4)
