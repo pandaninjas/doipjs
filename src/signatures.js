@@ -20,7 +20,8 @@ const keys = require('./keys')
 
 const verify = (signature, opts) => {
   return new Promise(async (resolve, reject) => {
-    let errors = [], sigData
+    let errors = [],
+      sigData
     try {
       sigData = await openpgp.cleartext.readArmored(signature)
     } catch (error) {
@@ -44,7 +45,7 @@ const verify = (signature, opts) => {
         case 'proof':
           sigClaims.push(match[2])
           break
-    
+
         default:
           break
       }
@@ -54,10 +55,10 @@ const verify = (signature, opts) => {
       errors.push('no_linked_keys')
       reject({ errors: errors })
     }
-    
+
     const keyData = await keys.fetch.uri(sigKeys[0])
     const fingerprint = keyData.keyPacket.getFingerprint()
-    
+
     try {
       const sigVerification = await sigData.verify([keyData])
       await sigVerification[0].verified
@@ -72,7 +73,7 @@ const verify = (signature, opts) => {
       errors: errors,
       publicKey: keyData,
       fingerprint: fingerprint,
-      claims: claimVerifications
+      claims: claimVerifications,
     })
   })
 }
