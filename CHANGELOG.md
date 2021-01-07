@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2021-01-07
+## Added
+- Signature claims verification
+
 ## [0.8.5] - 2021-01-03
 ### Fixed
 - Remove trailing slash from HKP server URL

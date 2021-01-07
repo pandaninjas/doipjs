@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0]
+
+[2021-01-07](https://codeberg.org/keyoxide/doipjs/releases/tag/0.9.0)
+
+## Added
+- Signature claims verification
+
 ## [0.8.5]
 
 [2021-01-03](https://codeberg.org/keyoxide/doipjs/releases/tag/0.8.5)

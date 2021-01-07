@@ -1,4 +1,4 @@
-# doip.js <small>0.8.5</small>
+# doip.js <small>0.9.0</small>
 
 <img src="doip.png" width="120">
 

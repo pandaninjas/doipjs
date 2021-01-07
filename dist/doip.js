@@ -1193,7 +1193,7 @@ process.umask = function() { return 0; };
 },{}],9:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.8.4",
+  "version": "0.9.0",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -1568,7 +1568,7 @@ const verify = async (input, fingerprint, opts) => {
 exports.verify = verify
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./keys":12,"./serviceproviders":13,"./utils":28,"merge-options":5,"path":6,"valid-url":8}],11:[function(require,module,exports){
+},{"./keys":12,"./serviceproviders":13,"./utils":29,"merge-options":5,"path":6,"valid-url":8}],11:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -1586,15 +1586,17 @@ limitations under the License.
 */
 const claims = require('./claims')
 const keys = require('./keys')
+const signatures = require('./signatures')
 const serviceproviders = require('./serviceproviders')
 const utils = require('./utils')
 
 exports.claims = claims
 exports.keys = keys
+exports.signatures = signatures
 exports.serviceproviders = serviceproviders
 exports.utils = utils
 
-},{"./claims":10,"./keys":12,"./serviceproviders":13,"./utils":28}],12:[function(require,module,exports){
+},{"./claims":10,"./keys":12,"./serviceproviders":13,"./signatures":28,"./utils":29}],12:[function(require,module,exports){
 (function (global){(function (){
 /*
 Copyright 2020 Yarmo Mackenbach
@@ -1940,7 +1942,7 @@ exports.match = match
 exports.directRequestHandler = directRequestHandler
 exports.proxyRequestHandler = proxyRequestHandler
 
-},{"../package.json":9,"./serviceproviders/devto":14,"./serviceproviders/discourse":15,"./serviceproviders/dns":16,"./serviceproviders/fediverse":17,"./serviceproviders/gitea":18,"./serviceproviders/github":19,"./serviceproviders/gitlab":20,"./serviceproviders/hackernews":21,"./serviceproviders/liberapay":22,"./serviceproviders/lobsters":23,"./serviceproviders/mastodon":24,"./serviceproviders/reddit":25,"./serviceproviders/twitter":26,"./serviceproviders/xmpp":27,"./utils":28,"bent":1}],14:[function(require,module,exports){
+},{"../package.json":9,"./serviceproviders/devto":14,"./serviceproviders/discourse":15,"./serviceproviders/dns":16,"./serviceproviders/fediverse":17,"./serviceproviders/gitea":18,"./serviceproviders/github":19,"./serviceproviders/gitlab":20,"./serviceproviders/hackernews":21,"./serviceproviders/liberapay":22,"./serviceproviders/lobsters":23,"./serviceproviders/mastodon":24,"./serviceproviders/reddit":25,"./serviceproviders/twitter":26,"./serviceproviders/xmpp":27,"./utils":29,"bent":1}],14:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -2176,7 +2178,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../utils":28,"bent":1,"dns":3}],17:[function(require,module,exports){
+},{"../utils":29,"bent":1,"dns":3}],17:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
 
@@ -2987,7 +2989,92 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../utils":28}],28:[function(require,module,exports){
+},{"../utils":29}],28:[function(require,module,exports){
+(function (global){(function (){
+/*
+Copyright 2020 Yarmo Mackenbach
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+const openpgp = (typeof window !== "undefined" ? window['openpgp'] : typeof global !== "undefined" ? global['openpgp'] : null)
+const mergeOptions = require('merge-options')
+const claims = require('./claims')
+const keys = require('./keys')
+
+const verify = (signature, opts) => {
+  return new Promise(async (resolve, reject) => {
+    let errors = [],
+      sigData
+    try {
+      sigData = await openpgp.cleartext.readArmored(signature)
+    } catch (error) {
+      errors.push('invalid_signature')
+      reject({ errors: errors })
+    }
+
+    const text = sigData.getText()
+    let sigKeys = []
+    let sigClaims = []
+    text.split('\n').forEach((line, i) => {
+      const match = line.match(/^(.*)\=(.*)$/i)
+      if (!match) {
+        return
+      }
+      switch (match[1].toLowerCase()) {
+        case 'key':
+          sigKeys.push(match[2])
+          break
+
+        case 'proof':
+          sigClaims.push(match[2])
+          break
+
+        default:
+          break
+      }
+    })
+
+    if (sigKeys.length === 0) {
+      errors.push('no_linked_keys')
+      reject({ errors: errors })
+    }
+
+    const keyData = await keys.fetch.uri(sigKeys[0])
+    const fingerprint = keyData.keyPacket.getFingerprint()
+
+    try {
+      const sigVerification = await sigData.verify([keyData])
+      await sigVerification[0].verified
+    } catch (e) {
+      errors.push('invalid_signature_verification')
+      reject({ errors: errors })
+    }
+
+    const claimVerifications = await claims.verify(sigClaims, fingerprint, opts)
+
+    resolve({
+      errors: errors,
+      publicKey: keyData,
+      fingerprint: fingerprint,
+      claims: claimVerifications,
+    })
+  })
+}
+
+exports.verify = verify
+
+}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./claims":10,"./keys":12,"merge-options":5}],29:[function(require,module,exports){
 /*
 Copyright 2020 Yarmo Mackenbach
 
