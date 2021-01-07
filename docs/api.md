@@ -187,3 +187,31 @@ Parses the `keyPlaintext`.
 **Returns**
 
 A public key object.
+
+## signatures.verify(uri, [fingerprint], [opts])
+
+_(async)_ doip.signatures.verify(signature, [opts])
+
+Verifies the identity behind the claims in the provided clear-signed **signature**.
+
+**Parameters**
+
+| Name      | Type   | Mandatory | Description               |
+| --------- | ------ | --------- | ------------------------- |
+| signature | string | true      | the clear-sgned signature |
+| opts      | object | false     | options (see below)       |
+
+**Options**
+
+See [claims.verify(uri, ...)](#claimsverifyuri-fingerprint-opts).
+
+**Returns**
+
+```json
+{
+  "errors": [ ... ],
+  "publicKey": { ... },
+  "fingerprint": "...",
+  "serviceproviderData": { ... }
+}
+```
