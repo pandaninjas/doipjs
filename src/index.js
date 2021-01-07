@@ -15,10 +15,12 @@ limitations under the License.
 */
 const claims = require('./claims')
 const keys = require('./keys')
+const signatures = require('./signatures')
 const serviceproviders = require('./serviceproviders')
 const utils = require('./utils')
 
 exports.claims = claims
 exports.keys = keys
+exports.signatures = signatures
 exports.serviceproviders = serviceproviders
 exports.utils = utils
