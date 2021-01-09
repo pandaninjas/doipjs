@@ -49,7 +49,7 @@ describe('signatures.verify', () => {
   it('should verify the demonstration signature', async () => {
     const verification = await doipjs.signatures.verify(sigProfile)
     expect(verification.errors).to.be.length(0)
-    expect(verification.fingerprint).to.be.equal(
+    expect(verification.publicKey.fingerprint).to.be.equal(
       '3637202523e7c1309ab79e99ef2dc5827b445f4b'
     )
     expect(verification.claims).to.be.length(1)
