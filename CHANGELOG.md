@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.1] - 2021-01-09
+## Changed
+- Use signature data to find key location
+
 ## [0.9.0] - 2021-01-07
 ## Added
 - Signature claims verification

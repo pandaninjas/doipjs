@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.1]
+
+[2021-01-09](https://codeberg.org/keyoxide/doipjs/releases/tag/0.9.1)
+
+## Changed
+- Use signature data to find key location
+
 ## [0.9.0]
 
 [2021-01-07](https://codeberg.org/keyoxide/doipjs/releases/tag/0.9.0)

@@ -1193,7 +1193,7 @@ process.umask = function() { return 0; };
 },{}],9:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -3015,16 +3015,24 @@ const verify = (signature, opts) => {
   return new Promise(async (resolve, reject) => {
     let errors = [],
       sigData
+
     try {
       sigData = await openpgp.cleartext.readArmored(signature)
     } catch (error) {
       errors.push('invalid_signature')
       reject({ errors: errors })
+      return
     }
 
+    const issuerKeyId = sigData.signature.packets[0].issuerKeyId.toHex()
+    const signersUserId = sigData.signature.packets[0].signersUserId
+    const preferredKeyServer =
+      sigData.signature.packets[0].preferredKeyServer ||
+      'https://keys.openppg.org/'
     const text = sigData.getText()
     let sigKeys = []
     let sigClaims = []
+
     text.split('\n').forEach((line, i) => {
       const match = line.match(/^(.*)\=(.*)$/i)
       if (!match) {
@@ -3044,12 +3052,35 @@ const verify = (signature, opts) => {
       }
     })
 
-    if (sigKeys.length === 0) {
-      errors.push('no_linked_keys')
-      reject({ errors: errors })
+    let keyData, keyUri
+
+    // Try overruling key
+    if (sigKeys.length > 0) {
+      try {
+        keyUri = sigKeys[0]
+        keyData = await keys.fetch.uri(keyUri)
+      } catch(e) {}
+    }
+    // Try WKD
+    if (!keyData && signersUserId) {
+      try {
+        keyUri = `wkd:${signersUserId}`
+        keyData = await keys.fetch.uri(keyUri)
+      } catch(e) {}
+    }
+    // Try HKP
+    if (!keyData) {
+      try {
+        const match = preferredKeyServer.match(/^(.*\:\/\/)?([^/]*)(?:\/)?$/i)
+        keyUri = `hkp:${match[2]}:${issuerKeyId ? issuerKeyId : signersUserId}`
+        keyData = await keys.fetch.uri(keyUri)
+      } catch(e) {
+        errors.push('key_not_found')
+        reject({ errors: errors })
+        return
+      }
     }
 
-    const keyData = await keys.fetch.uri(sigKeys[0])
     const fingerprint = keyData.keyPacket.getFingerprint()
 
     try {
@@ -3058,14 +3089,25 @@ const verify = (signature, opts) => {
     } catch (e) {
       errors.push('invalid_signature_verification')
       reject({ errors: errors })
+      return
     }
 
     const claimVerifications = await claims.verify(sigClaims, fingerprint, opts)
 
     resolve({
       errors: errors,
-      publicKey: keyData,
-      fingerprint: fingerprint,
+      signature: {
+        data: sigData.signature,
+        issuerKeyId: issuerKeyId,
+        signersUserId: signersUserId,
+        preferredKeyServer: preferredKeyServer,
+      },
+      publicKey: {
+        data: keyData,
+        uri: keyUri,
+        fingerprint: fingerprint,
+      },
+      text: text,
       claims: claimVerifications,
     })
   })
