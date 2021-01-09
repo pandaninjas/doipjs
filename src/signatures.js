@@ -66,14 +66,14 @@ const verify = (signature, opts) => {
       try {
         keyUri = sigKeys[0]
         keyData = await keys.fetch.uri(keyUri)
-      } catch {}
+      } catch(e) {}
     }
     // Try WKD
     if (!keyData && signersUserId) {
       try {
         keyUri = `wkd:${signersUserId}`
         keyData = await keys.fetch.uri(keyUri)
-      } catch {}
+      } catch(e) {}
     }
     // Try HKP
     if (!keyData) {
@@ -81,7 +81,7 @@ const verify = (signature, opts) => {
         const match = preferredKeyServer.match(/^(.*\:\/\/)?([^/]*)(?:\/)?$/i)
         keyUri = `hkp:${match[2]}:${issuerKeyId ? issuerKeyId : signersUserId}`
         keyData = await keys.fetch.uri(keyUri)
-      } catch {
+      } catch(e) {
         errors.push('key_not_found')
         reject({ errors: errors })
         return
