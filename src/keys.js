@@ -30,14 +30,25 @@ const fetchHKP = (identifier, keyserverBaseUrl) => {
     const lookupOpts = {
       query: identifier,
     }
-    let publicKey = await hkp.lookup(lookupOpts)
-    publicKey = (await openpgp.key.readArmored(publicKey)).keys[0]
 
-    if (publicKey == undefined) {
+    let publicKey = await hkp.lookup(lookupOpts)
+    .catch((error) => {
+      reject('Key does not exist or could not be fetched')
+    })
+    
+    publicKey = await openpgp.key.readArmored(publicKey)
+    .then((result) => {
+      return result.keys[0]
+    })
+    .catch((error) => {
+      return null
+    })
+
+    if (publicKey) {
+      resolve(publicKey)
+    } else {
       reject('Key does not exist or could not be fetched')
     }
-
-    resolve(publicKey)
   })
 }
 
@@ -47,13 +58,20 @@ const fetchWKD = (identifier) => {
     const lookupOpts = {
       email: identifier,
     }
-    const publicKey = (await wkd.lookup(lookupOpts)).keys[0]
 
-    if (publicKey == undefined) {
+    const publicKey = await wkd.lookup(lookupOpts)
+    .then((result) => {
+      return result.keys[0]
+    })
+    .catch((error) => {
+      return null
+    })
+
+    if (publicKey) {
+      resolve(publicKey)
+    } else {
       reject('Key does not exist or could not be fetched')
     }
-
-    resolve(publicKey)
   })
 }
 
@@ -71,13 +89,20 @@ const fetchKeybase = (username, fingerprint) => {
     } catch (e) {
       reject(`Error fetching Keybase key: ${e.message}`)
     }
-    const publicKey = (await openpgp.key.readArmored(rawKeyContent)).keys[0]
+    
+    const publicKey = await openpgp.key.readArmored(rawKeyContent)
+    .then((result) => {
+      return result.keys[0]
+    })
+    .catch((error) => {
+      return null
+    })
 
-    if (publicKey == undefined) {
+    if (publicKey) {
+      resolve(publicKey)
+    } else {
       reject('Key does not exist or could not be fetched')
     }
-
-    resolve(publicKey)
   })
 }
 
