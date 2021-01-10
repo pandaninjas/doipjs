@@ -35,7 +35,7 @@ const verify = (signature, opts) => {
     const signersUserId = sigData.signature.packets[0].signersUserId
     const preferredKeyServer =
       sigData.signature.packets[0].preferredKeyServer ||
-      'https://keys.openppg.org/'
+      'https://keys.openpgp.org/'
     const text = sigData.getText()
     let sigKeys = []
     let sigClaims = []
