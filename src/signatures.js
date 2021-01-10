@@ -41,7 +41,7 @@ const verify = (signature, opts) => {
     let sigClaims = []
 
     text.split('\n').forEach((line, i) => {
-      const match = line.match(/^(.*)\=(.*)$/i)
+      const match = line.match(/^([a-zA-Z0-9]*)\=(.*)$/i)
       if (!match) {
         return
       }
