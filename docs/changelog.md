@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.4]
+
+[2021-01-10](https://codeberg.org/keyoxide/doipjs/releases/tag/0.9.4)
+
+## Fixed
+- Fix typo in keyserver url
+
 ## [0.9.3]
 
 [2021-01-10](https://codeberg.org/keyoxide/doipjs/releases/tag/0.9.3)
