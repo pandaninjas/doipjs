@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.3] - 2021-01-10
+## Fixed
+- Fix regex skipping some claims
+
 ## [0.9.2] - 2021-01-09
 ## Fixed
 - Network errors blocking code execution

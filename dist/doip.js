@@ -1193,7 +1193,7 @@ process.umask = function() { return 0; };
 },{}],9:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -3059,7 +3059,7 @@ const verify = (signature, opts) => {
     let sigClaims = []
 
     text.split('\n').forEach((line, i) => {
-      const match = line.match(/^(.*)\=(.*)$/i)
+      const match = line.match(/^([a-zA-Z0-9]*)\=(.*)$/i)
       if (!match) {
         return
       }

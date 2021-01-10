@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.3]
+
+[2021-01-10](https://codeberg.org/keyoxide/doipjs/releases/tag/0.9.3)
+
+## Fixed
+- Fix regex skipping some claims
+
 ## [0.9.2]
 
 [2021-01-09](https://codeberg.org/keyoxide/doipjs/releases/tag/0.9.2)
