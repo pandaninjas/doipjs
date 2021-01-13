@@ -32,6 +32,7 @@ const list = [
   'mastodon',
   'fediverse',
   'discourse',
+  'owncast',
 ]
 
 const data = {
@@ -49,6 +50,7 @@ const data = {
   mastodon: require('./serviceproviders/mastodon'),
   fediverse: require('./serviceproviders/fediverse'),
   discourse: require('./serviceproviders/discourse'),
+  owncast: require('./serviceproviders/owncast'),
 }
 
 const match = (uri, opts) => {
