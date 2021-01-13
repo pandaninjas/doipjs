@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0]
+
+[2021-01-13](https://codeberg.org/keyoxide/doipjs/releases/tag/0.10.0)
+
+## Added
+- Owncast service provider
+
 ## [0.9.4]
 
 [2021-01-10](https://codeberg.org/keyoxide/doipjs/releases/tag/0.9.4)

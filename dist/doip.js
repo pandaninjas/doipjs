@@ -1193,7 +1193,7 @@ process.umask = function() { return 0; };
 },{}],9:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.9.3",
+  "version": "0.10.0",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -1568,7 +1568,7 @@ const verify = async (input, fingerprint, opts) => {
 exports.verify = verify
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./keys":12,"./serviceproviders":13,"./utils":29,"merge-options":5,"path":6,"valid-url":8}],11:[function(require,module,exports){
+},{"./keys":12,"./serviceproviders":13,"./utils":30,"merge-options":5,"path":6,"valid-url":8}],11:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -1596,7 +1596,7 @@ exports.signatures = signatures
 exports.serviceproviders = serviceproviders
 exports.utils = utils
 
-},{"./claims":10,"./keys":12,"./serviceproviders":13,"./signatures":28,"./utils":29}],12:[function(require,module,exports){
+},{"./claims":10,"./keys":12,"./serviceproviders":13,"./signatures":29,"./utils":30}],12:[function(require,module,exports){
 (function (global){(function (){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -1870,6 +1870,7 @@ const list = [
   'mastodon',
   'fediverse',
   'discourse',
+  'owncast',
 ]
 
 const data = {
@@ -1887,6 +1888,7 @@ const data = {
   mastodon: require('./serviceproviders/mastodon'),
   fediverse: require('./serviceproviders/fediverse'),
   discourse: require('./serviceproviders/discourse'),
+  owncast: require('./serviceproviders/owncast'),
 }
 
 const match = (uri, opts) => {
@@ -1967,7 +1969,7 @@ exports.match = match
 exports.directRequestHandler = directRequestHandler
 exports.proxyRequestHandler = proxyRequestHandler
 
-},{"../package.json":9,"./serviceproviders/devto":14,"./serviceproviders/discourse":15,"./serviceproviders/dns":16,"./serviceproviders/fediverse":17,"./serviceproviders/gitea":18,"./serviceproviders/github":19,"./serviceproviders/gitlab":20,"./serviceproviders/hackernews":21,"./serviceproviders/liberapay":22,"./serviceproviders/lobsters":23,"./serviceproviders/mastodon":24,"./serviceproviders/reddit":25,"./serviceproviders/twitter":26,"./serviceproviders/xmpp":27,"./utils":29,"bent":1}],14:[function(require,module,exports){
+},{"../package.json":9,"./serviceproviders/devto":14,"./serviceproviders/discourse":15,"./serviceproviders/dns":16,"./serviceproviders/fediverse":17,"./serviceproviders/gitea":18,"./serviceproviders/github":19,"./serviceproviders/gitlab":20,"./serviceproviders/hackernews":21,"./serviceproviders/liberapay":22,"./serviceproviders/lobsters":23,"./serviceproviders/mastodon":24,"./serviceproviders/owncast":25,"./serviceproviders/reddit":26,"./serviceproviders/twitter":27,"./serviceproviders/xmpp":28,"./utils":30,"bent":1}],14:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -2203,7 +2205,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../utils":29,"bent":1,"dns":3}],17:[function(require,module,exports){
+},{"../utils":30,"bent":1,"dns":3}],17:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -2814,6 +2816,82 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const bent = require('bent')
+const req = bent('GET')
+
+const reURI = /^https:\/\/(.*)/
+
+const processURI = (uri, opts) => {
+  if (!opts) {
+    opts = {}
+  }
+  const match = uri.match(reURI)
+
+  return {
+    serviceprovider: {
+      type: 'web',
+      name: 'owncast',
+    },
+    profile: {
+      display: match[1],
+      uri: uri,
+      qr: null,
+    },
+    proof: {
+      uri: `${uri}/api/config`,
+      fetch: null,
+      useProxy: false,
+      format: 'json',
+    },
+    claim: {
+      fingerprint: null,
+      format: 'fingerprint',
+      path: ['socialHandles', 'url'],
+      relation: 'contains',
+    },
+    customRequestHandler: null,
+  }
+}
+
+const tests = [
+  {
+    uri: 'https://live.domain.org',
+    shouldMatch: true,
+  },
+  {
+    uri: 'https://live.domain.org/',
+    shouldMatch: true,
+  },
+  {
+    uri: 'https://domain.org/live',
+    shouldMatch: true,
+  },
+  {
+    uri: 'https://domain.org/live/',
+    shouldMatch: true,
+  },
+]
+
+exports.reURI = reURI
+exports.processURI = processURI
+exports.tests = tests
+
+},{"bent":1}],26:[function(require,module,exports){
+/*
+Copyright 2021 Yarmo Mackenbach
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 const reURI = /^https:\/\/(?:www\.)?reddit\.com\/user\/(.*)\/comments\/(.*)\/(.*)\/?/
 
 const processURI = (uri, opts) => {
@@ -2875,7 +2953,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -2944,7 +3022,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -3014,7 +3092,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../utils":29}],28:[function(require,module,exports){
+},{"../utils":30}],29:[function(require,module,exports){
 (function (global){(function (){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -3141,7 +3219,7 @@ const verify = (signature, opts) => {
 exports.verify = verify
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./claims":10,"./keys":12,"merge-options":5}],29:[function(require,module,exports){
+},{"./claims":10,"./keys":12,"merge-options":5}],30:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
