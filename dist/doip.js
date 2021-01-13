@@ -1252,7 +1252,7 @@ module.exports={
 },{}],10:[function(require,module,exports){
 (function (global){(function (){
 /*
-Copyright 2020 Yarmo Mackenbach
+Copyright 2021 Yarmo Mackenbach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -1570,7 +1570,7 @@ exports.verify = verify
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./keys":12,"./serviceproviders":13,"./utils":29,"merge-options":5,"path":6,"valid-url":8}],11:[function(require,module,exports){
 /*
-Copyright 2020 Yarmo Mackenbach
+Copyright 2021 Yarmo Mackenbach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -1599,7 +1599,7 @@ exports.utils = utils
 },{"./claims":10,"./keys":12,"./serviceproviders":13,"./signatures":28,"./utils":29}],12:[function(require,module,exports){
 (function (global){(function (){
 /*
-Copyright 2020 Yarmo Mackenbach
+Copyright 2021 Yarmo Mackenbach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -1837,7 +1837,7 @@ exports.getFingerprint = getFingerprint
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"bent":1,"merge-options":5,"path":6,"valid-url":8}],13:[function(require,module,exports){
 /*
-Copyright 2020 Yarmo Mackenbach
+Copyright 2021 Yarmo Mackenbach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -1969,7 +1969,7 @@ exports.proxyRequestHandler = proxyRequestHandler
 
 },{"../package.json":9,"./serviceproviders/devto":14,"./serviceproviders/discourse":15,"./serviceproviders/dns":16,"./serviceproviders/fediverse":17,"./serviceproviders/gitea":18,"./serviceproviders/github":19,"./serviceproviders/gitlab":20,"./serviceproviders/hackernews":21,"./serviceproviders/liberapay":22,"./serviceproviders/lobsters":23,"./serviceproviders/mastodon":24,"./serviceproviders/reddit":25,"./serviceproviders/twitter":26,"./serviceproviders/xmpp":27,"./utils":29,"bent":1}],14:[function(require,module,exports){
 /*
-Copyright 2020 Yarmo Mackenbach
+Copyright 2021 Yarmo Mackenbach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -2038,7 +2038,7 @@ exports.tests = tests
 
 },{}],15:[function(require,module,exports){
 /*
-Copyright 2020 Yarmo Mackenbach
+Copyright 2021 Yarmo Mackenbach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -2107,7 +2107,7 @@ exports.tests = tests
 
 },{}],16:[function(require,module,exports){
 /*
-Copyright 2020 Yarmo Mackenbach
+Copyright 2021 Yarmo Mackenbach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -2205,7 +2205,7 @@ exports.tests = tests
 
 },{"../utils":29,"bent":1,"dns":3}],17:[function(require,module,exports){
 /*
-Copyright 2020 Yarmo Mackenbach
+Copyright 2021 Yarmo Mackenbach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -2274,7 +2274,7 @@ exports.tests = tests
 
 },{}],18:[function(require,module,exports){
 /*
-Copyright 2020 Yarmo Mackenbach
+Copyright 2021 Yarmo Mackenbach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -2343,7 +2343,7 @@ exports.tests = tests
 
 },{}],19:[function(require,module,exports){
 /*
-Copyright 2020 Yarmo Mackenbach
+Copyright 2021 Yarmo Mackenbach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -2412,7 +2412,7 @@ exports.tests = tests
 
 },{}],20:[function(require,module,exports){
 /*
-Copyright 2020 Yarmo Mackenbach
+Copyright 2021 Yarmo Mackenbach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -2524,7 +2524,7 @@ exports.tests = tests
 
 },{"bent":1}],21:[function(require,module,exports){
 /*
-Copyright 2020 Yarmo Mackenbach
+Copyright 2021 Yarmo Mackenbach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -2593,7 +2593,7 @@ exports.tests = tests
 
 },{}],22:[function(require,module,exports){
 /*
-Copyright 2020 Yarmo Mackenbach
+Copyright 2021 Yarmo Mackenbach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -2662,7 +2662,7 @@ exports.tests = tests
 
 },{}],23:[function(require,module,exports){
 /*
-Copyright 2020 Yarmo Mackenbach
+Copyright 2021 Yarmo Mackenbach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -2731,7 +2731,7 @@ exports.tests = tests
 
 },{}],24:[function(require,module,exports){
 /*
-Copyright 2020 Yarmo Mackenbach
+Copyright 2021 Yarmo Mackenbach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -2800,7 +2800,7 @@ exports.tests = tests
 
 },{}],25:[function(require,module,exports){
 /*
-Copyright 2020 Yarmo Mackenbach
+Copyright 2021 Yarmo Mackenbach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -2877,7 +2877,7 @@ exports.tests = tests
 
 },{}],26:[function(require,module,exports){
 /*
-Copyright 2020 Yarmo Mackenbach
+Copyright 2021 Yarmo Mackenbach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -2946,7 +2946,7 @@ exports.tests = tests
 
 },{}],27:[function(require,module,exports){
 /*
-Copyright 2020 Yarmo Mackenbach
+Copyright 2021 Yarmo Mackenbach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -3017,7 +3017,7 @@ exports.tests = tests
 },{"../utils":29}],28:[function(require,module,exports){
 (function (global){(function (){
 /*
-Copyright 2020 Yarmo Mackenbach
+Copyright 2021 Yarmo Mackenbach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -3143,7 +3143,7 @@ exports.verify = verify
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./claims":10,"./keys":12,"merge-options":5}],29:[function(require,module,exports){
 /*
-Copyright 2020 Yarmo Mackenbach
+Copyright 2021 Yarmo Mackenbach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
