@@ -30,6 +30,7 @@
   - [liberapay](serviceproviders/liberapay.md)
   - [lobste.rs](serviceproviders/lobsters.md)
   - [mastodon](serviceproviders/mastodon.md)
+  - [owncast](serviceproviders/owncast.md)
   - [reddit](serviceproviders/reddit.md)
   - [twitter](serviceproviders/twitter.md)
   - [xmpp](serviceproviders/xmpp.md)
