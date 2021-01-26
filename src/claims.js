@@ -21,6 +21,18 @@ const serviceproviders = require('./serviceproviders')
 const keys = require('./keys')
 const utils = require('./utils')
 
+// Promise.allSettled polyfill
+Promise.allSettled = Promise.allSettled || ((promises) => Promise.all(promises.map(p => p
+  .then(v => ({
+    status: 'fulfilled',
+    value: v,
+  }))
+  .catch(e => ({
+    status: 'rejected',
+    reason: e,
+  }))
+)));
+
 const runVerificationJson = (
   res,
   proofData,
