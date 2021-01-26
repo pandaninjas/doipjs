@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.1]
+
+[2021-01-13](https://codeberg.org/keyoxide/doipjs/releases/tag/0.10.1)
+
+## Fixed
+- Polyfill for promise.allSettled
+
 ## [0.10.0]
 
 [2021-01-13](https://codeberg.org/keyoxide/doipjs/releases/tag/0.10.0)

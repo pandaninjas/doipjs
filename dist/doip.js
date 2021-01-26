@@ -1193,7 +1193,7 @@ process.umask = function() { return 0; };
 },{}],9:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -1273,6 +1273,18 @@ const openpgp = (typeof window !== "undefined" ? window['openpgp'] : typeof glob
 const serviceproviders = require('./serviceproviders')
 const keys = require('./keys')
 const utils = require('./utils')
+
+// Promise.allSettled polyfill
+Promise.allSettled = Promise.allSettled || ((promises) => Promise.all(promises.map(p => p
+  .then(v => ({
+    status: 'fulfilled',
+    value: v,
+  }))
+  .catch(e => ({
+    status: 'rejected',
+    reason: e,
+  }))
+)));
 
 const runVerificationJson = (
   res,
