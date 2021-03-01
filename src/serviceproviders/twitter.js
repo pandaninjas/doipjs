@@ -23,7 +23,7 @@ const customRequestHandler = async (spData, opts) => {
     const client = new Twitter({
       bearer_token: opts.twitterBearerToken,
     })
-    const res = await client.get('statuses/show', {id: match[2]})
+    const res = await client.get('statuses/show', { id: match[2] })
     return res.text
   } else if ('nitterInstance' in opts && opts.nitterInstance) {
     spData.proof.fetch = `https://${opts.nitterInstance}/${match[1]}/status/${match[2]}`
