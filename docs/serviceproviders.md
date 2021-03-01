@@ -13,6 +13,7 @@ Currently, the following service providers are supported:
 - liberapay ([documentation](serviceproviders/liberapay.md) - [official website](https://liberapay.com/))
 - lobste.rs ([documentation](serviceproviders/lobsters.md) - [official website](https://lobste.rs/))
 - mastodon ([documentation](serviceproviders/mastodon.md) - [official website](https://joinmastodon.org/))
+- owncast ([documentation](serviceproviders/owncast.md) - [official website](https://owncast.online/))
 - reddit ([documentation](serviceproviders/reddit.md) - [official website](https://www.reddit.com/))
 - twitter ([documentation](serviceproviders/twitter.md) - [official website](https://twitter.com/home))
 - xmpp ([documentation](serviceproviders/xmpp.md) - [official website](https://xmpp.org/))
