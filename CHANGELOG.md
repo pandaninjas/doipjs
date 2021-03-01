@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.2] - 2021-03-01
+## Changed
+- Make Twitter verification configurable
+
 ## [0.10.1] - 2021-01-26
 ## Fixed
 - Polyfill for promise.allSettled

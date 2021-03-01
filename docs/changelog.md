@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.2]
+
+[2021-03-01](https://codeberg.org/keyoxide/doipjs/releases/tag/0.10.2)
+
+## Changed
+- Make Twitter verification configurable
+
 ## [0.10.1]
 
 [2021-01-13](https://codeberg.org/keyoxide/doipjs/releases/tag/0.10.1)
