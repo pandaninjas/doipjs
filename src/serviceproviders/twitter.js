@@ -13,7 +13,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const Twitter = require('twitter')
+const serviceproviders = require('../serviceproviders')
 const reURI = /^https:\/\/twitter\.com\/(.*)\/status\/([0-9]*)(?:\?.*)?/
+
+const customRequestHandler = async (spData, opts) => {
+  const match = spData.proof.uri.match(reURI)
+  if ('twitterBearerToken' in opts && opts.twitterBearerToken) {
+    const client = new Twitter({
+      bearer_token: opts.twitterBearerToken,
+    })
+    const res = await client.get('statuses/show', {id: match[2]})
+    return res.text
+  } else if ('nitterInstance' in opts && opts.nitterInstance) {
+    spData.proof.fetch = `https://${opts.nitterInstance}/${match[1]}/status/${match[2]}`
+    const res = await serviceproviders.proxyRequestHandler(spData, opts)
+    return res
+  } else {
+    return null
+  }
+}
 
 const processURI = (uri, opts) => {
   if (!opts) {
@@ -33,7 +52,7 @@ const processURI = (uri, opts) => {
     },
     proof: {
       uri: uri,
-      fetch: `https://nitter.net/${match[1]}/status/${match[2]}`,
+      fetch: null,
       useProxy: true,
       format: 'text',
     },
@@ -43,7 +62,7 @@ const processURI = (uri, opts) => {
       path: [],
       relation: 'contains',
     },
-    customRequestHandler: null,
+    customRequestHandler: customRequestHandler,
   }
 }
 

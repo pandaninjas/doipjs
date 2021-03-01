@@ -184,6 +184,8 @@ const verify = async (input, fingerprint, opts) => {
       returnMatchesOnly: false,
       proxyPolicy: 'adaptive',
       doipProxyHostname: 'proxy.keyoxide.org',
+      twitterBearerToken: null,
+      nitterInstance: null,
     }
     opts = mergeOptions(defaultOpts, opts ? opts : {})
 
