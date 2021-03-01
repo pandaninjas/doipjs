@@ -16,14 +16,25 @@ Verifies the identity behind the provided **uri** using the **fingerprint**.
 
 **Options**
 
-| Name              | Type    | Default value        | Description                                                         |
-| ----------------- | ------- | -------------------- | ------------------------------------------------------------------- |
-| returnMatchesOnly | boolean | false                | only return matching service providers, do not attempt verification |
-| proxyPolicy       | string  | 'adaptive'           | when to use a proxy ['adaptive', 'fallback', 'always', 'never']     |
-| doipProxyHostname | string  | 'proxy.keyoxide.org' | the hostname of the proxy server                                    |
+| Name               | Type    | Default value        | Description                                                            |
+| ------------------ | ------- | -------------------- | ---------------------------------------------------------------------- |
+| returnMatchesOnly  | boolean | false                | only return matching service providers, do not attempt verification    |
+| proxyPolicy        | string  | 'adaptive'           | when to use a proxy ['adaptive', 'fallback', 'always', 'never']        |
+| doipProxyHostname  | string  | 'proxy.keyoxide.org' | the hostname of the proxy server                                       |
+| twitterBearerToken | string  | ''                   | the Twitter API bearer token used for Twitter verification             |
+| nitterInstance     | string  | ''                   | the domain name of the nitter instance to use for Twitter verification |
 
 When the `proxyPolicy` option is to `adaptive`, the chosen strategy is
 the one suggested by the service provider.
+
+By default, Twitter accounts are not verified. Either provide a
+[Twitter bearer token](https://developer.twitter.com/en/docs/authentication/oauth-2-0/bearer-tokens)
+(as `twitterBearerToken`) or the domain name of a Nitter instance (as
+`nitterInstance`) to enable Twitter account verification. If both values are
+provided, only the Twitter bearer token is used.
+
+Note that Nitter instances are subject to rate limiting which would instantly
+break Twitter account verification.
 
 **Returns**
 

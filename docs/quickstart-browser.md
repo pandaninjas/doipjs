@@ -19,3 +19,11 @@ Please note you need to include the
 ```html
 <script src="https://cdn.jsdelivr.net/npm/openpgp/dist/openpgp.min.js"></script>
 ```
+
+## Twitter account verification
+
+By default, Twitter accounts verification has to be enabled by either having a
+Twitter developer account or providing a Nitter instance domain.
+
+Please refer to the
+[API documentation](/#/api?id=claimsverifyuri-fingerprint-opts).

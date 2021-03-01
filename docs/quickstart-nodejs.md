@@ -14,3 +14,11 @@ verifyIdentity('dns:doip.rocks', '9f0048ac0b23301e1f77e994909f6bd6f80f485d')
 This snippet works en will verify the [doip.rocks](https://doip.rocks) domain as
 linked to Yarmo's cryptographic key using the [dns](serviceproviders/dns.md)
 service provider.
+
+## Twitter account verification
+
+By default, Twitter accounts verification has to be enabled by either having a
+Twitter developer account or providing a Nitter instance domain.
+
+Please refer to the
+[API documentation](/#/api?id=claimsverifyuri-fingerprint-opts).
