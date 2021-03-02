@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.3]
+
+[2021-03-02](https://codeberg.org/keyoxide/doipjs/releases/tag/0.10.3)
+
+## Changed
+- Remove twitter dependency
+
 ## [0.10.2]
 
 [2021-03-01](https://codeberg.org/keyoxide/doipjs/releases/tag/0.10.2)
