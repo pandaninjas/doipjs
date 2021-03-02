@@ -1193,7 +1193,7 @@ process.umask = function() { return 0; };
 },{}],9:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.10.3",
+  "version": "0.10.4",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -2994,24 +2994,48 @@ limitations under the License.
 const bent = require('bent')
 const req = bent('GET')
 const serviceproviders = require('../serviceproviders')
+const utils = require('../utils')
 const reURI = /^https:\/\/twitter\.com\/(.*)\/status\/([0-9]*)(?:\?.*)?/
 
 const customRequestHandler = async (spData, opts) => {
   const match = spData.proof.uri.match(reURI)
-  if ('twitterBearerToken' in opts && opts.twitterBearerToken) {
-    const res = await req(`https://api.twitter.com/1.1/statuses/show.json?id=${match[2]}`, null, {
-      Accept: 'application/json',
-      Authorization: `Bearer ${opts.twitterBearerToken}`
-    })
-    const json = await res.json()
-    return json.text
-  } else if ('nitterInstance' in opts && opts.nitterInstance) {
-    spData.proof.fetch = `https://${opts.nitterInstance}/${match[1]}/status/${match[2]}`
-    const res = await serviceproviders.proxyRequestHandler(spData, opts)
-    return res
-  } else {
-    return null
+
+  // Attempt direct verification if policy allows it
+  if (opts.proxyPolicy !== 'always') {
+    if ('twitterBearerToken' in opts && opts.twitterBearerToken) {
+      const res = await req(`https://api.twitter.com/1.1/statuses/show.json?id=${match[2]}`, null, {
+        Accept: 'application/json',
+        Authorization: `Bearer ${opts.twitterBearerToken}`
+      })
+      const json = await res.json()
+      return json.text
+    } else if ('nitterInstance' in opts && opts.nitterInstance) {
+      spData.proof.fetch = `https://${opts.nitterInstance}/${match[1]}/status/${match[2]}`
+      const res = await serviceproviders.proxyRequestHandler(spData, opts)
+      return res
+    } else {
+      return null
+    }
   }
+
+  // Attempt proxy verification if policy allows it
+  if (opts.proxyPolicy !== 'never' && spData.proof.fetch) {
+    return req(utils.generateProxyURL('twitter', match[2], opts), null, {
+      Accept: 'application/json',
+    })
+    .then(async (res) => {
+      return await res.json()
+    })
+    .then((res) => {
+      return res.data.text
+    })
+    .catch((e) => {
+      reject(e)
+    })
+  }
+
+  // No verification
+  return null
 }
 
 const processURI = (uri, opts) => {
@@ -3032,8 +3056,8 @@ const processURI = (uri, opts) => {
     },
     proof: {
       uri: uri,
-      fetch: null,
-      useProxy: true,
+      fetch: utils.generateProxyURL('twitter', match[2], opts),
+      useProxy: false,
       format: 'text',
     },
     claim: {
@@ -3065,7 +3089,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../serviceproviders":13,"bent":1}],28:[function(require,module,exports){
+},{"../serviceproviders":13,"../utils":30,"bent":1}],28:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 

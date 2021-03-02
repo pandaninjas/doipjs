@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.4]
+
+[2021-03-02](https://codeberg.org/keyoxide/doipjs/releases/tag/0.10.4)
+
+## Changed
+- Add Twitter proxy verification
+
 ## [0.10.3]
 
 [2021-03-02](https://codeberg.org/keyoxide/doipjs/releases/tag/0.10.3)

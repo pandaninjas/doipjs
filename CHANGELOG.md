@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.4] - 2021-03-02
+## Changed
+- Add Twitter proxy verification
+
 ## [0.10.3] - 2021-03-02
 ## Changed
 - Remove twitter dependency
