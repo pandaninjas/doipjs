@@ -1193,7 +1193,7 @@ process.umask = function() { return 0; };
 },{}],9:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.10.4",
+  "version": "0.10.5",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -3013,8 +3013,6 @@ const customRequestHandler = async (spData, opts) => {
       spData.proof.fetch = `https://${opts.nitterInstance}/${match[1]}/status/${match[2]}`
       const res = await serviceproviders.proxyRequestHandler(spData, opts)
       return res
-    } else {
-      return null
     }
   }
 
