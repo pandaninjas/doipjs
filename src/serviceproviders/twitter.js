@@ -35,8 +35,6 @@ const customRequestHandler = async (spData, opts) => {
       spData.proof.fetch = `https://${opts.nitterInstance}/${match[1]}/status/${match[2]}`
       const res = await serviceproviders.proxyRequestHandler(spData, opts)
       return res
-    } else {
-      return null
     }
   }
 
