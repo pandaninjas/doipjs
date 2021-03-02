@@ -13,18 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const Twitter = require('twitter')
+const bent = require('bent')
+const req = bent('GET')
 const serviceproviders = require('../serviceproviders')
 const reURI = /^https:\/\/twitter\.com\/(.*)\/status\/([0-9]*)(?:\?.*)?/
 
 const customRequestHandler = async (spData, opts) => {
   const match = spData.proof.uri.match(reURI)
   if ('twitterBearerToken' in opts && opts.twitterBearerToken) {
-    const client = new Twitter({
-      bearer_token: opts.twitterBearerToken,
+    const res = await req(`https://api.twitter.com/1.1/statuses/show.json?id=${match[2]}`, null, {
+      Accept: 'application/json',
+      Authorization: `Bearer ${opts.twitterBearerToken}`
     })
-    const res = await client.get('statuses/show', { id: match[2] })
-    return res.text
+    const json = await res.json()
+    return json.text
   } else if ('nitterInstance' in opts && opts.nitterInstance) {
     spData.proof.fetch = `https://${opts.nitterInstance}/${match[1]}/status/${match[2]}`
     const res = await serviceproviders.proxyRequestHandler(spData, opts)
