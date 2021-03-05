@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const generateProxyURL = (type, url, opts) => {
+const generateProxyURL = (type, urlElements, opts) => {
   if (!opts || !opts.doipProxyHostname) {
     return null
   }
@@ -21,9 +21,16 @@ const generateProxyURL = (type, url, opts) => {
   if (type == 'xmpp') {
     addParam += '/DESC'
   }
+
+  if (!Array.isArray(urlElements)) {
+    urlElements = [urlElements]
+  }
+
+  urlElements.map((x) => { encodeURIComponent(x) })
+
   return `https://${
     opts.doipProxyHostname
-  }/api/1/get/${type}/${encodeURIComponent(url)}${addParam}`
+  }/api/1/get/${type}/${urlElements.join('/')}${addParam}`
 }
 
 const generateClaim = (fingerprint, format) => {
