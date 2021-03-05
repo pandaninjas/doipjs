@@ -326,7 +326,7 @@ const verify = async (input, fingerprint, opts) => {
     setTimeout(() => {
       resolve(objResult)
       return
-    }, 3000)
+    }, 10000)
   })
 
   return await Promise.race([promiseClaim, promiseTimeout])
