@@ -28,7 +28,11 @@ const processURI = (uri, opts) => {
   if (match[2]) {
     const params = queryString.parse(match[2])
     if ('org.keyoxide.e' in params && 'org.keyoxide.r' in params) {
-      proofUrl = utils.generateProxyURL('matrix', [params['org.keyoxide.r'], params['org.keyoxide.e']], opts)
+      proofUrl = utils.generateProxyURL(
+        'matrix',
+        [params['org.keyoxide.r'], params['org.keyoxide.e']],
+        opts
+      )
     }
   }
 
@@ -64,7 +68,8 @@ const tests = [
     shouldMatch: true,
   },
   {
-    uri: 'matrix:u/@alice:matrix.domain.org?org.keyoxide.r=!123:domain.org&org.keyoxide.e=$123',
+    uri:
+      'matrix:u/@alice:matrix.domain.org?org.keyoxide.r=!123:domain.org&org.keyoxide.e=$123',
     shouldMatch: true,
   },
   {
