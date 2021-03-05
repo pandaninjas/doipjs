@@ -1742,7 +1742,7 @@ module.exports = str => encodeURIComponent(str).replace(/[!'()*]/g, x => `%${x.c
 },{}],14:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -3481,7 +3481,11 @@ const processURI = (uri, opts) => {
   if (match[2]) {
     const params = queryString.parse(match[2])
     if ('org.keyoxide.e' in params && 'org.keyoxide.r' in params) {
-      proofUrl = utils.generateProxyURL('matrix', [params['org.keyoxide.r'], params['org.keyoxide.e']], opts)
+      proofUrl = utils.generateProxyURL(
+        'matrix',
+        [params['org.keyoxide.r'], params['org.keyoxide.e']],
+        opts
+      )
     }
   }
 
@@ -3517,7 +3521,8 @@ const tests = [
     shouldMatch: true,
   },
   {
-    uri: 'matrix:u/@alice:matrix.domain.org?org.keyoxide.r=!123:domain.org&org.keyoxide.e=$123',
+    uri:
+      'matrix:u/@alice:matrix.domain.org?org.keyoxide.r=!123:domain.org&org.keyoxide.e=$123',
     shouldMatch: true,
   },
   {
@@ -3715,10 +3720,14 @@ const customRequestHandler = async (spData, opts) => {
   // Attempt direct verification if policy allows it
   if (opts.proxyPolicy !== 'always') {
     if ('twitterBearerToken' in opts && opts.twitterBearerToken) {
-      const res = await req(`https://api.twitter.com/1.1/statuses/show.json?id=${match[2]}`, null, {
-        Accept: 'application/json',
-        Authorization: `Bearer ${opts.twitterBearerToken}`
-      })
+      const res = await req(
+        `https://api.twitter.com/1.1/statuses/show.json?id=${match[2]}`,
+        null,
+        {
+          Accept: 'application/json',
+          Authorization: `Bearer ${opts.twitterBearerToken}`,
+        }
+      )
       const json = await res.json()
       return json.text
     } else if ('nitterInstance' in opts && opts.nitterInstance) {
@@ -3733,15 +3742,15 @@ const customRequestHandler = async (spData, opts) => {
     return req(utils.generateProxyURL('twitter', match[2], opts), null, {
       Accept: 'application/json',
     })
-    .then(async (res) => {
-      return await res.json()
-    })
-    .then((res) => {
-      return res.data.text
-    })
-    .catch((e) => {
-      reject(e)
-    })
+      .then(async (res) => {
+        return await res.json()
+      })
+      .then((res) => {
+        return res.data.text
+      })
+      .catch((e) => {
+        reject(e)
+      })
   }
 
   // No verification
@@ -4025,7 +4034,9 @@ const generateProxyURL = (type, urlElements, opts) => {
     urlElements = [urlElements]
   }
 
-  urlElements.map((x) => { encodeURIComponent(x) })
+  urlElements = urlElements.map((x) => {
+    return encodeURIComponent(x)
+  })
 
   return `https://${
     opts.doipProxyHostname
