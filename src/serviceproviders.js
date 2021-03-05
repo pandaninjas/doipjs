@@ -72,6 +72,10 @@ const match = (uri, opts) => {
 const directRequestHandler = (spData, opts) => {
   return new Promise(async (resolve, reject) => {
     const url = spData.proof.fetch ? spData.proof.fetch : spData.proof.uri
+    if (!url) {
+      reject('No valid URI provided')
+      return
+    }
     let res
 
     switch (spData.proof.format) {
