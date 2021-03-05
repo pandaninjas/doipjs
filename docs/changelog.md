@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.11.0]
+
+[2021-03-05](https://codeberg.org/keyoxide/doipjs/releases/tag/0.11.0)
+
+## Added
+- IRC service provider
+- Matrix service provider
+## Fixed
+- Handling of requests without URI
+
 ## [0.10.5]
 
 [2021-03-02](https://codeberg.org/keyoxide/doipjs/releases/tag/0.10.5)
