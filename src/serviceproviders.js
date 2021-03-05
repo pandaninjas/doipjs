@@ -19,6 +19,7 @@ const utils = require('./utils')
 
 const list = [
   'dns',
+  'irc',
   'xmpp',
   'twitter',
   'reddit',
@@ -37,6 +38,7 @@ const list = [
 
 const data = {
   dns: require('./serviceproviders/dns'),
+  irc: require('./serviceproviders/irc'),
   xmpp: require('./serviceproviders/xmpp'),
   twitter: require('./serviceproviders/twitter'),
   reddit: require('./serviceproviders/reddit'),
