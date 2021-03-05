@@ -26,7 +26,7 @@ const generateProxyURL = (type, urlElements, opts) => {
     urlElements = [urlElements]
   }
 
-  urlElements.map((x) => { encodeURIComponent(x) })
+  urlElements = urlElements.map((x) => { return encodeURIComponent(x) })
 
   return `https://${
     opts.doipProxyHostname
