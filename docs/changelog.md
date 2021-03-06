@@ -1,12 +1,18 @@
 # Changelog
 
+## [0.11.2]
+
+[2021-03-06](https://codeberg.org/keyoxide/doipjs/releases/tag/0.11.2)
+
+## Fixed
+- Matrix.to URLs
+
 ## [0.11.1]
 
 [2021-03-06](https://codeberg.org/keyoxide/doipjs/releases/tag/0.11.1)
 
 ## Fixed
 - Proxy URL encoding
-
 
 ## [0.11.0]
 
