@@ -24,10 +24,16 @@ const processURI = (uri, opts) => {
     opts = {}
   }
   const match = uri.match(reURI)
-  let proofUrl = null
+
+  let profileUrl = null,
+    eventUrl = null,
+    proofUrl = null
+
   if (match[2]) {
     const params = queryString.parse(match[2])
     if ('org.keyoxide.e' in params && 'org.keyoxide.r' in params) {
+      profileUrl = `https://matrix.to/#/${match[1]}`
+      eventUrl = `https://matrix.to/#/${params['org.keyoxide.r']}/${params['org.keyoxide.e']}`
       proofUrl = utils.generateProxyURL(
         'matrix',
         [params['org.keyoxide.r'], params['org.keyoxide.e']],
@@ -43,12 +49,12 @@ const processURI = (uri, opts) => {
     },
     profile: {
       display: match[1],
-      uri: uri,
+      uri: profileUrl,
       qr: null,
     },
     proof: {
-      uri: proofUrl,
-      fetch: null,
+      uri: eventUrl,
+      fetch: proofUrl,
       useProxy: false,
       format: 'json',
     },
