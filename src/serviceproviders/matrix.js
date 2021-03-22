@@ -17,7 +17,7 @@ const bent = require('bent')
 const req = bent('GET')
 const queryString = require('query-string')
 const utils = require('../utils')
-const reURI = /^matrix\:u\/(\@[^:]*\:[^?]*)(\?.*)?/
+const reURI = /^matrix\:u\/(?:\@)?([^@:]*\:[^?]*)(\?.*)?/
 
 const processURI = (uri, opts) => {
   if (!opts) {
@@ -32,7 +32,7 @@ const processURI = (uri, opts) => {
   if (match[2]) {
     const params = queryString.parse(match[2])
     if ('org.keyoxide.e' in params && 'org.keyoxide.r' in params) {
-      profileUrl = `https://matrix.to/#/${match[1]}`
+      profileUrl = `https://matrix.to/#/@${match[1]}`
       eventUrl = `https://matrix.to/#/${params['org.keyoxide.r']}/${params['org.keyoxide.e']}`
       proofUrl = utils.generateProxyURL(
         'matrix',
@@ -48,7 +48,7 @@ const processURI = (uri, opts) => {
       name: 'matrix',
     },
     profile: {
-      display: match[1],
+      display: `@${match[1]}`,
       uri: profileUrl,
       qr: null,
     },
@@ -70,12 +70,12 @@ const processURI = (uri, opts) => {
 
 const tests = [
   {
-    uri: 'matrix:u/@alice:matrix.domain.org',
+    uri:
+      'matrix:u/alice:matrix.domain.org?org.keyoxide.r=!123:domain.org&org.keyoxide.e=$123',
     shouldMatch: true,
   },
   {
-    uri:
-      'matrix:u/@alice:matrix.domain.org?org.keyoxide.r=!123:domain.org&org.keyoxide.e=$123',
+    uri: 'matrix:u/alice:matrix.domain.org',
     shouldMatch: true,
   },
   {
