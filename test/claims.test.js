@@ -66,9 +66,6 @@ describe('claims.verify', () => {
     return expect(doipjs.claims.verify('noURI')).to.eventually.be.rejectedWith(
       undefined
     )
-    return expect(
-      doipjs.claims.verify('domain.org')
-    ).to.eventually.be.rejectedWith(undefined)
   })
 
   doipjs.serviceproviders.list.forEach((spName, i) => {

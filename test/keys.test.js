@@ -58,12 +58,12 @@ describe('keys.fetch.uri', () => {
     expect(
       await doipjs.keys.fetch.uri(`hkp:${pubKeyFingerprint}`)
     ).to.be.instanceOf(openpgp.key.Key)
-  })
+  }).timeout('12s')
   it('should reject when provided an invalid uri', () => {
     return expect(
       doipjs.keys.fetch.uri(`inv:${pubKeyFingerprint}`)
     ).to.eventually.be.rejectedWith('Invalid URI protocol')
-  })
+  }).timeout('12s')
 })
 
 describe('keys.fetch.hkp', () => {
