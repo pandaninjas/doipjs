@@ -17,7 +17,15 @@ const bent = require('bent')
 const bentReq = bent('GET')
 
 module.exports = async (tweetId, opts) => {
-  return bentReq(
+  let timeoutHandle
+  const timeoutPromise = new Promise((resolve, reject) => {
+    timeoutHandle = setTimeout(
+      () => reject(new Error('Request was timed out')),
+      5000
+    )
+  })
+
+  const fetchPromise = bentReq(
     `https://api.twitter.com/1.1/statuses/show.json?id=${tweetId}&tweet_mode=extended`,
     null,
     {
@@ -34,4 +42,9 @@ module.exports = async (tweetId, opts) => {
     .catch((error) => {
       return error
     })
+
+  return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+    clearTimeout(timeoutHandle)
+    return result
+  })
 }

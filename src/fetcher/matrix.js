@@ -17,9 +17,17 @@ const bent = require('bent')
 const bentReq = bent('GET')
 
 module.exports = async (roomId, eventId, opts) => {
+  let timeoutHandle
+  const timeoutPromise = new Promise((resolve, reject) => {
+    timeoutHandle = setTimeout(
+      () => reject(new Error('Request was timed out')),
+      5000
+    )
+  })
+
   const url = `https://${opts.instance}/_matrix/client/r0/rooms/${roomId}/event/${eventId}?access_token=${opts.accessToken}`
 
-  return bentReq(url, null, {
+  const fetchPromise = bentReq(url, null, {
     Accept: 'application/json',
   })
     .then(async (data) => {
@@ -31,4 +39,9 @@ module.exports = async (roomId, eventId, opts) => {
     .catch((error) => {
       return error
     })
+
+  return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+    clearTimeout(timeoutHandle)
+    return result
+  })
 }

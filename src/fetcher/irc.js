@@ -16,7 +16,15 @@ limitations under the License.
 const irc = require('irc-upd')
 
 module.exports = async (nickQuery, opts) => {
-  return new Promise((resolve, reject) => {
+  let timeoutHandle
+  const timeoutPromise = new Promise((resolve, reject) => {
+    timeoutHandle = setTimeout(
+      () => reject(new Error('Request was timed out')),
+      5000
+    )
+  })
+
+  const fetchPromise = new Promise((resolve, reject) => {
     try {
       const client = new irc.Client(opts.hostname, opts.nick, {
         port: 6697,
@@ -43,5 +51,10 @@ module.exports = async (nickQuery, opts) => {
     } catch (error) {
       reject(error)
     }
+  })
+
+  return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+    clearTimeout(timeoutHandle)
+    return result
   })
 }

@@ -43,7 +43,15 @@ const xmppStart = async (service, username, password) => {
 }
 
 module.exports = async (id, data, opts) => {
-  return new Promise(async (resolve, reject) => {
+  let timeoutHandle
+  const timeoutPromise = new Promise((resolve, reject) => {
+    timeoutHandle = setTimeout(
+      () => reject(new Error('Request was timed out')),
+      5000
+    )
+  })
+
+  const fetchPromise = new Promise(async (resolve, reject) => {
     if (!xmpp) {
       const xmppStartRes = await xmppStart(
         opts.service,
@@ -55,20 +63,16 @@ module.exports = async (id, data, opts) => {
     }
 
     const response = await iqCaller.request(
-      xml(
-        'iq',
-        { type: 'get', to: id },
-        xml('vCard', 'vcard-temp')
-      ),
+      xml('iq', { type: 'get', to: id }, xml('vCard', 'vcard-temp')),
       30 * 1000
     )
-    
+
     const vcardRow = response.getChild('vCard', 'vcard-temp').toString()
     const dom = new jsdom.JSDOM(vcardRow)
-  
+
     try {
       let vcard
-  
+
       switch (data.toLowerCase()) {
         case 'desc':
         case 'note':
@@ -82,10 +86,9 @@ module.exports = async (id, data, opts) => {
             throw new Error('No DESC or NOTE field found in vCard')
           }
           break
-  
+
         default:
-          vcard = dom.window.document.querySelector(data)
-            .textContent
+          vcard = dom.window.document.querySelector(data).textContent
           break
       }
       xmpp.stop()
@@ -93,5 +96,10 @@ module.exports = async (id, data, opts) => {
     } catch (error) {
       reject(error)
     }
+  })
+
+  return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+    clearTimeout(timeoutHandle)
+    return result
   })
 }
