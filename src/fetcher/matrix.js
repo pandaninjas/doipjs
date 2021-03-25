@@ -27,18 +27,20 @@ module.exports = async (roomId, eventId, opts) => {
 
   const url = `https://${opts.instance}/_matrix/client/r0/rooms/${roomId}/event/${eventId}?access_token=${opts.accessToken}`
 
-  const fetchPromise = bentReq(url, null, {
-    Accept: 'application/json',
+  const fetchPromise = new Promise((resolve, reject) => {
+    bentReq(url, null, {
+      Accept: 'application/json',
+    })
+      .then(async (data) => {
+        return await data.json()
+      })
+      .then((data) => {
+        resolve(data)
+      })
+      .catch((error) => {
+        reject(error)
+      })
   })
-    .then(async (data) => {
-      return await data.json()
-    })
-    .then((data) => {
-      return data
-    })
-    .catch((error) => {
-      return error
-    })
 
   return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
     clearTimeout(timeoutHandle)

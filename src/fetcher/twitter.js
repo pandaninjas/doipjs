@@ -25,23 +25,25 @@ module.exports = async (tweetId, opts) => {
     )
   })
 
-  const fetchPromise = bentReq(
-    `https://api.twitter.com/1.1/statuses/show.json?id=${tweetId}&tweet_mode=extended`,
-    null,
-    {
-      Accept: 'application/json',
-      Authorization: `Bearer ${opts.bearerToken}`,
-    }
-  )
-    .then(async (data) => {
-      return await data.json()
-    })
-    .then((data) => {
-      return data.full_text
-    })
-    .catch((error) => {
-      return error
-    })
+  const fetchPromise = new Promise((resolve, reject) => {
+    bentReq(
+      `https://api.twitter.com/1.1/statuses/show.json?id=${tweetId}&tweet_mode=extended`,
+      null,
+      {
+        Accept: 'application/json',
+        Authorization: `Bearer ${opts.bearerToken}`,
+      }
+    )
+      .then(async (data) => {
+        return await data.json()
+      })
+      .then((data) => {
+        resolve(data.full_text)
+      })
+      .catch((error) => {
+        reject(error)
+      })
+  })
 
   return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
     clearTimeout(timeoutHandle)
