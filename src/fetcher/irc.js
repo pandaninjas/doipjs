@@ -15,10 +15,10 @@ limitations under the License.
 */
 const irc = require('irc-upd')
 
-module.exports = async (serverHostname, nickQuery, nickLogin) => {
+module.exports = async (nickQuery, opts) => {
   return new Promise((resolve, reject) => {
     try {
-      const client = new irc.Client(serverHostname, nickLogin, {
+      const client = new irc.Client(opts.hostname, opts.nick, {
         port: 6697,
         secure: true,
         channels: [],

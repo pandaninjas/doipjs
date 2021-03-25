@@ -16,13 +16,13 @@ limitations under the License.
 const bent = require('bent')
 const bentReq = bent('GET')
 
-module.exports = async (tweetId, bearerToken) => {
+module.exports = async (tweetId, opts) => {
   return bentReq(
     `https://api.twitter.com/1.1/statuses/show.json?id=${tweetId}&tweet_mode=extended`,
     null,
     {
       Accept: 'application/json',
-      Authorization: `Bearer ${bearerToken}`,
+      Authorization: `Bearer ${opts.bearerToken}`,
     }
   )
     .then(async (data) => {
