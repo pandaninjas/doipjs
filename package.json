@@ -4,8 +4,15 @@
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
+    "@xmpp/client": "^0.12.0",
+    "@xmpp/debug": "^0.12.0",
     "bent": "^7.3.12",
     "browserify": "^17.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "irc-upd": "^0.11.0",
+    "jsdom": "^16.5.1",
     "merge-options": "^3.0.3",
     "openpgp": "^4.10.9",
     "prettier": "^2.1.2",
@@ -19,7 +26,8 @@
     "chai-match-pattern": "^1.2.0",
     "license-check-and-add": "^3.0.4",
     "minify": "^6.0.1",
-    "mocha": "^8.2.0"
+    "mocha": "^8.2.0",
+    "nodemon": "^2.0.7"
   },
   "scripts": {
     "release:bundle": "./node_modules/browserify/bin/cmd.js ./src/index.js --standalone doip -x openpgp -o ./dist/doip.js",
@@ -30,7 +38,9 @@
     "license:add": "./node_modules/license-check-and-add/dist/src/cli.js add",
     "license:remove": "./node_modules/license-check-and-add/dist/src/cli.js remove",
     "docs": "docsify serve ./docs",
-    "test": "./node_modules/mocha/bin/mocha"
+    "test": "./node_modules/mocha/bin/mocha",
+    "proxy:run": "NODE_ENV=production node ./src/proxy/",
+    "proxy:dev": "NODE_ENV=development ./node_modules/nodemon/bin/nodemon.js ./src/proxy/"
   },
   "repository": {
     "type": "git",
