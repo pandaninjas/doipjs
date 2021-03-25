@@ -114,7 +114,10 @@ const runVerification = (proofData, spData) => {
       break
     case 'text':
       re = new RegExp(
-        utils.generateClaim(spData.claim.fingerprint, spData.claim.format),
+        utils
+          .generateClaim(spData.claim.fingerprint, spData.claim.format)
+          .replace('[', '\\[')
+          .replace(']', '\\]'),
         'gi'
       )
       res.isVerified = re.test(proofData.replace(/\r?\n|\r/, ''))
