@@ -44,22 +44,18 @@ if (irc_nick) {
 }
 
 router.get('/', async (req, res) => {
-  return res
-    .status(400)
-    .json({
-      data: [],
-      error:
-        'Available endpoints: /json/:url, /text/:url, /dns/:hostname, /xmpp/:xmppid, /twitter/:tweetid, /matrix/:roomid/:eventid, /irc/:ircserver/:ircnick',
-    })
+  return res.status(400).json({
+    data: [],
+    error:
+      'Available endpoints: /json/:url, /text/:url, /dns/:hostname, /xmpp/:xmppid, /twitter/:tweetid, /matrix/:roomid/:eventid, /irc/:ircserver/:ircnick',
+  })
 })
 
 router.param('url', async (req, res, next, url) => {
   req.params.url = decodeURI(url)
 
   if (!validUrl.isUri(req.params.url)) {
-    return res
-      .status(400)
-      .json({ data: [], error: 'URL provided was not valid' })
+    return res.status(400).json({ error: 'URL provided was not valid' })
   }
 
   next()
@@ -71,7 +67,7 @@ router.param('xmppid', async (req, res, next, xmppid) => {
   if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,})+$/.test(req.params.xmppid)) {
     next()
   } else {
-    return res.status(400).json({ data: [], error: 'XMPP_ID was not valid' })
+    return res.status(400).json({ error: 'XMPP_ID was not valid' })
   }
 })
 
@@ -90,13 +86,11 @@ router.param('xmppdata', async (req, res, next, xmppdata) => {
   ]
 
   if (!allowedData.includes(req.params.xmppdata)) {
-    return res
-      .status(400)
-      .send({
-        data: [],
-        error:
-          'Allowed data are: FN, NUMBER, USERID, URL, BDAY, NICKNAME, NOTE, DESC',
-      })
+    return res.status(400).send({
+      data: [],
+      error:
+        'Allowed data are: FN, NUMBER, USERID, URL, BDAY, NICKNAME, NOTE, DESC',
+    })
   }
 
   next()
@@ -109,11 +103,11 @@ router.get('/get/json/:url', (req, res) => {
     .then(async (result) => {
       return await result.json()
     })
-    .then(async (result) => {
-      return res.status(200).json({ data: result, error: [] })
+    .then(async (data) => {
+      return res.status(200).send(data)
     })
     .catch((err) => {
-      return res.status(400).send({ data: [], error: err })
+      return res.status(400).json({ error: err })
     })
 })
 
@@ -123,10 +117,10 @@ router.get('/get/text/:url', (req, res) => {
       return await result.text()
     })
     .then(async (result) => {
-      return res.status(200).json({ data: result, error: [] })
+      return res.status(200).send(result)
     })
     .catch((err) => {
-      return res.status(400).send({ data: [], error: err })
+      return res.status(400).json({ error: err })
     })
 })
 
@@ -134,28 +128,24 @@ router.get('/get/dns/:hostname', (req, res) => {
   fetcher
     .dns(req.params.hostname)
     .then((data) => {
-      return res.status(200).json({ data: data, error: [] })
+      return res.status(200).send(data)
     })
     .catch((err) => {
-      return res.status(400).json({ data: [], error: err })
+      return res.status(400).json({ error: err })
     })
 })
 
 router.get('/get/xmpp/:xmppid', async (req, res) => {
-  return res
-    .status(400)
-    .send({
-      data: [],
-      error:
-        'Data request parameter missing (FN, NUMBER, USERID, URL, BDAY, NICKNAME, NOTE, DESC)',
-    })
+  return res.status(400).send({
+    data: [],
+    error:
+      'Data request parameter missing (FN, NUMBER, USERID, URL, BDAY, NICKNAME, NOTE, DESC)',
+  })
 })
 
 router.get('/get/xmpp/:xmppid/:xmppdata', async (req, res) => {
   if (!xmpp_enabled) {
-    return res
-      .status(501)
-      .json({ data: [], error: 'XMPP not enabled on server' })
+    return res.status(501).json({ error: 'XMPP not enabled on server' })
   }
 
   fetcher
@@ -165,20 +155,16 @@ router.get('/get/xmpp/:xmppid/:xmppdata', async (req, res) => {
       password: xmpp_password,
     })
     .then((data) => {
-      return res.status(200).json({ data: data, error: [] })
+      return res.status(200).send(data)
     })
     .catch((err) => {
-      return res
-        .status(400)
-        .json({ data: [], error: err.message ? err.message : err })
+      return res.status(400).json({ error: err.message ? err.message : err })
     })
 })
 
 router.get('/get/twitter/:tweetid', async (req, res) => {
   if (!twitter_enabled) {
-    return res
-      .status(501)
-      .json({ data: [], error: 'Twitter not enabled on server' })
+    return res.status(501).json({ error: 'Twitter not enabled on server' })
   }
 
   fetcher
@@ -186,18 +172,16 @@ router.get('/get/twitter/:tweetid', async (req, res) => {
       bearerToken: twitter_bearer_token,
     })
     .then((data) => {
-      return res.status(200).json({ data: data, error: [] })
+      return res.status(200).send(data)
     })
     .catch((err) => {
-      return res.status(400).json({ data: [], error: err })
+      return res.status(400).json({ error: err })
     })
 })
 
 router.get('/get/matrix/:matrixroomid/:matrixeventid', async (req, res) => {
   if (!matrix_enabled) {
-    return res
-      .status(501)
-      .json({ data: [], error: 'Matrix not enabled on server' })
+    return res.status(501).json({ error: 'Matrix not enabled on server' })
   }
 
   fetcher
@@ -206,18 +190,16 @@ router.get('/get/matrix/:matrixroomid/:matrixeventid', async (req, res) => {
       accessToken: process.env.MATRIX_ACCESS_TOKEN,
     })
     .then((data) => {
-      return res.status(200).json({ data: data, error: [] })
+      return res.status(200).send(data)
     })
     .catch((err) => {
-      return res.status(400).json({ data: [], error: err })
+      return res.status(400).json({ error: err })
     })
 })
 
 router.get('/get/irc/:ircserver/:ircnick', async (req, res) => {
   if (!irc_enabled) {
-    return res
-      .status(501)
-      .json({ data: [], error: 'IRC not enabled on server' })
+    return res.status(501).json({ error: 'IRC not enabled on server' })
   }
 
   fetcher
@@ -225,10 +207,10 @@ router.get('/get/irc/:ircserver/:ircnick', async (req, res) => {
       nick: 'doipver148927',
     })
     .then((data) => {
-      return res.status(200).json({ data: data, error: [] })
+      return res.status(200).send(data)
     })
     .catch((err) => {
-      return res.status(400).json({ data: [], error: err })
+      return res.status(400).json({ error: err })
     })
 })
 
