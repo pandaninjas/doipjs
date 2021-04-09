@@ -20,7 +20,7 @@ module.exports = async (hostname, nickQuery, opts) => {
   const timeoutPromise = new Promise((resolve, reject) => {
     timeoutHandle = setTimeout(
       () => reject(new Error('Request was timed out')),
-      5000
+      20000
     )
   })
 
@@ -39,6 +39,7 @@ module.exports = async (hostname, nickQuery, opts) => {
         client.send(`PRIVMSG NickServ :TAXONOMY ${nickQuery}`)
       })
       client.addListener('notice', (nick, to, text, message) => {
+        console.log(text);
         if (reKey.test(text)) {
           const match = text.match(reKey)
           keys.push(match[1])
