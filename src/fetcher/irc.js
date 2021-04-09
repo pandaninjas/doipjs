@@ -39,7 +39,6 @@ module.exports = async (hostname, nickQuery, opts) => {
         client.send(`PRIVMSG NickServ :TAXONOMY ${nickQuery}`)
       })
       client.addListener('notice', (nick, to, text, message) => {
-        console.log(text);
         if (reKey.test(text)) {
           const match = text.match(reKey)
           keys.push(match[1])
