@@ -1,0 +1,55 @@
+---
+
+kind: pipeline
+name: build-stable-proxy-container
+
+steps:
+    - name: build stable proxy container
+      image: plugins/docker
+      settings:
+          username:
+              from_secret: docker_username
+          password:
+              from_secret: docker_password
+          dockerfile: docker/proxy/Dockerfile
+          repo: keyoxide/doip-proxy
+          tags: stable
+    - name: build tag proxy container
+      image: plugins/docker
+      settings:
+          username:
+              from_secret: docker_username
+          password:
+              from_secret: docker_password
+          dockerfile: docker/proxy/Dockerfile
+          repo: keyoxide/doip-proxy
+          auto_tag: true
+
+trigger:
+    branch:
+        - main
+    event:
+        - tag
+
+---
+
+kind: pipeline
+name: build-dev-proxy-container
+
+steps:
+    - name: build dev proxy container
+      image: plugins/docker
+      settings:
+          username:
+              from_secret: docker_username
+          password:
+              from_secret: docker_password
+          dockerfile: docker/proxy/Dockerfile
+          repo: keyoxide/doip-proxy
+          tags: dev
+
+trigger:
+    branch:
+        - main
+    event:
+        - push
