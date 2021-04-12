@@ -22,12 +22,13 @@ app.use(cors())
 app.set('port', process.env.PORT || 3000)
 
 app.use('/api/1', require('./api/v1/'))
+app.use('/api/2', require('./api/v2/'))
 
 app.get('/', (req, res) => {
   return res.status(200).json({ message: 'Available endpoints: /api' })
 })
 app.get('/api', (req, res) => {
-  return res.status(200).json({ message: 'Available API versions: /api/1' })
+  return res.status(200).json({ message: 'Available API versions: /api/1, /api/2' })
 })
 app.all('*', (req, res) => {
   return res.status(404).json({ message: 'API endpoint not found' })
