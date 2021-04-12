@@ -27,5 +27,21 @@ const proofFormat =  {
 }
 Object.freeze(proofFormat)
 
+const claimFormat =  {
+  URI: 0,
+  FINGERPRINT: 1,
+  MESSAGE: 2,
+}
+Object.freeze(claimFormat)
+
+const claimRelation =  {
+  CONTAINS: 0,
+  EQUALS: 1,
+  ONEOF: 2,
+}
+Object.freeze(claimRelation)
+
 exports.proofAccess = proofAccess
 exports.proofFormat = proofFormat
+exports.claimFormat = claimFormat
+exports.claimRelation = claimRelation
