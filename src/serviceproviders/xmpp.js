@@ -40,8 +40,8 @@ const processURI = (uri, opts) => {
         access: E.ProofAccess.SERVER,
         format: E.ProofFormat.JSON,
         data: {
-          username: match[1],
-          service: match[2],
+          id: `${match[1]}@${match[2]}`,
+          field: 'note'
         }
       }
     },
