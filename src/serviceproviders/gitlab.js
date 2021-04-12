@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const { proofAccess, proofFormat, claimFormat, claimRelation } = require('../enums')
 const bent = require('bent')
 const req = bent('GET')
 
@@ -77,14 +78,14 @@ const processURI = (uri, opts) => {
     proof: {
       uri: uri,
       fetch: null,
-      useProxy: false,
-      format: 'json',
+      access: proofAccess.GENERIC,
+      format: proofFormat.JSON,
     },
     claim: {
       fingerprint: null,
-      format: 'message',
+      format: claimFormat.MESSAGE,
+      relation: claimRelation.EQUALS,
       path: ['description'],
-      relation: 'equals',
     },
     customRequestHandler: customRequestHandler,
   }

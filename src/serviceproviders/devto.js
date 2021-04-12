@@ -13,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const { proofAccess, proofFormat, claimFormat, claimRelation } = require('../enums')
+
 const reURI = /^https:\/\/dev\.to\/(.*)\/(.*)\/?/
 
 const processURI = (uri, opts) => {
@@ -34,14 +36,14 @@ const processURI = (uri, opts) => {
     proof: {
       uri: uri,
       fetch: `https://dev.to/api/articles/${match[1]}/${match[2]}`,
-      useProxy: true,
-      format: 'json',
+      access: proofAccess.NOCORS,
+      format: proofFormat.JSON,
     },
     claim: {
       fingerprint: null,
-      format: 'message',
+      format: claimFormat.MESSAGE,
+      relation: claimRelation.CONTAINS,
       path: ['body_markdown'],
-      relation: 'contains',
     },
     customRequestHandler: null,
   }

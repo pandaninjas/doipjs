@@ -13,8 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const bent = require('bent')
-const req = bent('GET')
+const { proofAccess, proofFormat, claimFormat, claimRelation } = require('../enums')
 
 const reURI = /^https:\/\/(.*)/
 
@@ -37,14 +36,14 @@ const processURI = (uri, opts) => {
     proof: {
       uri: `${uri}/api/config`,
       fetch: null,
-      useProxy: false,
-      format: 'json',
+      access: proofAccess.GENERIC,
+      format: proofFormat.JSON,
     },
     claim: {
       fingerprint: null,
-      format: 'fingerprint',
+      format: claimFormat.FINGERPRINT,
+      relation: claimRelation.CONTAINS,
       path: ['socialHandles', 'url'],
-      relation: 'contains',
     },
     customRequestHandler: null,
   }

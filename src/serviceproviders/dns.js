@@ -13,10 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const { proofAccess, proofFormat, claimFormat, claimRelation } = require('../enums')
 const dns = require('dns')
 const bent = require('bent')
 const req = bent('GET')
-const utils = require('../utils')
+
 const reURI = /^dns:([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
 
 const customRequestHandler = async (spData, opts) => {
@@ -61,16 +62,16 @@ const processURI = (uri, opts) => {
       qr: null,
     },
     proof: {
-      uri: utils.generateProxyURL('dns', match[1], opts),
+      uri: null,
       fetch: null,
-      useProxy: false,
-      format: 'json',
+      access: proofAccess.SERVER,
+      format: proofFormat.JSON,
     },
     claim: {
       fingerprint: null,
-      format: 'uri',
+      format: claimFormat.URI,
+      relation: claimRelation.CONTAINS,
       path: ['records', 'txt'],
-      relation: 'contains',
     },
     customRequestHandler: customRequestHandler,
   }

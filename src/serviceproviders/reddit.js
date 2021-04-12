@@ -13,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const { proofAccess, proofFormat, claimFormat, claimRelation } = require('../enums')
+
 const reURI = /^https:\/\/(?:www\.)?reddit\.com\/user\/(.*)\/comments\/(.*)\/(.*)\/?/
 
 const processURI = (uri, opts) => {
@@ -34,14 +36,14 @@ const processURI = (uri, opts) => {
     proof: {
       uri: uri,
       fetch: `https://www.reddit.com/user/${match[1]}/comments/${match[2]}.json`,
-      useProxy: true,
-      format: 'json',
+      access: proofAccess.NOCORS,
+      format: proofFormat.JSON,
     },
     claim: {
       fingerprint: null,
-      format: 'message',
+      format: claimFormat.MESSAGE,
+      relation: claimRelation.CONTAINS,
       path: ['data', 'children', 'data', 'selftext'],
-      relation: 'contains',
     },
     customRequestHandler: null,
   }

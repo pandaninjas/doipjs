@@ -13,7 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const { proofAccess, proofFormat, claimFormat, claimRelation } = require('../enums')
 const utils = require('../utils')
+
 const reURI = /^irc\:\/\/(.*)\/([a-zA-Z0-9]*)/
 
 const processURI = (uri, opts) => {
@@ -35,14 +37,14 @@ const processURI = (uri, opts) => {
     proof: {
       uri: utils.generateProxyURL('irc', [match[1], match[2]], opts),
       fetch: null,
-      useProxy: false,
-      format: 'json',
+      access: proofAccess.SERVER,
+      format: proofFormat.JSON,
     },
     claim: {
       fingerprint: null,
-      format: 'uri',
+      format: claimFormat.URI,
+      relation: claimRelation.CONTAINS,
       path: [],
-      relation: 'contains',
     },
     customRequestHandler: null,
   }

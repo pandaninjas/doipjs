@@ -13,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const { proofAccess, proofFormat, claimFormat, claimRelation } = require('../enums')
+
 const reURI = /^https:\/\/news\.ycombinator\.com\/user\?id=(.*)\/?/
 
 const processURI = (uri, opts) => {
@@ -34,14 +36,14 @@ const processURI = (uri, opts) => {
     proof: {
       uri: `https://hacker-news.firebaseio.com/v0/user/${match[1]}.json`,
       fetch: null,
-      useProxy: true,
-      format: 'json',
+      access: proofAccess.NOCORS,
+      format: proofFormat.JSON,
     },
     claim: {
       fingerprint: null,
-      format: 'uri',
+      format: claimFormat.URI,
+      relation: claimRelation.CONTAINS,
       path: ['about'],
-      relation: 'contains',
     },
     customRequestHandler: null,
   }
