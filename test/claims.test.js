@@ -38,22 +38,20 @@ const pattern = {
     uri: (x) => {
       return _.isString(x) || _.isNull(x)
     },
-    fetch: (x) => {
-      return _.isString(x) || _.isNull(x)
+    request: {
+      fetcher: _.isString,
+      access: _.isInteger,
+      format: _.isInteger,
+      data: _.isObject,
     },
-    useProxy: _.isBoolean,
-    format: _.isString,
   },
   claim: {
     fingerprint: (x) => {
       return _.isString(x) || _.isNull(x)
     },
-    format: _.isString,
+    format: _.isInteger,
+    relation: _.isInteger,
     path: _.isArray,
-    relation: _.isString,
-  },
-  customRequestHandler: (x) => {
-    return _.isFunction(x) || _.isNull(x) || _.isUndefined(x)
   },
 }
 
