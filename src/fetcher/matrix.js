@@ -16,7 +16,7 @@ limitations under the License.
 const bent = require('bent')
 const bentReq = bent('GET')
 
-module.exports = async (roomId, eventId, opts) => {
+module.exports = async (data, opts) => {
   let timeoutHandle
   const timeoutPromise = new Promise((resolve, reject) => {
     timeoutHandle = setTimeout(
@@ -25,17 +25,17 @@ module.exports = async (roomId, eventId, opts) => {
     )
   })
 
-  const url = `https://${opts.instance}/_matrix/client/r0/rooms/${roomId}/event/${eventId}?access_token=${opts.accessToken}`
+  const url = `https://${opts.instance}/_matrix/client/r0/rooms/${data.roomId}/event/${data.eventId}?access_token=${opts.accessToken}`
 
   const fetchPromise = new Promise((resolve, reject) => {
     bentReq(url, null, {
       Accept: 'application/json',
     })
-      .then(async (data) => {
-        return await data.json()
+      .then(async (res) => {
+        return await res.json()
       })
-      .then((data) => {
-        resolve(data)
+      .then((res) => {
+        resolve(res)
       })
       .catch((error) => {
         reject(error)

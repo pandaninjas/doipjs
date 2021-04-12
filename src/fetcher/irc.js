@@ -15,7 +15,7 @@ limitations under the License.
 */
 const irc = require('irc-upd')
 
-module.exports = async (hostname, nickQuery, opts) => {
+module.exports = async (data, opts) => {
   let timeoutHandle
   const timeoutPromise = new Promise((resolve, reject) => {
     timeoutHandle = setTimeout(
@@ -26,7 +26,7 @@ module.exports = async (hostname, nickQuery, opts) => {
 
   const fetchPromise = new Promise((resolve, reject) => {
     try {
-      const client = new irc.Client(hostname, opts.nick, {
+      const client = new irc.Client(data.domain, opts.nick, {
         port: 6697,
         secure: true,
         channels: [],
@@ -36,7 +36,7 @@ module.exports = async (hostname, nickQuery, opts) => {
       let keys = []
 
       client.addListener('registered', (message) => {
-        client.send(`PRIVMSG NickServ :TAXONOMY ${nickQuery}`)
+        client.send(`PRIVMSG NickServ :TAXONOMY ${data.nick}`)
       })
       client.addListener('notice', (nick, to, text, message) => {
         if (reKey.test(text)) {

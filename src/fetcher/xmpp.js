@@ -42,7 +42,7 @@ const xmppStart = async (service, username, password) => {
   })
 }
 
-module.exports = async (id, data, opts) => {
+module.exports = async (data, opts) => {
   let timeoutHandle
   const timeoutPromise = new Promise((resolve, reject) => {
     timeoutHandle = setTimeout(
@@ -63,7 +63,7 @@ module.exports = async (id, data, opts) => {
     }
 
     const response = await iqCaller.request(
-      xml('iq', { type: 'get', to: id }, xml('vCard', 'vcard-temp')),
+      xml('iq', { type: 'get', to: data.id }, xml('vCard', 'vcard-temp')),
       30 * 1000
     )
 
@@ -73,7 +73,7 @@ module.exports = async (id, data, opts) => {
     try {
       let vcard
 
-      switch (data.toLowerCase()) {
+      switch (data.field.toLowerCase()) {
         case 'desc':
         case 'note':
           vcard = dom.window.document.querySelector('note text')

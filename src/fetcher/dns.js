@@ -15,7 +15,7 @@ limitations under the License.
 */
 const dns = require('dns')
 
-module.exports = async (hostname) => {
+module.exports = async (data, opts) => {
   let timeoutHandle
   const timeoutPromise = new Promise((resolve, reject) => {
     timeoutHandle = setTimeout(
@@ -25,14 +25,14 @@ module.exports = async (hostname) => {
   })
 
   const fetchPromise = new Promise((resolve, reject) => {
-    dns.resolveTxt(hostname, (err, records) => {
+    dns.resolveTxt(data.domain, (err, records) => {
       if (err) {
         reject(err)
         return
       }
 
       resolve({
-        hostname: hostname,
+        domain: data.domain,
         records: {
           txt: records,
         },

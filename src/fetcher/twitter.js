@@ -16,7 +16,7 @@ limitations under the License.
 const bent = require('bent')
 const bentReq = bent('GET')
 
-module.exports = async (tweetId, opts) => {
+module.exports = async (data, opts) => {
   let timeoutHandle
   const timeoutPromise = new Promise((resolve, reject) => {
     timeoutHandle = setTimeout(
@@ -27,7 +27,7 @@ module.exports = async (tweetId, opts) => {
 
   const fetchPromise = new Promise((resolve, reject) => {
     bentReq(
-      `https://api.twitter.com/1.1/statuses/show.json?id=${tweetId}&tweet_mode=extended`,
+      `https://api.twitter.com/1.1/statuses/show.json?id=${data.tweetId}&tweet_mode=extended`,
       null,
       {
         Accept: 'application/json',

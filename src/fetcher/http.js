@@ -16,7 +16,7 @@ limitations under the License.
 const bent = require('bent')
 const req = bent('GET')
 
-module.exports = async (url, format) => {
+module.exports = async (data, opts) => {
   let timeoutHandle
   const timeoutPromise = new Promise((resolve, reject) => {
     timeoutHandle = setTimeout(
@@ -26,14 +26,14 @@ module.exports = async (url, format) => {
   })
 
   const fetchPromise = new Promise((resolve, reject) => {
-    if (!url) {
+    if (!data.url) {
       reject('No valid URI provided')
       return
     }
 
     switch (format) {
       case 'json':
-        req(url, null, {
+        req(data.url, null, {
           Accept: 'application/json',
           'User-Agent': `doipjs/${require('../package.json').version}`,
         })
@@ -48,7 +48,7 @@ module.exports = async (url, format) => {
           })
         break
       case 'text':
-        req(url)
+        req(data.url)
           .then(async (res) => {
             return await res.text()
           })
