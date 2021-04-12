@@ -13,35 +13,47 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const proofAccess =  {
+const Fetcher =  {
+  HTTP: 'http',
+  DNS: 'dns',
+  IRC: 'irc',
+  XMPP: 'xmpp',
+  MATRIX: 'matrix',
+  GITLAB: 'gitlab',
+  TWITTER: 'twitter',
+}
+Object.freeze(Fetcher)
+
+const ProofAccess =  {
   GENERIC: 0,
   NOCORS: 1,
   GRANTED: 2,
-  SERVER: 3
+  SERVER: 3,
 }
-Object.freeze(proofAccess)
+Object.freeze(ProofAccess)
 
-const proofFormat =  {
+const ProofFormat =  {
   JSON: 0,
   TEXT: 1,
 }
-Object.freeze(proofFormat)
+Object.freeze(ProofFormat)
 
-const claimFormat =  {
+const ClaimFormat =  {
   URI: 0,
   FINGERPRINT: 1,
   MESSAGE: 2,
 }
-Object.freeze(claimFormat)
+Object.freeze(ClaimFormat)
 
-const claimRelation =  {
+const ClaimRelation =  {
   CONTAINS: 0,
   EQUALS: 1,
   ONEOF: 2,
 }
-Object.freeze(claimRelation)
+Object.freeze(ClaimRelation)
 
-exports.proofAccess = proofAccess
-exports.proofFormat = proofFormat
-exports.claimFormat = claimFormat
-exports.claimRelation = claimRelation
+exports.Fetcher = Fetcher
+exports.ProofAccess = ProofAccess
+exports.ProofFormat = ProofFormat
+exports.ClaimFormat = ClaimFormat
+exports.ClaimRelation = ClaimRelation
