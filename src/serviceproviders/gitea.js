@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const { proofAccess, proofFormat, claimFormat, claimRelation } = require('../enums')
+const E = require('../enums')
 
 const reURI = /^https:\/\/(.*)\/(.*)\/gitea_proof\/?/
 
@@ -35,17 +35,21 @@ const processURI = (uri, opts) => {
     },
     proof: {
       uri: uri,
-      fetch: `https://${match[1]}/api/v1/repos/${match[2]}/gitea_proof`,
-      access: proofAccess.NOCORS,
-      format: proofFormat.JSON,
+      request: {
+        fetcher: E.Fetcher.HTTP,
+        access: E.ProofAccess.NOCORS,
+        format: E.ProofFormat.JSON,
+        data: {
+          url: `https://${match[1]}/api/v1/repos/${match[2]}/gitea_proof`,
+        }
+      }
     },
     claim: {
       fingerprint: null,
-      format: claimFormat.MESSAGE,
-      relation: claimRelation.EQUALS,
+      format: E.ClaimFormat.MESSAGE,
+      relation: E.ClaimRelation.EQUALS,
       path: ['description'],
     },
-    customRequestHandler: null,
   }
 }
 

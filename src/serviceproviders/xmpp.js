@@ -13,8 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const { proofAccess, proofFormat, claimFormat, claimRelation } = require('../enums')
-const utils = require('../utils')
+const E = require('../enums')
 
 const reURI = /^xmpp:([a-zA-Z0-9\.\-\_]*)@([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
 
@@ -35,18 +34,23 @@ const processURI = (uri, opts) => {
       qr: uri,
     },
     proof: {
-      uri: utils.generateProxyURL('xmpp', `${match[1]}@${match[2]}`, opts),
-      fetch: null,
-      access: proofAccess.SERVER,
-      format: proofFormat.JSON,
+      uri: null,
+      request: {
+        fetcher: E.Fetcher.XMPP,
+        access: E.ProofAccess.SERVER,
+        format: E.ProofFormat.JSON,
+        data: {
+          username: match[1],
+          service: match[2],
+        }
+      }
     },
     claim: {
       fingerprint: null,
-      format: claimFormat.MESSAGE,
-      relation: claimRelation.CONTAINS,
+      format: E.ClaimFormat.MESSAGE,
+      relation: E.ClaimRelation.CONTAINS,
       path: [],
     },
-    customRequestHandler: null,
   }
 }
 

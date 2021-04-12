@@ -13,37 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const { proofAccess, proofFormat, claimFormat, claimRelation } = require('../enums')
-const dns = require('dns')
-const bent = require('bent')
-const req = bent('GET')
+const E = require('../enums')
 
 const reURI = /^dns:([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
-
-const customRequestHandler = async (spData, opts) => {
-  if ('resolveTxt' in dns) {
-    const prom = async () => {
-      return new Promise((resolve, reject) => {
-        dns.resolveTxt(spData.profile.display, (err, records) => {
-          if (err) reject(err)
-          resolve(records)
-        })
-      })
-    }
-    return {
-      hostname: spData.profile.display,
-      records: {
-        txt: await prom(),
-      },
-    }
-  } else {
-    const res = await req(spData.proof.uri, null, {
-      Accept: 'application/json',
-    })
-    const json = await res.json()
-    return json
-  }
-}
 
 const processURI = (uri, opts) => {
   if (!opts) {
@@ -63,17 +35,21 @@ const processURI = (uri, opts) => {
     },
     proof: {
       uri: null,
-      fetch: null,
-      access: proofAccess.SERVER,
-      format: proofFormat.JSON,
+      request: {
+        fetcher: E.Fetcher.DNS,
+        access: E.ProofAccess.SERVER,
+        format: E.ProofFormat.JSON,
+        data: {
+          domain: match[1],
+        }
+      }
     },
     claim: {
       fingerprint: null,
-      format: claimFormat.URI,
-      relation: claimRelation.CONTAINS,
+      format: E.ClaimFormat.URI,
+      relation: E.ClaimRelation.CONTAINS,
       path: ['records', 'txt'],
     },
-    customRequestHandler: customRequestHandler,
   }
 }
 

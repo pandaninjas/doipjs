@@ -13,11 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const { proofAccess, proofFormat, claimFormat, claimRelation } = require('../enums')
-const bent = require('bent')
-const req = bent('GET')
+const E = require('../enums')
 const queryString = require('query-string')
-const utils = require('../utils')
 
 const reURI = /^matrix\:u\/(?:\@)?([^@:]*\:[^?]*)(\?.*)?/
 
@@ -27,22 +24,18 @@ const processURI = (uri, opts) => {
   }
   const match = uri.match(reURI)
 
-  let profileUrl = null,
-    eventUrl = null,
-    proofUrl = null
-
-  if (match[2]) {
-    const params = queryString.parse(match[2])
-    if ('org.keyoxide.e' in params && 'org.keyoxide.r' in params) {
-      profileUrl = `https://matrix.to/#/@${match[1]}`
-      eventUrl = `https://matrix.to/#/${params['org.keyoxide.r']}/${params['org.keyoxide.e']}`
-      proofUrl = utils.generateProxyURL(
-        'matrix',
-        [params['org.keyoxide.r'], params['org.keyoxide.e']],
-        opts
-      )
-    }
+  if (!match[2]) {
+    return null
   }
+
+  const params = queryString.parse(match[2])
+
+  if (!('org.keyoxide.e' in params && 'org.keyoxide.r' in params)) {
+    return null
+  }
+
+  const profileUrl = `https://matrix.to/#/@${match[1]}`
+  const eventUrl = `https://matrix.to/#/${params['org.keyoxide.r']}/${params['org.keyoxide.e']}`
 
   return {
     serviceprovider: {
@@ -56,17 +49,22 @@ const processURI = (uri, opts) => {
     },
     proof: {
       uri: eventUrl,
-      fetch: proofUrl,
-      access: proofAccess.GRANTED,
-      format: proofFormat.JSON,
+      request: {
+        fetcher: E.Fetcher.MATRIX,
+        access: E.ProofAccess.GRANTED,
+        format: E.ProofFormat.JSON,
+        data: {
+          eventId: params['org.keyoxide.e'],
+          roomId: params['org.keyoxide.r'],
+        }
+      }
     },
     claim: {
       fingerprint: null,
-      format: claimFormat.MESSAGE,
-      relation: claimRelation.CONTAINS,
+      format: E.ClaimFormat.MESSAGE,
+      relation: E.ClaimRelation.CONTAINS,
       path: ['data', 'content', 'body'],
     },
-    customRequestHandler: null,
   }
 }
 

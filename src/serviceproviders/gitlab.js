@@ -13,51 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const { proofAccess, proofFormat, claimFormat, claimRelation } = require('../enums')
-const bent = require('bent')
-const req = bent('GET')
+const E = require('../enums')
 
 const reURI = /^https:\/\/(.*)\/(.*)\/gitlab_proof\/?/
-
-const customRequestHandler = async (spData, opts) => {
-  const match = spData.proof.uri.match(reURI)
-
-  const urlUser = `https://${match[1]}/api/v4/users?username=${match[2]}`
-  let resUser
-  try {
-    resUser = await req(urlUser, null, { Accept: 'application/json' })
-  } catch (e) {
-    resUser = await req(utils.generateProxyURL('web', urlUser, opts), null, {
-      Accept: 'application/json',
-    })
-  }
-  const jsonUser = await resUser.json()
-
-  const user = jsonUser.find((user) => user.username === match[2])
-  if (!user) {
-    throw new Error(`No user with username ${match[2]}`)
-  }
-
-  const urlProject = `https://${match[1]}/api/v4/users/${user.id}/projects`
-  let resProject
-  try {
-    resProject = await req(urlProject, null, { Accept: 'application/json' })
-  } catch (e) {
-    resProject = await req(
-      utils.generateProxyURL('web', urlProject, opts),
-      null,
-      { Accept: 'application/json' }
-    )
-  }
-  const jsonProject = await resProject.json()
-
-  const project = jsonProject.find((proj) => proj.path === 'gitlab_proof')
-  if (!project) {
-    throw new Error(`No project at ${spData.proof.uri}`)
-  }
-
-  return project
-}
 
 const processURI = (uri, opts) => {
   if (!opts) {
@@ -77,17 +35,22 @@ const processURI = (uri, opts) => {
     },
     proof: {
       uri: uri,
-      fetch: null,
-      access: proofAccess.GENERIC,
-      format: proofFormat.JSON,
+      request: {
+        fetcher: E.Fetcher.GITLAB,
+        access: E.ProofAccess.GENERIC,
+        format: E.ProofFormat.JSON,
+        data: {
+          domain: match[1],
+          username: match[2],
+        }
+      }
     },
     claim: {
       fingerprint: null,
-      format: claimFormat.MESSAGE,
-      relation: claimRelation.EQUALS,
+      format: E.ClaimFormat.MESSAGE,
+      relation: E.ClaimRelation.EQUALS,
       path: ['description'],
     },
-    customRequestHandler: customRequestHandler,
   }
 }
 

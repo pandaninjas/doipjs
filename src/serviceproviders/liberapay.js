@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const { proofAccess, proofFormat, claimFormat, claimRelation } = require('../enums')
+const E = require('../enums')
 
 const reURI = /^https:\/\/liberapay\.com\/(.*)\/?/
 
@@ -35,17 +35,21 @@ const processURI = (uri, opts) => {
     },
     proof: {
       uri: uri,
-      fetch: `https://liberapay.com/${match[1]}/public.json`,
-      access: proofAccess.GENERIC,
-      format: proofFormat.JSON,
+      request: {
+        fetcher: E.Fetcher.HTTP,
+        access: E.ProofAccess.GENERIC,
+        format: E.ProofFormat.JSON,
+        data: {
+          url: `https://liberapay.com/${match[1]}/public.json`,
+        }
+      }
     },
     claim: {
       fingerprint: null,
-      format: claimFormat.MESSAGE,
-      relation: claimRelation.CONTAINS,
+      format: E.ClaimFormat.MESSAGE,
+      relation: E.ClaimRelation.CONTAINS,
       path: ['statements', 'content'],
     },
-    customRequestHandler: null,
   }
 }
 
