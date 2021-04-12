@@ -1,5 +1,5 @@
 /*
-Copyright 2020 Yarmo Mackenbach
+Copyright 2021 Yarmo Mackenbach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,7 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 const router = require('express').Router()
-const fetcher = require('../../../fetcher')
+const dns = require('dns')
+const bent = require('bent')
+const bentReq = bent('GET')
+const validUrl = require('valid-url')
+const jsdom = require('jsdom')
+const { client, xml } = require('@xmpp/client')
+const debug = require('@xmpp/debug')
+const irc = require("irc-upd")
 require('dotenv').config()
 
 const xmpp_service = process.env.XMPP_SERVICE || null
@@ -25,7 +32,9 @@ const matrix_instance = process.env.MATRIX_INSTANCE || null
 const matrix_access_token = process.env.MATRIX_ACCESS_TOKEN || null
 const irc_nick = process.env.IRC_NICK || null
 
-let xmpp_enabled = true,
+let xmpp = null,
+  iqCaller = null,
+  xmpp_enabled = true,
   twitter_enabled = false,
   matrix_enabled = false,
   irc_enabled = false
@@ -43,10 +52,31 @@ if (irc_nick) {
   irc_enabled = true
 }
 
+const xmppStart = async (xmpp_service, xmpp_username, xmpp_password) => {
+  return new Promise((resolve, reject) => {
+    const xmpp = client({
+      service: xmpp_service,
+      username: xmpp_username,
+      password: xmpp_password,
+    })
+    if (process.env.NODE_ENV !== 'production') {
+      debug(xmpp, true)
+    }
+    const { iqCaller } = xmpp
+    xmpp.start()
+    xmpp.on('online', (address) => {
+      console.log('online', address.toString())
+      resolve({ xmpp: xmpp, iqCaller: iqCaller })
+    })
+    xmpp.on('error', (error) => {
+      reject(error)
+    })
+  })
+}
+
 router.get('/', async (req, res) => {
-  return res.status(400).json({
-    data: [],
-    error:
+  res.status(200).json({
+    message:
       'Available endpoints: /json/:url, /text/:url, /dns/:hostname, /xmpp/:xmppid, /twitter/:tweetid, /matrix/:roomid/:eventid, /irc/:ircserver/:ircnick',
   })
 })
@@ -55,7 +85,7 @@ router.param('url', async (req, res, next, url) => {
   req.params.url = decodeURI(url)
 
   if (!validUrl.isUri(req.params.url)) {
-    return res.status(400).json({ error: 'URL provided was not valid' })
+    return res.status(400).send({ message: 'URL provided was not valid' })
   }
 
   next()
@@ -67,7 +97,7 @@ router.param('xmppid', async (req, res, next, xmppid) => {
   if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,})+$/.test(req.params.xmppid)) {
     next()
   } else {
-    return res.status(400).json({ error: 'XMPP_ID was not valid' })
+    return res.status(400).json({ message: 'XMPP_ID was not valid' })
   }
 })
 
@@ -86,9 +116,8 @@ router.param('xmppdata', async (req, res, next, xmppdata) => {
   ]
 
   if (!allowedData.includes(req.params.xmppdata)) {
-    return res.status(400).send({
-      data: [],
-      error:
+    return res.status(400).json({
+      message:
         'Allowed data are: FN, NUMBER, USERID, URL, BDAY, NICKNAME, NOTE, DESC',
     })
   }
@@ -100,118 +129,176 @@ router.get('/get/json/:url', (req, res) => {
   bentReq(req.params.url, 'json', {
     Accept: 'application/json',
   })
-    .then(async (result) => {
-      return await result.json()
-    })
-    .then(async (data) => {
-      return res.status(200).send(data)
-    })
-    .catch((err) => {
-      return res.status(400).json({ error: err })
-    })
+  .then(async (result) => {
+    return await result.json()
+  })
+  .then(async (result) => {
+    return res.status(200).json({ url: req.params.url, content: result })
+  })
+  .catch((e) => {
+    return res.status(400).send({ error: e })
+  })
 })
 
 router.get('/get/text/:url', (req, res) => {
   bentReq(req.params.url)
-    .then(async (result) => {
-      return await result.text()
-    })
-    .then(async (result) => {
-      return res.status(200).send(result)
-    })
-    .catch((err) => {
-      return res.status(400).json({ error: err })
-    })
+  .then(async (result) => {
+    return await result.text()
+  })
+  .then(async (result) => {
+    return res.status(200).json({ url: req.params.url, content: result })
+  })
+  .catch((e) => {
+    return res.status(400).send({ error: e })
+  })
 })
 
-router.get('/get/dns/:hostname', (req, res) => {
-  fetcher
-    .dns(req.params.hostname)
-    .then((data) => {
-      return res.status(200).send(data)
-    })
-    .catch((err) => {
-      return res.status(400).json({ error: err })
-    })
+router.get('/get/dns/:hostname', async (req, res) => {
+  dns.resolveTxt(req.params.hostname, (err, records) => {
+    const out = {
+      hostname: req.params.hostname,
+      records: {
+        txt: records,
+      },
+    }
+    return res.status(200).json(out)
+  })
 })
 
 router.get('/get/xmpp/:xmppid', async (req, res) => {
-  return res.status(400).send({
-    data: [],
-    error:
-      'Data request parameter missing (FN, NUMBER, USERID, URL, BDAY, NICKNAME, NOTE, DESC)',
-  })
+  return res
+    .status(400)
+    .json(
+      'Data request parameter missing (FN, NUMBER, USERID, URL, BDAY, NICKNAME, NOTE, DESC)'
+    )
 })
 
 router.get('/get/xmpp/:xmppid/:xmppdata', async (req, res) => {
   if (!xmpp_enabled) {
-    return res.status(501).json({ error: 'XMPP not enabled on server' })
+    return res.status(500).json('XMPP not enabled on server')
+  }
+  if (!xmpp) {
+    const xmppStartRes = await xmppStart(
+      xmpp_service,
+      xmpp_username,
+      xmpp_password
+    )
+    xmpp = xmppStartRes.xmpp
+    iqCaller = xmppStartRes.iqCaller
   }
 
-  fetcher
-    .xmpp(req.params.xmppid, req.params.xmppdata, {
-      service: xmpp_service,
-      username: xmpp_username,
-      password: xmpp_password,
-    })
-    .then((data) => {
-      return res.status(200).send(data)
-    })
-    .catch((err) => {
-      return res.status(400).json({ error: err.message ? err.message : err })
-    })
+  const response = await iqCaller.request(
+    xml(
+      'iq',
+      { type: 'get', to: req.params.xmppid },
+      xml('vCard', 'vcard-temp')
+    ),
+    30 * 1000
+  )
+
+  const vcardRow = response.getChild('vCard', 'vcard-temp').toString()
+
+  const dom = new jsdom.JSDOM(vcardRow)
+
+  try {
+    let vcard
+
+    switch (req.params.xmppdata.toLowerCase()) {
+      case 'desc':
+      case 'note':
+        vcard = dom.window.document.querySelector('note text')
+        if (!vcard) {
+          vcard = dom.window.document.querySelector('DESC')
+        }
+        if (vcard) {
+          vcard = vcard.textContent
+        } else {
+          throw new Error('No DESC or NOTE field found in vCard')
+        }
+        break
+    
+      default:
+        vcard = dom.window.document.querySelector(req.params.xmppdata).textContent
+        break
+    }
+    return res.status(200).json(vcard)
+  } catch (error) {
+    return res.status(400).json({ message: 'Request could not be fulfilled', error: error })
+  }
 })
 
 router.get('/get/twitter/:tweetid', async (req, res) => {
   if (!twitter_enabled) {
-    return res.status(501).json({ error: 'Twitter not enabled on server' })
+    return res.status(500).json('Twitter not enabled on server')
   }
 
-  fetcher
-    .twitter(req.params.tweetid, {
-      bearerToken: twitter_bearer_token,
-    })
-    .then((data) => {
-      return res.status(200).send(data)
-    })
-    .catch((err) => {
-      return res.status(400).json({ error: err })
-    })
+  bentReq(`https://api.twitter.com/1.1/statuses/show.json?id=${req.params.tweetid}`, null, {
+    Accept: 'application/json',
+    Authorization: `Bearer ${twitter_bearer_token}`
+  })
+  .then(async (data) => {
+    return await data.json()
+  })
+  .then((data) => {
+    return res.status(200).json({ data: data, message: 'Success', error: {} })
+  })
+  .catch((error) => {
+    return res.status(error.statusCode || 400).json({ data: [], message: 'Request could not be fulfilled', error: error })
+  })
 })
 
 router.get('/get/matrix/:matrixroomid/:matrixeventid', async (req, res) => {
   if (!matrix_enabled) {
-    return res.status(501).json({ error: 'Matrix not enabled on server' })
+    return res.status(500).json('Matrix not enabled on server')
   }
 
-  fetcher
-    .matrix(req.params.matrixroomid, req.params.matrixeventid, {
-      instance: process.env.MATRIX_INSTANCE,
-      accessToken: process.env.MATRIX_ACCESS_TOKEN,
-    })
-    .then((data) => {
-      return res.status(200).send(data)
-    })
-    .catch((err) => {
-      return res.status(400).json({ error: err })
-    })
+  const url = `https://${matrix_instance}/_matrix/client/r0/rooms/${req.params.matrixroomid}/event/${req.params.matrixeventid}?access_token=${matrix_access_token}`
+
+  bentReq(url, null, {
+    Accept: 'application/json'
+  })
+  .then(async (data) => {
+    return await data.json()
+  })
+  .then((data) => {
+    return res.status(200).json({ data: data, message: 'Success', error: {} })
+  })
+  .catch((error) => {
+    return res.status(error.statusCode || 400).json({ data: [], message: 'Request could not be fulfilled', error: error })
+  })
 })
 
 router.get('/get/irc/:ircserver/:ircnick', async (req, res) => {
   if (!irc_enabled) {
-    return res.status(501).json({ error: 'IRC not enabled on server' })
+    return res.status(500).json('IRC not enabled on server')
   }
+  
+  try {
+    const client = new irc.Client(req.params.ircserver, irc_nick, {
+      port: 6697,
+      secure: true,
+      channels: [],
+    })
+    const reKey = /[a-zA-Z0-9\-\_]+\s+:\s(openpgp4fpr\:.*)/
+    const reEnd = /End\sof\s.*\staxonomy./
+    let keys = []
 
-  fetcher
-    .irc(req.params.ircserver, req.params.ircnick, {
-      nick: 'doipver148927',
+    client.addListener('registered', (message) => {
+      client.send(`PRIVMSG NickServ :TAXONOMY ${req.params.ircnick}`)
     })
-    .then((data) => {
-      return res.status(200).send(data)
+    client.addListener('notice', (nick, to, text, message) => {
+      if (reKey.test(text)) {
+        const match = text.match(reKey)
+        keys.push(match[1]);
+      }
+      if (reEnd.test(text)) {
+        client.disconnect()
+        return res.status(200).json({ data: keys, message: 'Success', error: {} })
+      }
     })
-    .catch((err) => {
-      return res.status(400).json({ error: err })
-    })
+  } catch (error) {
+    return res.status(400).json({ data: [], message: 'Request could not be fulfilled', error: error })
+  }
 })
 
 module.exports = router
