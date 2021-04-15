@@ -42,6 +42,7 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: `${uri}/api/config`,
+          format: E.ProofFormat.JSON,
         }
       }
     },

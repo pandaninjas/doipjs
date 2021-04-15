@@ -42,6 +42,7 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: `https://dev.to/api/articles/${match[1]}/${match[2]}`,
+          format: E.ProofFormat.JSON,
         }
       }
     },

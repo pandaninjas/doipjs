@@ -42,6 +42,7 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: `https://hacker-news.firebaseio.com/v0/user/${match[1]}.json`,
+          format: E.ProofFormat.JSON,
         }
       }
     },

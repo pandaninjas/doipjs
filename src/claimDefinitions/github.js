@@ -42,6 +42,7 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: `https://api.github.com/gists/${match[2]}`,
+          format: E.ProofFormat.JSON,
         }
       }
     },

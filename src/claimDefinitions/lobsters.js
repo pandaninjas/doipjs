@@ -42,6 +42,7 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: `https://lobste.rs/u/${match[1]}.json`,
+          format: E.ProofFormat.JSON,
         }
       }
     },
