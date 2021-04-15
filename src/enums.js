@@ -16,7 +16,7 @@ limitations under the License.
 const ProxyPolicy =  {
   ADAPTIVE: 'adaptive',
   ALWAYS: 'always',
-  NEVER: 'nver',
+  NEVER: 'never',
 }
 Object.freeze(ProxyPolicy)
 
@@ -59,9 +59,18 @@ const ClaimRelation =  {
 }
 Object.freeze(ClaimRelation)
 
+const VerificationStatus =  {
+  INIT: 0,
+  INPROGRESS: 1,
+  FAILED: 2,
+  COMPLETED: 3
+}
+Object.freeze(VerificationStatus)
+
 exports.ProxyPolicy = ProxyPolicy
 exports.Fetcher = Fetcher
 exports.ProofAccess = ProofAccess
 exports.ProofFormat = ProofFormat
 exports.ClaimFormat = ClaimFormat
 exports.ClaimRelation = ClaimRelation
+exports.VerificationStatus = ClaimRelation

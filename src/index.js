@@ -17,10 +17,12 @@ const claims = require('./claims')
 const keys = require('./keys')
 const signatures = require('./signatures')
 const serviceproviders = require('./serviceproviders')
+const enums = require('./enums')
 const utils = require('./utils')
 
 exports.claims = claims
 exports.keys = keys
 exports.signatures = signatures
 exports.serviceproviders = serviceproviders
+exports.enums = enums
 exports.utils = utils
