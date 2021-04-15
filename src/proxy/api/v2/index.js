@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 const router = require('express').Router()
+const { body, validationResult } = require('express-validator')
 const fetcher = require('../../../fetcher')
 const E = require('../../../enums')
 require('dotenv').config()
@@ -40,11 +41,7 @@ const opts = {
 
 // Root route
 router.get('/', async (req, res) => {
-  return res.status(400).json({
-    data: [],
-    error:
-      'Available endpoints: /json/:url, /text/:url, /dns/:hostname, /xmpp/:xmppid, /twitter/:tweetid, /matrix/:roomid/:eventid, /irc/:ircserver/:ircnick',
-  })
+  return res.status(400).json({ error: 'Invalid endpoint' })
 })
 
 // HTTP route
