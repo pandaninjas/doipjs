@@ -26,6 +26,12 @@ module.exports = async (data, opts) => {
 
   const fetchPromise = new Promise((resolve, reject) => {
     try {
+      validator.isAscii(opts.claims.irc.nick)
+    } catch (err) {
+      throw new Error(`IRC fetcher was not set up properly (${err.message})`)
+    }
+
+    try {
       const client = new irc.Client(data.domain, opts.nick, {
         port: 6697,
         secure: true,

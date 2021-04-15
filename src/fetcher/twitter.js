@@ -26,6 +26,12 @@ module.exports = async (data, opts) => {
   })
 
   const fetchPromise = new Promise((resolve, reject) => {
+    try {
+      validator.isAscii(opts.claims.twitter.bearerToken)
+    } catch (err) {
+      throw new Error(`Twitter fetcher was not set up properly (${err.message})`)
+    }
+
     bentReq(
       `https://api.twitter.com/1.1/statuses/show.json?id=${data.tweetId}&tweet_mode=extended`,
       null,

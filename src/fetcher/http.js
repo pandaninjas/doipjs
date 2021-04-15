@@ -15,6 +15,7 @@ limitations under the License.
 */
 const bent = require('bent')
 const req = bent('GET')
+const E = require('../enums')
 
 module.exports = async (data, opts) => {
   let timeoutHandle
@@ -31,11 +32,11 @@ module.exports = async (data, opts) => {
       return
     }
 
-    switch (format) {
-      case 'json':
+    switch (data.format) {
+      case E.ProofFormat.JSON:
         req(data.url, null, {
           Accept: 'application/json',
-          'User-Agent': `doipjs/${require('../package.json').version}`,
+          'User-Agent': `doipjs/${require('../../package.json').version}`,
         })
           .then(async (res) => {
             return await res.json()
@@ -47,7 +48,7 @@ module.exports = async (data, opts) => {
             reject(e)
           })
         break
-      case 'text':
+      case E.ProofFormat.TEXT:
         req(data.url)
           .then(async (res) => {
             return await res.text()

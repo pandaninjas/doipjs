@@ -52,6 +52,14 @@ module.exports = async (data, opts) => {
   })
 
   const fetchPromise = new Promise(async (resolve, reject) => {
+    try {
+      validator.isFQDN(opts.claims.xmpp.service)
+      validator.isAscii(opts.claims.xmpp.username)
+      validator.isAscii(opts.claims.xmpp.password)
+    } catch (err) {
+      throw new Error(`XMPP fetcher was not set up properly (${err.message})`)
+    }
+
     if (!xmpp) {
       const xmppStartRes = await xmppStart(
         opts.service,

@@ -15,6 +15,7 @@ limitations under the License.
 */
 const bent = require('bent')
 const bentReq = bent('GET')
+const validator = require('validator')
 
 module.exports = async (data, opts) => {
   let timeoutHandle
@@ -25,9 +26,15 @@ module.exports = async (data, opts) => {
     )
   })
 
-  const url = `https://${opts.instance}/_matrix/client/r0/rooms/${data.roomId}/event/${data.eventId}?access_token=${opts.accessToken}`
-
   const fetchPromise = new Promise((resolve, reject) => {
+    try {
+      validator.isFQDN(opts.claims.matrix.instance)
+      validator.isAscii(opts.claims.matrix.accessToken)
+    } catch (err) {
+      throw new Error(`Matrix fetcher was not set up properly (${err.message})`)
+    }
+
+    const url = `https://${opts.claims.matrix.instance}/_matrix/client/r0/rooms/${data.roomId}/event/${data.eventId}?access_token=${opts.claims.matrix.accessToken}`
     bentReq(url, null, {
       Accept: 'application/json',
     })

@@ -27,14 +27,7 @@ module.exports = async (data, opts) => {
 
   const fetchPromise = new Promise(async (resolve, reject) => {
     const urlUser = `https://${data.domain}/api/v4/users?username=${data.username}`
-    let resUser
-    try {
-      resUser = await req(urlUser, null, { Accept: 'application/json' })
-    } catch (e) {
-      resUser = await req(utils.generateProxyURL('web', urlUser, opts), null, {
-        Accept: 'application/json',
-      })
-    }
+    const resUser = await req(urlUser, null, { Accept: 'application/json' })
     const jsonUser = await resUser.json()
 
     const user = jsonUser.find((user) => user.username === match[2])
@@ -43,16 +36,7 @@ module.exports = async (data, opts) => {
     }
 
     const urlProject = `https://${data.domain}/api/v4/users/${user.id}/projects`
-    let resProject
-    try {
-      resProject = await req(urlProject, null, { Accept: 'application/json' })
-    } catch (e) {
-      resProject = await req(
-        utils.generateProxyURL('web', urlProject, opts),
-        null,
-        { Accept: 'application/json' }
-      )
-    }
+    const resProject = await req(urlProject, null, { Accept: 'application/json' })
     const jsonProject = await resProject.json()
 
     const project = jsonProject.find((proj) => proj.path === 'gitlab_proof')
