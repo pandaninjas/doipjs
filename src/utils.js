@@ -13,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const E = require('./enums')
+
 const generateProxyURL = (type, urlElements, opts) => {
   if (!opts || !opts.doipProxyHostname) {
     return null
@@ -37,13 +39,13 @@ const generateProxyURL = (type, urlElements, opts) => {
 
 const generateClaim = (fingerprint, format) => {
   switch (format) {
-    case 'uri':
+    case E.ClaimFormat.URI:
       return `openpgp4fpr:${fingerprint}`
       break
-    case 'message':
+    case E.ClaimFormat.MESSAGE:
       return `[Verifying my OpenPGP key: openpgp4fpr:${fingerprint}]`
       break
-    case 'fingerprint':
+    case E.ClaimFormat.FINGERPRINT:
       return fingerprint
       break
     default:

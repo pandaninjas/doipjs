@@ -61,16 +61,16 @@ const runVerificationJson = (
   if (checkPath.length == 0) {
     switch (checkRelation) {
       default:
-      case 'contains':
+      case E.ClaimRelation.CONTAINS:
         re = new RegExp(checkClaim, 'gi')
         res.isVerified = re.test(proofData.replace(/\r?\n|\r|\\/g, ''))
         break
-      case 'equals':
+      case E.ClaimRelation.EQUALS:
         res.isVerified =
           proofData.replace(/\r?\n|\r|\\/g, '').toLowerCase() ==
           checkClaim.toLowerCase()
         break
-      case 'oneOf':
+      case E.ClaimRelation.ONEOF:
         re = new RegExp(checkClaim, 'gi')
         res.isVerified = re.test(proofData.join('|'))
         break
@@ -102,7 +102,7 @@ const runVerification = (proofData, spData) => {
   }
 
   switch (spData.proof.format) {
-    case 'json':
+    case E.ProofFormat.JSON:
       res = runVerificationJson(
         res,
         proofData,
@@ -111,7 +111,7 @@ const runVerification = (proofData, spData) => {
         spData.claim.relation
       )
       break
-    case 'text':
+    case E.ProofFormat.TEXT:
       re = new RegExp(
         utils
           .generateClaim(spData.claim.fingerprint, spData.claim.format)
