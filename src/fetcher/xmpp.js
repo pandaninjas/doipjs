@@ -16,6 +16,7 @@ limitations under the License.
 const jsdom = require('jsdom')
 const { client, xml } = require('@xmpp/client')
 const debug = require('@xmpp/debug')
+const validator = require('validator')
 
 let xmpp = null,
   iqCaller = null

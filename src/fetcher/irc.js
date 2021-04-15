@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 const irc = require('irc-upd')
+const validator = require('validator')
 
 module.exports = async (data, opts) => {
   let timeoutHandle
@@ -32,7 +33,7 @@ module.exports = async (data, opts) => {
     }
 
     try {
-      const client = new irc.Client(data.domain, opts.nick, {
+      const client = new irc.Client(data.domain, opts.claims.irc.nick, {
         port: 6697,
         secure: true,
         channels: [],
