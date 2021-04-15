@@ -15,39 +15,39 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^xmpp:([a-zA-Z0-9\.\-\_]*)@([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
+const reURI = /^irc\:\/\/(.*)\/([a-zA-Z0-9]*)/
 
-const processURI = (uri, opts) => {
-  if (!opts) {
-    opts = {}
-  }
+const processURI = (uri) => {
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
       type: 'communication',
-      name: 'xmpp',
+      name: 'irc',
+    },
+    match: {
+      regularExpression: reURI,
+      isAmbiguous: false,
     },
     profile: {
-      display: `${match[1]}@${match[2]}`,
+      display: `irc://${match[1]}/${match[2]}`,
       uri: uri,
-      qr: uri,
+      qr: null,
     },
     proof: {
       uri: null,
       request: {
-        fetcher: E.Fetcher.XMPP,
+        fetcher: E.Fetcher.IRC,
         access: E.ProofAccess.SERVER,
         format: E.ProofFormat.JSON,
         data: {
-          id: `${match[1]}@${match[2]}`,
-          field: 'note'
+          domain: match[1],
+          nick: match[2],
         }
       }
     },
     claim: {
-      fingerprint: null,
-      format: E.ClaimFormat.MESSAGE,
+      format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.CONTAINS,
       path: [],
     },
@@ -56,15 +56,15 @@ const processURI = (uri, opts) => {
 
 const tests = [
   {
-    uri: 'xmpp:alice@domain.org',
+    uri: 'irc://chat.ircserver.org/Alice1',
     shouldMatch: true,
   },
   {
-    uri: 'xmpp:alice@domain.org?omemo-sid-123456789=A1B2C3D4E5F6G7H8I9',
+    uri: 'irc://chat.ircserver.org/alice?param=123',
     shouldMatch: true,
   },
   {
-    uri: 'https://domain.org',
+    uri: 'https://chat.ircserver.org/alice',
     shouldMatch: false,
   },
 ]

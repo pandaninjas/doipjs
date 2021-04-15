@@ -15,55 +15,55 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^https:\/\/news\.ycombinator\.com\/user\?id=(.*)\/?/
+const reURI = /^https:\/\/twitter\.com\/(.*)\/status\/([0-9]*)(?:\?.*)?/
 
-const processURI = (uri, opts) => {
-  if (!opts) {
-    opts = {}
-  }
+const processURI = (uri) => {
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
       type: 'web',
-      name: 'hackernews',
+      name: 'twitter',
+    },
+    match: {
+      regularExpression: reURI,
+      isAmbiguous: false,
     },
     profile: {
-      display: match[1],
-      uri: uri,
+      display: `@${match[1]}`,
+      uri: `https://twitter.com/${match[1]}`,
       qr: null,
     },
     proof: {
-      uri: `https://hacker-news.firebaseio.com/v0/user/${match[1]}.json`,
+      uri: uri,
       request: {
-        fetcher: E.Fetcher.HTTP,
-        access: E.ProofAccess.NOCORS,
-        format: E.ProofFormat.JSON,
+        fetcher: E.Fetcher.TWITTER,
+        access: E.ProofAccess.GRANTED,
+        format: E.ProofFormat.TEXT,
         data: {
-          url: `https://hacker-news.firebaseio.com/v0/user/${match[1]}.json`,
+          tweetId: match[2],
         }
       }
     },
     claim: {
-      fingerprint: null,
-      format: E.ClaimFormat.URI,
+      format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['about'],
+      path: [],
     },
   }
 }
 
 const tests = [
   {
-    uri: 'https://news.ycombinator.com/user?id=Alice',
+    uri: 'https://twitter.com/alice/status/1234567890123456789',
     shouldMatch: true,
   },
   {
-    uri: 'https://news.ycombinator.com/user?id=Alice/',
+    uri: 'https://twitter.com/alice/status/1234567890123456789/',
     shouldMatch: true,
   },
   {
-    uri: 'https://domain.org/user?id=Alice',
+    uri: 'https://domain.org/alice/status/1234567890123456789',
     shouldMatch: false,
   },
 ]

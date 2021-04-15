@@ -15,55 +15,55 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^https:\/\/(.*)\/users\/(.*)\/?/
+const reURI = /^dns:([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
 
-const processURI = (uri, opts) => {
-  if (!opts) {
-    opts = {}
-  }
+const processURI = (uri) => {
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
       type: 'web',
-      name: 'fediverse',
+      name: 'dns',
+    },
+    match: {
+      regularExpression: reURI,
+      isAmbiguous: false,
     },
     profile: {
-      display: `@${match[2]}@${match[1]}`,
-      uri: uri,
+      display: match[1],
+      uri: `https://${match[1]}`,
       qr: null,
     },
     proof: {
-      uri: uri,
+      uri: null,
       request: {
-        fetcher: E.Fetcher.HTTP,
-        access: E.ProofAccess.GENERIC,
+        fetcher: E.Fetcher.DNS,
+        access: E.ProofAccess.SERVER,
         format: E.ProofFormat.JSON,
         data: {
-          url: uri,
+          domain: match[1],
         }
       }
     },
     claim: {
-      fingerprint: null,
-      format: E.ClaimFormat.FINGERPRINT,
+      format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['summary'],
+      path: ['records', 'txt'],
     },
   }
 }
 
 const tests = [
   {
-    uri: 'https://domain.org/users/alice',
+    uri: 'dns:domain.org',
     shouldMatch: true,
   },
   {
-    uri: 'https://domain.org/users/alice/',
+    uri: 'dns:domain.org?type=TXT',
     shouldMatch: true,
   },
   {
-    uri: 'https://domain.org/alice',
+    uri: 'https://domain.org',
     shouldMatch: false,
   },
 ]

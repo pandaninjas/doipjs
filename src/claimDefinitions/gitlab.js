@@ -15,55 +15,56 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^https:\/\/(.*)\/u\/(.*)\/?/
+const reURI = /^https:\/\/(.*)\/(.*)\/gitlab_proof\/?/
 
-const processURI = (uri, opts) => {
-  if (!opts) {
-    opts = {}
-  }
+const processURI = (uri) => {
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
       type: 'web',
-      name: 'discourse',
+      name: 'gitlab',
+    },
+    match: {
+      regularExpression: reURI,
+      isAmbiguous: true,
     },
     profile: {
       display: `${match[2]}@${match[1]}`,
-      uri: uri,
+      uri: `https://${match[1]}/${match[2]}`,
       qr: null,
     },
     proof: {
       uri: uri,
       request: {
-        fetcher: E.Fetcher.HTTP,
-        access: E.ProofAccess.NOCORS,
+        fetcher: E.Fetcher.GITLAB,
+        access: E.ProofAccess.GENERIC,
         format: E.ProofFormat.JSON,
         data: {
-          url: `https://${match[1]}/u/${match[2]}.json`,
+          domain: match[1],
+          username: match[2],
         }
       }
     },
     claim: {
-      fingerprint: null,
       format: E.ClaimFormat.MESSAGE,
-      relation: E.ClaimRelation.CONTAINS,
-      path: ['user', 'bio_raw'],
+      relation: E.ClaimRelation.EQUALS,
+      path: ['description'],
     },
   }
 }
 
 const tests = [
   {
-    uri: 'https://domain.org/u/alice',
+    uri: 'https://gitlab.domain.org/alice/gitlab_proof',
     shouldMatch: true,
   },
   {
-    uri: 'https://domain.org/u/alice/',
+    uri: 'https://gitlab.domain.org/alice/gitlab_proof/',
     shouldMatch: true,
   },
   {
-    uri: 'https://domain.org/alice',
+    uri: 'https://domain.org/alice/other_proof',
     shouldMatch: false,
   },
 ]

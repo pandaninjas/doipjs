@@ -15,56 +15,55 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^irc\:\/\/(.*)\/([a-zA-Z0-9]*)/
+const reURI = /^https:\/\/(.*)\/u\/(.*)\/?/
 
-const processURI = (uri, opts) => {
-  if (!opts) {
-    opts = {}
-  }
+const processURI = (uri) => {
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
-      type: 'communication',
-      name: 'irc',
+      type: 'web',
+      name: 'discourse',
+    },
+    match: {
+      regularExpression: reURI,
+      isAmbiguous: true,
     },
     profile: {
-      display: `irc://${match[1]}/${match[2]}`,
+      display: `${match[2]}@${match[1]}`,
       uri: uri,
       qr: null,
     },
     proof: {
-      uri: null,
+      uri: uri,
       request: {
-        fetcher: E.Fetcher.IRC,
-        access: E.ProofAccess.SERVER,
+        fetcher: E.Fetcher.HTTP,
+        access: E.ProofAccess.NOCORS,
         format: E.ProofFormat.JSON,
         data: {
-          domain: match[1],
-          nick: match[2],
+          url: `https://${match[1]}/u/${match[2]}.json`,
         }
       }
     },
     claim: {
-      fingerprint: null,
-      format: E.ClaimFormat.URI,
+      format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: [],
+      path: ['user', 'bio_raw'],
     },
   }
 }
 
 const tests = [
   {
-    uri: 'irc://chat.ircserver.org/Alice1',
+    uri: 'https://domain.org/u/alice',
     shouldMatch: true,
   },
   {
-    uri: 'irc://chat.ircserver.org/alice?param=123',
+    uri: 'https://domain.org/u/alice/',
     shouldMatch: true,
   },
   {
-    uri: 'https://chat.ircserver.org/alice',
+    uri: 'https://domain.org/alice',
     shouldMatch: false,
   },
 ]

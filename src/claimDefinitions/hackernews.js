@@ -15,56 +15,55 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^https:\/\/(.*)\/(.*)\/gitlab_proof\/?/
+const reURI = /^https:\/\/news\.ycombinator\.com\/user\?id=(.*)\/?/
 
-const processURI = (uri, opts) => {
-  if (!opts) {
-    opts = {}
-  }
+const processURI = (uri) => {
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
       type: 'web',
-      name: 'gitlab',
+      name: 'hackernews',
+    },
+    match: {
+      regularExpression: reURI,
+      isAmbiguous: false,
     },
     profile: {
-      display: `${match[2]}@${match[1]}`,
-      uri: `https://${match[1]}/${match[2]}`,
+      display: match[1],
+      uri: uri,
       qr: null,
     },
     proof: {
-      uri: uri,
+      uri: `https://hacker-news.firebaseio.com/v0/user/${match[1]}.json`,
       request: {
-        fetcher: E.Fetcher.GITLAB,
-        access: E.ProofAccess.GENERIC,
+        fetcher: E.Fetcher.HTTP,
+        access: E.ProofAccess.NOCORS,
         format: E.ProofFormat.JSON,
         data: {
-          domain: match[1],
-          username: match[2],
+          url: `https://hacker-news.firebaseio.com/v0/user/${match[1]}.json`,
         }
       }
     },
     claim: {
-      fingerprint: null,
-      format: E.ClaimFormat.MESSAGE,
-      relation: E.ClaimRelation.EQUALS,
-      path: ['description'],
+      format: E.ClaimFormat.URI,
+      relation: E.ClaimRelation.CONTAINS,
+      path: ['about'],
     },
   }
 }
 
 const tests = [
   {
-    uri: 'https://gitlab.domain.org/alice/gitlab_proof',
+    uri: 'https://news.ycombinator.com/user?id=Alice',
     shouldMatch: true,
   },
   {
-    uri: 'https://gitlab.domain.org/alice/gitlab_proof/',
+    uri: 'https://news.ycombinator.com/user?id=Alice/',
     shouldMatch: true,
   },
   {
-    uri: 'https://domain.org/alice/other_proof',
+    uri: 'https://domain.org/user?id=Alice',
     shouldMatch: false,
   },
 ]

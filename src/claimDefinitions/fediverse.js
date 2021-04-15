@@ -15,18 +15,19 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^https:\/\/(.*)\/@(.*)\/?/
+const reURI = /^https:\/\/(.*)\/users\/(.*)\/?/
 
-const processURI = (uri, opts) => {
-  if (!opts) {
-    opts = {}
-  }
+const processURI = (uri) => {
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
       type: 'web',
-      name: 'mastodon',
+      name: 'fediverse',
+    },
+    match: {
+      regularExpression: reURI,
+      isAmbiguous: true,
     },
     profile: {
       display: `@${match[2]}@${match[1]}`,
@@ -45,21 +46,20 @@ const processURI = (uri, opts) => {
       }
     },
     claim: {
-      fingerprint: null,
       format: E.ClaimFormat.FINGERPRINT,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['attachment', 'value'],
+      path: ['summary'],
     },
   }
 }
 
 const tests = [
   {
-    uri: 'https://domain.org/@alice',
+    uri: 'https://domain.org/users/alice',
     shouldMatch: true,
   },
   {
-    uri: 'https://domain.org/@alice/',
+    uri: 'https://domain.org/users/alice/',
     shouldMatch: true,
   },
   {

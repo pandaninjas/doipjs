@@ -15,22 +15,23 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^https:\/\/dev\.to\/(.*)\/(.*)\/?/
+const reURI = /^https:\/\/(?:www\.)?reddit\.com\/user\/(.*)\/comments\/(.*)\/(.*)\/?/
 
-const processURI = (uri, opts) => {
-  if (!opts) {
-    opts = {}
-  }
+const processURI = (uri) => {
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
       type: 'web',
-      name: 'devto',
+      name: 'reddit',
+    },
+    match: {
+      regularExpression: reURI,
+      isAmbiguous: false,
     },
     profile: {
       display: match[1],
-      uri: `https://dev.to/${match[1]}`,
+      uri: `https://www.reddit.com/user/${match[1]}`,
       qr: null,
     },
     proof: {
@@ -40,30 +41,37 @@ const processURI = (uri, opts) => {
         access: E.ProofAccess.NOCORS,
         format: E.ProofFormat.JSON,
         data: {
-          url: `https://dev.to/api/articles/${match[1]}/${match[2]}`,
+          url: `https://www.reddit.com/user/${match[1]}/comments/${match[2]}.json`,
         }
       }
     },
     claim: {
-      fingerprint: null,
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['body_markdown'],
+      path: ['data', 'children', 'data', 'selftext'],
     },
   }
 }
 
 const tests = [
   {
-    uri: 'https://dev.to/alice/post',
+    uri: 'https://www.reddit.com/user/Alice/comments/123456/post',
     shouldMatch: true,
   },
   {
-    uri: 'https://dev.to/alice/post/',
+    uri: 'https://www.reddit.com/user/Alice/comments/123456/post/',
     shouldMatch: true,
   },
   {
-    uri: 'https://domain.org/alice/post',
+    uri: 'https://reddit.com/user/Alice/comments/123456/post',
+    shouldMatch: true,
+  },
+  {
+    uri: 'https://reddit.com/user/Alice/comments/123456/post/',
+    shouldMatch: true,
+  },
+  {
+    uri: 'https://domain.org/user/Alice/comments/123456/post',
     shouldMatch: false,
   },
 ]

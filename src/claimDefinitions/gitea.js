@@ -17,16 +17,17 @@ const E = require('../enums')
 
 const reURI = /^https:\/\/(.*)\/(.*)\/gitea_proof\/?/
 
-const processURI = (uri, opts) => {
-  if (!opts) {
-    opts = {}
-  }
+const processURI = (uri) => {
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
       type: 'web',
       name: 'gitea',
+    },
+    match: {
+      regularExpression: reURI,
+      isAmbiguous: true,
     },
     profile: {
       display: `${match[2]}@${match[1]}`,
@@ -45,7 +46,6 @@ const processURI = (uri, opts) => {
       }
     },
     claim: {
-      fingerprint: null,
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.EQUALS,
       path: ['description'],

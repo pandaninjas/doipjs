@@ -15,63 +15,55 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^https:\/\/(?:www\.)?reddit\.com\/user\/(.*)\/comments\/(.*)\/(.*)\/?/
+const reURI = /^https:\/\/(.*)\/@(.*)\/?/
 
-const processURI = (uri, opts) => {
-  if (!opts) {
-    opts = {}
-  }
+const processURI = (uri) => {
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
       type: 'web',
-      name: 'reddit',
+      name: 'mastodon',
+    },
+    match: {
+      regularExpression: reURI,
+      isAmbiguous: true,
     },
     profile: {
-      display: match[1],
-      uri: `https://www.reddit.com/user/${match[1]}`,
+      display: `@${match[2]}@${match[1]}`,
+      uri: uri,
       qr: null,
     },
     proof: {
       uri: uri,
       request: {
         fetcher: E.Fetcher.HTTP,
-        access: E.ProofAccess.NOCORS,
+        access: E.ProofAccess.GENERIC,
         format: E.ProofFormat.JSON,
         data: {
-          url: `https://www.reddit.com/user/${match[1]}/comments/${match[2]}.json`,
+          url: uri,
         }
       }
     },
     claim: {
-      fingerprint: null,
-      format: E.ClaimFormat.MESSAGE,
+      format: E.ClaimFormat.FINGERPRINT,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['data', 'children', 'data', 'selftext'],
+      path: ['attachment', 'value'],
     },
   }
 }
 
 const tests = [
   {
-    uri: 'https://www.reddit.com/user/Alice/comments/123456/post',
+    uri: 'https://domain.org/@alice',
     shouldMatch: true,
   },
   {
-    uri: 'https://www.reddit.com/user/Alice/comments/123456/post/',
+    uri: 'https://domain.org/@alice/',
     shouldMatch: true,
   },
   {
-    uri: 'https://reddit.com/user/Alice/comments/123456/post',
-    shouldMatch: true,
-  },
-  {
-    uri: 'https://reddit.com/user/Alice/comments/123456/post/',
-    shouldMatch: true,
-  },
-  {
-    uri: 'https://domain.org/user/Alice/comments/123456/post',
+    uri: 'https://domain.org/alice',
     shouldMatch: false,
   },
 ]

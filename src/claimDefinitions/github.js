@@ -15,55 +15,55 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^dns:([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
+const reURI = /^https:\/\/gist\.github\.com\/(.*)\/(.*)\/?/
 
-const processURI = (uri, opts) => {
-  if (!opts) {
-    opts = {}
-  }
+const processURI = (uri) => {
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
       type: 'web',
-      name: 'dns',
+      name: 'github',
+    },
+    match: {
+      regularExpression: reURI,
+      isAmbiguous: false,
     },
     profile: {
       display: match[1],
-      uri: `https://${match[1]}`,
+      uri: `https://github.com/${match[1]}`,
       qr: null,
     },
     proof: {
-      uri: null,
+      uri: uri,
       request: {
-        fetcher: E.Fetcher.DNS,
-        access: E.ProofAccess.SERVER,
+        fetcher: E.Fetcher.HTTP,
+        access: E.ProofAccess.GENERIC,
         format: E.ProofFormat.JSON,
         data: {
-          domain: match[1],
+          url: `https://api.github.com/gists/${match[2]}`,
         }
       }
     },
     claim: {
-      fingerprint: null,
-      format: E.ClaimFormat.URI,
+      format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['records', 'txt'],
+      path: ['files', 'openpgp.md', 'content'],
     },
   }
 }
 
 const tests = [
   {
-    uri: 'dns:domain.org',
+    uri: 'https://gist.github.com/Alice/123456789',
     shouldMatch: true,
   },
   {
-    uri: 'dns:domain.org?type=TXT',
+    uri: 'https://gist.github.com/Alice/123456789/',
     shouldMatch: true,
   },
   {
-    uri: 'https://domain.org',
+    uri: 'https://domain.org/Alice/123456789',
     shouldMatch: false,
   },
 ]

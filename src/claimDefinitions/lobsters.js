@@ -14,76 +14,56 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 const E = require('../enums')
-const queryString = require('query-string')
 
-const reURI = /^matrix\:u\/(?:\@)?([^@:]*\:[^?]*)(\?.*)?/
+const reURI = /^https:\/\/lobste\.rs\/u\/(.*)\/?/
 
-const processURI = (uri, opts) => {
-  if (!opts) {
-    opts = {}
-  }
+const processURI = (uri) => {
   const match = uri.match(reURI)
-
-  if (!match[2]) {
-    return null
-  }
-
-  const params = queryString.parse(match[2])
-
-  if (!('org.keyoxide.e' in params && 'org.keyoxide.r' in params)) {
-    return null
-  }
-
-  const profileUrl = `https://matrix.to/#/@${match[1]}`
-  const eventUrl = `https://matrix.to/#/${params['org.keyoxide.r']}/${params['org.keyoxide.e']}`
 
   return {
     serviceprovider: {
-      type: 'communication',
-      name: 'matrix',
+      type: 'web',
+      name: 'lobsters',
+    },
+    match: {
+      regularExpression: reURI,
+      isAmbiguous: false,
     },
     profile: {
-      display: `@${match[1]}`,
-      uri: profileUrl,
+      display: match[1],
+      uri: uri,
       qr: null,
     },
     proof: {
-      uri: eventUrl,
+      uri: `https://lobste.rs/u/${match[1]}.json`,
       request: {
-        fetcher: E.Fetcher.MATRIX,
-        access: E.ProofAccess.GRANTED,
+        fetcher: E.Fetcher.HTTP,
+        access: E.ProofAccess.NOCORS,
         format: E.ProofFormat.JSON,
         data: {
-          eventId: params['org.keyoxide.e'],
-          roomId: params['org.keyoxide.r'],
+          url: `https://lobste.rs/u/${match[1]}.json`,
         }
       }
     },
     claim: {
-      fingerprint: null,
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['data', 'content', 'body'],
+      path: ['about'],
     },
   }
 }
 
 const tests = [
   {
-    uri:
-      'matrix:u/alice:matrix.domain.org?org.keyoxide.r=!123:domain.org&org.keyoxide.e=$123',
+    uri: 'https://lobste.rs/u/Alice',
     shouldMatch: true,
   },
   {
-    uri: 'matrix:u/alice:matrix.domain.org',
+    uri: 'https://lobste.rs/u/Alice/',
     shouldMatch: true,
   },
   {
-    uri: 'xmpp:alice@domain.org',
-    shouldMatch: false,
-  },
-  {
-    uri: 'https://domain.org/@alice',
+    uri: 'https://domain.org/u/Alice',
     shouldMatch: false,
   },
 ]

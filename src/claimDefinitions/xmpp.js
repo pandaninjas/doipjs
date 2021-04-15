@@ -15,55 +15,56 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^https:\/\/lobste\.rs\/u\/(.*)\/?/
+const reURI = /^xmpp:([a-zA-Z0-9\.\-\_]*)@([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
 
-const processURI = (uri, opts) => {
-  if (!opts) {
-    opts = {}
-  }
+const processURI = (uri) => {
   const match = uri.match(reURI)
 
   return {
     serviceprovider: {
-      type: 'web',
-      name: 'lobsters',
+      type: 'communication',
+      name: 'xmpp',
+    },
+    match: {
+      regularExpression: reURI,
+      isAmbiguous: false,
     },
     profile: {
-      display: match[1],
+      display: `${match[1]}@${match[2]}`,
       uri: uri,
-      qr: null,
+      qr: uri,
     },
     proof: {
-      uri: `https://lobste.rs/u/${match[1]}.json`,
+      uri: null,
       request: {
-        fetcher: E.Fetcher.HTTP,
-        access: E.ProofAccess.NOCORS,
+        fetcher: E.Fetcher.XMPP,
+        access: E.ProofAccess.SERVER,
         format: E.ProofFormat.JSON,
         data: {
-          url: `https://lobste.rs/u/${match[1]}.json`,
+          id: `${match[1]}@${match[2]}`,
+          field: 'note'
         }
       }
     },
     claim: {
-      fingerprint: null,
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['about'],
+      path: [],
     },
   }
 }
 
 const tests = [
   {
-    uri: 'https://lobste.rs/u/Alice',
+    uri: 'xmpp:alice@domain.org',
     shouldMatch: true,
   },
   {
-    uri: 'https://lobste.rs/u/Alice/',
+    uri: 'xmpp:alice@domain.org?omemo-sid-123456789=A1B2C3D4E5F6G7H8I9',
     shouldMatch: true,
   },
   {
-    uri: 'https://domain.org/u/Alice',
+    uri: 'https://domain.org',
     shouldMatch: false,
   },
 ]
