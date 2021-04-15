@@ -15,12 +15,14 @@ limitations under the License.
 */
 const dns = require('dns')
 
-module.exports = async (data, opts) => {
+module.exports.timeout = 5000
+
+module.exports.fn = async (data, opts) => {
   let timeoutHandle
   const timeoutPromise = new Promise((resolve, reject) => {
     timeoutHandle = setTimeout(
       () => reject(new Error('Request was timed out')),
-      5000
+      data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
     )
   })
 

@@ -18,6 +18,8 @@ const { client, xml } = require('@xmpp/client')
 const debug = require('@xmpp/debug')
 const validator = require('validator')
 
+module.exports.timeout = 5000
+
 let xmpp = null,
   iqCaller = null
 
@@ -43,12 +45,12 @@ const xmppStart = async (service, username, password) => {
   })
 }
 
-module.exports = async (data, opts) => {
+module.exports.fn = async (data, opts) => {
   let timeoutHandle
   const timeoutPromise = new Promise((resolve, reject) => {
     timeoutHandle = setTimeout(
       () => reject(new Error('Request was timed out')),
-      5000
+      data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
     )
   })
 

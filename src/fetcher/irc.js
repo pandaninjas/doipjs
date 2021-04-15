@@ -16,12 +16,14 @@ limitations under the License.
 const irc = require('irc-upd')
 const validator = require('validator')
 
-module.exports = async (data, opts) => {
+module.exports.timeout = 20000
+
+module.exports.fn = async (data, opts) => {
   let timeoutHandle
   const timeoutPromise = new Promise((resolve, reject) => {
     timeoutHandle = setTimeout(
       () => reject(new Error('Request was timed out')),
-      20000
+      data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
     )
   })
 

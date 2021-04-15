@@ -16,12 +16,14 @@ limitations under the License.
 const bent = require('bent')
 const req = bent('GET')
 
-module.exports = async (data, opts) => {
+module.exports.timeout = 5000
+
+module.exports.fn = async (data, opts) => {
   let timeoutHandle
   const timeoutPromise = new Promise((resolve, reject) => {
     timeoutHandle = setTimeout(
       () => reject(new Error('Request was timed out')),
-      5000
+      data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
     )
   })
 
