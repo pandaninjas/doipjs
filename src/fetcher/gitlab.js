@@ -25,7 +25,7 @@ module.exports = async (data, opts) => {
     )
   })
 
-  const fetchPromise = new Promise((resolve, reject) => {
+  const fetchPromise = new Promise(async (resolve, reject) => {
     const urlUser = `https://${data.domain}/api/v4/users?username=${data.username}`
     let resUser
     try {
