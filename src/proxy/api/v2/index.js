@@ -55,7 +55,7 @@ router.get('/get/http',
     }
 
     fetcher
-      .http(req.query, opts)
+      .http.fn(req.query, opts)
       .then(result => {
         switch (req.query.format) {
           case E.ProofFormat.JSON:
@@ -82,7 +82,7 @@ router.get('/get/dns',
     }
 
     fetcher
-      .dns(req.query, opts)
+      .dns.fn(req.query, opts)
       .then((data) => {
         return res.status(200).send(data)
       })
@@ -105,7 +105,7 @@ router.get('/get/xmpp',
     }
 
     fetcher
-      .xmpp(req.query, opts)
+      .xmpp.fn(req.query, opts)
       .then((data) => {
         return res.status(200).send(data)
       })
@@ -127,7 +127,7 @@ router.get('/get/twitter',
     }
 
     fetcher
-      .twitter(req.query, opts)
+      .twitter.fn(req.query, opts)
       .then((data) => {
         return res.status(200).send(data)
       })
@@ -150,7 +150,7 @@ router.get('/get/matrix',
     }
 
     fetcher
-      .matrix(req.params, opts)
+      .matrix.fn(req.query, opts)
       .then((data) => {
         return res.status(200).send(data)
       })
@@ -172,7 +172,7 @@ router.get('/get/irc',
     }
 
     fetcher
-      .irc(req.params, opts)
+      .irc.fn(req.query, opts)
       .then((data) => {
         return res.status(200).send(data)
       })
