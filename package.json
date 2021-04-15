@@ -39,7 +39,7 @@
     "license:remove": "./node_modules/license-check-and-add/dist/src/cli.js remove",
     "docs": "docsify serve ./docs",
     "test": "./node_modules/mocha/bin/mocha",
-    "proxy:run": "NODE_ENV=production node ./src/proxy/",
+    "proxy": "NODE_ENV=production node ./src/proxy/",
     "proxy:dev": "NODE_ENV=development ./node_modules/nodemon/bin/nodemon.js ./src/proxy/"
   },
   "repository": {

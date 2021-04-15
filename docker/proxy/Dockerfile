@@ -11,4 +11,4 @@ RUN yarn --production --pure-lockfile
 COPY . /app
 
 EXPOSE 3000
-CMD yarn proxy:run
+CMD yarn run proxy
