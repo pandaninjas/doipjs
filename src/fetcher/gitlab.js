@@ -32,9 +32,9 @@ module.exports.fn = async (data, opts) => {
     const resUser = await req(urlUser, null, { Accept: 'application/json' })
     const jsonUser = await resUser.json()
 
-    const user = jsonUser.find((user) => user.username === match[2])
+    const user = jsonUser.find((user) => user.username === data.username)
     if (!user) {
-      reject(`No user with username ${match[2]}`)
+      reject(`No user with username ${data.username}`)
     }
 
     const urlProject = `https://${data.domain}/api/v4/users/${user.id}/projects`
