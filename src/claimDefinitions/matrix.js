@@ -63,7 +63,7 @@ const processURI = (uri) => {
     claim: {
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['data', 'content', 'body'],
+      path: ['content', 'body'],
     },
   }
 }
