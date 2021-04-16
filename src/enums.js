@@ -40,8 +40,8 @@ const ProofAccess =  {
 Object.freeze(ProofAccess)
 
 const ProofFormat =  {
-  JSON: 0,
-  TEXT: 1,
+  JSON: 'json',
+  TEXT: 'text',
 }
 Object.freeze(ProofFormat)
 
