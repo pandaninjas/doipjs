@@ -20,9 +20,8 @@ const serviceproviders = require('./serviceproviders')
 const enums = require('./enums')
 const utils = require('./utils')
 
-exports.claims = claims
+exports.proofs = proofs
 exports.keys = keys
 exports.signatures = signatures
-exports.serviceproviders = serviceproviders
 exports.enums = enums
 exports.utils = utils
