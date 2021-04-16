@@ -21,6 +21,13 @@ require('dotenv').config()
 
 const opts = {
   claims: {
+    irc: {
+      nick: process.env.IRC_NICK || null,
+    },
+    matrix: {
+      instance: process.env.MATRIX_INSTANCE || null,
+      accessToken: process.env.MATRIX_ACCESS_TOKEN || null,
+    },
     xmpp: {
       service: process.env.XMPP_SERVICE || null,
       username: process.env.XMPP_USERNAME || null,
@@ -28,13 +35,6 @@ const opts = {
     },
     twitter: {
       bearerToken: process.env.TWITTER_BEARER_TOKEN || null,
-    },
-    matrix: {
-      instance: process.env.MATRIX_INSTANCE || null,
-      accessToken: process.env.MATRIX_ACCESS_TOKEN || null,
-    },
-    irc: {
-      nick: process.env.IRC_NICK || null,
     },
   },
 }
