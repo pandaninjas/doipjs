@@ -16,7 +16,6 @@ limitations under the License.
 const proofs = require('./proofs')
 const keys = require('./keys')
 const signatures = require('./signatures')
-const serviceproviders = require('./serviceproviders')
 const enums = require('./enums')
 const defaults = require('./defaults')
 const utils = require('./utils')
