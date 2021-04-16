@@ -39,7 +39,7 @@ const processURI = (uri) => {
       request: {
         fetcher: E.Fetcher.XMPP,
         access: E.ProofAccess.SERVER,
-        format: E.ProofFormat.JSON,
+        format: E.ProofFormat.TEXT,
         data: {
           id: `${match[1]}@${match[2]}`,
           field: 'note'
