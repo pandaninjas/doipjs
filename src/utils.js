@@ -13,28 +13,25 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const validator = require('validator')
 const E = require('./enums')
 
-const generateProxyURL = (type, urlElements, opts) => {
-  if (!opts || !opts.doipProxyHostname) {
-    return null
-  }
-  let addParam = ''
-  if (type == 'xmpp') {
-    addParam += '/DESC'
+const generateProxyURL = (type, data, opts) => {
+  try {
+    validator.isFQDN(opts.proxy.hostname)
+  } catch (err) {
+    throw new Error(`Invalid proxy hostname`)
   }
 
-  if (!Array.isArray(urlElements)) {
-    urlElements = [urlElements]
-  }
+  let queryStrings = []
 
-  urlElements = urlElements.map((x) => {
-    return encodeURIComponent(x)
+  Object.keys(data).forEach(key => {
+    queryStrings.push(`${key}=${encodeURIComponent(data[key])}`)
   })
 
-  return `https://${
-    opts.doipProxyHostname
-  }/api/1/get/${type}/${urlElements.join('/')}${addParam}`
+  return `http://${
+    opts.proxy.hostname
+  }/api/2/get/${type}?${queryStrings.join('&')}`
 }
 
 const generateClaim = (fingerprint, format) => {
