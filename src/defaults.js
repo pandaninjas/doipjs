@@ -13,17 +13,28 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const proofs = require('./proofs')
-const keys = require('./keys')
-const signatures = require('./signatures')
-const serviceproviders = require('./serviceproviders')
-const enums = require('./enums')
-const defaults = require('./defaults')
-const utils = require('./utils')
+const opts =  {
+  proxy: {
+    hostname: null,
+    policy: E.ProxyPolicy.NEVER
+  },
+  claims: {
+    irc: {
+      nick: null
+    },
+    matrix: {
+      instance: null,
+      accessToken: null
+    },
+    xmpp: {
+      service: null,
+      username: null,
+      password: null
+    },
+    twitter: {
+      bearerToken: null
+    },
+  }
+}
 
-exports.proofs = proofs
-exports.keys = keys
-exports.signatures = signatures
-exports.enums = enums
-exports.defaults = defaults
-exports.utils = utils
+exports.opts = opts
