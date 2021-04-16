@@ -36,7 +36,6 @@ const xmppStart = async (service, username, password) => {
     const { iqCaller } = xmpp
     xmpp.start()
     xmpp.on('online', (address) => {
-      console.log('online', address.toString())
       resolve({ xmpp: xmpp, iqCaller: iqCaller })
     })
     xmpp.on('error', (error) => {
@@ -65,9 +64,9 @@ module.exports.fn = async (data, opts) => {
 
     if (!xmpp) {
       const xmppStartRes = await xmppStart(
-        opts.service,
-        opts.username,
-        opts.password
+        opts.claims.xmpp.service,
+        opts.claims.xmpp.username,
+        opts.claims.xmpp.password
       )
       xmpp = xmppStartRes.xmpp
       iqCaller = xmppStartRes.iqCaller
