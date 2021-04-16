@@ -62,7 +62,7 @@ module.exports.fn = async (data, opts) => {
       throw new Error(`XMPP fetcher was not set up properly (${err.message})`)
     }
 
-    if (!xmpp) {
+    if (!xmpp || xmpp.status !== 'online') {
       const xmppStartRes = await xmppStart(
         opts.claims.xmpp.service,
         opts.claims.xmpp.username,
