@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const Claim = require('./claim')
 const proofs = require('./proofs')
 const keys = require('./keys')
 const signatures = require('./signatures')
@@ -20,6 +21,7 @@ const enums = require('./enums')
 const defaults = require('./defaults')
 const utils = require('./utils')
 
+exports.Claim = Claim
 exports.proofs = proofs
 exports.keys = keys
 exports.signatures = signatures
