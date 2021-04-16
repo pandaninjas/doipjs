@@ -15,6 +15,7 @@ limitations under the License.
 */
 const Claim = require('./claim')
 const proofs = require('./proofs')
+const verification = require('./verification')
 const keys = require('./keys')
 const signatures = require('./signatures')
 const enums = require('./enums')
@@ -23,6 +24,7 @@ const utils = require('./utils')
 
 exports.Claim = Claim
 exports.proofs = proofs
+exports.verification = verification
 exports.keys = keys
 exports.signatures = signatures
 exports.enums = enums
