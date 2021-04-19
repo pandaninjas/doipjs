@@ -5,17 +5,17 @@
   - [Quick start (browser)](quickstart-browser.md)
   - [Terminology](terminology.md)
 
-- Reference
-
-  - [API](api.md)
-  - [Service provider data object](serviceproviderdataobject.md)
-
 - Concepts
 
   - [DOIP](doip.md)
   - [Proofs](proofs.md)
   - [Claims](claims.md)
   - [Service providers](serviceproviders.md)
+
+- Reference doip.js
+
+  - [Claim (class)](doipjs/class_claim.md)
+  - [keys (module)](doipjs/module_keys.md)
 
 - Service providers
 

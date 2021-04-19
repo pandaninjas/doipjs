@@ -6,7 +6,10 @@ Basic example:
 const doip = require('doip')
 
 const verifyIdentity = async (url, fp) => {
-  console.log(await doip.claims.verify(url, fp))
+  const claim = new doip.Claim(url, fp)
+  claim.match()
+  await claim.verify()
+  console.log(claim.result)
 }
 verifyIdentity('dns:doip.rocks', '9f0048ac0b23301e1f77e994909f6bd6f80f485d')
 ```

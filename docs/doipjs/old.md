@@ -1,8 +1,37 @@
-# API
+# Claim (class)
 
-## claims.verify(uri, [fingerprint], [opts])
+## Constructor
 
-_(async)_ doip.claims.verify(uri, [fingerprint], [opts])
+new Claim([uri], [fingerprint])
+
+**Parameters**
+
+| Name        | Type   | Mandatory | Description                      |
+| ----------- | ------ | --------- | -------------------------------- |
+| uri         | string | false     | the URI to an identity to verify |
+| fingerprint | string | false     | the fingerprint of the claim     |
+
+## Properties
+
+### state
+
+The current state of the Claim object.
+
+**Values:**
+
+| Name     | Description                                                       |
+| -------- | ----------------------------------------------------------------- |
+| init     | The claim has just been initialized                               |
+| matched  | The claim has been matched to candidate claim definitions         |
+| verified | The claim has attempted to verify all candidate claim definitions |
+
+### matches
+
+Returns the matches
+
+## Methods
+
+### match()
 
 Verifies the identity behind the provided **uri** using the **fingerprint**.
 
@@ -53,7 +82,7 @@ object.
 If `opts.returnMatchesOnly` is `true`, this function instead returns a list of
 service providers matched to the provided `uri`.
 
-## claims.verify(uriArray, [fingerprint], [opts])
+### claims.verify(uriArray, [fingerprint], [opts])
 
 _(async)_ doip.claims.verify(array, [fingerprint], [opts])
 
@@ -76,7 +105,7 @@ See [claims.verify(uri, ...)](#claimsverifyuri-fingerprint-opts).
 An array of objects with claim verification results (see
 [claims.verify(uri, ...)](#claimsverifyuri-fingerprint-opts)).
 
-## claims.verify(key, [fingerprint], [opts])
+### claims.verify(key, [fingerprint], [opts])
 
 _(async)_ doip.claims.verify(key, [fingerprint], [opts])
 
@@ -101,7 +130,7 @@ See [claims.verify(uri, ...)](#claimsverifyuri-fingerprint-opts).
 An array of objects with claim verification results (see
 [claims.verify(uri, ...)](#claimsverifyuri-fingerprint-opts)).
 
-## keys.fetch.uri(uri)
+### keys.fetch.uri(uri)
 
 _(async)_ keys.fetch.uri(uri)
 
@@ -127,7 +156,7 @@ Possible formats for `uri`:
 
 A public key object.
 
-## keys.fetch.hkp(fingerprint, [keyserverBaseUrl])
+### keys.fetch.hkp(fingerprint, [keyserverBaseUrl])
 
 _(async)_ keys.fetch.hkp(fingerprint, [keyserverBaseUrl])
 
@@ -146,7 +175,7 @@ Fetches a key using HKP-compatible key servers.
 
 A public key object.
 
-## keys.fetch.hkp(email, [keyserverBaseUrl])
+### keys.fetch.hkp(email, [keyserverBaseUrl])
 
 _(async)_ keys.fetch.hkp(email, [keyserverBaseUrl])
 
@@ -165,7 +194,7 @@ Fetches a key using HKP-compatible key servers.
 
 A public key object.
 
-## keys.fetch.wkd(wkdId)
+### keys.fetch.wkd(wkdId)
 
 _(async)_ keys.fetch.wkd(wkdId)
 
@@ -183,7 +212,7 @@ Fetches a key using the WKD protocol.
 
 A public key object.
 
-## keys.fetch.plaintext(keyPlaintext)
+### keys.fetch.plaintext(keyPlaintext)
 
 _(async)_ keys.fetch.plaintext(keyPlaintext)
 
@@ -199,7 +228,7 @@ Parses the `keyPlaintext`.
 
 A public key object.
 
-## signatures.verify(uri, [fingerprint], [opts])
+### signatures.verify(uri, [fingerprint], [opts])
 
 _(async)_ doip.signatures.verify(signature, [opts])
 
