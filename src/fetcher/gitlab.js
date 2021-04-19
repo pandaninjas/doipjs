@@ -38,7 +38,9 @@ module.exports.fn = async (data, opts) => {
     }
 
     const urlProject = `https://${data.domain}/api/v4/users/${user.id}/projects`
-    const resProject = await req(urlProject, null, { Accept: 'application/json' })
+    const resProject = await req(urlProject, null, {
+      Accept: 'application/json',
+    })
     const jsonProject = await resProject.json()
 
     const project = jsonProject.find((proj) => proj.path === 'gitlab_proof')

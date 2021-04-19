@@ -45,7 +45,8 @@ router.get('/', async (req, res) => {
 })
 
 // HTTP route
-router.get('/get/http',
+router.get(
+  '/get/http',
   query('url').isURL(),
   query('format').isIn([E.ProofFormat.JSON, E.ProofFormat.TEXT]),
   (req, res) => {
@@ -54,49 +55,62 @@ router.get('/get/http',
       return res.status(400).json({ errors: errors.array() })
     }
 
-    fetcher
-      .http.fn(req.query, opts)
-      .then(result => {
+    fetcher.http
+      .fn(req.query, opts)
+      .then((result) => {
         switch (req.query.format) {
           case E.ProofFormat.JSON:
             return res.status(200).json(result)
-            break;
+            break
 
           case E.ProofFormat.TEXT:
             return res.status(200).send(result)
-            break;
+            break
         }
-      })
-      .catch(err => {
-        return res.status(400).json({ errors: err.message ? err.message : err })
-      })
-})
-
-// DNS route
-router.get('/get/dns',
-  query('domain').isFQDN(),
-  (req, res) => {
-    const errors = validationResult(req)
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() })
-    }
-
-    fetcher
-      .dns.fn(req.query, opts)
-      .then((data) => {
-        return res.status(200).send(data)
       })
       .catch((err) => {
         return res.status(400).json({ errors: err.message ? err.message : err })
       })
+  }
+)
+
+// DNS route
+router.get('/get/dns', query('domain').isFQDN(), (req, res) => {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() })
+  }
+
+  fetcher.dns
+    .fn(req.query, opts)
+    .then((data) => {
+      return res.status(200).send(data)
+    })
+    .catch((err) => {
+      return res.status(400).json({ errors: err.message ? err.message : err })
+    })
 })
 
 // XMPP route
-router.get('/get/xmpp',
+router.get(
+  '/get/xmpp',
   query('id').isEmail(),
-  query('field').isIn(['fn','number','userid','url','bday','nickname','note','desc']),
+  query('field').isIn([
+    'fn',
+    'number',
+    'userid',
+    'url',
+    'bday',
+    'nickname',
+    'note',
+    'desc',
+  ]),
   async (req, res) => {
-    if (!opts.claims.xmpp.service || !opts.claims.xmpp.username || !opts.claims.xmpp.password) {
+    if (
+      !opts.claims.xmpp.service ||
+      !opts.claims.xmpp.username ||
+      !opts.claims.xmpp.password
+    ) {
       return res.status(501).json({ errors: 'XMPP not enabled on server' })
     }
     const errors = validationResult(req)
@@ -104,40 +118,40 @@ router.get('/get/xmpp',
       return res.status(400).json({ errors: errors.array() })
     }
 
-    fetcher
-      .xmpp.fn(req.query, opts)
+    fetcher.xmpp
+      .fn(req.query, opts)
       .then((data) => {
         return res.status(200).send(data)
       })
       .catch((err) => {
         return res.status(400).json({ errors: err.message ? err.message : err })
       })
-})
+  }
+)
 
 // Twitter route
-router.get('/get/twitter',
-  query('tweetId').isInt(),
-  async (req, res) => {
-    if (!opts.claims.twitter.bearerToken) {
-      return res.status(501).json({ errors: 'Twitter not enabled on server' })
-    }
-    const errors = validationResult(req)
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() })
-    }
+router.get('/get/twitter', query('tweetId').isInt(), async (req, res) => {
+  if (!opts.claims.twitter.bearerToken) {
+    return res.status(501).json({ errors: 'Twitter not enabled on server' })
+  }
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() })
+  }
 
-    fetcher
-      .twitter.fn(req.query, opts)
-      .then((data) => {
-        return res.status(200).send(data)
-      })
-      .catch((err) => {
-        return res.status(400).json({ errors: err.message ? err.message : err })
-      })
+  fetcher.twitter
+    .fn(req.query, opts)
+    .then((data) => {
+      return res.status(200).send(data)
+    })
+    .catch((err) => {
+      return res.status(400).json({ errors: err.message ? err.message : err })
+    })
 })
 
 // Matrix route
-router.get('/get/matrix',
+router.get(
+  '/get/matrix',
   query('roomId').isString(),
   query('eventId').isString(),
   async (req, res) => {
@@ -149,40 +163,40 @@ router.get('/get/matrix',
       return res.status(400).json({ errors: errors.array() })
     }
 
-    fetcher
-      .matrix.fn(req.query, opts)
+    fetcher.matrix
+      .fn(req.query, opts)
       .then((data) => {
         return res.status(200).send(data)
       })
       .catch((err) => {
         return res.status(400).json({ errors: err.message ? err.message : err })
       })
-})
+  }
+)
 
 // IRC route
-router.get('/get/irc',
-  query('nick').isString(),
-  async (req, res) => {
-    if (!opts.claims.irc.nick) {
-      return res.status(501).json({ errors: 'IRC not enabled on server' })
-    }
-    const errors = validationResult(req)
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() })
-    }
+router.get('/get/irc', query('nick').isString(), async (req, res) => {
+  if (!opts.claims.irc.nick) {
+    return res.status(501).json({ errors: 'IRC not enabled on server' })
+  }
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() })
+  }
 
-    fetcher
-      .irc.fn(req.query, opts)
-      .then((data) => {
-        return res.status(200).send(data)
-      })
-      .catch((err) => {
-        return res.status(400).json({ errors: err.message ? err.message : err })
-      })
+  fetcher.irc
+    .fn(req.query, opts)
+    .then((data) => {
+      return res.status(200).send(data)
+    })
+    .catch((err) => {
+      return res.status(400).json({ errors: err.message ? err.message : err })
+    })
 })
 
 // Gitlab route
-router.get('/get/gitlab',
+router.get(
+  '/get/gitlab',
   query('domain').isFQDN(),
   query('username').isString(),
   async (req, res) => {
@@ -191,14 +205,15 @@ router.get('/get/gitlab',
       return res.status(400).json({ errors: errors.array() })
     }
 
-    fetcher
-      .gitlab.fn(req.query, opts)
+    fetcher.gitlab
+      .fn(req.query, opts)
       .then((data) => {
         return res.status(200).send(data)
       })
       .catch((err) => {
         return res.status(400).json({ errors: err.message ? err.message : err })
       })
-})
+  }
+)
 
 module.exports = router

@@ -45,7 +45,7 @@ class Claim {
           this.dataMatches = data.dataMatches
           this.verification = data.verification
           break
-      
+
         default:
           throw new Error('Invalid claim version')
           break
@@ -101,7 +101,7 @@ class Claim {
   }
 
   /**
-   * Get the candidate claim definitions the URI matched against 
+   * Get the candidate claim definitions the URI matched against
    * @function
    * @returns {object}
    */
@@ -131,7 +131,9 @@ class Claim {
    */
   set uri(uri) {
     if (this.state !== E.ClaimState.INIT) {
-      throw new Error('Cannot change the URI, this claim has already been matched')
+      throw new Error(
+        'Cannot change the URI, this claim has already been matched'
+      )
     }
     // Verify validity of URI
     if (uri && !validUrl.isUri(uri)) {
@@ -150,7 +152,9 @@ class Claim {
    */
   set fingerprint(fingerprint) {
     if (this.state === E.ClaimState.VERIFIED) {
-      throw new Error('Cannot change the fingerprint, this claim has already been verified')
+      throw new Error(
+        'Cannot change the fingerprint, this claim has already been verified'
+      )
     }
     this.fingerprint = fingerprint
   }
@@ -161,7 +165,7 @@ class Claim {
    * @param anything - Anything will throw an error
    */
   set state(anything) {
-    throw new Error('Cannot change a claim\'s state')
+    throw new Error("Cannot change a claim's state")
   }
 
   /**
@@ -170,7 +174,7 @@ class Claim {
    * @param anything - Anything will throw an error
    */
   set dataMatches(anything) {
-    throw new Error('Cannot change a claim\'s dataMatches')
+    throw new Error("Cannot change a claim's dataMatches")
   }
 
   /**
@@ -179,7 +183,7 @@ class Claim {
    * @param anything - Anything will throw an error
    */
   set verification(anything) {
-    throw new Error('Cannot change a claim\'s verification data')
+    throw new Error("Cannot change a claim's verification data")
   }
 
   /**
@@ -210,9 +214,7 @@ class Claim {
         this.dataMatches.push(candidate)
       } else {
         // Set a single candidate and stop
-        this.dataMatches = [
-          candidate
-        ]
+        this.dataMatches = [candidate]
         return false
       }
 
@@ -249,7 +251,7 @@ class Claim {
     // For each match
     for (let index = 0; index < this.dataMatches.length; index++) {
       const claimData = this.dataMatches[index]
-      
+
       let verificationResult,
         proofData = null,
         proofFetchError
@@ -262,7 +264,11 @@ class Claim {
 
       if (proofData) {
         // Run the verification process
-        verificationResult = verifications.run(proofData.result, claimData, this.fingerprint)
+        verificationResult = verifications.run(
+          proofData.result,
+          claimData,
+          this.fingerprint
+        )
         verificationResult.proof = {
           fetcher: proofData.fetcher,
           viaProxy: proofData.viaProxy,
@@ -285,9 +291,7 @@ class Claim {
       if (verificationResult.completed) {
         // Store the result, keep a single match and stop verifying
         this.verification = verificationResult
-        this.dataMatches = [
-          claimData
-        ]
+        this.dataMatches = [claimData]
         index = this.dataMatches.length
       }
     }
@@ -308,12 +312,12 @@ class Claim {
     }
     if (this.dataMatches.length === 0) {
       throw new Error('The claim has no matches')
-    } 
+    }
     return this.dataMatches.length > 1 || this.dataMatches[0].match.isAmbiguous
   }
 
   /**
-   * Get a JSON representation of the Claim object. Useful when transferring 
+   * Get a JSON representation of the Claim object. Useful when transferring
    * data between instances/machines.
    * @function
    * @returns {object}
@@ -330,4 +334,4 @@ class Claim {
   }
 }
 
-module.exports = Claim 
+module.exports = Claim

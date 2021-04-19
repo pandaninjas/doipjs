@@ -22,10 +22,12 @@ const process = (signature) => {
     let sigData,
       result = {
         fingerprint: null,
-        users: [{
-          userData: {},
-          claims: [],
-        }],
+        users: [
+          {
+            userData: {},
+            claims: [],
+          },
+        ],
         primaryUserIndex: null,
         key: {
           data: null,
@@ -88,7 +90,9 @@ const process = (signature) => {
     if (!result.key.data) {
       try {
         const match = preferredKeyServer.match(/^(.*\:\/\/)?([^/]*)(?:\/)?$/i)
-        result.key.uri = `hkp:${match[2]}:${issuerKeyId ? issuerKeyId : signersUserId}`
+        result.key.uri = `hkp:${match[2]}:${
+          issuerKeyId ? issuerKeyId : signersUserId
+        }`
         result.key.data = await keys.fetch.uri(result.key.uri)
         result.key.fetchMethod = 'hkp'
       } catch (e) {
@@ -99,7 +103,7 @@ const process = (signature) => {
 
     result.fingerprint = result.key.data.keyPacket.getFingerprint()
 
-    result.users[0].claims.forEach(claim => {
+    result.users[0].claims.forEach((claim) => {
       claim.fingerprint = result.fingerprint
     })
 
@@ -107,12 +111,12 @@ const process = (signature) => {
     let userData
 
     if (signersUserId) {
-      result.key.data.users.forEach(user => {
+      result.key.data.users.forEach((user) => {
         if (user.userId.email == signersUserId) {
           userData = user
         }
       })
-    } 
+    }
     if (!userData) {
       userData = primaryUserData.user
     }

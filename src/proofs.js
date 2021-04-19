@@ -23,7 +23,7 @@ const fetch = (data, opts) => {
     case E.Fetcher.HTTP:
       data.proof.request.data.format = data.proof.request.format
       break
-  
+
     default:
       break
   }
@@ -40,7 +40,7 @@ const handleBrowserRequests = (data, opts) => {
     case E.ProxyPolicy.ALWAYS:
       return createProxyRequestPromise(data, opts)
       break
-  
+
     case E.ProxyPolicy.NEVER:
       switch (data.proof.request.access) {
         case E.ProofAccess.GENERIC:
@@ -49,14 +49,16 @@ const handleBrowserRequests = (data, opts) => {
           break
         case E.ProofAccess.NOCORS:
         case E.ProofAccess.SERVER:
-          throw new Error('Impossible to fetch proof (bad combination of service access and proxy policy)')
+          throw new Error(
+            'Impossible to fetch proof (bad combination of service access and proxy policy)'
+          )
           break
         default:
           throw new Error('Invalid proof access value')
           break
       }
       break
-  
+
     case E.ProxyPolicy.ADAPTIVE:
       switch (data.proof.request.access) {
         case E.ProofAccess.GENERIC:
@@ -69,14 +71,16 @@ const handleBrowserRequests = (data, opts) => {
           return createFallbackRequestPromise(data, opts)
           break
         case E.ProofAccess.SERVER:
-          throw new Error('Impossible to fetch proof (bad combination of service access and proxy policy)')
+          throw new Error(
+            'Impossible to fetch proof (bad combination of service access and proxy policy)'
+          )
           break
         default:
           throw new Error('Invalid proof access value')
           break
       }
       break
-  
+
     default:
       throw new Error('Invalid proxy policy')
       break
@@ -88,15 +92,15 @@ const handleNodeRequests = (data, opts) => {
     case E.ProxyPolicy.ALWAYS:
       return createProxyRequestPromise(data, opts)
       break
-  
+
     case E.ProxyPolicy.NEVER:
       return createDefaultRequestPromise(data, opts)
       break
-  
+
     case E.ProxyPolicy.ADAPTIVE:
       return createFallbackRequestPromise(data, opts)
       break
-  
+
     default:
       throw new Error('Invalid proxy policy')
       break
@@ -105,16 +109,17 @@ const handleNodeRequests = (data, opts) => {
 
 const createDefaultRequestPromise = (data, opts) => {
   return new Promise((resolve, reject) => {
-    fetcher[data.proof.request.fetcher].fn(data.proof.request.data, opts)
-      .then(res => {
+    fetcher[data.proof.request.fetcher]
+      .fn(data.proof.request.data, opts)
+      .then((res) => {
         return resolve({
           fetcher: data.proof.request.fetcher,
           data: data,
           viaProxy: false,
-          result: res
+          result: res,
         })
       })
-      .catch(err => {
+      .catch((err) => {
         return reject(err)
       })
   })
@@ -124,7 +129,11 @@ const createProxyRequestPromise = (data, opts) => {
   return new Promise((resolve, reject) => {
     let proxyUrl
     try {
-      proxyUrl = utils.generateProxyURL(data.proof.request.fetcher, data.proof.request.data, opts);
+      proxyUrl = utils.generateProxyURL(
+        data.proof.request.fetcher,
+        data.proof.request.data,
+        opts
+      )
     } catch (err) {
       reject(err)
     }
@@ -132,18 +141,19 @@ const createProxyRequestPromise = (data, opts) => {
     const requestData = {
       url: proxyUrl,
       format: data.proof.request.format,
-      fetcherTimeout: fetcher[data.proof.request.fetcher].timeout
+      fetcherTimeout: fetcher[data.proof.request.fetcher].timeout,
     }
-    fetcher.http.fn(requestData, opts)
-      .then(res => {
+    fetcher.http
+      .fn(requestData, opts)
+      .then((res) => {
         return resolve({
           fetcher: 'http',
           data: data,
           viaProxy: true,
-          result: res
+          result: res,
         })
       })
-      .catch(err => {
+      .catch((err) => {
         return reject(err)
       })
   })
@@ -152,15 +162,15 @@ const createProxyRequestPromise = (data, opts) => {
 const createFallbackRequestPromise = (data, opts) => {
   return new Promise((resolve, reject) => {
     createDefaultRequestPromise(data, opts)
-      .then(res => {
+      .then((res) => {
         return resolve(res)
       })
-      .catch(err1 => {
+      .catch((err1) => {
         createProxyRequestPromise(data, opts)
-          .then(res => {
+          .then((res) => {
             return resolve(res)
           })
-          .catch(err2 => {
+          .catch((err2) => {
             return reject([err1, err2])
           })
       })

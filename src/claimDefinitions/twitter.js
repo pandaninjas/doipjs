@@ -42,8 +42,8 @@ const processURI = (uri) => {
         format: E.ProofFormat.TEXT,
         data: {
           tweetId: match[2],
-        }
-      }
+        },
+      },
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,

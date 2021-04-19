@@ -43,8 +43,8 @@ const processURI = (uri) => {
         data: {
           domain: match[1],
           nick: match[2],
-        }
-      }
+        },
+      },
     },
     claim: {
       format: E.ClaimFormat.URI,

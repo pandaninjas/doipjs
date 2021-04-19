@@ -43,8 +43,8 @@ const processURI = (uri) => {
         data: {
           url: `https://api.github.com/gists/${match[2]}`,
           format: E.ProofFormat.JSON,
-        }
-      }
+        },
+      },
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,

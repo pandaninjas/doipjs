@@ -206,8 +206,8 @@ const process = (publicKey) => {
       key: {
         data: publicKey,
         fetchMethod: null,
-        uri: null
-      }
+        uri: null,
+      },
     })
   })
 }

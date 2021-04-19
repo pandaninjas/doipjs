@@ -43,8 +43,8 @@ const processURI = (uri) => {
         data: {
           url: `https://liberapay.com/${match[1]}/public.json`,
           format: E.ProofFormat.JSON,
-        }
-      }
+        },
+      },
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,

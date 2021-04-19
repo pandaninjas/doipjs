@@ -43,8 +43,8 @@ const processURI = (uri) => {
         data: {
           url: `${uri}/api/config`,
           format: E.ProofFormat.JSON,
-        }
-      }
+        },
+      },
     },
     claim: {
       format: E.ClaimFormat.FINGERPRINT,

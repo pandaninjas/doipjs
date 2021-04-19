@@ -21,7 +21,7 @@ const validUrl = require('valid-url')
 const jsdom = require('jsdom')
 const { client, xml } = require('@xmpp/client')
 const debug = require('@xmpp/debug')
-const irc = require("irc-upd")
+const irc = require('irc-upd')
 require('dotenv').config()
 
 const xmpp_service = process.env.XMPP_SERVICE || null
@@ -129,28 +129,28 @@ router.get('/get/json/:url', (req, res) => {
   bentReq(req.params.url, 'json', {
     Accept: 'application/json',
   })
-  .then(async (result) => {
-    return await result.json()
-  })
-  .then(async (result) => {
-    return res.status(200).json({ url: req.params.url, content: result })
-  })
-  .catch((e) => {
-    return res.status(400).send({ error: e })
-  })
+    .then(async (result) => {
+      return await result.json()
+    })
+    .then(async (result) => {
+      return res.status(200).json({ url: req.params.url, content: result })
+    })
+    .catch((e) => {
+      return res.status(400).send({ error: e })
+    })
 })
 
 router.get('/get/text/:url', (req, res) => {
   bentReq(req.params.url)
-  .then(async (result) => {
-    return await result.text()
-  })
-  .then(async (result) => {
-    return res.status(200).json({ url: req.params.url, content: result })
-  })
-  .catch((e) => {
-    return res.status(400).send({ error: e })
-  })
+    .then(async (result) => {
+      return await result.text()
+    })
+    .then(async (result) => {
+      return res.status(200).json({ url: req.params.url, content: result })
+    })
+    .catch((e) => {
+      return res.status(400).send({ error: e })
+    })
 })
 
 router.get('/get/dns/:hostname', async (req, res) => {
@@ -216,14 +216,17 @@ router.get('/get/xmpp/:xmppid/:xmppdata', async (req, res) => {
           throw new Error('No DESC or NOTE field found in vCard')
         }
         break
-    
+
       default:
-        vcard = dom.window.document.querySelector(req.params.xmppdata).textContent
+        vcard = dom.window.document.querySelector(req.params.xmppdata)
+          .textContent
         break
     }
     return res.status(200).json(vcard)
   } catch (error) {
-    return res.status(400).json({ message: 'Request could not be fulfilled', error: error })
+    return res
+      .status(400)
+      .json({ message: 'Request could not be fulfilled', error: error })
   }
 })
 
@@ -232,19 +235,29 @@ router.get('/get/twitter/:tweetid', async (req, res) => {
     return res.status(500).json('Twitter not enabled on server')
   }
 
-  bentReq(`https://api.twitter.com/1.1/statuses/show.json?id=${req.params.tweetid}`, null, {
-    Accept: 'application/json',
-    Authorization: `Bearer ${twitter_bearer_token}`
-  })
-  .then(async (data) => {
-    return await data.json()
-  })
-  .then((data) => {
-    return res.status(200).json({ data: data, message: 'Success', error: {} })
-  })
-  .catch((error) => {
-    return res.status(error.statusCode || 400).json({ data: [], message: 'Request could not be fulfilled', error: error })
-  })
+  bentReq(
+    `https://api.twitter.com/1.1/statuses/show.json?id=${req.params.tweetid}`,
+    null,
+    {
+      Accept: 'application/json',
+      Authorization: `Bearer ${twitter_bearer_token}`,
+    }
+  )
+    .then(async (data) => {
+      return await data.json()
+    })
+    .then((data) => {
+      return res.status(200).json({ data: data, message: 'Success', error: {} })
+    })
+    .catch((error) => {
+      return res
+        .status(error.statusCode || 400)
+        .json({
+          data: [],
+          message: 'Request could not be fulfilled',
+          error: error,
+        })
+    })
 })
 
 router.get('/get/matrix/:matrixroomid/:matrixeventid', async (req, res) => {
@@ -255,24 +268,30 @@ router.get('/get/matrix/:matrixroomid/:matrixeventid', async (req, res) => {
   const url = `https://${matrix_instance}/_matrix/client/r0/rooms/${req.params.matrixroomid}/event/${req.params.matrixeventid}?access_token=${matrix_access_token}`
 
   bentReq(url, null, {
-    Accept: 'application/json'
+    Accept: 'application/json',
   })
-  .then(async (data) => {
-    return await data.json()
-  })
-  .then((data) => {
-    return res.status(200).json({ data: data, message: 'Success', error: {} })
-  })
-  .catch((error) => {
-    return res.status(error.statusCode || 400).json({ data: [], message: 'Request could not be fulfilled', error: error })
-  })
+    .then(async (data) => {
+      return await data.json()
+    })
+    .then((data) => {
+      return res.status(200).json({ data: data, message: 'Success', error: {} })
+    })
+    .catch((error) => {
+      return res
+        .status(error.statusCode || 400)
+        .json({
+          data: [],
+          message: 'Request could not be fulfilled',
+          error: error,
+        })
+    })
 })
 
 router.get('/get/irc/:ircserver/:ircnick', async (req, res) => {
   if (!irc_enabled) {
     return res.status(500).json('IRC not enabled on server')
   }
-  
+
   try {
     const client = new irc.Client(req.params.ircserver, irc_nick, {
       port: 6697,
@@ -289,15 +308,23 @@ router.get('/get/irc/:ircserver/:ircnick', async (req, res) => {
     client.addListener('notice', (nick, to, text, message) => {
       if (reKey.test(text)) {
         const match = text.match(reKey)
-        keys.push(match[1]);
+        keys.push(match[1])
       }
       if (reEnd.test(text)) {
         client.disconnect()
-        return res.status(200).json({ data: keys, message: 'Success', error: {} })
+        return res
+          .status(200)
+          .json({ data: keys, message: 'Success', error: {} })
       }
     })
   } catch (error) {
-    return res.status(400).json({ data: [], message: 'Request could not be fulfilled', error: error })
+    return res
+      .status(400)
+      .json({
+        data: [],
+        message: 'Request could not be fulfilled',
+        error: error,
+      })
   }
 })
 

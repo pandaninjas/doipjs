@@ -16,12 +16,7 @@ limitations under the License.
 const utils = require('./utils')
 const E = require('./enums')
 
-const runJSON = (
-  proofData,
-  checkPath,
-  checkClaim,
-  checkRelation
-) => {
+const runJSON = (proofData, checkPath, checkClaim, checkRelation) => {
   let re
 
   if (!proofData) {
@@ -31,7 +26,9 @@ const runJSON = (
   if (Array.isArray(proofData)) {
     let result = false
     proofData.forEach((item, i) => {
-      if (result) { return }
+      if (result) {
+        return
+      }
       result = runJSON(item, checkPath, checkClaim, checkRelation)
     })
     return result
@@ -46,8 +43,10 @@ const runJSON = (
         break
 
       case E.ClaimRelation.EQUALS:
-        return proofData.replace(/\r?\n|\r|\\/g, '').toLowerCase() ==
+        return (
+          proofData.replace(/\r?\n|\r|\\/g, '').toLowerCase() ==
           checkClaim.toLowerCase()
+        )
         break
 
       case E.ClaimRelation.ONEOF:
@@ -77,7 +76,7 @@ const run = (proofData, claimData, fingerprint) => {
     completed: false,
     errors: [],
   }
-  
+
   switch (claimData.proof.request.format) {
     case E.ProofFormat.JSON:
       try {

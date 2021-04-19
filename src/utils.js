@@ -25,13 +25,13 @@ const generateProxyURL = (type, data, opts) => {
 
   let queryStrings = []
 
-  Object.keys(data).forEach(key => {
+  Object.keys(data).forEach((key) => {
     queryStrings.push(`${key}=${encodeURIComponent(data[key])}`)
   })
 
-  return `http://${
-    opts.proxy.hostname
-  }/api/2/get/${type}?${queryStrings.join('&')}`
+  return `http://${opts.proxy.hostname}/api/2/get/${type}?${queryStrings.join(
+    '&'
+  )}`
 }
 
 const generateClaim = (fingerprint, format) => {

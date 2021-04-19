@@ -13,14 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const ProxyPolicy =  {
+const ProxyPolicy = {
   ADAPTIVE: 'adaptive',
   ALWAYS: 'always',
   NEVER: 'never',
 }
 Object.freeze(ProxyPolicy)
 
-const Fetcher =  {
+const Fetcher = {
   HTTP: 'http',
   DNS: 'dns',
   IRC: 'irc',
@@ -31,7 +31,7 @@ const Fetcher =  {
 }
 Object.freeze(Fetcher)
 
-const ProofAccess =  {
+const ProofAccess = {
   GENERIC: 0,
   NOCORS: 1,
   GRANTED: 2,
@@ -39,31 +39,31 @@ const ProofAccess =  {
 }
 Object.freeze(ProofAccess)
 
-const ProofFormat =  {
+const ProofFormat = {
   JSON: 'json',
   TEXT: 'text',
 }
 Object.freeze(ProofFormat)
 
-const ClaimFormat =  {
+const ClaimFormat = {
   URI: 0,
   FINGERPRINT: 1,
   MESSAGE: 2,
 }
 Object.freeze(ClaimFormat)
 
-const ClaimRelation =  {
+const ClaimRelation = {
   CONTAINS: 0,
   EQUALS: 1,
   ONEOF: 2,
 }
 Object.freeze(ClaimRelation)
 
-const VerificationStatus =  {
+const VerificationStatus = {
   INIT: 0,
   INPROGRESS: 1,
   FAILED: 2,
-  COMPLETED: 3
+  COMPLETED: 3,
 }
 Object.freeze(VerificationStatus)
 

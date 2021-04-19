@@ -43,8 +43,8 @@ const processURI = (uri) => {
         data: {
           url: `https://${match[1]}/api/v1/repos/${match[2]}/gitea_proof`,
           format: E.ProofFormat.JSON,
-        }
-      }
+        },
+      },
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,

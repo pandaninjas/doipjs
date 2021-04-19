@@ -57,8 +57,8 @@ const processURI = (uri) => {
         data: {
           eventId: params['org.keyoxide.e'],
           roomId: params['org.keyoxide.r'],
-        }
-      }
+        },
+      },
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,

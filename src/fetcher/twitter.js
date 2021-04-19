@@ -32,7 +32,9 @@ module.exports.fn = async (data, opts) => {
     try {
       validator.isAscii(opts.claims.twitter.bearerToken)
     } catch (err) {
-      throw new Error(`Twitter fetcher was not set up properly (${err.message})`)
+      throw new Error(
+        `Twitter fetcher was not set up properly (${err.message})`
+      )
     }
 
     bentReq(

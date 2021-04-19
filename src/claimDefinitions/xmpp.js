@@ -42,9 +42,9 @@ const processURI = (uri) => {
         format: E.ProofFormat.TEXT,
         data: {
           id: `${match[1]}@${match[2]}`,
-          field: 'note'
-        }
-      }
+          field: 'note',
+        },
+      },
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,
