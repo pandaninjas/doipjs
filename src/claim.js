@@ -121,7 +121,7 @@ class Claim {
     if (this._state !== E.ClaimState.VERIFIED) {
       throw new Error('This claim has not yet been verified')
     }
-    return this.verification
+    return this._verification
     _
   }
 
@@ -332,7 +332,7 @@ class Claim {
       fingerprint: this._fingerprint,
       state: this._state,
       dataMatches: this._dataMatches,
-      verification: _this.verification,
+      verification: this._verification,
     }
   }
 }
