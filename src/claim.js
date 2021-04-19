@@ -28,12 +28,6 @@ const E = require('./enums')
  * @class
  */
 class Claim {
-  #uri
-  #fingerprint
-  #state
-  #dataMatches
-  #verification
-
   /**
    * Initialize a Claim object
    * @constructor
@@ -41,6 +35,24 @@ class Claim {
    * @param {string} [fingerprint] - The fingerprint of the OpenPGP key
    */
   constructor(uri, fingerprint) {
+    // Import JSON
+    if ('claimVersion' in uri) {
+      switch (data.claimVersion) {
+        case 1:
+          this.uri = data.uri
+          this.fingerprint = data.fingerprint
+          this.state = data.state
+          this.dataMatches = data.dataMatches
+          this.verification = data.verification
+          break
+      
+        default:
+          throw new Error('Invalid claim version')
+          break
+      }
+      return
+    }
+
     // Verify validity of URI
     if (uri && !validUrl.isUri(uri)) {
       throw new Error('Invalid URI')
@@ -54,57 +66,11 @@ class Claim {
       }
     }
 
-    this.#uri = uri ? uri : null
-    this.#fingerprint = fingerprint ? fingerprint : null
-    this.#state = Claim.State.INIT
-    this.#dataMatches = null
-    this.#verification = null
-  }
-
-  /**
-   * Enum for the current verification state of the claim
-   * @readonly
-   * @enum {string}
-   */
-  static State = {
-    INIT: 'init',
-    MATCHED: 'matched',
-    VERIFIED: 'verified',
-  }
-
-  /**
-   * Generate a claim object from a JSON object
-   * @static
-   * @function
-   * @param {object} data - JSON data
-   * @returns {Claim}
-   */
-  static fromJSON(data) {
-    switch (data.claimVersion) {
-      case 1:
-        const claim = new Claim()
-        claim.#uri = data.uri
-        claim.#fingerprint = data.fingerprint
-        claim.#state = data.state
-        claim.#dataMatches = data.dataMatches
-        claim.#verification = data.verification
-        return claim
-        break
-    
-      default:
-        throw new Error('Invalid claim version')
-        break
-    }
-  }
-
-  /**
-   * Get the default options used for verification
-   * @static
-   * @function
-   * @returns {object}
-   */
-  static get defaultOpts() {
-    return defaults.opts
+    this.uri = uri ? uri : null
+    this.fingerprint = fingerprint ? fingerprint : null
+    this.state = E.ClaimState.INIT
+    this.dataMatches = null
+    this.verification = null
   }
 
   /**
@@ -113,7 +79,7 @@ class Claim {
    * @returns {string}
    */
   get uri() {
-    return this.#uri
+    return this.uri
   }
 
   /**
@@ -122,7 +88,7 @@ class Claim {
    * @returns {string}
    */
   get fingerprint() {
-    return this.#fingerprint
+    return this.fingerprint
   }
 
   /**
@@ -131,7 +97,7 @@ class Claim {
    * @returns {string}
    */
   get state() {
-    return this.#state
+    return this.state
   }
 
   /**
@@ -140,10 +106,10 @@ class Claim {
    * @returns {object}
    */
   get matches() {
-    if (this.#state === Claim.State.INIT) {
+    if (this.state === E.ClaimState.INIT) {
       throw new Error('This claim has not yet been matched')
     }
-    return this.#dataMatches
+    return this.dataMatches
   }
 
   /**
@@ -152,10 +118,10 @@ class Claim {
    * @returns {object}
    */
   get result() {
-    if (this.#state !== Claim.State.VERIFIED) {
+    if (this.state !== E.ClaimState.VERIFIED) {
       throw new Error('This claim has not yet been verified')
     }
-    return this.#verification
+    return this.verification
   }
 
   /**
@@ -164,7 +130,7 @@ class Claim {
    * @param {string} uri - The new claim URI
    */
   set uri(uri) {
-    if (this.#state !== Claim.State.INIT) {
+    if (this.state !== E.ClaimState.INIT) {
       throw new Error('Cannot change the URI, this claim has already been matched')
     }
     // Verify validity of URI
@@ -174,19 +140,46 @@ class Claim {
     // Remove leading and trailing spaces
     uri = uri.replace(/^\s+|\s+$/g, '')
 
-    this.#uri = uri
+    this.uri = uri
   }
 
   /**
    * Set the claim's fingerprint to verify against
    * @function
-   * @param {string} fingerprint - The new fingerprin
+   * @param {string} fingerprint - The new fingerprint
    */
   set fingerprint(fingerprint) {
-    if (this.#state === Claim.State.VERIFIED) {
+    if (this.state === E.ClaimState.VERIFIED) {
       throw new Error('Cannot change the fingerprint, this claim has already been verified')
     }
-    this.#fingerprint = fingerprint
+    this.fingerprint = fingerprint
+  }
+
+  /**
+   * Throw error when attempting to alter the state
+   * @function
+   * @param anything - Anything will throw an error
+   */
+  set state(anything) {
+    throw new Error('Cannot change a claim\'s state')
+  }
+
+  /**
+   * Throw error when attempting to alter the dataMatches
+   * @function
+   * @param anything - Anything will throw an error
+   */
+  set dataMatches(anything) {
+    throw new Error('Cannot change a claim\'s dataMatches')
+  }
+
+  /**
+   * Throw error when attempting to alter the verification data
+   * @function
+   * @param anything - Anything will throw an error
+   */
+  set verification(anything) {
+    throw new Error('Cannot change a claim\'s verification data')
   }
 
   /**
@@ -194,30 +187,30 @@ class Claim {
    * @function
    */
   match() {
-    if (this.#state !== Claim.State.INIT) {
+    if (this.state !== E.ClaimState.INIT) {
       throw new Error('This claim was already matched')
     }
-    if (this.#uri === null) {
+    if (this.uri === null) {
       throw new Error('This claim has no URI')
     }
 
-    this.#dataMatches = []
+    this.dataMatches = []
 
     claimDefinitions.list.every((name, i) => {
       const def = claimDefinitions.data[name]
 
       // If the candidate is invalid, continue matching
-      if (!def.reURI.test(this.#uri)) {
+      if (!def.reURI.test(this.uri)) {
         return true
       }
 
-      const candidate = def.processURI(this.#uri)
+      const candidate = def.processURI(this.uri)
       if (candidate.match.isAmbiguous) {
         // Add to the possible candidates
-        this.#dataMatches.push(candidate)
+        this.dataMatches.push(candidate)
       } else {
         // Set a single candidate and stop
-        this.#dataMatches = [
+        this.dataMatches = [
           candidate
         ]
         return false
@@ -227,7 +220,7 @@ class Claim {
       return true
     })
 
-    this.#state = Claim.State.MATCHED
+    this.state = E.ClaimState.MATCHED
   }
 
   /**
@@ -240,13 +233,13 @@ class Claim {
    * @param {object} [opts] - Options for proxy, fetchers
    */
   async verify(opts) {
-    if (this.#state === Claim.State.INIT) {
+    if (this.state === E.ClaimState.INIT) {
       throw new Error('This claim has not yet been matched')
     }
-    if (this.#state === Claim.State.VERIFIED) {
+    if (this.state === E.ClaimState.VERIFIED) {
       throw new Error('This claim has already been verified')
     }
-    if (this.#fingerprint === null) {
+    if (this.fingerprint === null) {
       throw new Error('This claim has no fingerprint')
     }
 
@@ -254,8 +247,8 @@ class Claim {
     opts = mergeOptions(defaults.opts, opts ? opts : {})
 
     // For each match
-    for (let index = 0; index < this.#dataMatches.length; index++) {
-      const claimData = this.#dataMatches[index]
+    for (let index = 0; index < this.dataMatches.length; index++) {
+      const claimData = this.dataMatches[index]
       
       let verificationResult,
         proofData = null,
@@ -269,7 +262,7 @@ class Claim {
 
       if (proofData) {
         // Run the verification process
-        verificationResult = verifications.run(proofData.result, claimData, this.#fingerprint)
+        verificationResult = verifications.run(proofData.result, claimData, this.fingerprint)
         verificationResult.proof = {
           fetcher: proofData.fetcher,
           viaProxy: proofData.viaProxy,
@@ -291,15 +284,15 @@ class Claim {
 
       if (verificationResult.completed) {
         // Store the result, keep a single match and stop verifying
-        this.#verification = verificationResult
-        this.#dataMatches = [
+        this.verification = verificationResult
+        this.dataMatches = [
           claimData
         ]
-        index = this.#dataMatches.length
+        index = this.dataMatches.length
       }
     }
 
-    this.#state = Claim.State.VERIFIED
+    this.state = E.ClaimState.VERIFIED
   }
 
   /**
@@ -310,13 +303,13 @@ class Claim {
    * @returns {boolean}
    */
   isAmbiguous() {
-    if (this.#state === Claim.State.INIT) {
+    if (this.state === E.ClaimState.INIT) {
       throw new Error('The claim has not been matched yet')
     }
-    if (this.#dataMatches.length === 0) {
+    if (this.dataMatches.length === 0) {
       throw new Error('The claim has no matches')
     } 
-    return this.#dataMatches.length > 1 || this.#dataMatches[0].match.isAmbiguous
+    return this.dataMatches.length > 1 || this.dataMatches[0].match.isAmbiguous
   }
 
   /**
@@ -328,11 +321,11 @@ class Claim {
   toJSON() {
     return {
       claimVersion: 1,
-      uri: this.#uri,
-      fingerprint: this.#fingerprint,
-      state: this.#state,
-      dataMatches: this.#dataMatches,
-      verification: this.#verification,
+      uri: this.uri,
+      fingerprint: this.fingerprint,
+      state: this.state,
+      dataMatches: this.dataMatches,
+      verification: this.verification,
     }
   }
 }
