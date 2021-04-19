@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 const Claim = require('./claim')
+const claimDefinitions = require('./claimDefinitions')
 const proofs = require('./proofs')
 const verifications = require('./verifications')
 const keys = require('./keys')
@@ -23,6 +24,7 @@ const defaults = require('./defaults')
 const utils = require('./utils')
 
 exports.Claim = Claim
+exports.claimDefinitions = claimDefinitions
 exports.proofs = proofs
 exports.verifications = verifications
 exports.keys = keys
