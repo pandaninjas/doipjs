@@ -41,18 +41,16 @@ cXbjvHSGniZ7M3S9S8knAfIquPvTp7+L7wWgSSB5VObPp1r+96n87hyFZUp7PCvl
 =ADl+
 -----END PGP SIGNATURE-----`
 
-describe('signatures.verify', () => {
+describe('signatures.process', () => {
   it('should be a function (2 arguments)', () => {
-    expect(doipjs.signatures.verify).to.be.a('function')
-    expect(doipjs.signatures.verify).to.have.length(2)
+    expect(doipjs.signatures.process).to.be.a('function')
+    expect(doipjs.signatures.process).to.have.length(1)
   })
   it('should verify the demonstration signature', async () => {
-    const verification = await doipjs.signatures.verify(sigProfile)
-    expect(verification.errors).to.be.length(0)
-    expect(verification.publicKey.fingerprint).to.be.equal(
+    const verification = await doipjs.signatures.process(sigProfile)
+    expect(verification.fingerprint).to.be.equal(
       '3637202523e7c1309ab79e99ef2dc5827b445f4b'
     )
-    expect(verification.claims).to.be.length(1)
-    expect(verification.claims[0].isVerified).to.be.true
+    expect(verification.users[0].claims).to.be.length(1)
   })
 })

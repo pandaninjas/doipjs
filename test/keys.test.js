@@ -117,32 +117,11 @@ describe('keys.process', () => {
   it('should return an object with specific keys', async () => {
     const pubKey = await doipjs.keys.fetch.plaintext(pubKeyPlaintext)
     const obj = await doipjs.keys.process(pubKey)
-    expect(obj).to.have.keys(['users', 'fingerprint', 'primaryUserIndex'])
-  })
-})
-
-describe('keys.getFingerprint', () => {
-  it('should be a function (1 argument)', () => {
-    expect(doipjs.keys.getFingerprint).to.be.a('function')
-    expect(doipjs.keys.getFingerprint).to.have.length(1)
-  })
-  it('should return a string', async () => {
-    const pubKey = await doipjs.keys.fetch.plaintext(pubKeyPlaintext)
-    const fp = await doipjs.keys.getFingerprint(pubKey)
-    expect(fp).to.be.equal(pubKeyFingerprint)
-  })
-})
-
-describe('keys.getUserData', () => {
-  it('should be a function (1 argument)', () => {
-    expect(doipjs.keys.getUserData).to.be.a('function')
-    expect(doipjs.keys.getUserData).to.have.length(1)
-  })
-  it('should return an array of userData objects', async () => {
-    const pubKey = await doipjs.keys.fetch.plaintext(pubKeyPlaintext)
-    const userData = await doipjs.keys.getUserData(pubKey)
-    expect(userData).to.be.lengthOf(1)
-    expect(userData[0].userData.email).to.be.equal(pubKeyEmail)
-    expect(userData[0].notations[0]).to.be.equal('dns:doip.rocks')
+    expect(obj).to.have.keys([
+      'users',
+      'fingerprint',
+      'primaryUserIndex',
+      'key',
+    ])
   })
 })

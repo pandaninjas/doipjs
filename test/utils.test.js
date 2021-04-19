@@ -24,18 +24,41 @@ describe('utils.generateClaim', () => {
     expect(doipjs.utils.generateClaim).to.have.length(2)
   })
   it('should generate a correct "uri" claim', () => {
-    expect(doipjs.utils.generateClaim('123456789', 'uri')).to.equal(
-      'openpgp4fpr:123456789'
-    )
+    expect(
+      doipjs.utils.generateClaim('123456789', doipjs.enums.ClaimFormat.URI)
+    ).to.equal('openpgp4fpr:123456789')
   })
   it('should generate a correct "message" claim', () => {
-    expect(doipjs.utils.generateClaim('123456789', 'message')).to.equal(
-      '[Verifying my OpenPGP key: openpgp4fpr:123456789]'
-    )
+    expect(
+      doipjs.utils.generateClaim('123456789', doipjs.enums.ClaimFormat.MESSAGE)
+    ).to.equal('[Verifying my OpenPGP key: openpgp4fpr:123456789]')
   })
   it('should generate a correct "fingerprint" claim', () => {
-    expect(doipjs.utils.generateClaim('123456789', 'fingerprint')).to.equal(
-      '123456789'
-    )
+    expect(
+      doipjs.utils.generateClaim(
+        '123456789',
+        doipjs.enums.ClaimFormat.FINGERPRINT
+      )
+    ).to.equal('123456789')
+  })
+})
+
+describe('utils.generateProxyURL', () => {
+  it('should be a function (3 arguments)', () => {
+    expect(doipjs.utils.generateProxyURL).to.be.a('function')
+    expect(doipjs.utils.generateProxyURL).to.have.length(3)
+  })
+  it('should generate correct proxy URLs', () => {
+    const opts = {
+      proxy: {
+        hostname: 'localhost',
+      },
+    }
+    expect(
+      doipjs.utils.generateProxyURL('http', { domain: 'domain.org' }, opts)
+    ).to.equal('http://localhost/api/2/get/http?domain=domain.org')
+    expect(
+      doipjs.utils.generateProxyURL('dns', { domain: 'domain.org' }, opts)
+    ).to.equal('http://localhost/api/2/get/dns?domain=domain.org')
   })
 })
