@@ -17,7 +17,6 @@ const openpgp = require('openpgp')
 const validator = require('validator')
 const validUrl = require('valid-url')
 const mergeOptions = require('merge-options')
-const keys = require('./keys')
 const proofs = require('./proofs')
 const verifications = require('./verifications')
 const claimDefinitions = require('./claimDefinitions')
@@ -71,32 +70,6 @@ class Claim {
     INIT: 'init',
     MATCHED: 'matched',
     VERIFIED: 'verified',
-  }
-
-  /**
-   * Generate an array of claim objects from an OpenPGP key's notations 
-   * @static
-   * @async
-   * @function
-   * @param {Key} key - Public key
-   * @returns {Claim}
-   */
-  static async fromKey(key) {
-    if (!(key instanceof openpgp.key.Key)) {
-      throw new Error('Input is not an OpenPGP key')
-    }
-    const fingerprintFromKey = await keys.getFingerprint(key)
-    const userData = await keys.getUserData(key)
-
-    let claims = []
-    userData.forEach((user, i) => {
-      let userClaims = []
-      user.notations.forEach((notation, j) => {
-        userClaims.push(new Claim(notation, fingerprintFromKey))
-      })
-      claims.push(userClaims)
-    })
-    return claims
   }
 
   /**
