@@ -7,17 +7,20 @@
     "@xmpp/client": "^0.12.0",
     "@xmpp/debug": "^0.12.0",
     "bent": "^7.3.12",
+    "browser-or-node": "^1.3.0",
     "browserify": "^17.0.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "express-validator": "^6.10.0",
     "irc-upd": "^0.11.0",
     "jsdom": "^16.5.1",
     "merge-options": "^3.0.3",
     "openpgp": "^4.10.9",
     "prettier": "^2.1.2",
     "query-string": "^6.14.1",
-    "valid-url": "^1.0.9"
+    "valid-url": "^1.0.9",
+    "validator": "^13.5.2"
   },
   "devDependencies": {
     "browserify-shim": "^3.8.14",
