@@ -33,7 +33,7 @@
     "nodemon": "^2.0.7"
   },
   "scripts": {
-    "release:bundle": "./node_modules/browserify/bin/cmd.js ./src/index.js --standalone doip -x openpgp -o ./dist/doip.js",
+    "release:bundle": "./node_modules/browserify/bin/cmd.js ./src/index.js --full-paths --standalone doip -x openpgp -x jsdom -x @xmpp/client -x @xmpp/debug -x irc-upd -o ./dist/doip.js",
     "release:minify": "./node_modules/minify/bin/minify.js ./dist/doip.js > ./dist/doip.min.js",
     "prettier:check": "./node_modules/prettier/bin-prettier.js --check .",
     "prettier:write": "./node_modules/prettier/bin-prettier.js --write .",
