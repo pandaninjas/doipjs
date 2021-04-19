@@ -14,20 +14,30 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 const openpgp = require('openpgp')
-const mergeOptions = require('merge-options')
-const claims = require('./claims')
+const Claim = require('./claim')
 const keys = require('./keys')
 
-const verify = (signature, opts) => {
+const process = (signature) => {
   return new Promise(async (resolve, reject) => {
-    let errors = [],
-      sigData
+    let sigData,
+      result = {
+        fingerprint: null,
+        users: [{
+          userData: {},
+          claims: [],
+        }],
+        primaryUserIndex: null,
+        key: {
+          data: null,
+          fetchMethod: null,
+          uri: null,
+        },
+      }
 
     try {
       sigData = await openpgp.cleartext.readArmored(signature)
     } catch (error) {
-      errors.push('invalid_signature')
-      reject({ errors: errors })
+      reject('invalid_signature')
       return
     }
 
@@ -38,7 +48,6 @@ const verify = (signature, opts) => {
       'https://keys.openpgp.org/'
     const text = sigData.getText()
     let sigKeys = []
-    let sigClaims = []
 
     text.split('\n').forEach((line, i) => {
       const match = line.match(/^([a-zA-Z0-9]*)\=(.*)$/i)
@@ -51,7 +60,7 @@ const verify = (signature, opts) => {
           break
 
         case 'proof':
-          sigClaims.push(match[2])
+          result.users[0].claims.push(new Claim(match[2]))
           break
 
         default:
@@ -59,65 +68,67 @@ const verify = (signature, opts) => {
       }
     })
 
-    let keyData, keyUri
-
     // Try overruling key
     if (sigKeys.length > 0) {
       try {
-        keyUri = sigKeys[0]
-        keyData = await keys.fetch.uri(keyUri)
+        result.key.uri = sigKeys[0]
+        result.key.data = await keys.fetch.uri(result.key.uri)
+        result.key.fetchMethod = result.key.uri.split(':')[0]
       } catch (e) {}
     }
     // Try WKD
-    if (!keyData && signersUserId) {
+    if (!result.key.data && signersUserId) {
       try {
-        keyUri = `wkd:${signersUserId}`
-        keyData = await keys.fetch.uri(keyUri)
+        result.key.uri = `wkd:${signersUserId}`
+        result.key.data = await keys.fetch.uri(result.key.uri)
+        result.key.fetchMethod = 'wkd'
       } catch (e) {}
     }
     // Try HKP
-    if (!keyData) {
+    if (!result.key.data) {
       try {
         const match = preferredKeyServer.match(/^(.*\:\/\/)?([^/]*)(?:\/)?$/i)
-        keyUri = `hkp:${match[2]}:${issuerKeyId ? issuerKeyId : signersUserId}`
-        keyData = await keys.fetch.uri(keyUri)
+        result.key.uri = `hkp:${match[2]}:${issuerKeyId ? issuerKeyId : signersUserId}`
+        result.key.data = await keys.fetch.uri(result.key.uri)
+        result.key.fetchMethod = 'hkp'
       } catch (e) {
-        errors.push('key_not_found')
-        reject({ errors: errors })
+        reject('key_not_found')
         return
       }
     }
 
-    const fingerprint = keyData.keyPacket.getFingerprint()
+    result.fingerprint = result.key.data.keyPacket.getFingerprint()
 
-    try {
-      const sigVerification = await sigData.verify([keyData])
-      await sigVerification[0].verified
-    } catch (e) {
-      errors.push('invalid_signature_verification')
-      reject({ errors: errors })
-      return
+    result.users[0].claims.forEach(claim => {
+      claim.fingerprint = result.fingerprint
+    })
+
+    const primaryUserData = await result.key.data.getPrimaryUser()
+    let userData
+
+    if (signersUserId) {
+      result.key.data.users.forEach(user => {
+        if (user.userId.email == signersUserId) {
+          userData = user
+        }
+      })
+    } 
+    if (!userData) {
+      userData = primaryUserData.user
     }
 
-    const claimVerifications = await claims.verify(sigClaims, fingerprint, opts)
+    result.users[0].userData = {
+      id: userData.userId ? userData.userId.userid : null,
+      name: userData.userId ? userData.userId.name : null,
+      email: userData.userId ? userData.userId.email : null,
+      comment: userData.userId ? userData.userId.comment : null,
+      isPrimary: primaryUserData.user.userId.userid === userData.userId.userid,
+    }
 
-    resolve({
-      errors: errors,
-      signature: {
-        data: sigData.signature,
-        issuerKeyId: issuerKeyId,
-        signersUserId: signersUserId,
-        preferredKeyServer: preferredKeyServer,
-      },
-      publicKey: {
-        data: keyData,
-        uri: keyUri,
-        fingerprint: fingerprint,
-      },
-      text: text,
-      claims: claimVerifications,
-    })
+    result.primaryUserIndex = result.users[0].userData.isPrimary ? 0 : null
+
+    resolve(result)
   })
 }
 
-exports.verify = verify
+exports.process = process

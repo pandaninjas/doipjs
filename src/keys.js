@@ -17,6 +17,7 @@ const bent = require('bent')
 const req = bent('GET')
 const validUrl = require('valid-url')
 const openpgp = require('openpgp')
+const Claim = require('./claim')
 
 const fetchHKP = (identifier, keyserverBaseUrl) => {
   return new Promise(async (resolve, reject) => {
@@ -164,14 +165,14 @@ const fetchURI = (uri) => {
 
 const process = (publicKey) => {
   return new Promise(async (resolve, reject) => {
-    if (!publicKey) {
+    if (!publicKey || !(publicKey instanceof openpgp.key.Key)) {
       reject('Invalid public key')
     }
+
     const fingerprint = await publicKey.primaryKey.getFingerprint()
     const primaryUser = await publicKey.getPrimaryUser()
     const users = publicKey.users
-    let primaryUserIndex,
-      usersOutput = []
+    let usersOutput = []
 
     users.forEach((user, i) => {
       usersOutput[i] = {
@@ -182,19 +183,19 @@ const process = (publicKey) => {
           comment: user.userId ? user.userId.comment : null,
           isPrimary: primaryUser.index === i,
         },
+        claims: [],
       }
 
       if ('selfCertifications' in user && user.selfCertifications.length > 0) {
         const notations = user.selfCertifications[0].rawNotations
-        usersOutput[i].notations = notations.map(
+        usersOutput[i].claims = notations.map(
           ({ name, value, humanReadable }) => {
             if (humanReadable && name === 'proof@metacode.biz') {
-              return openpgp.util.decode_utf8(value)
+              const notation = openpgp.util.decode_utf8(value)
+              return new Claim(notation, fingerprint)
             }
           }
         )
-      } else {
-        usersOutput[i].notations = []
       }
     })
 
@@ -202,23 +203,12 @@ const process = (publicKey) => {
       fingerprint: fingerprint,
       users: usersOutput,
       primaryUserIndex: primaryUser.index,
+      key: {
+        data: publicKey,
+        fetchMethod: null,
+        uri: null
+      }
     })
-  })
-}
-
-const getUserData = (publicKey) => {
-  return new Promise(async (resolve, reject) => {
-    const keyData = await process(publicKey)
-
-    resolve(keyData.users)
-  })
-}
-
-const getFingerprint = (publicKey) => {
-  return new Promise(async (resolve, reject) => {
-    const keyData = await process(publicKey)
-
-    resolve(keyData.fingerprint)
   })
 }
 
@@ -231,5 +221,3 @@ exports.fetch = {
   signature: fetchSignature,
 }
 exports.process = process
-exports.getUserData = getUserData
-exports.getFingerprint = getFingerprint
