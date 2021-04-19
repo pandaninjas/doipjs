@@ -250,13 +250,11 @@ router.get('/get/twitter/:tweetid', async (req, res) => {
       return res.status(200).json({ data: data, message: 'Success', error: {} })
     })
     .catch((error) => {
-      return res
-        .status(error.statusCode || 400)
-        .json({
-          data: [],
-          message: 'Request could not be fulfilled',
-          error: error,
-        })
+      return res.status(error.statusCode || 400).json({
+        data: [],
+        message: 'Request could not be fulfilled',
+        error: error,
+      })
     })
 })
 
@@ -277,13 +275,11 @@ router.get('/get/matrix/:matrixroomid/:matrixeventid', async (req, res) => {
       return res.status(200).json({ data: data, message: 'Success', error: {} })
     })
     .catch((error) => {
-      return res
-        .status(error.statusCode || 400)
-        .json({
-          data: [],
-          message: 'Request could not be fulfilled',
-          error: error,
-        })
+      return res.status(error.statusCode || 400).json({
+        data: [],
+        message: 'Request could not be fulfilled',
+        error: error,
+      })
     })
 })
 
@@ -318,13 +314,11 @@ router.get('/get/irc/:ircserver/:ircnick', async (req, res) => {
       }
     })
   } catch (error) {
-    return res
-      .status(400)
-      .json({
-        data: [],
-        message: 'Request could not be fulfilled',
-        error: error,
-      })
+    return res.status(400).json({
+      data: [],
+      message: 'Request could not be fulfilled',
+      error: error,
+    })
   }
 })
 
