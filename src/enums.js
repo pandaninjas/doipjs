@@ -67,10 +67,18 @@ const VerificationStatus = {
 }
 Object.freeze(VerificationStatus)
 
+const ClaimState = {
+  INIT: 'init',
+  MATCHED: 'matched',
+  VERIFIED: 'verified',
+}
+Object.freeze(ClaimState)
+
 exports.ProxyPolicy = ProxyPolicy
 exports.Fetcher = Fetcher
 exports.ProofAccess = ProofAccess
 exports.ProofFormat = ProofFormat
 exports.ClaimFormat = ClaimFormat
 exports.ClaimRelation = ClaimRelation
-exports.VerificationStatus = ClaimRelation
+exports.VerificationStatus = VerificationStatus
+exports.ClaimState = ClaimState
