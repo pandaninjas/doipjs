@@ -163,7 +163,7 @@ class Claim {
   /**
    * Throw error when attempting to alter the state
    * @function
-   * @param anything - Anything will throw an error
+   * @param {any} anything - Anything will throw an error
    */
   set state(anything) {
     throw new Error("Cannot change a claim's state")
@@ -172,7 +172,7 @@ class Claim {
   /**
    * Throw error when attempting to alter the dataMatches
    * @function
-   * @param anything - Anything will throw an error
+   * @param {any} anything - Anything will throw an error
    */
   set dataMatches(anything) {
     throw new Error("Cannot change a claim's dataMatches")
@@ -181,7 +181,7 @@ class Claim {
   /**
    * Throw error when attempting to alter the verification data
    * @function
-   * @param anything - Anything will throw an error
+   * @param {any} anything - Anything will throw an error
    */
   set verification(anything) {
     throw new Error("Cannot change a claim's verification data")
