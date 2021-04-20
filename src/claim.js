@@ -122,7 +122,6 @@ class Claim {
       throw new Error('This claim has not yet been verified')
     }
     return this._verification
-    _
   }
 
   /**
