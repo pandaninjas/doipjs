@@ -1,7 +1,7 @@
 # doip.js
 
-![](/static/doip.png)
-![](/doip.png)
+![](static/doip.png)
+![](doip.png)
 
 doip.js allows websites and Node.js projects to verify decentralized online
 identities based on OpenPGP.
