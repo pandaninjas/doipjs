@@ -1,5 +1,8 @@
 # doip.js
 
+![](/static/doip.png)
+![](/doip.png)
+
 doip.js allows websites and Node.js projects to verify decentralized online
 identities based on OpenPGP.
 
@@ -7,9 +10,52 @@ Documentation available at [js.doip.rocks](https://js.doip.rocks).
 
 ## Features
 
-- Verify online identities using profile URLs
+- Verify online identities using decentralized technology
+- Based on [OpenPGP](https://www.openpgp.org), a widely-used cryptographic standard
 - Regex-based service provider detection
-- [Mocha](https://mochajs.org/) tests
+- [Mocha](https://mochajs.org) tests
+
+## Installation (node)
+
+Install using **yarn** or **npm**:
+
+```bash
+yarn add doipjs
+# or
+npm install --save doipjs
+```
+
+Import the `doip` module in your code:
+
+```javascript
+const doip = require('./doipjs')
+```
+
+## Installation (browser)
+
+Include the following HTML snippet (requires [openpgp.js](https://openpgpjs.org/)):
+
+```html
+<script src="/static/openpgp.min.js"></script>
+<script src="/static/doip.min.js"></script>
+```
+
+## Quickstart
+
+Run the following javascript:
+
+```javascript
+const verifyIdentity = async (url, fp) => {
+  const claim = new doip.Claim(url, fp)
+  claim.match()
+  await claim.verify()
+  console.log(claim.result)
+}
+verifyIdentity('dns:doip.rocks', '9f0048ac0b23301e1f77e994909f6bd6f80f485d')
+```
+
+This snippet works en will verify the [doip.rocks](https://doip.rocks) domain as
+bidirectionally linked to Yarmo's cryptographic key.
 
 ## About Keyoxide
 
