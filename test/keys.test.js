@@ -49,61 +49,61 @@ x77L7mBkREbuZpFoD/c=
 =w7qB
 -----END PGP PUBLIC KEY BLOCK-----`
 
-describe('keys.fetch.uri', () => {
+describe('keys.fetchURI', () => {
   it('should be a function (1 argument)', () => {
-    expect(doipjs.keys.fetch.uri).to.be.a('function')
-    expect(doipjs.keys.fetch.uri).to.have.length(1)
+    expect(doipjs.keys.fetchURI).to.be.a('function')
+    expect(doipjs.keys.fetchURI).to.have.length(1)
   })
   it('should return a Key object when provided a hkp: uri', async () => {
     expect(
-      await doipjs.keys.fetch.uri(`hkp:${pubKeyFingerprint}`)
+      await doipjs.keys.fetchURI(`hkp:${pubKeyFingerprint}`)
     ).to.be.instanceOf(openpgp.key.Key)
   }).timeout('12s')
   it('should reject when provided an invalid uri', () => {
     return expect(
-      doipjs.keys.fetch.uri(`inv:${pubKeyFingerprint}`)
+      doipjs.keys.fetchURI(`inv:${pubKeyFingerprint}`)
     ).to.eventually.be.rejectedWith('Invalid URI protocol')
   }).timeout('12s')
 })
 
-describe('keys.fetch.hkp', () => {
+describe('keys.fetchHKP', () => {
   it('should be a function (2 arguments)', () => {
-    expect(doipjs.keys.fetch.hkp).to.be.a('function')
-    expect(doipjs.keys.fetch.hkp).to.have.length(2)
+    expect(doipjs.keys.fetchHKP).to.be.a('function')
+    expect(doipjs.keys.fetchHKP).to.have.length(2)
   })
   it('should return a Key object when provided a valid fingerprint', async () => {
-    expect(await doipjs.keys.fetch.hkp(pubKeyFingerprint)).to.be.instanceOf(
+    expect(await doipjs.keys.fetchHKP(pubKeyFingerprint)).to.be.instanceOf(
       openpgp.key.Key
     )
   })
   it('should return a Key object when provided a valid email address', async () => {
-    expect(await doipjs.keys.fetch.hkp(pubKeyEmail)).to.be.instanceOf(
+    expect(await doipjs.keys.fetchHKP(pubKeyEmail)).to.be.instanceOf(
       openpgp.key.Key
     )
   })
   it('should reject when provided an invalid fingerprint', async () => {
     return expect(
-      doipjs.keys.fetch.hkp('4637202523e7c1309ab79e99ef2dc5827b445f4b')
+      doipjs.keys.fetchHKP('4637202523e7c1309ab79e99ef2dc5827b445f4b')
     ).to.eventually.be.rejectedWith(
       'Key does not exist or could not be fetched'
     )
   })
   it('should reject when provided an invalid email address', async () => {
     return expect(
-      doipjs.keys.fetch.hkp('invalid@doip.rocks')
+      doipjs.keys.fetchHKP('invalid@doip.rocks')
     ).to.eventually.be.rejectedWith(
       'Key does not exist or could not be fetched'
     )
   })
 })
 
-describe('keys.fetch.plaintext', () => {
+describe('keys.fetchPlaintext', () => {
   it('should be a function (1 argument)', () => {
-    expect(doipjs.keys.fetch.plaintext).to.be.a('function')
-    expect(doipjs.keys.fetch.plaintext).to.have.length(1)
+    expect(doipjs.keys.fetchPlaintext).to.be.a('function')
+    expect(doipjs.keys.fetchPlaintext).to.have.length(1)
   })
   it('should return a Key object', async () => {
-    expect(await doipjs.keys.fetch.plaintext(pubKeyPlaintext)).to.be.instanceOf(
+    expect(await doipjs.keys.fetchPlaintext(pubKeyPlaintext)).to.be.instanceOf(
       openpgp.key.Key
     )
   })
@@ -115,7 +115,7 @@ describe('keys.process', () => {
     expect(doipjs.keys.process).to.have.length(1)
   })
   it('should return an object with specific keys', async () => {
-    const pubKey = await doipjs.keys.fetch.plaintext(pubKeyPlaintext)
+    const pubKey = await doipjs.keys.fetchPlaintext(pubKeyPlaintext)
     const obj = await doipjs.keys.process(pubKey)
     expect(obj).to.have.keys([
       'users',

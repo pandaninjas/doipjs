@@ -187,14 +187,14 @@ exports.fetchURI = (uri) => {
     switch (match[1]) {
       case 'hkp':
         resolve(
-          fetchHKP(match[3] ? match[3] : match[2], match[3] ? match[2] : null)
+          exports.fetchHKP(match[3] ? match[3] : match[2], match[3] ? match[2] : null)
         )
         break
       case 'wkd':
-        resolve(fetchWKD(match[2]))
+        resolve(exports.fetchWKD(match[2]))
         break
       case 'kb':
-        resolve(fetchKeybase(match[2], match.length >= 4 ? match[3] : null))
+        resolve(exports.fetchKeybase(match[2], match.length >= 4 ? match[3] : null))
         break
       default:
         reject('Invalid URI protocol')

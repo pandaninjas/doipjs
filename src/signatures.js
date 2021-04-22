@@ -49,7 +49,7 @@ const process = (signature) => {
     try {
       sigData = await openpgp.cleartext.readArmored(signature)
     } catch (error) {
-      reject('invalid_signature')
+      reject(new Error('invalid_signature'))
       return
     }
 
@@ -84,7 +84,7 @@ const process = (signature) => {
     if (sigKeys.length > 0) {
       try {
         result.key.uri = sigKeys[0]
-        result.key.data = await keys.fetch.uri(result.key.uri)
+        result.key.data = await keys.fetchURI(result.key.uri)
         result.key.fetchMethod = result.key.uri.split(':')[0]
       } catch (e) {}
     }
@@ -92,7 +92,7 @@ const process = (signature) => {
     if (!result.key.data && signersUserId) {
       try {
         result.key.uri = `wkd:${signersUserId}`
-        result.key.data = await keys.fetch.uri(result.key.uri)
+        result.key.data = await keys.fetchURI(result.key.uri)
         result.key.fetchMethod = 'wkd'
       } catch (e) {}
     }
@@ -103,10 +103,10 @@ const process = (signature) => {
         result.key.uri = `hkp:${match[2]}:${
           issuerKeyId ? issuerKeyId : signersUserId
         }`
-        result.key.data = await keys.fetch.uri(result.key.uri)
+        result.key.data = await keys.fetchURI(result.key.uri)
         result.key.fetchMethod = 'hkp'
       } catch (e) {
-        reject('key_not_found')
+        reject(new Error('key_not_found'))
         return
       }
     }
