@@ -17,8 +17,28 @@ const bent = require('bent')
 const bentReq = bent('GET')
 const validator = require('validator')
 
+/**
+ * @module fetcher/matrix
+ */
+
+/**
+ * The request's timeout value in milliseconds
+ * @constant {number} timeout
+ */
 module.exports.timeout = 5000
 
+/**
+ * Execute a fetch request
+ * @function
+ * @async
+ * @param {object} data                           - Data used in the request
+ * @param {string} data.eventId                   - The identifier of the targeted post
+ * @param {string} data.roomId                    - The identifier of the room containing the targeted post
+ * @param {object} opts                           - Options used to enable the request
+ * @param {string} opts.claims.matrix.instance    - The server hostname on which the library can log in
+ * @param {string} opts.claims.matrix.accessToken - The access token required to identify the library ({@link https://www.matrix.org/docs/guides/client-server-api|Matrix docs})
+ * @returns {object}
+ */
 module.exports.fn = async (data, opts) => {
   let timeoutHandle
   const timeoutPromise = new Promise((resolve, reject) => {

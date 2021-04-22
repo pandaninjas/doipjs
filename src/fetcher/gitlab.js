@@ -16,8 +16,25 @@ limitations under the License.
 const bent = require('bent')
 const req = bent('GET')
 
+/**
+ * @module fetcher/gitlab
+ */
+
+/**
+ * The request's timeout value in milliseconds
+ * @constant {number} timeout
+ */
 module.exports.timeout = 5000
 
+/**
+ * Execute a fetch request
+ * @function
+ * @async
+ * @param {object} data           - Data used in the request
+ * @param {string} data.username  - The username of the targeted account
+ * @param {string} data.domain    - The domain on which the targeted account is registered
+ * @returns {object}
+ */
 module.exports.fn = async (data, opts) => {
   let timeoutHandle
   const timeoutPromise = new Promise((resolve, reject) => {
@@ -45,7 +62,7 @@ module.exports.fn = async (data, opts) => {
 
     const project = jsonProject.find((proj) => proj.path === 'gitlab_proof')
     if (!project) {
-      reject(`No project at ${spData.proof.uri}`)
+      reject(`No project found`)
     }
 
     resolve(project)

@@ -17,6 +17,16 @@ const openpgp = require('openpgp')
 const Claim = require('./claim')
 const keys = require('./keys')
 
+/**
+ * @module signatures 
+ */
+
+/**
+ * Extract data from a signature and fetch the associated key
+ * @async
+ * @param {string} signature - The plaintext signature to process
+ * @returns {Promise<object>}
+ */
 const process = (signature) => {
   return new Promise(async (resolve, reject) => {
     let sigData,

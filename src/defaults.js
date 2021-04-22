@@ -15,6 +15,30 @@ limitations under the License.
 */
 const E = require('./enums')
 
+/**
+ * Contains default values
+ * @module defaults
+ */
+
+/**
+ * The default options used throughout the library
+ * @constant {object}
+ * @property {object} proxy                           - Options related to the proxy
+ * @property {string|null} proxy.hostname             - The hostname of the proxy
+ * @property {string} proxy.policy                    - The policy that defines when to use a proxy ({@link module:enums~ProxyPolicy|here})
+ * @property {object} claims                          - Options related to claim verification
+ * @property {object} claims.irc                      - Options related to the verification of IRC claims
+ * @property {string|null} claims.irc.nick            - The nick that the library uses to connect to the IRC server
+ * @property {object} claims.matrix                   - Options related to the verification of Matrix claims
+ * @property {string|null} claims.matrix.instance     - The server hostname on which the library can log in
+ * @property {string|null} claims.matrix.accessToken  - The access token required to identify the library ({@link https://www.matrix.org/docs/guides/client-server-api|Matrix docs})
+ * @property {object} claims.xmpp                     - Options related to the verification of XMPP claims
+ * @property {string|null} claims.xmpp.service        - The server hostname on which the library can log in
+ * @property {string|null} claims.xmpp.username       - The username used to log in
+ * @property {string|null} claims.xmpp.password       - The password used to log in
+ * @property {object} claims.twitter                  - Options related to the verification of Twitter claims
+ * @property {string|null} claims.twitter.bearerToken - The Twitter API's bearer token ({@link https://developer.twitter.com/en/docs/authentication/oauth-2-0/bearer-tokens|Twitter docs})
+ */
 const opts = {
   proxy: {
     hostname: null,

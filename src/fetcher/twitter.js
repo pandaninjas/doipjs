@@ -17,8 +17,26 @@ const bent = require('bent')
 const bentReq = bent('GET')
 const validator = require('validator')
 
+/**
+ * @module fetcher/twitter
+ */
+
+/**
+ * The request's timeout value in milliseconds
+ * @constant {number} timeout
+ */
 module.exports.timeout = 5000
 
+/**
+ * Execute a fetch request
+ * @function
+ * @async
+ * @param {object} data                             - Data used in the request
+ * @param {number|string} data.tweetId              - Identifier of the tweet
+ * @param {object} opts                             - Options used to enable the request
+ * @param {string} opts.claims.twitter.bearerToken  - The Twitter API's bearer token
+ * @returns {object}
+ */
 module.exports.fn = async (data, opts) => {
   let timeoutHandle
   const timeoutPromise = new Promise((resolve, reject) => {

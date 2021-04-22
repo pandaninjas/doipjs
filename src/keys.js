@@ -19,10 +19,25 @@ const validUrl = require('valid-url')
 const openpgp = require('openpgp')
 const Claim = require('./claim')
 
-const fetchHKP = (identifier, keyserverBaseUrl) => {
+/**
+ * Functions related to the fetching and handling of keys
+ * @module keys
+ */
+
+/**
+ * Fetch a public key using keyservers
+ * @function
+ * @param {string} identifier                         - Fingerprint or email address
+ * @param {string} [keyserverDomain=keys.openpgp.org] - Domain of the keyserver
+ * @returns {openpgp.key.Key}
+ * @example
+ * const key1 = doip.keys.fetchHKP('alice@domain.tld');
+ * const key2 = doip.keys.fetchHKP('123abc123abc');
+ */
+ exports.fetchHKP = (identifier, keyserverDomain) => {
   return new Promise(async (resolve, reject) => {
-    keyserverBaseUrl = keyserverBaseUrl
-      ? `https://${keyserverBaseUrl}`
+    const keyserverBaseUrl = keyserverDomain
+      ? `https://${keyserverDomain}`
       : 'https://keys.openpgp.org'
 
     const hkp = new openpgp.HKP(keyserverBaseUrl)
@@ -51,7 +66,15 @@ const fetchHKP = (identifier, keyserverBaseUrl) => {
   })
 }
 
-const fetchWKD = (identifier) => {
+/**
+ * Fetch a public key using Web Key Directory
+ * @function
+ * @param {string} identifier - Identifier of format 'username@domain.tld`
+ * @returns {openpgp.key.Key}
+ * @example
+ * const key = doip.keys.fetchWKD('alice@domain.tld');
+ */
+exports.fetchWKD = (identifier) => {
   return new Promise(async (resolve, reject) => {
     const wkd = new openpgp.WKD()
     const lookupOpts = {
@@ -75,7 +98,16 @@ const fetchWKD = (identifier) => {
   })
 }
 
-const fetchKeybase = (username, fingerprint) => {
+/**
+ * Fetch a public key from Keybase
+ * @function
+ * @param {string} username     - Keybase username
+ * @param {string} fingerprint  - Fingerprint of key
+ * @returns {openpgp.key.Key}
+ * @example
+ * const key = doip.keys.fetchKeybase('alice', '123abc123abc');
+ */
+exports.fetchKeybase = (username, fingerprint) => {
   return new Promise(async (resolve, reject) => {
     const keyLink = `https://keybase.io/${username}/pgp_keys.asc?fingerprint=${fingerprint}`
     try {
@@ -107,7 +139,21 @@ const fetchKeybase = (username, fingerprint) => {
   })
 }
 
-const fetchPlaintext = (rawKeyContent) => {
+/**
+ * Get a public key from plaintext data
+ * @function
+ * @param {string} rawKeyContent - Plaintext ASCII-formatted public key data
+ * @returns {openpgp.key.Key}
+ * @example
+ * const plainkey = `-----BEGIN PGP PUBLIC KEY BLOCK-----
+ * 
+ * mQINBF0mIsIBEADacleiyiV+z6FIunvLWrO6ZETxGNVpqM+WbBQKdW1BVrJBBolg
+ * [...]
+ * =6lib
+ * -----END PGP PUBLIC KEY BLOCK-----`
+ * const key = doip.keys.fetchPlaintext(plainkey);
+ */
+exports.fetchPlaintext = (rawKeyContent) => {
   return new Promise(async (resolve, reject) => {
     const publicKey = (await openpgp.key.readArmored(rawKeyContent)).keys[0]
 
@@ -115,23 +161,17 @@ const fetchPlaintext = (rawKeyContent) => {
   })
 }
 
-const fetchSignature = (rawSignatureContent, keyserverBaseUrl) => {
-  return new Promise(async (resolve, reject) => {
-    let sig = await openpgp.signature.readArmored(rawSignatureContent)
-    if ('compressed' in sig.packets[0]) {
-      sig = sig.packets[0]
-      let sigContent = await openpgp.stream.readToEnd(
-        await sig.packets[1].getText()
-      )
-    }
-    const sigUserId = sig.packets[0].signersUserId
-    const sigKeyId = await sig.packets[0].issuerKeyId.toHex()
-
-    resolve(fetchHKP(sigUserId ? sigUserId : sigKeyId, keyserverBaseUrl))
-  })
-}
-
-const fetchURI = (uri) => {
+/**
+ * Fetch a public key using an URI
+ * @function
+ * @param {string} uri - URI that defines the location of the key
+ * @returns {openpgp.key.Key}
+ * @example
+ * const key1 = doip.keys.fetchURI('hkp:alice@domain.tld');
+ * const key2 = doip.keys.fetchURI('hkp:123abc123abc');
+ * const key3 = doip.keys.fetchURI('wkd:alice@domain.tld');
+ */
+exports.fetchURI = (uri) => {
   return new Promise(async (resolve, reject) => {
     if (!validUrl.isUri(uri)) {
       reject('Invalid URI')
@@ -163,7 +203,19 @@ const fetchURI = (uri) => {
   })
 }
 
-const process = (publicKey) => {
+/**
+ * Process a public key to get user data and claims
+ * @function
+ * @param {openpgp.key.Key} publicKey - The public key to process
+ * @returns {object}
+ * @example
+ * const key = doip.keys.fetchURI('hkp:alice@domain.tld');
+ * const data = doip.keys.process(key);
+ * data.users[0].claims.forEach(claim => {
+ *   console.log(claim.uri);
+ * });
+ */
+exports.process = (publicKey) => {
   return new Promise(async (resolve, reject) => {
     if (!publicKey || !(publicKey instanceof openpgp.key.Key)) {
       reject('Invalid public key')
@@ -211,13 +263,3 @@ const process = (publicKey) => {
     })
   })
 }
-
-exports.fetch = {
-  uri: fetchURI,
-  hkp: fetchHKP,
-  wkd: fetchWKD,
-  keybase: fetchKeybase,
-  plaintext: fetchPlaintext,
-  signature: fetchSignature,
-}
-exports.process = process

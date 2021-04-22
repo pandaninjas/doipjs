@@ -18,6 +18,21 @@ const fetcher = require('./fetcher')
 const utils = require('./utils')
 const E = require('./enums')
 
+/**
+ * @module proofs 
+ */
+
+/**
+ * Delegate the proof request to the correct fetcher.
+ * This method uses the current environment (browser/node), certain values from
+ * the `data` parameter and the proxy policy set in the `opts` parameter to
+ * choose the right approach to fetch the proof. An error will be thrown if no
+ * approach is possible.
+ * @async
+ * @param {object} data - Data from a claim definition
+ * @param {object} opts - Options to enable the request
+ * @returns {Promise<object|string>}
+ */
 const fetch = (data, opts) => {
   switch (data.proof.request.fetcher) {
     case E.Fetcher.HTTP:

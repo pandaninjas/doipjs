@@ -18,6 +18,14 @@ const { client, xml } = require('@xmpp/client')
 const debug = require('@xmpp/debug')
 const validator = require('validator')
 
+/**
+ * @module fetcher/xmpp
+ */
+
+/**
+ * The request's timeout value in milliseconds
+ * @constant {number} timeout
+ */
 module.exports.timeout = 5000
 
 let xmpp = null,
@@ -44,6 +52,19 @@ const xmppStart = async (service, username, password) => {
   })
 }
 
+/**
+ * Execute a fetch request
+ * @function
+ * @async
+ * @param {object} data                       - Data used in the request
+ * @param {string} data.id                    - The identifier of the targeted account
+ * @param {string} data.field                 - The vCard field to return (should be "note") 
+ * @param {object} opts                       - Options used to enable the request
+ * @param {string} opts.claims.xmpp.service   - The server hostname on which the library can log in
+ * @param {string} opts.claims.xmpp.username  - The username used to log in
+ * @param {string} opts.claims.xmpp.password  - The password used to log in
+ * @returns {object}
+ */
 module.exports.fn = async (data, opts) => {
   let timeoutHandle
   const timeoutPromise = new Promise((resolve, reject) => {

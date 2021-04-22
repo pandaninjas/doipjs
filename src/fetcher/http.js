@@ -17,8 +17,25 @@ const bent = require('bent')
 const req = bent('GET')
 const E = require('../enums')
 
+/**
+ * @module fetcher/http
+ */
+
+/**
+ * The request's timeout value in milliseconds
+ * @constant {number} timeout
+ */
 module.exports.timeout = 5000
 
+/**
+ * Execute a fetch request
+ * @function
+ * @async
+ * @param {object} data         - Data used in the request
+ * @param {string} data.url     - The URL pointing at targeted content
+ * @param {string} data.format  - The format of the targeted content
+ * @returns {object|string}
+ */
 module.exports.fn = async (data, opts) => {
   let timeoutHandle
   const timeoutPromise = new Promise((resolve, reject) => {

@@ -16,8 +16,27 @@ limitations under the License.
 const irc = require('irc-upd')
 const validator = require('validator')
 
+/**
+ * @module fetcher/irc
+ */
+
+/**
+ * The request's timeout value in milliseconds
+ * @constant {number} timeout
+ */
 module.exports.timeout = 20000
 
+/**
+ * Execute a fetch request
+ * @function
+ * @async
+ * @param {object} data                 - Data used in the request
+ * @param {string} data.nick            - The nick of the targeted account
+ * @param {string} data.domain          - The domain on which the targeted account is registered
+ * @param {object} opts                 - Options used to enable the request
+ * @param {string} opts.claims.irc.nick - The nick to be used by the library to log in
+ * @returns {object}
+ */
 module.exports.fn = async (data, opts) => {
   let timeoutHandle
   const timeoutPromise = new Promise((resolve, reject) => {

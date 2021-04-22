@@ -16,6 +16,11 @@ limitations under the License.
 const utils = require('./utils')
 const E = require('./enums')
 
+/**
+ * @module verifications
+ * @ignore
+ */
+
 const runJSON = (proofData, checkPath, checkClaim, checkRelation) => {
   let re
 
@@ -70,6 +75,13 @@ const runJSON = (proofData, checkPath, checkClaim, checkRelation) => {
   )
 }
 
+/**
+ * Run the verification by finding the formatted fingerprint in the proof
+ * @param {object} proofData    - The proof data
+ * @param {object} claimData    - The claim data
+ * @param {string} fingerprint  - The fingerprint
+ * @returns {object}
+ */
 const run = (proofData, claimData, fingerprint) => {
   let res = {
     result: false,

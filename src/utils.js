@@ -16,6 +16,18 @@ limitations under the License.
 const validator = require('validator')
 const E = require('./enums')
 
+/**
+ * @module utils 
+ */
+
+/**
+ * Generate an URL to request data from a proxy server
+ * @param {string} type                 - The name of the fetcher the proxy must use
+ * @param {object} data                 - The data the proxy must provide to the fetcher
+ * @param {object} opts                 - Options to enable the request
+ * @param {object} opts.proxy.hostname  - The hostname of the proxy server
+ * @returns {string}
+ */
 const generateProxyURL = (type, data, opts) => {
   try {
     validator.isFQDN(opts.proxy.hostname)
@@ -34,6 +46,12 @@ const generateProxyURL = (type, data, opts) => {
   )}`
 }
 
+/**
+ * Generate the string that must be found in the proof to verify a claim
+ * @param {string} fingerprint  - The fingerprint of the claim
+ * @param {number} format       - The claim's format (see {@link module:enums~ClaimFormat|enums.ClaimFormat})
+ * @returns {string}
+ */
 const generateClaim = (fingerprint, format) => {
   switch (format) {
     case E.ClaimFormat.URI:

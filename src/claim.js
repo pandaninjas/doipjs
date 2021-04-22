@@ -23,20 +23,24 @@ const defaults = require('./defaults')
 const E = require('./enums')
 
 /**
- * OpenPGP-based identity claim
  * @class
- * @property {String} uri   - The claim's URI
- * @property {String} uri   - The claim's URI
- * @property {String} uri   - The claim's URI
- * @property {String} uri   - The claim's URI
- * @property {String} uri   - The claim's URI
+ * @classdesc OpenPGP-based identity claim
+ * @property {string} uri             - The claim's URI
+ * @property {string} fingerprint     - The fingerprint to verify the claim against
+ * @property {string} status          - The current status of the claim
+ * @property {Array<object>} matches  - The claim definitions matched against the URI
+ * @property {object} result          - The result of the verification process
  */
 class Claim {
   /**
    * Initialize a Claim object
    * @constructor
-   * @param {string} [uri] - The URI of the identity claim
-   * @param {string} [fingerprint] - The fingerprint of the OpenPGP key
+   * @param {string} [uri]          - The URI of the identity claim
+   * @param {string} [fingerprint]  - The fingerprint of the OpenPGP key
+   * @example
+   * const claim = doip.Claim();
+   * const claim = doip.Claim('dns:domain.tld?type=TXT');
+   * const claim = doip.Claim('dns:domain.tld?type=TXT', '123abc123abc');
    */
   constructor(uri, fingerprint) {
     // Import JSON
@@ -45,7 +49,7 @@ class Claim {
         case 1:
           this._uri = data.uri
           this._fingerprint = data.fingerprint
-          this._state = data.state
+          this._status = data.status
           this._dataMatches = data.dataMatches
           this._verification = data.verification
           break
@@ -61,6 +65,7 @@ class Claim {
     if (uri && !validUrl.isUri(uri)) {
       throw new Error('Invalid URI')
     }
+    
     // Verify validity of fingerprint
     if (fingerprint) {
       try {
@@ -72,67 +77,39 @@ class Claim {
 
     this._uri = uri ? uri : null
     this._fingerprint = fingerprint ? fingerprint : null
-    this._state = E.ClaimState.INIT
+    this._status = E.ClaimStatus.INIT
     this._dataMatches = null
     this._verification = null
   }
 
-  /**
-   * Get the claim's URI
-   */
   get uri() {
     return this._uri
   }
 
-  /**
-   * Get the fingerprint the claim is supposed to acknowledge
-   * @function
-   * @returns {string}
-   */
   get fingerprint() {
     return this._fingerprint
   }
 
-  /**
-   * Get the current state of the claim's verification process
-   * @function
-   * @returns {string}
-   */
-  get state() {
-    return this._state
+  get status() {
+    return this._status
   }
 
-  /**
-   * Get the candidate claim definitions the URI matched against
-   * @function
-   * @returns {object}
-   */
   get matches() {
-    if (this._state === E.ClaimState.INIT) {
+    if (this._status === E.ClaimStatus.INIT) {
       throw new Error('This claim has not yet been matched')
     }
     return this._dataMatches
   }
 
-  /**
-   * Get the result of the verification process
-   * @function
-   * @returns {object}
-   */
   get result() {
-    if (this._state !== E.ClaimState.VERIFIED) {
+    if (this._status !== E.ClaimStatus.VERIFIED) {
       throw new Error('This claim has not yet been verified')
     }
     return this._verification
   }
 
-  /**
-   * Set the claim's URI
-   * @function
-   * @param {string} uri - The new claim URI
-   */
   set uri(uri) {
-    if (this._state !== E.ClaimState.INIT) {
+    if (this._status !== E.ClaimStatus.INIT) {
       throw new Error(
         'Cannot change the URI, this claim has already been matched'
       )
@@ -147,13 +124,8 @@ class Claim {
     this._uri = uri
   }
 
-  /**
-   * Set the claim's fingerprint to verify against
-   * @function
-   * @param {string} fingerprint - The new fingerprint
-   */
   set fingerprint(fingerprint) {
-    if (this._state === E.ClaimState.VERIFIED) {
+    if (this._status === E.ClaimStatus.VERIFIED) {
       throw new Error(
         'Cannot change the fingerprint, this claim has already been verified'
       )
@@ -161,29 +133,14 @@ class Claim {
     this._fingerprint = fingerprint
   }
 
-  /**
-   * Throw error when attempting to alter the state
-   * @function
-   * @param {any} anything - Anything will throw an error
-   */
-  set state(anything) {
-    throw new Error("Cannot change a claim's state")
+  set status(anything) {
+    throw new Error("Cannot change a claim's status")
   }
 
-  /**
-   * Throw error when attempting to alter the dataMatches
-   * @function
-   * @param {any} anything - Anything will throw an error
-   */
   set dataMatches(anything) {
     throw new Error("Cannot change a claim's dataMatches")
   }
 
-  /**
-   * Throw error when attempting to alter the verification data
-   * @function
-   * @param {any} anything - Anything will throw an error
-   */
   set verification(anything) {
     throw new Error("Cannot change a claim's verification data")
   }
@@ -193,7 +150,7 @@ class Claim {
    * @function
    */
   match() {
-    if (this._state !== E.ClaimState.INIT) {
+    if (this._status !== E.ClaimStatus.INIT) {
       throw new Error('This claim was already matched')
     }
     if (this._uri === null) {
@@ -224,7 +181,7 @@ class Claim {
       return true
     })
 
-    this._state = E.ClaimState.MATCHED
+    this._status = E.ClaimStatus.MATCHED
   }
 
   /**
@@ -237,10 +194,10 @@ class Claim {
    * @param {object} [opts] - Options for proxy, fetchers
    */
   async verify(opts) {
-    if (this._state === E.ClaimState.INIT) {
+    if (this._status === E.ClaimStatus.INIT) {
       throw new Error('This claim has not yet been matched')
     }
-    if (this._state === E.ClaimState.VERIFIED) {
+    if (this._status === E.ClaimStatus.VERIFIED) {
       throw new Error('This claim has already been verified')
     }
     if (this._fingerprint === null) {
@@ -298,18 +255,18 @@ class Claim {
       }
     }
 
-    this._state = E.ClaimState.VERIFIED
+    this._status = E.ClaimStatus.VERIFIED
   }
 
   /**
-   * Get the ambiguity of the claim. A claim is only unambiguous if any
+   * Determine the ambiguity of the claim. A claim is only unambiguous if any
    * of the candidates is unambiguous. An ambiguous claim should never be
    * displayed in an user interface when its result is negative.
    * @function
    * @returns {boolean}
    */
   isAmbiguous() {
-    if (this._state === E.ClaimState.INIT) {
+    if (this._status === E.ClaimStatus.INIT) {
       throw new Error('The claim has not been matched yet')
     }
     if (this._dataMatches.length === 0) {
@@ -331,7 +288,7 @@ class Claim {
       claimVersion: 1,
       uri: this._uri,
       fingerprint: this._fingerprint,
-      state: this._state,
+      status: this._status,
       dataMatches: this._dataMatches,
       verification: this._verification,
     }

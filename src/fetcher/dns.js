@@ -15,8 +15,24 @@ limitations under the License.
 */
 const dns = require('dns')
 
+/**
+ * @module fetcher/dns
+ */
+
+/**
+ * The request's timeout value in milliseconds
+ * @constant {number} timeout
+ */
 module.exports.timeout = 5000
 
+/**
+ * Execute a fetch request
+ * @function
+ * @async
+ * @param {object} data         - Data used in the request
+ * @param {string} data.domain  - The targeted domain
+ * @returns {object}
+ */
 module.exports.fn = async (data, opts) => {
   let timeoutHandle
   const timeoutPromise = new Promise((resolve, reject) => {
