@@ -18,7 +18,7 @@ const Claim = require('./claim')
 const keys = require('./keys')
 
 /**
- * @module signatures 
+ * @module signatures
  */
 
 /**

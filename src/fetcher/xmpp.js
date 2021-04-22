@@ -58,7 +58,7 @@ const xmppStart = async (service, username, password) => {
  * @async
  * @param {object} data                       - Data used in the request
  * @param {string} data.id                    - The identifier of the targeted account
- * @param {string} data.field                 - The vCard field to return (should be "note") 
+ * @param {string} data.field                 - The vCard field to return (should be "note")
  * @param {object} opts                       - Options used to enable the request
  * @param {string} opts.claims.xmpp.service   - The server hostname on which the library can log in
  * @param {string} opts.claims.xmpp.username  - The username used to log in

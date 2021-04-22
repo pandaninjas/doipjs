@@ -19,7 +19,7 @@ const utils = require('./utils')
 const E = require('./enums')
 
 /**
- * @module proofs 
+ * @module proofs
  */
 
 /**

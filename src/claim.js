@@ -65,7 +65,7 @@ class Claim {
     if (uri && !validUrl.isUri(uri)) {
       throw new Error('Invalid URI')
     }
-    
+
     // Verify validity of fingerprint
     if (fingerprint) {
       try {

@@ -17,7 +17,7 @@ const validator = require('validator')
 const E = require('./enums')
 
 /**
- * @module utils 
+ * @module utils
  */
 
 /**

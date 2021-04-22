@@ -34,7 +34,7 @@ const Claim = require('./claim')
  * const key1 = doip.keys.fetchHKP('alice@domain.tld');
  * const key2 = doip.keys.fetchHKP('123abc123abc');
  */
- exports.fetchHKP = (identifier, keyserverDomain) => {
+exports.fetchHKP = (identifier, keyserverDomain) => {
   return new Promise(async (resolve, reject) => {
     const keyserverBaseUrl = keyserverDomain
       ? `https://${keyserverDomain}`
@@ -146,7 +146,7 @@ exports.fetchKeybase = (username, fingerprint) => {
  * @returns {openpgp.key.Key}
  * @example
  * const plainkey = `-----BEGIN PGP PUBLIC KEY BLOCK-----
- * 
+ *
  * mQINBF0mIsIBEADacleiyiV+z6FIunvLWrO6ZETxGNVpqM+WbBQKdW1BVrJBBolg
  * [...]
  * =6lib
@@ -187,14 +187,19 @@ exports.fetchURI = (uri) => {
     switch (match[1]) {
       case 'hkp':
         resolve(
-          exports.fetchHKP(match[3] ? match[3] : match[2], match[3] ? match[2] : null)
+          exports.fetchHKP(
+            match[3] ? match[3] : match[2],
+            match[3] ? match[2] : null
+          )
         )
         break
       case 'wkd':
         resolve(exports.fetchWKD(match[2]))
         break
       case 'kb':
-        resolve(exports.fetchKeybase(match[2], match.length >= 4 ? match[3] : null))
+        resolve(
+          exports.fetchKeybase(match[2], match.length >= 4 ? match[3] : null)
+        )
         break
       default:
         reject('Invalid URI protocol')
