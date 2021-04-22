@@ -1,4 +1,5 @@
 .git
+docs
 dist
 node_modules
 LICENSE
