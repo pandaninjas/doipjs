@@ -6,6 +6,8 @@
 doip.js allows websites and Node.js projects to verify decentralized online
 identities based on OpenPGP.
 
+Source code available at [codeberg.org](https://codeberg.org/keyoxide/doipjs).
+
 Documentation available at [js.doip.rocks](https://js.doip.rocks).
 
 ## Features
