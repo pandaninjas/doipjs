@@ -7515,7 +7515,7 @@ module.exports.default = exports.default;
 },{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/package.json":[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.11.2",
+  "version": "0.12.0",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -7655,7 +7655,7 @@ class Claim {
     if (uri && !validUrl.isUri(uri)) {
       throw new Error('Invalid URI')
     }
-    
+
     // Verify validity of fingerprint
     if (fingerprint) {
       try {
@@ -9739,6 +9739,7 @@ exports.irc = require('./irc')
 exports.matrix = require('./matrix')
 exports.twitter = require('./twitter')
 exports.xmpp = require('./xmpp')
+
 },{"./dns":"/home/yarmo/dev/doip/doipjs/src/fetcher/dns.js","./gitlab":"/home/yarmo/dev/doip/doipjs/src/fetcher/gitlab.js","./http":"/home/yarmo/dev/doip/doipjs/src/fetcher/http.js","./irc":"/home/yarmo/dev/doip/doipjs/src/fetcher/irc.js","./matrix":"/home/yarmo/dev/doip/doipjs/src/fetcher/matrix.js","./twitter":"/home/yarmo/dev/doip/doipjs/src/fetcher/twitter.js","./xmpp":"/home/yarmo/dev/doip/doipjs/src/fetcher/xmpp.js"}],"/home/yarmo/dev/doip/doipjs/src/fetcher/irc.js":[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -10054,7 +10055,7 @@ const xmppStart = async (service, username, password) => {
  * @async
  * @param {object} data                       - Data used in the request
  * @param {string} data.id                    - The identifier of the targeted account
- * @param {string} data.field                 - The vCard field to return (should be "note") 
+ * @param {string} data.field                 - The vCard field to return (should be "note")
  * @param {object} opts                       - Options used to enable the request
  * @param {string} opts.claims.xmpp.service   - The server hostname on which the library can log in
  * @param {string} opts.claims.xmpp.username  - The username used to log in
@@ -10204,7 +10205,7 @@ const Claim = require('./claim')
  * const key1 = doip.keys.fetchHKP('alice@domain.tld');
  * const key2 = doip.keys.fetchHKP('123abc123abc');
  */
- exports.fetchHKP = (identifier, keyserverDomain) => {
+exports.fetchHKP = (identifier, keyserverDomain) => {
   return new Promise(async (resolve, reject) => {
     const keyserverBaseUrl = keyserverDomain
       ? `https://${keyserverDomain}`
@@ -10316,7 +10317,7 @@ exports.fetchKeybase = (username, fingerprint) => {
  * @returns {openpgp.key.Key}
  * @example
  * const plainkey = `-----BEGIN PGP PUBLIC KEY BLOCK-----
- * 
+ *
  * mQINBF0mIsIBEADacleiyiV+z6FIunvLWrO6ZETxGNVpqM+WbBQKdW1BVrJBBolg
  * [...]
  * =6lib
@@ -10357,14 +10358,19 @@ exports.fetchURI = (uri) => {
     switch (match[1]) {
       case 'hkp':
         resolve(
-          exports.fetchHKP(match[3] ? match[3] : match[2], match[3] ? match[2] : null)
+          exports.fetchHKP(
+            match[3] ? match[3] : match[2],
+            match[3] ? match[2] : null
+          )
         )
         break
       case 'wkd':
         resolve(exports.fetchWKD(match[2]))
         break
       case 'kb':
-        resolve(exports.fetchKeybase(match[2], match.length >= 4 ? match[3] : null))
+        resolve(
+          exports.fetchKeybase(match[2], match.length >= 4 ? match[3] : null)
+        )
         break
       default:
         reject('Invalid URI protocol')
@@ -10433,6 +10439,7 @@ exports.process = (publicKey) => {
     })
   })
 }
+
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./claim":"/home/yarmo/dev/doip/doipjs/src/claim.js","bent":"/home/yarmo/dev/doip/doipjs/node_modules/bent/src/browser.js","valid-url":"/home/yarmo/dev/doip/doipjs/node_modules/valid-url/index.js"}],"/home/yarmo/dev/doip/doipjs/src/proofs.js":[function(require,module,exports){
 /*
@@ -10456,7 +10463,7 @@ const utils = require('./utils')
 const E = require('./enums')
 
 /**
- * @module proofs 
+ * @module proofs
  */
 
 /**
@@ -10653,7 +10660,7 @@ const Claim = require('./claim')
 const keys = require('./keys')
 
 /**
- * @module signatures 
+ * @module signatures
  */
 
 /**
@@ -10803,7 +10810,7 @@ const validator = require('validator')
 const E = require('./enums')
 
 /**
- * @module utils 
+ * @module utils
  */
 
 /**
