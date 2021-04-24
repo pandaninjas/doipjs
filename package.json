@@ -26,7 +26,7 @@
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-match-pattern": "^1.2.0",
-    "docdash": "^1.2.0",
+    "clean-jsdoc-theme": "^3.2.4",
     "jsdoc": "^3.6.6",
     "license-check-and-add": "^3.0.4",
     "minify": "^6.0.1",
