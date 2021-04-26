@@ -1,6 +1,6 @@
 {
   "name": "doipjs",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -35,7 +35,7 @@
     "prettier": "^2.1.2"
   },
   "scripts": {
-    "release:bundle": "./node_modules/.bin/browserify ./src/index.js --full-paths --standalone doip -x openpgp -x jsdom -x @xmpp/client -x @xmpp/debug -x irc-upd -o ./dist/doip.js",
+    "release:bundle": "./node_modules/.bin/browserify ./src/index.js --standalone doip -x openpgp -x jsdom -x @xmpp/client -x @xmpp/debug -x irc-upd -o ./dist/doip.js",
     "release:minify": "./node_modules/.bin/minify ./dist/doip.js > ./dist/doip.min.js",
     "prettier:check": "./node_modules/.bin/prettier --check .",
     "prettier:write": "./node_modules/.bin/prettier --write .",

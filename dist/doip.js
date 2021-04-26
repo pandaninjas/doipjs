@@ -7541,7 +7541,7 @@ module.exports={
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-match-pattern": "^1.2.0",
-    "docdash": "^1.2.0",
+    "clean-jsdoc-theme": "^3.2.4",
     "jsdoc": "^3.6.6",
     "license-check-and-add": "^3.0.4",
     "minify": "^6.0.1",
@@ -9493,7 +9493,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const dns = require('dns')
+const jsEnv = require("browser-or-node")
 
 /**
  * @module fetcher/dns
@@ -9505,46 +9505,51 @@ const dns = require('dns')
  */
 module.exports.timeout = 5000
 
-/**
- * Execute a fetch request
- * @function
- * @async
- * @param {object} data         - Data used in the request
- * @param {string} data.domain  - The targeted domain
- * @returns {object}
- */
-module.exports.fn = async (data, opts) => {
-  let timeoutHandle
-  const timeoutPromise = new Promise((resolve, reject) => {
-    timeoutHandle = setTimeout(
-      () => reject(new Error('Request was timed out')),
-      data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
-    )
-  })
+if (!jsEnv.isNode) {
+  const dns = require('dns')
 
-  const fetchPromise = new Promise((resolve, reject) => {
-    dns.resolveTxt(data.domain, (err, records) => {
-      if (err) {
-        reject(err)
-        return
-      }
+  /**
+   * Execute a fetch request
+   * @function
+   * @async
+   * @param {object} data         - Data used in the request
+   * @param {string} data.domain  - The targeted domain
+   * @returns {object}
+   */
+  module.exports.fn = async (data, opts) => {
+    let timeoutHandle
+    const timeoutPromise = new Promise((resolve, reject) => {
+      timeoutHandle = setTimeout(
+        () => reject(new Error('Request was timed out')),
+        data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
+      )
+    })
 
-      resolve({
-        domain: data.domain,
-        records: {
-          txt: records,
-        },
+    const fetchPromise = new Promise((resolve, reject) => {
+      dns.resolveTxt(data.domain, (err, records) => {
+        if (err) {
+          reject(err)
+          return
+        }
+
+        resolve({
+          domain: data.domain,
+          records: {
+            txt: records,
+          },
+        })
       })
     })
-  })
 
-  return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
-    clearTimeout(timeoutHandle)
-    return result
-  })
+    return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+      clearTimeout(timeoutHandle)
+      return result
+    })
+  }
+} else {
+  module.exports.fn = null
 }
-
-},{"dns":"/home/yarmo/dev/doip/doipjs/node_modules/browserify/lib/_empty.js"}],"/home/yarmo/dev/doip/doipjs/src/fetcher/gitlab.js":[function(require,module,exports){
+},{"browser-or-node":"/home/yarmo/dev/doip/doipjs/node_modules/browser-or-node/lib/index.js","dns":"/home/yarmo/dev/doip/doipjs/node_modules/browserify/lib/_empty.js"}],"/home/yarmo/dev/doip/doipjs/src/fetcher/gitlab.js":[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9756,8 +9761,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const irc = require('irc-upd')
-const validator = require('validator')
+const jsEnv = require("browser-or-node")
 
 /**
  * @module fetcher/irc
@@ -9769,68 +9773,75 @@ const validator = require('validator')
  */
 module.exports.timeout = 20000
 
-/**
- * Execute a fetch request
- * @function
- * @async
- * @param {object} data                 - Data used in the request
- * @param {string} data.nick            - The nick of the targeted account
- * @param {string} data.domain          - The domain on which the targeted account is registered
- * @param {object} opts                 - Options used to enable the request
- * @param {string} opts.claims.irc.nick - The nick to be used by the library to log in
- * @returns {object}
- */
-module.exports.fn = async (data, opts) => {
-  let timeoutHandle
-  const timeoutPromise = new Promise((resolve, reject) => {
-    timeoutHandle = setTimeout(
-      () => reject(new Error('Request was timed out')),
-      data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
-    )
-  })
-
-  const fetchPromise = new Promise((resolve, reject) => {
-    try {
-      validator.isAscii(opts.claims.irc.nick)
-    } catch (err) {
-      throw new Error(`IRC fetcher was not set up properly (${err.message})`)
-    }
-
-    try {
-      const client = new irc.Client(data.domain, opts.claims.irc.nick, {
-        port: 6697,
-        secure: true,
-        channels: [],
-      })
-      const reKey = /[a-zA-Z0-9\-\_]+\s+:\s(openpgp4fpr\:.*)/
-      const reEnd = /End\sof\s.*\staxonomy./
-      let keys = []
-
-      client.addListener('registered', (message) => {
-        client.send(`PRIVMSG NickServ :TAXONOMY ${data.nick}`)
-      })
-      client.addListener('notice', (nick, to, text, message) => {
-        if (reKey.test(text)) {
-          const match = text.match(reKey)
-          keys.push(match[1])
-        }
-        if (reEnd.test(text)) {
-          client.disconnect()
-          resolve(keys)
-        }
-      })
-    } catch (error) {
-      reject(error)
-    }
-  })
-
-  return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
-    clearTimeout(timeoutHandle)
-    return result
-  })
+if (jsEnv.isNode) {
+  const irc = require('irc-upd')
+  const validator = require('validator')
+  
+  /**
+   * Execute a fetch request
+   * @function
+   * @async
+   * @param {object} data                 - Data used in the request
+   * @param {string} data.nick            - The nick of the targeted account
+   * @param {string} data.domain          - The domain on which the targeted account is registered
+   * @param {object} opts                 - Options used to enable the request
+   * @param {string} opts.claims.irc.nick - The nick to be used by the library to log in
+   * @returns {object}
+   */
+  module.exports.fn = async (data, opts) => {
+    let timeoutHandle
+    const timeoutPromise = new Promise((resolve, reject) => {
+      timeoutHandle = setTimeout(
+        () => reject(new Error('Request was timed out')),
+        data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
+      )
+    })
+  
+    const fetchPromise = new Promise((resolve, reject) => {
+      try {
+        validator.isAscii(opts.claims.irc.nick)
+      } catch (err) {
+        throw new Error(`IRC fetcher was not set up properly (${err.message})`)
+      }
+  
+      try {
+        const client = new irc.Client(data.domain, opts.claims.irc.nick, {
+          port: 6697,
+          secure: true,
+          channels: [],
+        })
+        const reKey = /[a-zA-Z0-9\-\_]+\s+:\s(openpgp4fpr\:.*)/
+        const reEnd = /End\sof\s.*\staxonomy./
+        let keys = []
+  
+        client.addListener('registered', (message) => {
+          client.send(`PRIVMSG NickServ :TAXONOMY ${data.nick}`)
+        })
+        client.addListener('notice', (nick, to, text, message) => {
+          if (reKey.test(text)) {
+            const match = text.match(reKey)
+            keys.push(match[1])
+          }
+          if (reEnd.test(text)) {
+            client.disconnect()
+            resolve(keys)
+          }
+        })
+      } catch (error) {
+        reject(error)
+      }
+    })
+  
+    return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+      clearTimeout(timeoutHandle)
+      return result
+    })
+  }
+} else {
+  module.exports.fn = null
 }
 
-},{"irc-upd":"irc-upd","validator":"/home/yarmo/dev/doip/doipjs/node_modules/validator/index.js"}],"/home/yarmo/dev/doip/doipjs/src/fetcher/matrix.js":[function(require,module,exports){
+},{"browser-or-node":"/home/yarmo/dev/doip/doipjs/node_modules/browser-or-node/lib/index.js","irc-upd":"irc-upd","validator":"/home/yarmo/dev/doip/doipjs/node_modules/validator/index.js"}],"/home/yarmo/dev/doip/doipjs/src/fetcher/matrix.js":[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10010,10 +10021,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const jsdom = require('jsdom')
-const { client, xml } = require('@xmpp/client')
-const debug = require('@xmpp/debug')
-const validator = require('validator')
+const jsEnv = require("browser-or-node")
 
 /**
  * @module fetcher/xmpp
@@ -10025,115 +10033,124 @@ const validator = require('validator')
  */
 module.exports.timeout = 5000
 
-let xmpp = null,
-  iqCaller = null
-
-const xmppStart = async (service, username, password) => {
-  return new Promise((resolve, reject) => {
-    const xmpp = client({
-      service: service,
-      username: username,
-      password: password,
-    })
-    if (process.env.NODE_ENV !== 'production') {
-      debug(xmpp, true)
-    }
-    const { iqCaller } = xmpp
-    xmpp.start()
-    xmpp.on('online', (address) => {
-      resolve({ xmpp: xmpp, iqCaller: iqCaller })
-    })
-    xmpp.on('error', (error) => {
-      reject(error)
-    })
-  })
-}
-
-/**
- * Execute a fetch request
- * @function
- * @async
- * @param {object} data                       - Data used in the request
- * @param {string} data.id                    - The identifier of the targeted account
- * @param {string} data.field                 - The vCard field to return (should be "note")
- * @param {object} opts                       - Options used to enable the request
- * @param {string} opts.claims.xmpp.service   - The server hostname on which the library can log in
- * @param {string} opts.claims.xmpp.username  - The username used to log in
- * @param {string} opts.claims.xmpp.password  - The password used to log in
- * @returns {object}
- */
-module.exports.fn = async (data, opts) => {
-  let timeoutHandle
-  const timeoutPromise = new Promise((resolve, reject) => {
-    timeoutHandle = setTimeout(
-      () => reject(new Error('Request was timed out')),
-      data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
-    )
-  })
-
-  const fetchPromise = new Promise(async (resolve, reject) => {
-    try {
-      validator.isFQDN(opts.claims.xmpp.service)
-      validator.isAscii(opts.claims.xmpp.username)
-      validator.isAscii(opts.claims.xmpp.password)
-    } catch (err) {
-      throw new Error(`XMPP fetcher was not set up properly (${err.message})`)
-    }
-
-    if (!xmpp || xmpp.status !== 'online') {
-      const xmppStartRes = await xmppStart(
-        opts.claims.xmpp.service,
-        opts.claims.xmpp.username,
-        opts.claims.xmpp.password
-      )
-      xmpp = xmppStartRes.xmpp
-      iqCaller = xmppStartRes.iqCaller
-    }
-
-    const response = await iqCaller.request(
-      xml('iq', { type: 'get', to: data.id }, xml('vCard', 'vcard-temp')),
-      30 * 1000
-    )
-
-    const vcardRow = response.getChild('vCard', 'vcard-temp').toString()
-    const dom = new jsdom.JSDOM(vcardRow)
-
-    try {
-      let vcard
-
-      switch (data.field.toLowerCase()) {
-        case 'desc':
-        case 'note':
-          vcard = dom.window.document.querySelector('note text')
-          if (!vcard) {
-            vcard = dom.window.document.querySelector('DESC')
-          }
-          if (vcard) {
-            vcard = vcard.textContent
-          } else {
-            throw new Error('No DESC or NOTE field found in vCard')
-          }
-          break
-
-        default:
-          vcard = dom.window.document.querySelector(data).textContent
-          break
+if (jsEnv.isNode) {
+  const jsdom = require('jsdom')
+  const { client, xml } = require('@xmpp/client')
+  const debug = require('@xmpp/debug')
+  const validator = require('validator')
+  
+  let xmpp = null,
+    iqCaller = null
+  
+  const xmppStart = async (service, username, password) => {
+    return new Promise((resolve, reject) => {
+      const xmpp = client({
+        service: service,
+        username: username,
+        password: password,
+      })
+      if (process.env.NODE_ENV !== 'production') {
+        debug(xmpp, true)
       }
-      xmpp.stop()
-      resolve(vcard)
-    } catch (error) {
-      reject(error)
-    }
-  })
-
-  return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
-    clearTimeout(timeoutHandle)
-    return result
-  })
+      const { iqCaller } = xmpp
+      xmpp.start()
+      xmpp.on('online', (address) => {
+        resolve({ xmpp: xmpp, iqCaller: iqCaller })
+      })
+      xmpp.on('error', (error) => {
+        reject(error)
+      })
+    })
+  }
+  
+  /**
+   * Execute a fetch request
+   * @function
+   * @async
+   * @param {object} data                       - Data used in the request
+   * @param {string} data.id                    - The identifier of the targeted account
+   * @param {string} data.field                 - The vCard field to return (should be "note")
+   * @param {object} opts                       - Options used to enable the request
+   * @param {string} opts.claims.xmpp.service   - The server hostname on which the library can log in
+   * @param {string} opts.claims.xmpp.username  - The username used to log in
+   * @param {string} opts.claims.xmpp.password  - The password used to log in
+   * @returns {object}
+   */
+  module.exports.fn = async (data, opts) => {
+    let timeoutHandle
+    const timeoutPromise = new Promise((resolve, reject) => {
+      timeoutHandle = setTimeout(
+        () => reject(new Error('Request was timed out')),
+        data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
+      )
+    })
+  
+    const fetchPromise = new Promise(async (resolve, reject) => {
+      try {
+        validator.isFQDN(opts.claims.xmpp.service)
+        validator.isAscii(opts.claims.xmpp.username)
+        validator.isAscii(opts.claims.xmpp.password)
+      } catch (err) {
+        throw new Error(`XMPP fetcher was not set up properly (${err.message})`)
+      }
+  
+      if (!xmpp || xmpp.status !== 'online') {
+        const xmppStartRes = await xmppStart(
+          opts.claims.xmpp.service,
+          opts.claims.xmpp.username,
+          opts.claims.xmpp.password
+        )
+        xmpp = xmppStartRes.xmpp
+        iqCaller = xmppStartRes.iqCaller
+      }
+  
+      const response = await iqCaller.request(
+        xml('iq', { type: 'get', to: data.id }, xml('vCard', 'vcard-temp')),
+        30 * 1000
+      )
+  
+      const vcardRow = response.getChild('vCard', 'vcard-temp').toString()
+      const dom = new jsdom.JSDOM(vcardRow)
+  
+      try {
+        let vcard
+  
+        switch (data.field.toLowerCase()) {
+          case 'desc':
+          case 'note':
+            vcard = dom.window.document.querySelector('note text')
+            if (!vcard) {
+              vcard = dom.window.document.querySelector('DESC')
+            }
+            if (vcard) {
+              vcard = vcard.textContent
+            } else {
+              throw new Error('No DESC or NOTE field found in vCard')
+            }
+            break
+  
+          default:
+            vcard = dom.window.document.querySelector(data).textContent
+            break
+        }
+        xmpp.stop()
+        resolve(vcard)
+      } catch (error) {
+        reject(error)
+      }
+    })
+  
+    return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+      clearTimeout(timeoutHandle)
+      return result
+    })
+  }
+} else {
+  module.exports.fn = null
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"@xmpp/client":"@xmpp/client","@xmpp/debug":"@xmpp/debug","_process":"/home/yarmo/dev/doip/doipjs/node_modules/process/browser.js","jsdom":"jsdom","validator":"/home/yarmo/dev/doip/doipjs/node_modules/validator/index.js"}],"/home/yarmo/dev/doip/doipjs/src/index.js":[function(require,module,exports){
+},{"@xmpp/client":"@xmpp/client","@xmpp/debug":"@xmpp/debug","_process":"/home/yarmo/dev/doip/doipjs/node_modules/process/browser.js","browser-or-node":"/home/yarmo/dev/doip/doipjs/node_modules/browser-or-node/lib/index.js","jsdom":"jsdom","validator":"/home/yarmo/dev/doip/doipjs/node_modules/validator/index.js"}],"/home/yarmo/dev/doip/doipjs/src/index.js":[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10530,9 +10547,7 @@ const handleBrowserRequests = (data, opts) => {
           return createFallbackRequestPromise(data, opts)
           break
         case E.ProofAccess.SERVER:
-          throw new Error(
-            'Impossible to fetch proof (bad combination of service access and proxy policy)'
-          )
+          return createProxyRequestPromise(data, opts)
           break
         default:
           throw new Error('Invalid proof access value')
@@ -10834,7 +10849,7 @@ const generateProxyURL = (type, data, opts) => {
     queryStrings.push(`${key}=${encodeURIComponent(data[key])}`)
   })
 
-  return `http://${opts.proxy.hostname}/api/2/get/${type}?${queryStrings.join(
+  return `https://${opts.proxy.hostname}/api/2/get/${type}?${queryStrings.join(
     '&'
   )}`
 }
