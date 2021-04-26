@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const dns = require('dns')
+const jsEnv = require("browser-or-node")
 
 /**
  * @module fetcher/dns
@@ -24,6 +24,13 @@ const dns = require('dns')
  * @constant {number} timeout
  */
 module.exports.timeout = 5000
+
+if (!jsEnv.isNode) {
+  module.exports.fn = null
+  return
+}
+
+const dns = require('dns')
 
 /**
  * Execute a fetch request

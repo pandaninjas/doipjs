@@ -13,8 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const irc = require('irc-upd')
-const validator = require('validator')
+const jsEnv = require("browser-or-node")
 
 /**
  * @module fetcher/irc
@@ -25,6 +24,14 @@ const validator = require('validator')
  * @constant {number} timeout
  */
 module.exports.timeout = 20000
+
+if (!jsEnv.isNode) {
+  module.exports.fn = null
+  return
+}
+
+const irc = require('irc-upd')
+const validator = require('validator')
 
 /**
  * Execute a fetch request

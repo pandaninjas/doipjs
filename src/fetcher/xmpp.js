@@ -13,10 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const jsdom = require('jsdom')
-const { client, xml } = require('@xmpp/client')
-const debug = require('@xmpp/debug')
-const validator = require('validator')
+const jsEnv = require("browser-or-node")
 
 /**
  * @module fetcher/xmpp
@@ -27,6 +24,16 @@ const validator = require('validator')
  * @constant {number} timeout
  */
 module.exports.timeout = 5000
+
+if (!jsEnv.isNode) {
+  module.exports.fn = null
+  return
+}
+
+const jsdom = require('jsdom')
+const { client, xml } = require('@xmpp/client')
+const debug = require('@xmpp/debug')
+const validator = require('validator')
 
 let xmpp = null,
   iqCaller = null
