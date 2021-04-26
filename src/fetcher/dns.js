@@ -26,47 +26,46 @@ const jsEnv = require("browser-or-node")
 module.exports.timeout = 5000
 
 if (!jsEnv.isNode) {
-  module.exports.fn = null
-  return
-}
+  const dns = require('dns')
 
-const dns = require('dns')
+  /**
+   * Execute a fetch request
+   * @function
+   * @async
+   * @param {object} data         - Data used in the request
+   * @param {string} data.domain  - The targeted domain
+   * @returns {object}
+   */
+  module.exports.fn = async (data, opts) => {
+    let timeoutHandle
+    const timeoutPromise = new Promise((resolve, reject) => {
+      timeoutHandle = setTimeout(
+        () => reject(new Error('Request was timed out')),
+        data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
+      )
+    })
 
-/**
- * Execute a fetch request
- * @function
- * @async
- * @param {object} data         - Data used in the request
- * @param {string} data.domain  - The targeted domain
- * @returns {object}
- */
-module.exports.fn = async (data, opts) => {
-  let timeoutHandle
-  const timeoutPromise = new Promise((resolve, reject) => {
-    timeoutHandle = setTimeout(
-      () => reject(new Error('Request was timed out')),
-      data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
-    )
-  })
+    const fetchPromise = new Promise((resolve, reject) => {
+      dns.resolveTxt(data.domain, (err, records) => {
+        if (err) {
+          reject(err)
+          return
+        }
 
-  const fetchPromise = new Promise((resolve, reject) => {
-    dns.resolveTxt(data.domain, (err, records) => {
-      if (err) {
-        reject(err)
-        return
-      }
-
-      resolve({
-        domain: data.domain,
-        records: {
-          txt: records,
-        },
+        resolve({
+          domain: data.domain,
+          records: {
+            txt: records,
+          },
+        })
       })
     })
-  })
 
-  return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
-    clearTimeout(timeoutHandle)
-    return result
-  })
+    return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+      clearTimeout(timeoutHandle)
+      return result
+    })
+  }
+} else {
+  module.exports.fn = null
 }

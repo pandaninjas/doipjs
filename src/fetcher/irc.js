@@ -25,71 +25,70 @@ const jsEnv = require("browser-or-node")
  */
 module.exports.timeout = 20000
 
-if (!jsEnv.isNode) {
+if (jsEnv.isNode) {
+  const irc = require('irc-upd')
+  const validator = require('validator')
+  
+  /**
+   * Execute a fetch request
+   * @function
+   * @async
+   * @param {object} data                 - Data used in the request
+   * @param {string} data.nick            - The nick of the targeted account
+   * @param {string} data.domain          - The domain on which the targeted account is registered
+   * @param {object} opts                 - Options used to enable the request
+   * @param {string} opts.claims.irc.nick - The nick to be used by the library to log in
+   * @returns {object}
+   */
+  module.exports.fn = async (data, opts) => {
+    let timeoutHandle
+    const timeoutPromise = new Promise((resolve, reject) => {
+      timeoutHandle = setTimeout(
+        () => reject(new Error('Request was timed out')),
+        data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
+      )
+    })
+  
+    const fetchPromise = new Promise((resolve, reject) => {
+      try {
+        validator.isAscii(opts.claims.irc.nick)
+      } catch (err) {
+        throw new Error(`IRC fetcher was not set up properly (${err.message})`)
+      }
+  
+      try {
+        const client = new irc.Client(data.domain, opts.claims.irc.nick, {
+          port: 6697,
+          secure: true,
+          channels: [],
+        })
+        const reKey = /[a-zA-Z0-9\-\_]+\s+:\s(openpgp4fpr\:.*)/
+        const reEnd = /End\sof\s.*\staxonomy./
+        let keys = []
+  
+        client.addListener('registered', (message) => {
+          client.send(`PRIVMSG NickServ :TAXONOMY ${data.nick}`)
+        })
+        client.addListener('notice', (nick, to, text, message) => {
+          if (reKey.test(text)) {
+            const match = text.match(reKey)
+            keys.push(match[1])
+          }
+          if (reEnd.test(text)) {
+            client.disconnect()
+            resolve(keys)
+          }
+        })
+      } catch (error) {
+        reject(error)
+      }
+    })
+  
+    return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+      clearTimeout(timeoutHandle)
+      return result
+    })
+  }
+} else {
   module.exports.fn = null
-  return
-}
-
-const irc = require('irc-upd')
-const validator = require('validator')
-
-/**
- * Execute a fetch request
- * @function
- * @async
- * @param {object} data                 - Data used in the request
- * @param {string} data.nick            - The nick of the targeted account
- * @param {string} data.domain          - The domain on which the targeted account is registered
- * @param {object} opts                 - Options used to enable the request
- * @param {string} opts.claims.irc.nick - The nick to be used by the library to log in
- * @returns {object}
- */
-module.exports.fn = async (data, opts) => {
-  let timeoutHandle
-  const timeoutPromise = new Promise((resolve, reject) => {
-    timeoutHandle = setTimeout(
-      () => reject(new Error('Request was timed out')),
-      data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
-    )
-  })
-
-  const fetchPromise = new Promise((resolve, reject) => {
-    try {
-      validator.isAscii(opts.claims.irc.nick)
-    } catch (err) {
-      throw new Error(`IRC fetcher was not set up properly (${err.message})`)
-    }
-
-    try {
-      const client = new irc.Client(data.domain, opts.claims.irc.nick, {
-        port: 6697,
-        secure: true,
-        channels: [],
-      })
-      const reKey = /[a-zA-Z0-9\-\_]+\s+:\s(openpgp4fpr\:.*)/
-      const reEnd = /End\sof\s.*\staxonomy./
-      let keys = []
-
-      client.addListener('registered', (message) => {
-        client.send(`PRIVMSG NickServ :TAXONOMY ${data.nick}`)
-      })
-      client.addListener('notice', (nick, to, text, message) => {
-        if (reKey.test(text)) {
-          const match = text.match(reKey)
-          keys.push(match[1])
-        }
-        if (reEnd.test(text)) {
-          client.disconnect()
-          resolve(keys)
-        }
-      })
-    } catch (error) {
-      reject(error)
-    }
-  })
-
-  return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
-    clearTimeout(timeoutHandle)
-    return result
-  })
 }
