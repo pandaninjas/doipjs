@@ -86,9 +86,7 @@ const handleBrowserRequests = (data, opts) => {
           return createFallbackRequestPromise(data, opts)
           break
         case E.ProofAccess.SERVER:
-          throw new Error(
-            'Impossible to fetch proof (bad combination of service access and proxy policy)'
-          )
+          return createProxyRequestPromise(data, opts)
           break
         default:
           throw new Error('Invalid proof access value')
