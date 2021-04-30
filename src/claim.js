@@ -258,7 +258,7 @@ class Claim {
     }
 
     // Fail safe verification result
-    verificationResult = verificationResult ? verificationResult : {
+    this._verification = this._verification ? this._verification : {
       result: false,
       completed: true,
       proof: {},
