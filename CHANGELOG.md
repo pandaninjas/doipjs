@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.2] - 2021-04-30
+## Fixed
+- Fix Claim constructor handling of object data
+- Refactor bad properties names
+
 ## [0.12.1] - 2021-04-26
 ## Fixed
 - Bad interpretation of proxy policy

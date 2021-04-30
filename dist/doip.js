@@ -1,4 +1,4 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.doip = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({"/home/yarmo/dev/doip/doipjs/node_modules/bent/src/browser.js":[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.doip = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 'use strict'
 /* global fetch, btoa, Headers */
 const core = require('./core')
@@ -76,7 +76,7 @@ const mkrequest = (statusCodes, method, encoding, headers, baseurl) => async (_u
 
 module.exports = core(mkrequest)
 
-},{"./core":"/home/yarmo/dev/doip/doipjs/node_modules/bent/src/core.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/bent/src/core.js":[function(require,module,exports){
+},{"./core":2}],2:[function(require,module,exports){
 'use strict'
 const encodings = new Set(['json', 'buffer', 'string'])
 
@@ -129,7 +129,7 @@ module.exports = mkrequest => (...args) => {
   return mkrequest(statusCodes, method, encoding, headers, baseurl)
 }
 
-},{}],"/home/yarmo/dev/doip/doipjs/node_modules/browser-or-node/lib/index.js":[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -163,9 +163,9 @@ exports.isWebWorker = isWebWorker;
 exports.isNode = isNode;
 exports.isJsDom = isJsDom;
 }).call(this)}).call(this,require('_process'))
-},{"_process":"/home/yarmo/dev/doip/doipjs/node_modules/process/browser.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/browserify/lib/_empty.js":[function(require,module,exports){
+},{"_process":9}],4:[function(require,module,exports){
 
-},{}],"/home/yarmo/dev/doip/doipjs/node_modules/decode-uri-component/index.js":[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 'use strict';
 var token = '%[a-f0-9]{2}';
 var singleMatcher = new RegExp(token, 'gi');
@@ -261,7 +261,7 @@ module.exports = function (encodedURI) {
 	}
 };
 
-},{}],"/home/yarmo/dev/doip/doipjs/node_modules/filter-obj/index.js":[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 module.exports = function (obj, predicate) {
 	var ret = {};
@@ -280,7 +280,7 @@ module.exports = function (obj, predicate) {
 	return ret;
 };
 
-},{}],"/home/yarmo/dev/doip/doipjs/node_modules/is-plain-obj/index.js":[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 module.exports = value => {
@@ -292,7 +292,7 @@ module.exports = value => {
 	return prototype === null || prototype === Object.prototype;
 };
 
-},{}],"/home/yarmo/dev/doip/doipjs/node_modules/merge-options/index.js":[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 const isOptionObject = require('is-plain-obj');
 
@@ -465,7 +465,7 @@ module.exports = function (...options) {
 	return merged._;
 };
 
-},{"is-plain-obj":"/home/yarmo/dev/doip/doipjs/node_modules/is-plain-obj/index.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/process/browser.js":[function(require,module,exports){
+},{"is-plain-obj":7}],9:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -651,7 +651,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],"/home/yarmo/dev/doip/doipjs/node_modules/query-string/index.js":[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 const strictUriEncode = require('strict-uri-encode');
 const decodeComponent = require('decode-uri-component');
@@ -1057,7 +1057,7 @@ exports.exclude = (input, filter, options) => {
 	return exports.pick(input, exclusionFilter, options);
 };
 
-},{"decode-uri-component":"/home/yarmo/dev/doip/doipjs/node_modules/decode-uri-component/index.js","filter-obj":"/home/yarmo/dev/doip/doipjs/node_modules/filter-obj/index.js","split-on-first":"/home/yarmo/dev/doip/doipjs/node_modules/split-on-first/index.js","strict-uri-encode":"/home/yarmo/dev/doip/doipjs/node_modules/strict-uri-encode/index.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/split-on-first/index.js":[function(require,module,exports){
+},{"decode-uri-component":5,"filter-obj":6,"split-on-first":11,"strict-uri-encode":12}],11:[function(require,module,exports){
 'use strict';
 
 module.exports = (string, separator) => {
@@ -1081,11 +1081,11 @@ module.exports = (string, separator) => {
 	];
 };
 
-},{}],"/home/yarmo/dev/doip/doipjs/node_modules/strict-uri-encode/index.js":[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 module.exports = str => encodeURIComponent(str).replace(/[!'()*]/g, x => `%${x.charCodeAt(0).toString(16).toUpperCase()}`);
 
-},{}],"/home/yarmo/dev/doip/doipjs/node_modules/valid-url/index.js":[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 (function(module) {
     'use strict';
 
@@ -1240,7 +1240,7 @@ module.exports = str => encodeURIComponent(str).replace(/[!'()*]/g, x => `%${x.c
 
 })(module);
 
-},{}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/index.js":[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 "use strict";
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -1543,7 +1543,7 @@ var _default = validator;
 exports.default = _default;
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./lib/blacklist":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/blacklist.js","./lib/contains":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/contains.js","./lib/equals":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/equals.js","./lib/escape":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/escape.js","./lib/isAfter":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isAfter.js","./lib/isAlpha":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isAlpha.js","./lib/isAlphanumeric":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isAlphanumeric.js","./lib/isAscii":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isAscii.js","./lib/isBIC":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isBIC.js","./lib/isBase32":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isBase32.js","./lib/isBase58":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isBase58.js","./lib/isBase64":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isBase64.js","./lib/isBefore":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isBefore.js","./lib/isBoolean":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isBoolean.js","./lib/isBtcAddress":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isBtcAddress.js","./lib/isByteLength":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isByteLength.js","./lib/isCreditCard":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isCreditCard.js","./lib/isCurrency":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isCurrency.js","./lib/isDataURI":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isDataURI.js","./lib/isDate":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isDate.js","./lib/isDecimal":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isDecimal.js","./lib/isDivisibleBy":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isDivisibleBy.js","./lib/isEAN":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isEAN.js","./lib/isEmail":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isEmail.js","./lib/isEmpty":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isEmpty.js","./lib/isEthereumAddress":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isEthereumAddress.js","./lib/isFQDN":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isFQDN.js","./lib/isFloat":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isFloat.js","./lib/isFullWidth":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isFullWidth.js","./lib/isHSL":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isHSL.js","./lib/isHalfWidth":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isHalfWidth.js","./lib/isHash":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isHash.js","./lib/isHexColor":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isHexColor.js","./lib/isHexadecimal":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isHexadecimal.js","./lib/isIBAN":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isIBAN.js","./lib/isIMEI":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isIMEI.js","./lib/isIP":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isIP.js","./lib/isIPRange":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isIPRange.js","./lib/isISBN":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isISBN.js","./lib/isISIN":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isISIN.js","./lib/isISO31661Alpha2":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isISO31661Alpha2.js","./lib/isISO31661Alpha3":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isISO31661Alpha3.js","./lib/isISO8601":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isISO8601.js","./lib/isISRC":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isISRC.js","./lib/isISSN":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isISSN.js","./lib/isIdentityCard":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isIdentityCard.js","./lib/isIn":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isIn.js","./lib/isInt":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isInt.js","./lib/isJSON":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isJSON.js","./lib/isJWT":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isJWT.js","./lib/isLatLong":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isLatLong.js","./lib/isLength":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isLength.js","./lib/isLocale":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isLocale.js","./lib/isLowercase":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isLowercase.js","./lib/isMACAddress":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isMACAddress.js","./lib/isMD5":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isMD5.js","./lib/isMagnetURI":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isMagnetURI.js","./lib/isMimeType":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isMimeType.js","./lib/isMobilePhone":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isMobilePhone.js","./lib/isMongoId":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isMongoId.js","./lib/isMultibyte":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isMultibyte.js","./lib/isNumeric":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isNumeric.js","./lib/isOctal":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isOctal.js","./lib/isPassportNumber":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isPassportNumber.js","./lib/isPort":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isPort.js","./lib/isPostalCode":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isPostalCode.js","./lib/isRFC3339":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isRFC3339.js","./lib/isRgbColor":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isRgbColor.js","./lib/isSemVer":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isSemVer.js","./lib/isSlug":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isSlug.js","./lib/isStrongPassword":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isStrongPassword.js","./lib/isSurrogatePair":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isSurrogatePair.js","./lib/isTaxID":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isTaxID.js","./lib/isURL":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isURL.js","./lib/isUUID":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isUUID.js","./lib/isUppercase":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isUppercase.js","./lib/isVAT":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isVAT.js","./lib/isVariableWidth":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isVariableWidth.js","./lib/isWhitelisted":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isWhitelisted.js","./lib/ltrim":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/ltrim.js","./lib/matches":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/matches.js","./lib/normalizeEmail":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/normalizeEmail.js","./lib/rtrim":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/rtrim.js","./lib/stripLow":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/stripLow.js","./lib/toBoolean":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/toBoolean.js","./lib/toDate":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/toDate.js","./lib/toFloat":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/toFloat.js","./lib/toInt":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/toInt.js","./lib/trim":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/trim.js","./lib/unescape":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/unescape.js","./lib/whitelist":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/whitelist.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/alpha.js":[function(require,module,exports){
+},{"./lib/blacklist":16,"./lib/contains":17,"./lib/equals":18,"./lib/escape":19,"./lib/isAfter":20,"./lib/isAlpha":21,"./lib/isAlphanumeric":22,"./lib/isAscii":23,"./lib/isBIC":24,"./lib/isBase32":25,"./lib/isBase58":26,"./lib/isBase64":27,"./lib/isBefore":28,"./lib/isBoolean":29,"./lib/isBtcAddress":30,"./lib/isByteLength":31,"./lib/isCreditCard":32,"./lib/isCurrency":33,"./lib/isDataURI":34,"./lib/isDate":35,"./lib/isDecimal":36,"./lib/isDivisibleBy":37,"./lib/isEAN":38,"./lib/isEmail":39,"./lib/isEmpty":40,"./lib/isEthereumAddress":41,"./lib/isFQDN":42,"./lib/isFloat":43,"./lib/isFullWidth":44,"./lib/isHSL":45,"./lib/isHalfWidth":46,"./lib/isHash":47,"./lib/isHexColor":48,"./lib/isHexadecimal":49,"./lib/isIBAN":50,"./lib/isIMEI":51,"./lib/isIP":52,"./lib/isIPRange":53,"./lib/isISBN":54,"./lib/isISIN":55,"./lib/isISO31661Alpha2":56,"./lib/isISO31661Alpha3":57,"./lib/isISO8601":58,"./lib/isISRC":59,"./lib/isISSN":60,"./lib/isIdentityCard":61,"./lib/isIn":62,"./lib/isInt":63,"./lib/isJSON":64,"./lib/isJWT":65,"./lib/isLatLong":66,"./lib/isLength":67,"./lib/isLocale":68,"./lib/isLowercase":69,"./lib/isMACAddress":70,"./lib/isMD5":71,"./lib/isMagnetURI":72,"./lib/isMimeType":73,"./lib/isMobilePhone":74,"./lib/isMongoId":75,"./lib/isMultibyte":76,"./lib/isNumeric":77,"./lib/isOctal":78,"./lib/isPassportNumber":79,"./lib/isPort":80,"./lib/isPostalCode":81,"./lib/isRFC3339":82,"./lib/isRgbColor":83,"./lib/isSemVer":84,"./lib/isSlug":85,"./lib/isStrongPassword":86,"./lib/isSurrogatePair":87,"./lib/isTaxID":88,"./lib/isURL":89,"./lib/isUUID":90,"./lib/isUppercase":91,"./lib/isVAT":92,"./lib/isVariableWidth":93,"./lib/isWhitelisted":94,"./lib/ltrim":95,"./lib/matches":96,"./lib/normalizeEmail":97,"./lib/rtrim":98,"./lib/stripLow":99,"./lib/toBoolean":100,"./lib/toDate":101,"./lib/toFloat":102,"./lib/toInt":103,"./lib/trim":104,"./lib/unescape":105,"./lib/whitelist":112}],15:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1677,7 +1677,7 @@ alphanumeric['pl-Pl'] = alphanumeric['pl-PL'];
 decimal['pl-Pl'] = decimal['pl-PL']; // see #1455
 
 alpha['fa-AF'] = alpha.fa;
-},{}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/blacklist.js":[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1696,7 +1696,7 @@ function blacklist(str, chars) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/contains.js":[function(require,module,exports){
+},{"./util/assertString":107}],17:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1724,7 +1724,7 @@ function contains(str, elem, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js","./util/merge":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/merge.js","./util/toString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/toString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/equals.js":[function(require,module,exports){
+},{"./util/assertString":107,"./util/merge":109,"./util/toString":111}],18:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1743,7 +1743,7 @@ function equals(str, comparison) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/escape.js":[function(require,module,exports){
+},{"./util/assertString":107}],19:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1762,7 +1762,7 @@ function escape(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isAfter.js":[function(require,module,exports){
+},{"./util/assertString":107}],20:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1786,7 +1786,7 @@ function isAfter(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./toDate":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/toDate.js","./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isAlpha.js":[function(require,module,exports){
+},{"./toDate":101,"./util/assertString":107}],21:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1827,7 +1827,7 @@ function isAlpha(_str) {
 
 var locales = Object.keys(_alpha.alpha);
 exports.locales = locales;
-},{"./alpha":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/alpha.js","./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isAlphanumeric.js":[function(require,module,exports){
+},{"./alpha":15,"./util/assertString":107}],22:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1855,7 +1855,7 @@ function isAlphanumeric(str) {
 
 var locales = Object.keys(_alpha.alphanumeric);
 exports.locales = locales;
-},{"./alpha":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/alpha.js","./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isAscii.js":[function(require,module,exports){
+},{"./alpha":15,"./util/assertString":107}],23:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1878,7 +1878,7 @@ function isAscii(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isBIC.js":[function(require,module,exports){
+},{"./util/assertString":107}],24:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1899,7 +1899,7 @@ function isBIC(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isBase32.js":[function(require,module,exports){
+},{"./util/assertString":107}],25:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1926,7 +1926,7 @@ function isBase32(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isBase58.js":[function(require,module,exports){
+},{"./util/assertString":107}],26:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1953,7 +1953,7 @@ function isBase58(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isBase64.js":[function(require,module,exports){
+},{"./util/assertString":107}],27:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1992,7 +1992,7 @@ function isBase64(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js","./util/merge":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/merge.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isBefore.js":[function(require,module,exports){
+},{"./util/assertString":107,"./util/merge":109}],28:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2016,7 +2016,7 @@ function isBefore(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./toDate":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/toDate.js","./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isBoolean.js":[function(require,module,exports){
+},{"./toDate":101,"./util/assertString":107}],29:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2035,7 +2035,7 @@ function isBoolean(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isBtcAddress.js":[function(require,module,exports){
+},{"./util/assertString":107}],30:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2057,7 +2057,7 @@ function isBtcAddress(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isByteLength.js":[function(require,module,exports){
+},{"./util/assertString":107}],31:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2092,7 +2092,7 @@ function isByteLength(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isCreditCard.js":[function(require,module,exports){
+},{"./util/assertString":107}],32:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2145,7 +2145,7 @@ function isCreditCard(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isCurrency.js":[function(require,module,exports){
+},{"./util/assertString":107}],33:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2237,7 +2237,7 @@ function isCurrency(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js","./util/merge":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/merge.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isDataURI.js":[function(require,module,exports){
+},{"./util/assertString":107,"./util/merge":109}],34:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2292,7 +2292,7 @@ function isDataURI(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isDate.js":[function(require,module,exports){
+},{"./util/assertString":107}],35:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2392,7 +2392,7 @@ function isDate(input, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/merge":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/merge.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isDecimal.js":[function(require,module,exports){
+},{"./util/merge":109}],36:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2435,7 +2435,7 @@ function isDecimal(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./alpha":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/alpha.js","./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js","./util/includes":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/includes.js","./util/merge":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/merge.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isDivisibleBy.js":[function(require,module,exports){
+},{"./alpha":15,"./util/assertString":107,"./util/includes":108,"./util/merge":109}],37:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2456,7 +2456,7 @@ function isDivisibleBy(str, num) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./toFloat":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/toFloat.js","./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isEAN.js":[function(require,module,exports){
+},{"./toFloat":102,"./util/assertString":107}],38:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2537,7 +2537,7 @@ function isEAN(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isEmail.js":[function(require,module,exports){
+},{"./util/assertString":107}],39:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2745,7 +2745,7 @@ function isEmail(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isByteLength":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isByteLength.js","./isFQDN":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isFQDN.js","./isIP":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isIP.js","./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js","./util/merge":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/merge.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isEmpty.js":[function(require,module,exports){
+},{"./isByteLength":31,"./isFQDN":42,"./isIP":52,"./util/assertString":107,"./util/merge":109}],40:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2771,7 +2771,7 @@ function isEmpty(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js","./util/merge":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/merge.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isEthereumAddress.js":[function(require,module,exports){
+},{"./util/assertString":107,"./util/merge":109}],41:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2792,7 +2792,7 @@ function isEthereumAddress(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isFQDN.js":[function(require,module,exports){
+},{"./util/assertString":107}],42:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2875,7 +2875,7 @@ function isFQDN(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js","./util/merge":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/merge.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isFloat.js":[function(require,module,exports){
+},{"./util/assertString":107,"./util/merge":109}],43:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2905,7 +2905,7 @@ function isFloat(str, options) {
 
 var locales = Object.keys(_alpha.decimal);
 exports.locales = locales;
-},{"./alpha":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/alpha.js","./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isFullWidth.js":[function(require,module,exports){
+},{"./alpha":15,"./util/assertString":107}],44:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2925,7 +2925,7 @@ function isFullWidth(str) {
   (0, _assertString.default)(str);
   return fullWidth.test(str);
 }
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isHSL.js":[function(require,module,exports){
+},{"./util/assertString":107}],45:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2947,7 +2947,7 @@ function isHSL(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isHalfWidth.js":[function(require,module,exports){
+},{"./util/assertString":107}],46:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2967,7 +2967,7 @@ function isHalfWidth(str) {
   (0, _assertString.default)(str);
   return halfWidth.test(str);
 }
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isHash.js":[function(require,module,exports){
+},{"./util/assertString":107}],47:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3003,7 +3003,7 @@ function isHash(str, algorithm) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isHexColor.js":[function(require,module,exports){
+},{"./util/assertString":107}],48:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3024,7 +3024,7 @@ function isHexColor(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isHexadecimal.js":[function(require,module,exports){
+},{"./util/assertString":107}],49:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3045,7 +3045,7 @@ function isHexadecimal(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isIBAN.js":[function(require,module,exports){
+},{"./util/assertString":107}],50:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3194,7 +3194,7 @@ function isIBAN(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isIMEI.js":[function(require,module,exports){
+},{"./util/assertString":107}],51:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3256,7 +3256,7 @@ function isIMEI(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isIP.js":[function(require,module,exports){
+},{"./util/assertString":107}],52:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3394,7 +3394,7 @@ function isIP(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isIPRange.js":[function(require,module,exports){
+},{"./util/assertString":107}],53:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3432,7 +3432,7 @@ function isIPRange(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isIP":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isIP.js","./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isISBN.js":[function(require,module,exports){
+},{"./isIP":52,"./util/assertString":107}],54:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3498,7 +3498,7 @@ function isISBN(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isISIN.js":[function(require,module,exports){
+},{"./util/assertString":107}],55:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3551,7 +3551,7 @@ function isISIN(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isISO31661Alpha2.js":[function(require,module,exports){
+},{"./util/assertString":107}],56:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3575,7 +3575,7 @@ function isISO31661Alpha2(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js","./util/includes":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/includes.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isISO31661Alpha3.js":[function(require,module,exports){
+},{"./util/assertString":107,"./util/includes":108}],57:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3599,7 +3599,7 @@ function isISO31661Alpha3(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js","./util/includes":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/includes.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isISO8601.js":[function(require,module,exports){
+},{"./util/assertString":107,"./util/includes":108}],58:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3659,7 +3659,7 @@ function isISO8601(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isISRC.js":[function(require,module,exports){
+},{"./util/assertString":107}],59:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3681,7 +3681,7 @@ function isISRC(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isISSN.js":[function(require,module,exports){
+},{"./util/assertString":107}],60:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3719,7 +3719,7 @@ function isISSN(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isIdentityCard.js":[function(require,module,exports){
+},{"./util/assertString":107}],61:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4008,7 +4008,7 @@ function isIdentityCard(str, locale) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isIn.js":[function(require,module,exports){
+},{"./util/assertString":107}],62:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4051,7 +4051,7 @@ function isIn(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js","./util/toString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/toString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isInt.js":[function(require,module,exports){
+},{"./util/assertString":107,"./util/toString":111}],63:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4082,7 +4082,7 @@ function isInt(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isJSON.js":[function(require,module,exports){
+},{"./util/assertString":107}],64:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4124,7 +4124,7 @@ function isJSON(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js","./util/merge":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/merge.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isJWT.js":[function(require,module,exports){
+},{"./util/assertString":107,"./util/merge":109}],65:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4156,7 +4156,7 @@ function isJWT(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isBase64":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isBase64.js","./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isLatLong.js":[function(require,module,exports){
+},{"./isBase64":27,"./util/assertString":107}],66:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4194,7 +4194,7 @@ function isLatLong(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js","./util/merge":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/merge.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isLength.js":[function(require,module,exports){
+},{"./util/assertString":107,"./util/merge":109}],67:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4230,7 +4230,7 @@ function isLength(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isLocale.js":[function(require,module,exports){
+},{"./util/assertString":107}],68:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4256,7 +4256,7 @@ function isLocale(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isLowercase.js":[function(require,module,exports){
+},{"./util/assertString":107}],69:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4275,7 +4275,7 @@ function isLowercase(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isMACAddress.js":[function(require,module,exports){
+},{"./util/assertString":107}],70:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4305,7 +4305,7 @@ function isMACAddress(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isMD5.js":[function(require,module,exports){
+},{"./util/assertString":107}],71:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4326,7 +4326,7 @@ function isMD5(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isMagnetURI.js":[function(require,module,exports){
+},{"./util/assertString":107}],72:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4347,7 +4347,7 @@ function isMagnetURI(url) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isMimeType.js":[function(require,module,exports){
+},{"./util/assertString":107}],73:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4399,7 +4399,7 @@ function isMimeType(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isMobilePhone.js":[function(require,module,exports){
+},{"./util/assertString":107}],74:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4577,7 +4577,7 @@ function isMobilePhone(str, locale, options) {
 
 var locales = Object.keys(phones);
 exports.locales = locales;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isMongoId.js":[function(require,module,exports){
+},{"./util/assertString":107}],75:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4598,7 +4598,7 @@ function isMongoId(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isHexadecimal":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isHexadecimal.js","./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isMultibyte.js":[function(require,module,exports){
+},{"./isHexadecimal":49,"./util/assertString":107}],76:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4621,7 +4621,7 @@ function isMultibyte(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isNumeric.js":[function(require,module,exports){
+},{"./util/assertString":107}],77:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4649,7 +4649,7 @@ function isNumeric(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./alpha":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/alpha.js","./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isOctal.js":[function(require,module,exports){
+},{"./alpha":15,"./util/assertString":107}],78:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4670,7 +4670,7 @@ function isOctal(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isPassportNumber.js":[function(require,module,exports){
+},{"./util/assertString":107}],79:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4797,7 +4797,7 @@ function isPassportNumber(str, countryCode) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isPort.js":[function(require,module,exports){
+},{"./util/assertString":107}],80:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4818,7 +4818,7 @@ function isPort(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isInt":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isInt.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isPostalCode.js":[function(require,module,exports){
+},{"./isInt":63}],81:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4926,7 +4926,7 @@ function isPostalCode(str, locale) {
 
   throw new Error("Invalid locale '".concat(locale, "'"));
 }
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isRFC3339.js":[function(require,module,exports){
+},{"./util/assertString":107}],82:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4960,7 +4960,7 @@ function isRFC3339(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isRgbColor.js":[function(require,module,exports){
+},{"./util/assertString":107}],83:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4990,7 +4990,7 @@ function isRgbColor(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isSemVer.js":[function(require,module,exports){
+},{"./util/assertString":107}],84:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5019,7 +5019,7 @@ function isSemVer(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js","./util/multilineRegex":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/multilineRegex.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isSlug.js":[function(require,module,exports){
+},{"./util/assertString":107,"./util/multilineRegex":110}],85:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5040,7 +5040,7 @@ function isSlug(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isStrongPassword.js":[function(require,module,exports){
+},{"./util/assertString":107}],86:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5155,7 +5155,7 @@ function isStrongPassword(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js","./util/merge":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/merge.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isSurrogatePair.js":[function(require,module,exports){
+},{"./util/assertString":107,"./util/merge":109}],87:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5176,7 +5176,7 @@ function isSurrogatePair(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isTaxID.js":[function(require,module,exports){
+},{"./util/assertString":107}],88:[function(require,module,exports){
 "use strict";
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -6619,7 +6619,7 @@ function isTaxID(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isDate":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isDate.js","./util/algorithms":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/algorithms.js","./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isURL.js":[function(require,module,exports){
+},{"./isDate":35,"./util/algorithms":106,"./util/assertString":107}],89:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6793,7 +6793,7 @@ function isURL(url, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isFQDN":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isFQDN.js","./isIP":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isIP.js","./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js","./util/merge":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/merge.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isUUID.js":[function(require,module,exports){
+},{"./isFQDN":42,"./isIP":52,"./util/assertString":107,"./util/merge":109}],90:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6821,7 +6821,7 @@ function isUUID(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isUppercase.js":[function(require,module,exports){
+},{"./util/assertString":107}],91:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6840,7 +6840,7 @@ function isUppercase(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isVAT.js":[function(require,module,exports){
+},{"./util/assertString":107}],92:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6868,7 +6868,7 @@ function isVAT(str, countryCode) {
 
   throw new Error("Invalid country code: '".concat(countryCode, "'"));
 }
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isVariableWidth.js":[function(require,module,exports){
+},{"./util/assertString":107}],93:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6891,7 +6891,7 @@ function isVariableWidth(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isFullWidth":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isFullWidth.js","./isHalfWidth":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isHalfWidth.js","./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isWhitelisted.js":[function(require,module,exports){
+},{"./isFullWidth":44,"./isHalfWidth":46,"./util/assertString":107}],94:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6917,7 +6917,7 @@ function isWhitelisted(str, chars) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/ltrim.js":[function(require,module,exports){
+},{"./util/assertString":107}],95:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6938,7 +6938,7 @@ function ltrim(str, chars) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/matches.js":[function(require,module,exports){
+},{"./util/assertString":107}],96:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6962,7 +6962,7 @@ function matches(str, pattern, modifiers) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/normalizeEmail.js":[function(require,module,exports){
+},{"./util/assertString":107}],97:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7114,7 +7114,7 @@ function normalizeEmail(email, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/merge":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/merge.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/rtrim.js":[function(require,module,exports){
+},{"./util/merge":109}],98:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7135,7 +7135,7 @@ function rtrim(str, chars) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/stripLow.js":[function(require,module,exports){
+},{"./util/assertString":107}],99:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7157,7 +7157,7 @@ function stripLow(str, keep_new_lines) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./blacklist":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/blacklist.js","./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/toBoolean.js":[function(require,module,exports){
+},{"./blacklist":16,"./util/assertString":107}],100:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7181,7 +7181,7 @@ function toBoolean(str, strict) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/toDate.js":[function(require,module,exports){
+},{"./util/assertString":107}],101:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7201,7 +7201,7 @@ function toDate(date) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/toFloat.js":[function(require,module,exports){
+},{"./util/assertString":107}],102:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7220,7 +7220,7 @@ function toFloat(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isFloat":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/isFloat.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/toInt.js":[function(require,module,exports){
+},{"./isFloat":43}],103:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7239,7 +7239,7 @@ function toInt(str, radix) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/trim.js":[function(require,module,exports){
+},{"./util/assertString":107}],104:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7259,7 +7259,7 @@ function trim(str, chars) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./ltrim":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/ltrim.js","./rtrim":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/rtrim.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/unescape.js":[function(require,module,exports){
+},{"./ltrim":95,"./rtrim":98}],105:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7278,7 +7278,7 @@ function unescape(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/algorithms.js":[function(require,module,exports){
+},{"./util/assertString":107}],106:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7380,7 +7380,7 @@ function verhoeffCheck(str) {
 
   return checksum === 0;
 }
-},{}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js":[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7403,7 +7403,7 @@ function assertString(input) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/includes.js":[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7421,7 +7421,7 @@ var _default = includes;
 exports.default = _default;
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/merge.js":[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7444,7 +7444,7 @@ function merge() {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/multilineRegex.js":[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7467,7 +7467,7 @@ function multilineRegexp(parts, flags) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/toString.js":[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7493,7 +7493,7 @@ function toString(input) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{}],"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/whitelist.js":[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7512,10 +7512,10 @@ function whitelist(str, chars) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":"/home/yarmo/dev/doip/doipjs/node_modules/validator/lib/util/assertString.js"}],"/home/yarmo/dev/doip/doipjs/package.json":[function(require,module,exports){
+},{"./util/assertString":107}],113:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -7550,7 +7550,7 @@ module.exports={
     "prettier": "^2.1.2"
   },
   "scripts": {
-    "release:bundle": "./node_modules/.bin/browserify ./src/index.js --full-paths --standalone doip -x openpgp -x jsdom -x @xmpp/client -x @xmpp/debug -x irc-upd -o ./dist/doip.js",
+    "release:bundle": "./node_modules/.bin/browserify ./src/index.js --standalone doip -x openpgp -x jsdom -x @xmpp/client -x @xmpp/debug -x irc-upd -o ./dist/doip.js",
     "release:minify": "./node_modules/.bin/minify ./dist/doip.js > ./dist/doip.min.js",
     "prettier:check": "./node_modules/.bin/prettier --check .",
     "prettier:write": "./node_modules/.bin/prettier --write .",
@@ -7587,7 +7587,7 @@ module.exports={
   }
 }
 
-},{}],"/home/yarmo/dev/doip/doipjs/src/claim.js":[function(require,module,exports){
+},{}],114:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -7625,7 +7625,7 @@ class Claim {
   /**
    * Initialize a Claim object
    * @constructor
-   * @param {string} [uri]          - The URI of the identity claim
+   * @param {string|object} [uri]   - The URI of the identity claim or a JSONified Claim instance
    * @param {string} [fingerprint]  - The fingerprint of the OpenPGP key
    * @example
    * const claim = doip.Claim();
@@ -7635,13 +7635,14 @@ class Claim {
   constructor(uri, fingerprint) {
     // Import JSON
     if (typeof uri === 'object' && 'claimVersion' in uri) {
+      const data = uri
       switch (data.claimVersion) {
         case 1:
           this._uri = data.uri
           this._fingerprint = data.fingerprint
           this._status = data.status
-          this._dataMatches = data.dataMatches
-          this._verification = data.verification
+          this._matches = data.matches
+          this._result = data.result
           break
 
         default:
@@ -7668,8 +7669,8 @@ class Claim {
     this._uri = uri ? uri : null
     this._fingerprint = fingerprint ? fingerprint : null
     this._status = E.ClaimStatus.INIT
-    this._dataMatches = null
-    this._verification = null
+    this._matches = null
+    this._result = null
   }
 
   get uri() {
@@ -7688,14 +7689,14 @@ class Claim {
     if (this._status === E.ClaimStatus.INIT) {
       throw new Error('This claim has not yet been matched')
     }
-    return this._dataMatches
+    return this._matches
   }
 
   get result() {
     if (this._status !== E.ClaimStatus.VERIFIED) {
       throw new Error('This claim has not yet been verified')
     }
-    return this._verification
+    return this._result
   }
 
   set uri(uri) {
@@ -7727,12 +7728,12 @@ class Claim {
     throw new Error("Cannot change a claim's status")
   }
 
-  set dataMatches(anything) {
-    throw new Error("Cannot change a claim's dataMatches")
+  set matches(anything) {
+    throw new Error("Cannot change a claim's matches")
   }
 
-  set verification(anything) {
-    throw new Error("Cannot change a claim's verification data")
+  set result(anything) {
+    throw new Error("Cannot change a claim's verification result")
   }
 
   /**
@@ -7747,7 +7748,7 @@ class Claim {
       throw new Error('This claim has no URI')
     }
 
-    this._dataMatches = []
+    this._matches = []
 
     claimDefinitions.list.every((name, i) => {
       const def = claimDefinitions.data[name]
@@ -7760,10 +7761,10 @@ class Claim {
       const candidate = def.processURI(this._uri)
       if (candidate.match.isAmbiguous) {
         // Add to the possible candidates
-        this._dataMatches.push(candidate)
+        this._matches.push(candidate)
       } else {
         // Set a single candidate and stop
-        this._dataMatches = [candidate]
+        this._matches = [candidate]
         return false
       }
 
@@ -7798,8 +7799,8 @@ class Claim {
     opts = mergeOptions(defaults.opts, opts ? opts : {})
 
     // For each match
-    for (let index = 0; index < this._dataMatches.length; index++) {
-      const claimData = this._dataMatches[index]
+    for (let index = 0; index < this._matches.length; index++) {
+      const claimData = this._matches[index]
 
       let verificationResult,
         proofData = null,
@@ -7839,9 +7840,9 @@ class Claim {
 
       if (verificationResult.completed) {
         // Store the result, keep a single match and stop verifying
-        this._verification = verificationResult
-        this._dataMatches = [claimData]
-        index = this._dataMatches.length
+        this._result = verificationResult
+        this._matches = [claimData]
+        index = this._matches.length
       }
     }
 
@@ -7859,11 +7860,11 @@ class Claim {
     if (this._status === E.ClaimStatus.INIT) {
       throw new Error('The claim has not been matched yet')
     }
-    if (this._dataMatches.length === 0) {
+    if (this._matches.length === 0) {
       throw new Error('The claim has no matches')
     }
     return (
-      this._dataMatches.length > 1 || this._dataMatches[0].match.isAmbiguous
+      this._matches.length > 1 || this._matches[0].match.isAmbiguous
     )
   }
 
@@ -7879,15 +7880,15 @@ class Claim {
       uri: this._uri,
       fingerprint: this._fingerprint,
       status: this._status,
-      dataMatches: this._dataMatches,
-      verification: this._verification,
+      matches: this._matches,
+      result: this._result,
     }
   }
 }
 
 module.exports = Claim
 
-},{"./claimDefinitions":"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/index.js","./defaults":"/home/yarmo/dev/doip/doipjs/src/defaults.js","./enums":"/home/yarmo/dev/doip/doipjs/src/enums.js","./proofs":"/home/yarmo/dev/doip/doipjs/src/proofs.js","./verifications":"/home/yarmo/dev/doip/doipjs/src/verifications.js","merge-options":"/home/yarmo/dev/doip/doipjs/node_modules/merge-options/index.js","valid-url":"/home/yarmo/dev/doip/doipjs/node_modules/valid-url/index.js","validator":"/home/yarmo/dev/doip/doipjs/node_modules/validator/index.js"}],"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/devto.js":[function(require,module,exports){
+},{"./claimDefinitions":123,"./defaults":133,"./enums":134,"./proofs":145,"./verifications":148,"merge-options":8,"valid-url":13,"validator":14}],115:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -7963,7 +7964,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":"/home/yarmo/dev/doip/doipjs/src/enums.js"}],"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/discourse.js":[function(require,module,exports){
+},{"../enums":134}],116:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8039,7 +8040,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":"/home/yarmo/dev/doip/doipjs/src/enums.js"}],"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/dns.js":[function(require,module,exports){
+},{"../enums":134}],117:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8114,7 +8115,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":"/home/yarmo/dev/doip/doipjs/src/enums.js"}],"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/fediverse.js":[function(require,module,exports){
+},{"../enums":134}],118:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8190,7 +8191,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":"/home/yarmo/dev/doip/doipjs/src/enums.js"}],"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/gitea.js":[function(require,module,exports){
+},{"../enums":134}],119:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8266,7 +8267,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":"/home/yarmo/dev/doip/doipjs/src/enums.js"}],"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/github.js":[function(require,module,exports){
+},{"../enums":134}],120:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8342,7 +8343,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":"/home/yarmo/dev/doip/doipjs/src/enums.js"}],"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/gitlab.js":[function(require,module,exports){
+},{"../enums":134}],121:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8418,7 +8419,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":"/home/yarmo/dev/doip/doipjs/src/enums.js"}],"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/hackernews.js":[function(require,module,exports){
+},{"../enums":134}],122:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8494,7 +8495,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":"/home/yarmo/dev/doip/doipjs/src/enums.js"}],"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/index.js":[function(require,module,exports){
+},{"../enums":134}],123:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8553,7 +8554,7 @@ const data = {
 exports.list = list
 exports.data = data
 
-},{"./devto":"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/devto.js","./discourse":"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/discourse.js","./dns":"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/dns.js","./fediverse":"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/fediverse.js","./gitea":"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/gitea.js","./github":"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/github.js","./gitlab":"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/gitlab.js","./hackernews":"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/hackernews.js","./irc":"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/irc.js","./liberapay":"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/liberapay.js","./lobsters":"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/lobsters.js","./mastodon":"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/mastodon.js","./matrix":"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/matrix.js","./owncast":"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/owncast.js","./reddit":"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/reddit.js","./twitter":"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/twitter.js","./xmpp":"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/xmpp.js"}],"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/irc.js":[function(require,module,exports){
+},{"./devto":115,"./discourse":116,"./dns":117,"./fediverse":118,"./gitea":119,"./github":120,"./gitlab":121,"./hackernews":122,"./irc":124,"./liberapay":125,"./lobsters":126,"./mastodon":127,"./matrix":128,"./owncast":129,"./reddit":130,"./twitter":131,"./xmpp":132}],124:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8629,7 +8630,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":"/home/yarmo/dev/doip/doipjs/src/enums.js"}],"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/liberapay.js":[function(require,module,exports){
+},{"../enums":134}],125:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8705,7 +8706,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":"/home/yarmo/dev/doip/doipjs/src/enums.js"}],"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/lobsters.js":[function(require,module,exports){
+},{"../enums":134}],126:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8781,7 +8782,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":"/home/yarmo/dev/doip/doipjs/src/enums.js"}],"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/mastodon.js":[function(require,module,exports){
+},{"../enums":134}],127:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8857,7 +8858,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":"/home/yarmo/dev/doip/doipjs/src/enums.js"}],"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/matrix.js":[function(require,module,exports){
+},{"../enums":134}],128:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8952,7 +8953,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":"/home/yarmo/dev/doip/doipjs/src/enums.js","query-string":"/home/yarmo/dev/doip/doipjs/node_modules/query-string/index.js"}],"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/owncast.js":[function(require,module,exports){
+},{"../enums":134,"query-string":10}],129:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9032,7 +9033,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":"/home/yarmo/dev/doip/doipjs/src/enums.js"}],"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/reddit.js":[function(require,module,exports){
+},{"../enums":134}],130:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9116,7 +9117,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":"/home/yarmo/dev/doip/doipjs/src/enums.js"}],"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/twitter.js":[function(require,module,exports){
+},{"../enums":134}],131:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9191,7 +9192,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":"/home/yarmo/dev/doip/doipjs/src/enums.js"}],"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/xmpp.js":[function(require,module,exports){
+},{"../enums":134}],132:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9267,7 +9268,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":"/home/yarmo/dev/doip/doipjs/src/enums.js"}],"/home/yarmo/dev/doip/doipjs/src/defaults.js":[function(require,module,exports){
+},{"../enums":134}],133:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9335,7 +9336,7 @@ const opts = {
 
 exports.opts = opts
 
-},{"./enums":"/home/yarmo/dev/doip/doipjs/src/enums.js"}],"/home/yarmo/dev/doip/doipjs/src/enums.js":[function(require,module,exports){
+},{"./enums":134}],134:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9477,7 +9478,7 @@ exports.ClaimFormat = ClaimFormat
 exports.ClaimRelation = ClaimRelation
 exports.ClaimStatus = ClaimStatus
 
-},{}],"/home/yarmo/dev/doip/doipjs/src/fetcher/dns.js":[function(require,module,exports){
+},{}],135:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9549,7 +9550,7 @@ if (!jsEnv.isNode) {
 } else {
   module.exports.fn = null
 }
-},{"browser-or-node":"/home/yarmo/dev/doip/doipjs/node_modules/browser-or-node/lib/index.js","dns":"/home/yarmo/dev/doip/doipjs/node_modules/browserify/lib/_empty.js"}],"/home/yarmo/dev/doip/doipjs/src/fetcher/gitlab.js":[function(require,module,exports){
+},{"browser-or-node":3,"dns":4}],136:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9626,7 +9627,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"bent":"/home/yarmo/dev/doip/doipjs/node_modules/bent/src/browser.js"}],"/home/yarmo/dev/doip/doipjs/src/fetcher/http.js":[function(require,module,exports){
+},{"bent":1}],137:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9720,7 +9721,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"../../package.json":"/home/yarmo/dev/doip/doipjs/package.json","../enums":"/home/yarmo/dev/doip/doipjs/src/enums.js","bent":"/home/yarmo/dev/doip/doipjs/node_modules/bent/src/browser.js"}],"/home/yarmo/dev/doip/doipjs/src/fetcher/index.js":[function(require,module,exports){
+},{"../../package.json":113,"../enums":134,"bent":1}],138:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9745,7 +9746,7 @@ exports.matrix = require('./matrix')
 exports.twitter = require('./twitter')
 exports.xmpp = require('./xmpp')
 
-},{"./dns":"/home/yarmo/dev/doip/doipjs/src/fetcher/dns.js","./gitlab":"/home/yarmo/dev/doip/doipjs/src/fetcher/gitlab.js","./http":"/home/yarmo/dev/doip/doipjs/src/fetcher/http.js","./irc":"/home/yarmo/dev/doip/doipjs/src/fetcher/irc.js","./matrix":"/home/yarmo/dev/doip/doipjs/src/fetcher/matrix.js","./twitter":"/home/yarmo/dev/doip/doipjs/src/fetcher/twitter.js","./xmpp":"/home/yarmo/dev/doip/doipjs/src/fetcher/xmpp.js"}],"/home/yarmo/dev/doip/doipjs/src/fetcher/irc.js":[function(require,module,exports){
+},{"./dns":135,"./gitlab":136,"./http":137,"./irc":139,"./matrix":140,"./twitter":141,"./xmpp":142}],139:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9841,7 +9842,7 @@ if (jsEnv.isNode) {
   module.exports.fn = null
 }
 
-},{"browser-or-node":"/home/yarmo/dev/doip/doipjs/node_modules/browser-or-node/lib/index.js","irc-upd":"irc-upd","validator":"/home/yarmo/dev/doip/doipjs/node_modules/validator/index.js"}],"/home/yarmo/dev/doip/doipjs/src/fetcher/matrix.js":[function(require,module,exports){
+},{"browser-or-node":3,"irc-upd":"irc-upd","validator":14}],140:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9921,7 +9922,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"bent":"/home/yarmo/dev/doip/doipjs/node_modules/bent/src/browser.js","validator":"/home/yarmo/dev/doip/doipjs/node_modules/validator/index.js"}],"/home/yarmo/dev/doip/doipjs/src/fetcher/twitter.js":[function(require,module,exports){
+},{"bent":1,"validator":14}],141:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10004,7 +10005,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"bent":"/home/yarmo/dev/doip/doipjs/node_modules/bent/src/browser.js","validator":"/home/yarmo/dev/doip/doipjs/node_modules/validator/index.js"}],"/home/yarmo/dev/doip/doipjs/src/fetcher/xmpp.js":[function(require,module,exports){
+},{"bent":1,"validator":14}],142:[function(require,module,exports){
 (function (process){(function (){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -10150,7 +10151,7 @@ if (jsEnv.isNode) {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"@xmpp/client":"@xmpp/client","@xmpp/debug":"@xmpp/debug","_process":"/home/yarmo/dev/doip/doipjs/node_modules/process/browser.js","browser-or-node":"/home/yarmo/dev/doip/doipjs/node_modules/browser-or-node/lib/index.js","jsdom":"jsdom","validator":"/home/yarmo/dev/doip/doipjs/node_modules/validator/index.js"}],"/home/yarmo/dev/doip/doipjs/src/index.js":[function(require,module,exports){
+},{"@xmpp/client":"@xmpp/client","@xmpp/debug":"@xmpp/debug","_process":9,"browser-or-node":3,"jsdom":"jsdom","validator":14}],143:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10184,7 +10185,7 @@ exports.enums = enums
 exports.defaults = defaults
 exports.utils = utils
 
-},{"./claim":"/home/yarmo/dev/doip/doipjs/src/claim.js","./claimDefinitions":"/home/yarmo/dev/doip/doipjs/src/claimDefinitions/index.js","./defaults":"/home/yarmo/dev/doip/doipjs/src/defaults.js","./enums":"/home/yarmo/dev/doip/doipjs/src/enums.js","./keys":"/home/yarmo/dev/doip/doipjs/src/keys.js","./proofs":"/home/yarmo/dev/doip/doipjs/src/proofs.js","./signatures":"/home/yarmo/dev/doip/doipjs/src/signatures.js","./utils":"/home/yarmo/dev/doip/doipjs/src/utils.js"}],"/home/yarmo/dev/doip/doipjs/src/keys.js":[function(require,module,exports){
+},{"./claim":114,"./claimDefinitions":123,"./defaults":133,"./enums":134,"./keys":144,"./proofs":145,"./signatures":146,"./utils":147}],144:[function(require,module,exports){
 (function (global){(function (){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -10458,7 +10459,7 @@ exports.process = (publicKey) => {
 }
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./claim":"/home/yarmo/dev/doip/doipjs/src/claim.js","bent":"/home/yarmo/dev/doip/doipjs/node_modules/bent/src/browser.js","valid-url":"/home/yarmo/dev/doip/doipjs/node_modules/valid-url/index.js"}],"/home/yarmo/dev/doip/doipjs/src/proofs.js":[function(require,module,exports){
+},{"./claim":114,"bent":1,"valid-url":13}],145:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10653,7 +10654,7 @@ const createFallbackRequestPromise = (data, opts) => {
 
 exports.fetch = fetch
 
-},{"./enums":"/home/yarmo/dev/doip/doipjs/src/enums.js","./fetcher":"/home/yarmo/dev/doip/doipjs/src/fetcher/index.js","./utils":"/home/yarmo/dev/doip/doipjs/src/utils.js","browser-or-node":"/home/yarmo/dev/doip/doipjs/node_modules/browser-or-node/lib/index.js"}],"/home/yarmo/dev/doip/doipjs/src/signatures.js":[function(require,module,exports){
+},{"./enums":134,"./fetcher":138,"./utils":147,"browser-or-node":3}],146:[function(require,module,exports){
 (function (global){(function (){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -10805,7 +10806,7 @@ const process = (signature) => {
 exports.process = process
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./claim":"/home/yarmo/dev/doip/doipjs/src/claim.js","./keys":"/home/yarmo/dev/doip/doipjs/src/keys.js"}],"/home/yarmo/dev/doip/doipjs/src/utils.js":[function(require,module,exports){
+},{"./claim":114,"./keys":144}],147:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10879,7 +10880,7 @@ const generateClaim = (fingerprint, format) => {
 exports.generateProxyURL = generateProxyURL
 exports.generateClaim = generateClaim
 
-},{"./enums":"/home/yarmo/dev/doip/doipjs/src/enums.js","validator":"/home/yarmo/dev/doip/doipjs/node_modules/validator/index.js"}],"/home/yarmo/dev/doip/doipjs/src/verifications.js":[function(require,module,exports){
+},{"./enums":134,"validator":14}],148:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11007,5 +11008,5 @@ const run = (proofData, claimData, fingerprint) => {
 
 exports.run = run
 
-},{"./enums":"/home/yarmo/dev/doip/doipjs/src/enums.js","./utils":"/home/yarmo/dev/doip/doipjs/src/utils.js"}]},{},["/home/yarmo/dev/doip/doipjs/src/index.js"])("/home/yarmo/dev/doip/doipjs/src/index.js")
+},{"./enums":134,"./utils":147}]},{},[143])(143)
 });
