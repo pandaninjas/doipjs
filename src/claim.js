@@ -35,7 +35,7 @@ class Claim {
   /**
    * Initialize a Claim object
    * @constructor
-   * @param {string} [uri]          - The URI of the identity claim
+   * @param {string|object} [uri]   - The URI of the identity claim or a JSONified Claim instance
    * @param {string} [fingerprint]  - The fingerprint of the OpenPGP key
    * @example
    * const claim = doip.Claim();
@@ -45,6 +45,7 @@ class Claim {
   constructor(uri, fingerprint) {
     // Import JSON
     if (typeof uri === 'object' && 'claimVersion' in uri) {
+      const data = uri
       switch (data.claimVersion) {
         case 1:
           this._uri = data.uri
