@@ -213,7 +213,7 @@ class Claim {
     for (let index = 0; index < this._matches.length; index++) {
       const claimData = this._matches[index]
 
-      let verificationResult,
+      let verificationResult = null,
         proofData = null,
         proofFetchError
 
@@ -235,17 +235,17 @@ class Claim {
           viaProxy: proofData.viaProxy,
         }
       } else {
-        if (this.isAmbiguous()) {
-          // Assume a wrong match and continue
-          continue
-        }
-
         // Consider the proof completed but with a negative result
-        verificationResult = {
+        verificationResult = verificationResult ? verificationResult : {
           result: false,
           completed: true,
           proof: {},
           errors: [proofFetchError],
+        }
+
+        if (this.isAmbiguous()) {
+          // Assume a wrong match and continue
+          continue
         }
       }
 
@@ -255,6 +255,14 @@ class Claim {
         this._matches = [claimData]
         index = this._matches.length
       }
+    }
+
+    // Fail safe verification result
+    verificationResult = verificationResult ? verificationResult : {
+      result: false,
+      completed: true,
+      proof: {},
+      errors: ['Unknown error'],
     }
 
     this._status = E.ClaimStatus.VERIFIED
