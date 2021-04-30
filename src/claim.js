@@ -51,8 +51,8 @@ class Claim {
           this._uri = data.uri
           this._fingerprint = data.fingerprint
           this._status = data.status
-          this._dataMatches = data.dataMatches
-          this._verification = data.verification
+          this._matches = data.matches
+          this._result = data.result
           break
 
         default:
@@ -79,8 +79,8 @@ class Claim {
     this._uri = uri ? uri : null
     this._fingerprint = fingerprint ? fingerprint : null
     this._status = E.ClaimStatus.INIT
-    this._dataMatches = null
-    this._verification = null
+    this._matches = null
+    this._result = null
   }
 
   get uri() {
@@ -99,14 +99,14 @@ class Claim {
     if (this._status === E.ClaimStatus.INIT) {
       throw new Error('This claim has not yet been matched')
     }
-    return this._dataMatches
+    return this._matches
   }
 
   get result() {
     if (this._status !== E.ClaimStatus.VERIFIED) {
       throw new Error('This claim has not yet been verified')
     }
-    return this._verification
+    return this._result
   }
 
   set uri(uri) {
@@ -138,12 +138,12 @@ class Claim {
     throw new Error("Cannot change a claim's status")
   }
 
-  set dataMatches(anything) {
-    throw new Error("Cannot change a claim's dataMatches")
+  set matches(anything) {
+    throw new Error("Cannot change a claim's matches")
   }
 
-  set verification(anything) {
-    throw new Error("Cannot change a claim's verification data")
+  set result(anything) {
+    throw new Error("Cannot change a claim's verification result")
   }
 
   /**
@@ -158,7 +158,7 @@ class Claim {
       throw new Error('This claim has no URI')
     }
 
-    this._dataMatches = []
+    this._matches = []
 
     claimDefinitions.list.every((name, i) => {
       const def = claimDefinitions.data[name]
@@ -171,10 +171,10 @@ class Claim {
       const candidate = def.processURI(this._uri)
       if (candidate.match.isAmbiguous) {
         // Add to the possible candidates
-        this._dataMatches.push(candidate)
+        this._matches.push(candidate)
       } else {
         // Set a single candidate and stop
-        this._dataMatches = [candidate]
+        this._matches = [candidate]
         return false
       }
 
@@ -209,8 +209,8 @@ class Claim {
     opts = mergeOptions(defaults.opts, opts ? opts : {})
 
     // For each match
-    for (let index = 0; index < this._dataMatches.length; index++) {
-      const claimData = this._dataMatches[index]
+    for (let index = 0; index < this._matches.length; index++) {
+      const claimData = this._matches[index]
 
       let verificationResult,
         proofData = null,
@@ -250,9 +250,9 @@ class Claim {
 
       if (verificationResult.completed) {
         // Store the result, keep a single match and stop verifying
-        this._verification = verificationResult
-        this._dataMatches = [claimData]
-        index = this._dataMatches.length
+        this._result = verificationResult
+        this._matches = [claimData]
+        index = this._matches.length
       }
     }
 
@@ -270,11 +270,11 @@ class Claim {
     if (this._status === E.ClaimStatus.INIT) {
       throw new Error('The claim has not been matched yet')
     }
-    if (this._dataMatches.length === 0) {
+    if (this._matches.length === 0) {
       throw new Error('The claim has no matches')
     }
     return (
-      this._dataMatches.length > 1 || this._dataMatches[0].match.isAmbiguous
+      this._matches.length > 1 || this._matches[0].match.isAmbiguous
     )
   }
 
@@ -290,8 +290,8 @@ class Claim {
       uri: this._uri,
       fingerprint: this._fingerprint,
       status: this._status,
-      dataMatches: this._dataMatches,
-      verification: this._verification,
+      matches: this._matches,
+      result: this._result,
     }
   }
 }
