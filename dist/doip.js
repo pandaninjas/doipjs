@@ -7515,7 +7515,7 @@ module.exports.default = exports.default;
 },{"./util/assertString":107}],113:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.12.1",
+  "version": "0.12.2",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -7619,7 +7619,7 @@ const E = require('./enums')
  * @property {string} fingerprint     - The fingerprint to verify the claim against
  * @property {string} status          - The current status of the claim
  * @property {Array<object>} matches  - The claim definitions matched against the URI
- * @property {object} result          - The result of the verification process
+ * @property {object} verification    - The result of the verification process
  */
 class Claim {
   /**
@@ -7631,6 +7631,7 @@ class Claim {
    * const claim = doip.Claim();
    * const claim = doip.Claim('dns:domain.tld?type=TXT');
    * const claim = doip.Claim('dns:domain.tld?type=TXT', '123abc123abc');
+   * const claimAlt = doip.Claim(JSON.stringify(claim));
    */
   constructor(uri, fingerprint) {
     // Import JSON
@@ -7642,7 +7643,7 @@ class Claim {
           this._fingerprint = data.fingerprint
           this._status = data.status
           this._matches = data.matches
-          this._result = data.result
+          this._verification = data.verification
           break
 
         default:
@@ -7670,7 +7671,7 @@ class Claim {
     this._fingerprint = fingerprint ? fingerprint : null
     this._status = E.ClaimStatus.INIT
     this._matches = null
-    this._result = null
+    this._verification = null
   }
 
   get uri() {
@@ -7692,11 +7693,11 @@ class Claim {
     return this._matches
   }
 
-  get result() {
+  get verification() {
     if (this._status !== E.ClaimStatus.VERIFIED) {
       throw new Error('This claim has not yet been verified')
     }
-    return this._result
+    return this._verification
   }
 
   set uri(uri) {
@@ -7732,7 +7733,7 @@ class Claim {
     throw new Error("Cannot change a claim's matches")
   }
 
-  set result(anything) {
+  set verification(anything) {
     throw new Error("Cannot change a claim's verification result")
   }
 
@@ -7802,7 +7803,7 @@ class Claim {
     for (let index = 0; index < this._matches.length; index++) {
       const claimData = this._matches[index]
 
-      let verificationResult,
+      let verificationResult = null,
         proofData = null,
         proofFetchError
 
@@ -7824,26 +7825,34 @@ class Claim {
           viaProxy: proofData.viaProxy,
         }
       } else {
-        if (this.isAmbiguous()) {
-          // Assume a wrong match and continue
-          continue
-        }
-
         // Consider the proof completed but with a negative result
-        verificationResult = {
+        verificationResult = verificationResult ? verificationResult : {
           result: false,
           completed: true,
           proof: {},
           errors: [proofFetchError],
         }
+
+        if (this.isAmbiguous()) {
+          // Assume a wrong match and continue
+          continue
+        }
       }
 
       if (verificationResult.completed) {
         // Store the result, keep a single match and stop verifying
-        this._result = verificationResult
+        this._verification = verificationResult
         this._matches = [claimData]
         index = this._matches.length
       }
+    }
+
+    // Fail safe verification result
+    verificationResult = verificationResult ? verificationResult : {
+      result: false,
+      completed: true,
+      proof: {},
+      errors: ['Unknown error'],
     }
 
     this._status = E.ClaimStatus.VERIFIED
@@ -7881,7 +7890,7 @@ class Claim {
       fingerprint: this._fingerprint,
       status: this._status,
       matches: this._matches,
-      result: this._result,
+      verification: this._verification,
     }
   }
 }
@@ -10539,7 +10548,7 @@ const handleBrowserRequests = (data, opts) => {
     case E.ProxyPolicy.ADAPTIVE:
       switch (data.proof.request.access) {
         case E.ProofAccess.GENERIC:
-          return createDefaultRequestPromise(data, opts)
+          return createFallbackRequestPromise(data, opts)
           break
         case E.ProofAccess.NOCORS:
           return createProxyRequestPromise(data, opts)

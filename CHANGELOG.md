@@ -6,10 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.3] - 2021-04-30
+## Fixed
+- Ensure an output for the Claim's verification process
+- Adaptive proxy policy now uses the fallback fetcher for generic access proofs 
+- Refactor bad property names
+
 ## [0.12.2] - 2021-04-30
 ## Fixed
 - Fix Claim constructor handling of object data
-- Refactor bad properties names
+- Refactor bad property names
 
 ## [0.12.1] - 2021-04-26
 ## Fixed
