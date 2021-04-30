@@ -7515,7 +7515,7 @@ module.exports.default = exports.default;
 },{"./util/assertString":107}],113:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.12.2",
+  "version": "0.12.4",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -7848,7 +7848,7 @@ class Claim {
     }
 
     // Fail safe verification result
-    verificationResult = verificationResult ? verificationResult : {
+    this._verification = this._verification ? this._verification : {
       result: false,
       completed: true,
       proof: {},

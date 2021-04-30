@@ -6,89 +6,94 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.4] - 2021-04-30
+### Fixed
+- Headings in CHANGELOG.md
+- References to wrong variable
+
 ## [0.12.3] - 2021-04-30
-## Fixed
+### Fixed
 - Ensure an output for the Claim's verification process
 - Adaptive proxy policy now uses the fallback fetcher for generic access proofs 
 - Refactor bad property names
 
 ## [0.12.2] - 2021-04-30
-## Fixed
+### Fixed
 - Fix Claim constructor handling of object data
 - Refactor bad property names
 
 ## [0.12.1] - 2021-04-26
-## Fixed
+### Fixed
 - Bad interpretation of proxy policy
 - Proxy URL protocol
 
 ## [0.12.0] - 2021-04-22
-## Added
+### Added
 - Proxy server functionality
 - JSDoc-based documentation
 - Claim class
-## Changed
+### Changed
 - Improved data fetching logic
-## Fixed
+### Fixed
 - Bug causing false positive verification
 
 ## [0.11.2] - 2021-03-06
-## Fixed
+### Fixed
 - Matrix.to URLs
 
 ## [0.11.1] - 2021-03-06
-## Fixed
+### Fixed
 - Proxy URL encoding
 
 ## [0.11.0] - 2021-03-05
-## Added
+### Added
 - IRC service provider
 - Matrix service provider
-## Fixed
+### Fixed
 - Handling of requests without URI
 
 ## [0.10.5] - 2021-03-02
-## Fixed
+### Fixed
 - Logic error
 
 ## [0.10.4] - 2021-03-02
-## Changed
+### Changed
 - Add Twitter proxy verification
 
 ## [0.10.3] - 2021-03-02
-## Changed
+### Changed
 - Remove twitter dependency
 
 ## [0.10.2] - 2021-03-01
-## Changed
+### Changed
 - Make Twitter verification configurable
 
 ## [0.10.1] - 2021-01-26
-## Fixed
+### Fixed
 - Polyfill for promise.allSettled
 
 ## [0.10.0] - 2021-01-13
-## Added
+### Added
 - Owncast service provider
 
 ## [0.9.4] - 2021-01-10
-## Fixed
+### Fixed
 - Fix typo in keyserver url
 
 ## [0.9.3] - 2021-01-10
-## Fixed
+### Fixed
 - Fix regex skipping some claims
 
 ## [0.9.2] - 2021-01-09
-## Fixed
+### Fixed
 - Network errors blocking code execution
 
 ## [0.9.1] - 2021-01-09
-## Changed
+### Changed
 - Use signature data to find key location
 
 ## [0.9.0] - 2021-01-07
-## Added
+### Added
 - Signature claims verification
 
 ## [0.8.5] - 2021-01-03
