@@ -77,7 +77,7 @@ const handleBrowserRequests = (data, opts) => {
     case E.ProxyPolicy.ADAPTIVE:
       switch (data.proof.request.access) {
         case E.ProofAccess.GENERIC:
-          return createDefaultRequestPromise(data, opts)
+          return createFallbackRequestPromise(data, opts)
           break
         case E.ProofAccess.NOCORS:
           return createProxyRequestPromise(data, opts)
