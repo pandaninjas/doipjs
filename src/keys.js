@@ -110,8 +110,9 @@ exports.fetchWKD = (identifier) => {
 exports.fetchKeybase = (username, fingerprint) => {
   return new Promise(async (resolve, reject) => {
     const keyLink = `https://keybase.io/${username}/pgp_keys.asc?fingerprint=${fingerprint}`
+    let rawKeyContent
     try {
-      const rawKeyContent = await req(opts.keyLink)
+      rawKeyContent = await req(keyLink)
         .then((response) => {
           if (response.status === 200) {
             return response
