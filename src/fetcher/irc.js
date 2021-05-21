@@ -61,13 +61,15 @@ if (jsEnv.isNode) {
           port: 6697,
           secure: true,
           channels: [],
+          showErrors: false,
+          debug: false
         })
         const reKey = /[a-zA-Z0-9\-\_]+\s+:\s(openpgp4fpr\:.*)/
         const reEnd = /End\sof\s.*\staxonomy./
         let keys = []
   
         client.addListener('registered', (message) => {
-          client.send(`PRIVMSG NickServ :TAXONOMY ${data.nick}`)
+          client.send(`PRIVMSG NickServ TAXONOMY ${data.nick}`)
         })
         client.addListener('notice', (nick, to, text, message) => {
           if (reKey.test(text)) {
