@@ -7515,7 +7515,7 @@ module.exports.default = exports.default;
 },{"./util/assertString":107}],113:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.12.4",
+  "version": "0.12.5",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -9819,13 +9819,15 @@ if (jsEnv.isNode) {
           port: 6697,
           secure: true,
           channels: [],
+          showErrors: false,
+          debug: false
         })
         const reKey = /[a-zA-Z0-9\-\_]+\s+:\s(openpgp4fpr\:.*)/
         const reEnd = /End\sof\s.*\staxonomy./
         let keys = []
   
         client.addListener('registered', (message) => {
-          client.send(`PRIVMSG NickServ :TAXONOMY ${data.nick}`)
+          client.send(`PRIVMSG NickServ TAXONOMY ${data.nick}`)
         })
         client.addListener('notice', (nick, to, text, message) => {
           if (reKey.test(text)) {
@@ -10308,8 +10310,9 @@ exports.fetchWKD = (identifier) => {
 exports.fetchKeybase = (username, fingerprint) => {
   return new Promise(async (resolve, reject) => {
     const keyLink = `https://keybase.io/${username}/pgp_keys.asc?fingerprint=${fingerprint}`
+    let rawKeyContent
     try {
-      const rawKeyContent = await req(opts.keyLink)
+      rawKeyContent = await req(keyLink)
         .then((response) => {
           if (response.status === 200) {
             return response

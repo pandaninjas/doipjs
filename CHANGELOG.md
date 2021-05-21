@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.5] - 2021-05-21
+### Fixed
+- Keybase key fetching
+- Fix IRC NickServ command syntax
+
 ## [0.12.4] - 2021-04-30
 ### Fixed
 - Headings in CHANGELOG.md
