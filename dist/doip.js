@@ -7515,7 +7515,7 @@ module.exports.default = exports.default;
 },{"./util/assertString":107}],113:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.12.5",
+  "version": "0.12.6",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -9515,7 +9515,7 @@ const jsEnv = require("browser-or-node")
  */
 module.exports.timeout = 5000
 
-if (!jsEnv.isNode) {
+if (jsEnv.isNode) {
   const dns = require('dns')
 
   /**
