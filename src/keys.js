@@ -240,15 +240,20 @@ exports.process = (publicKey) => {
           email: user.userId ? user.userId.email : null,
           comment: user.userId ? user.userId.comment : null,
           isPrimary: primaryUser.index === i,
+          isRevoked: false,
         },
         claims: [],
       }
 
       if ('selfCertifications' in user && user.selfCertifications.length > 0) {
-        const notations = user.selfCertifications[0].rawNotations
+        const selfCertification = user.selfCertifications[0]
+        
+        const notations = selfCertification.rawNotations
         usersOutput[i].claims = notations
           .filter(({ name, humanReadable }) => humanReadable && name === 'proof@metacode.biz')
           .map(({ value }) => new Claim(openpgp.util.decode_utf8(value)), fingerprint)
+        
+        usersOutput[i].userData.isRevoked = selfCertification.revoked
       }
     })
 

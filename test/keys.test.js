@@ -62,6 +62,34 @@ Yn6RMQ8=
 =Oo3X
 -----END PGP PUBLIC KEY BLOCK-----`
 
+const pubKeyWithRevokedUID = `-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+mI0EYLitOQEEAMUKTmcNdy46gjcuz0oRsUyq0BythQGSrcLvLGAyZIzKR8NZXZSA
+UAIHuQkWVwqJjYPSRrTp8op8LZIHmhP3W3TgG5WHSOhcPeIYe1JTB0b7XceIIJ3p
+/FfT9xFhWgeAVfAHQUcK/p4+mhvQRfDDf5Jbh/i37cY3iF5huNyXZYY9ABEBAAG0
+F1lhcm1vJ3MgU3VwZXIgRXZpbCBUd2luiLYEMAEKACAWIQQKQsh7jbmy9ycMulRn
+U1zbmU0aJAUCYLiu7QIdIAAKCRBnU1zbmU0aJGr1A/9VMS9xexufTLHenWCquAsL
+cnzciPTvYy7h+OYAkXQEmzOcUcy9a71w5/ElEWubqySZuUUeB7Y8UHjowXOVF5Ty
+BRyiSIiHmwXspjCtc5q97fWuuAiVdyHMWMSThuY+y+D4pxcfeO1lu5zND3vUUGjy
+CJWtYDGTVQ41nLU4WM8NTIjOBBMBCgA4FiEECkLIe425svcnDLpUZ1Nc25lNGiQF
+AmC4rgsCGwMFCwkIBwIGFQoJCAsCBBYCAwECHgECF4AACgkQZ1Nc25lNGiRSWQQA
+wUM2h4uSyaOUT+qrL0/UTUqD3Mp0Ajg/n81S9GBcKhSxIK2RMIBCJbSw7nzdj2Ev
+gCwd3DuI0Mqxiu29LtNN+bsEWZ6RbsrxgkgzQy2wyGf6DHS9W7GcliyIWnHSh/Jc
+dTREbVl0aFXOTLh7JAoED31pf3uv372YJyQfjvqDlLC0EVlhcm1vJ3MgRXZpbCBU
+d2luiM4EEwEKADgWIQQKQsh7jbmy9ycMulRnU1zbmU0aJAUCYLitOQIbAwULCQgH
+AgYVCgkICwIEFgIDAQIeAQIXgAAKCRBnU1zbmU0aJMnBBACydud5WYsmD/Tvjxf6
+MiOl/s0zMLZdk6ofEutMvcmN8PGri1hMqr2R2lTN+cH4HALWbixuDr1sYjOwt2eb
+6e8ubOhEm30JGJE8eiM9jHRUgeRQZhPnj/ky/fZUcMY5fZPeti3q7kzBMRscuSbW
+9v8AArWmybhfudyjf7Lhb5R3UriNBGC4rTkBBADVCDORKNEyjOQutpxvR8y1nBdy
+VfCKQ0mUiV9/Z1PvhW3s98RyjDZcYURhgPXUD04EKtgH6ar6Q4pZovZmRL6Jz+82
+4OWmFk4dzje/MLYIeV6hwq7IIeKzUy4NCl/aX7y0Hru/8fiBNPtu+ycIZSgNxDQQ
+NwHRpZvplgOJ/cuCYwARAQABiLYEGAEKACAWIQQKQsh7jbmy9ycMulRnU1zbmU0a
+JAUCYLitOQIbDAAKCRBnU1zbmU0aJIaRA/9Zz0u7zkwBVSTUcXLd3NwCmkzHnuQo
+kRIDpwkXa08iG0GXBV/ZEPGNzPbaMCZVqqiVlf9+BxX1rnG6ENseGKPn8Q+RIKUb
+Q+AZdYCbM0hdBjP4xdKZcpqak8ksb+aQFXjGacDL/XN4VrP+tBGxkqIqreoDcgIb
+7t1hISc09hWrGQ==
+=tVW7
+-----END PGP PUBLIC KEY BLOCK-----`
 
 describe('keys.fetchURI', () => {
   it('should be a function (1 argument)', () => {
@@ -144,5 +172,12 @@ describe('keys.process', () => {
     expect(obj.users).to.be.lengthOf(1)
     expect(obj.users[0].claims).to.be.lengthOf(1)
     expect(obj.users[0].claims[0].uri).to.be.equal('dns:yarmo.eu?type=TXT')
+  })
+  it('should properly handle revoked UIDs', async () => {
+    const pubKey = await doipjs.keys.fetchPlaintext(pubKeyWithRevokedUID)
+    const obj = await doipjs.keys.process(pubKey)
+    expect(obj.users).to.be.lengthOf(2)
+    expect(obj.users[0].userData.isRevoked).to.be.true
+    expect(obj.users[1].userData.isRevoked).to.be.false
   })
 })
