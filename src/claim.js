@@ -209,6 +209,16 @@ class Claim {
     // Handle options
     opts = mergeOptions(defaults.opts, opts ? opts : {})
 
+    // If there are no matches
+    if (this._matches.length === 0) {
+      this._verification = {
+        result: false,
+        completed: true,
+        proof: {},
+        errors: ['No matches for claim'],
+      }
+    }
+
     // For each match
     for (let index = 0; index < this._matches.length; index++) {
       const claimData = this._matches[index]
