@@ -7515,7 +7515,7 @@ module.exports.default = exports.default;
 },{"./util/assertString":107}],113:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.12.6",
+  "version": "0.12.7",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -7586,7 +7586,6 @@ module.exports={
     "openpgp": "global:openpgp"
   }
 }
-
 },{}],114:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -8581,7 +8580,7 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^irc\:\/\/(.*)\/([a-zA-Z0-9]*)/
+const reURI = /^irc\:\/\/(.*)\/([a-zA-Z0-9\-\[\]\\\`\_\^\{\|\}]*)/
 
 const processURI = (uri) => {
   const match = uri.match(reURI)
@@ -8627,6 +8626,10 @@ const tests = [
   },
   {
     uri: 'irc://chat.ircserver.org/alice?param=123',
+    shouldMatch: true,
+  },
+  {
+    uri: 'irc://chat.ircserver.org/alice_bob',
     shouldMatch: true,
   },
   {
