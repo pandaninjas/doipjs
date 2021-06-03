@@ -246,6 +246,10 @@ exports.process = (publicKey) => {
 
       if ('selfCertifications' in user && user.selfCertifications.length > 0) {
         const notations = user.selfCertifications[0].rawNotations
+        usersOutput[i].notations = notations
+          .filter(({ name, humanReadable }) => humanReadable && name === 'proof@metacode.biz')
+          .map(({ value }) => openpgp.util.decode_utf8(value))
+        
         usersOutput[i].claims = notations.map(
           ({ name, value, humanReadable }) => {
             if (humanReadable && name === 'proof@metacode.biz') {

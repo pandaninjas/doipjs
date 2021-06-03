@@ -23,6 +23,7 @@ const doipjs = require('../src')
 
 const pubKeyFingerprint = `3637202523e7c1309ab79e99ef2dc5827b445f4b`
 const pubKeyEmail = `test@doip.rocks`
+
 const pubKeyPlaintext = `-----BEGIN PGP PUBLIC KEY BLOCK-----
 
 mQGNBF+036UBDACoxWRdp7rBAFB2l/+dxX0XA50NJC92EEacB5L0TnC0lP/MsNHv
@@ -48,6 +49,19 @@ XxFjll8b3+FRQAH80qkvtuDDZ/z2CQQ/mdJgNJdMwqvwBQZnCMts0PyqTlzw1mcy
 x77L7mBkREbuZpFoD/c=
 =w7qB
 -----END PGP PUBLIC KEY BLOCK-----`
+
+const pubKeyWithOtherNotations = `-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+mDMEX9Mt6xYJKwYBBAHaRw8BAQdAch8jfp+8KHH5cy/t45GjPvl6dkEv2soIy9fo
+Oe9DbP20EVlhcm1vJ3MgRXZpbCBUd2luiNsEExYIAIMCGwMFCwkIBwIGFQoJCAsC
+BBYCAwECHgECF4AWIQTeePcduHH8EU2iM3aw5zJVrULhnwUCX9MuHBkUgAAAAAAN
+AANldmlsQHlhcm1vLmV1eWVzMBSAAAAAABIAFXByb29mQG1ldGFjb2RlLmJpemRu
+czp5YXJtby5ldT90eXBlPVRYVAAKCRCw5zJVrULhn4DtAQCVkyI8UxUbkxspXkWB
+qUL+3uqCl9gTbNImhv/OxxJdEAEAqf8SJ9FSeAwgWhPHOidR1m+J6/qVdAJdp0HJ
+Yn6RMQ8=
+=Oo3X
+-----END PGP PUBLIC KEY BLOCK-----`
+
 
 describe('keys.fetchURI', () => {
   it('should be a function (1 argument)', () => {
@@ -123,5 +137,13 @@ describe('keys.process', () => {
       'primaryUserIndex',
       'key',
     ])
+  })
+  it('should ignore non-proof notations', async () => {
+    const pubKey = await doipjs.keys.fetchPlaintext(pubKeyWithOtherNotations)
+    const obj = await doipjs.keys.process(pubKey)
+    console.log(obj.users[0]);
+    expect(obj.users).to.be.lengthOf(1)
+    expect(obj.users[0].notations).to.be.lengthOf(1)
+    expect(obj.users[0].notations[0]).to.be.equal('dns:yarmo.eu?type=TXT')
   })
 })
