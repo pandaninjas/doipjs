@@ -56,9 +56,9 @@ describe('utils.generateProxyURL', () => {
     }
     expect(
       doipjs.utils.generateProxyURL('http', { domain: 'domain.org' }, opts)
-    ).to.equal('http://localhost/api/2/get/http?domain=domain.org')
+    ).to.equal('https://localhost/api/2/get/http?domain=domain.org')
     expect(
       doipjs.utils.generateProxyURL('dns', { domain: 'domain.org' }, opts)
-    ).to.equal('http://localhost/api/2/get/dns?domain=domain.org')
+    ).to.equal('https://localhost/api/2/get/dns?domain=domain.org')
   })
 })
