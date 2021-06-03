@@ -1,6 +1,6 @@
 ---
 kind: pipeline
-name: build-stable-proxy-container
+name: release-stable-version
 
 steps:
   - name: build stable proxy container
@@ -23,6 +23,14 @@ steps:
       dockerfile: docker/proxy/Dockerfile
       repo: keyoxide/doip-proxy
       auto_tag: true
+  - name: publish on npm
+    image: plugins/npm
+    settings:
+      username: yarmo_eu
+      password:
+        from_secret: npm_password
+      email:
+        from_secret: npm_email
 
 trigger:
   event:
@@ -30,7 +38,7 @@ trigger:
 
 ---
 kind: pipeline
-name: build-dev-proxy-container
+name: release-dev-version
 
 steps:
   - name: build dev proxy container
