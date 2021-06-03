@@ -6,9 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.9] - 2021-06-03
+### Fixed
+- Typo during claim generation
+- Handle claims without matches
+
 ## [0.12.8] - 2021-06-03
 ### Fixed
--  Expose key revocation status
+- Expose key revocation status
 
 ## [0.12.7] - 2021-06-03
 ### Fixed
