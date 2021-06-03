@@ -7515,7 +7515,7 @@ module.exports.default = exports.default;
 },{"./util/assertString":107}],113:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.12.7",
+  "version": "0.12.8",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -10443,20 +10443,20 @@ exports.process = (publicKey) => {
           email: user.userId ? user.userId.email : null,
           comment: user.userId ? user.userId.comment : null,
           isPrimary: primaryUser.index === i,
+          isRevoked: false,
         },
         claims: [],
       }
 
       if ('selfCertifications' in user && user.selfCertifications.length > 0) {
-        const notations = user.selfCertifications[0].rawNotations
-        usersOutput[i].claims = notations.map(
-          ({ name, value, humanReadable }) => {
-            if (humanReadable && name === 'proof@metacode.biz') {
-              const notation = openpgp.util.decode_utf8(value)
-              return new Claim(notation, fingerprint)
-            }
-          }
-        )
+        const selfCertification = user.selfCertifications[0]
+        
+        const notations = selfCertification.rawNotations
+        usersOutput[i].claims = notations
+          .filter(({ name, humanReadable }) => humanReadable && name === 'proof@metacode.biz')
+          .map(({ value }) => new Claim(openpgp.util.decode_utf8(value)), fingerprint)
+        
+        usersOutput[i].userData.isRevoked = selfCertification.revoked
       }
     })
 
