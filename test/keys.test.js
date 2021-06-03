@@ -141,9 +141,8 @@ describe('keys.process', () => {
   it('should ignore non-proof notations', async () => {
     const pubKey = await doipjs.keys.fetchPlaintext(pubKeyWithOtherNotations)
     const obj = await doipjs.keys.process(pubKey)
-    console.log(obj.users[0]);
     expect(obj.users).to.be.lengthOf(1)
-    expect(obj.users[0].notations).to.be.lengthOf(1)
-    expect(obj.users[0].notations[0]).to.be.equal('dns:yarmo.eu?type=TXT')
+    expect(obj.users[0].claims).to.be.lengthOf(1)
+    expect(obj.users[0].claims[0].uri).to.be.equal('dns:yarmo.eu?type=TXT')
   })
 })
