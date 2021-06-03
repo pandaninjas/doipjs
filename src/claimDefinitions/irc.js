@@ -15,7 +15,7 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^irc\:\/\/(.*)\/([a-zA-Z0-9]*)/
+const reURI = /^irc\:\/\/(.*)\/([a-zA-Z0-9\-\[\]\\\`\_\^\{\|\}]*)/
 
 const processURI = (uri) => {
   const match = uri.match(reURI)
@@ -61,6 +61,10 @@ const tests = [
   },
   {
     uri: 'irc://chat.ircserver.org/alice?param=123',
+    shouldMatch: true,
+  },
+  {
+    uri: 'irc://chat.ircserver.org/alice_bob',
     shouldMatch: true,
   },
   {
