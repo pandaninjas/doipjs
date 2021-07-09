@@ -44,7 +44,6 @@ steps:
   - name: run tests
     image: node
     commands:
-    - npm install --global yarn
     - yarn run prepare
     - yarn run test
   - name: build dev proxy container
