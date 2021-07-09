@@ -63,3 +63,19 @@ trigger:
     - main
   event:
     - push
+
+---
+kind: pipeline
+name: test-pr
+
+steps:
+  - name: run tests
+    image: node
+    commands:
+    - yarn
+    - yarn run prepare
+    - yarn run test
+
+trigger:
+  event:
+    - pull_request
