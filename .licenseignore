@@ -8,6 +8,10 @@
 **/*.env
 **/*.pug
 
+ignore
+docs
+\.husky
+
 package.json
 yarn.lock
 \.editorconfig
@@ -15,4 +19,5 @@ yarn.lock
 \.licenseignore
 \.prettierignore
 \.prettierrc.yaml
+\.drone.yml
 Dockerfile

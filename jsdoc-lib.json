@@ -15,7 +15,7 @@
     "template": "node_modules/clean-jsdoc-theme",
     "theme_opts": {
       "theme": "light",
-      "menu" : [
+      "menu": [
         {
           "title": "Source code",
           "link": "https://codeberg.org/keyoxide/doipjs",
