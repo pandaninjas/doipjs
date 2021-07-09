@@ -23,16 +23,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'reddit',
+      name: 'reddit'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false,
+      isAmbiguous: false
     },
     profile: {
       display: match[1],
       uri: `https://www.reddit.com/user/${match[1]}`,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: uri,
@@ -42,39 +42,39 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: `https://www.reddit.com/user/${match[1]}/comments/${match[2]}.json`,
-          format: E.ProofFormat.JSON,
-        },
-      },
+          format: E.ProofFormat.JSON
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['data', 'children', 'data', 'selftext'],
-    },
+      path: ['data', 'children', 'data', 'selftext']
+    }
   }
 }
 
 const tests = [
   {
     uri: 'https://www.reddit.com/user/Alice/comments/123456/post',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://www.reddit.com/user/Alice/comments/123456/post/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://reddit.com/user/Alice/comments/123456/post',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://reddit.com/user/Alice/comments/123456/post/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/user/Alice/comments/123456/post',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI

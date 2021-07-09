@@ -47,7 +47,7 @@ module.exports.fn = async (data, opts) => {
 
   const fetchPromise = new Promise((resolve, reject) => {
     if (!data.url) {
-      reject('No valid URI provided')
+      reject(new Error('No valid URI provided'))
       return
     }
 
@@ -55,7 +55,7 @@ module.exports.fn = async (data, opts) => {
       case E.ProofFormat.JSON:
         req(data.url, null, {
           Accept: 'application/json',
-          'User-Agent': `doipjs/${require('../../package.json').version}`,
+          'User-Agent': `doipjs/${require('../../package.json').version}`
         })
           .then(async (res) => {
             return await res.json()
@@ -80,7 +80,7 @@ module.exports.fn = async (data, opts) => {
           })
         break
       default:
-        reject('No specified data format')
+        reject(new Error('No specified data format'))
         break
     }
   })

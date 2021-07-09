@@ -15,7 +15,7 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^irc\:\/\/(.*)\/([a-zA-Z0-9\-\[\]\\\`\_\^\{\|\}]*)/
+const reURI = /^irc:\/\/(.*)\/([a-zA-Z0-9\-[\]\\`_^{|}]*)/
 
 const processURI = (uri) => {
   const match = uri.match(reURI)
@@ -23,16 +23,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'communication',
-      name: 'irc',
+      name: 'irc'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false,
+      isAmbiguous: false
     },
     profile: {
       display: `irc://${match[1]}/${match[2]}`,
       uri: uri,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: null,
@@ -42,35 +42,35 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           domain: match[1],
-          nick: match[2],
-        },
-      },
+          nick: match[2]
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.CONTAINS,
-      path: [],
-    },
+      path: []
+    }
   }
 }
 
 const tests = [
   {
     uri: 'irc://chat.ircserver.org/Alice1',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'irc://chat.ircserver.org/alice?param=123',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'irc://chat.ircserver.org/alice_bob',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://chat.ircserver.org/alice',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI

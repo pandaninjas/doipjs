@@ -43,7 +43,7 @@ class Claim {
    * const claim = doip.Claim('dns:domain.tld?type=TXT', '123abc123abc');
    * const claimAlt = doip.Claim(JSON.stringify(claim));
    */
-  constructor(uri, fingerprint) {
+  constructor (uri, fingerprint) {
     // Import JSON
     if (typeof uri === 'object' && 'claimVersion' in uri) {
       const data = uri
@@ -58,7 +58,6 @@ class Claim {
 
         default:
           throw new Error('Invalid claim version')
-          break
       }
       return
     }
@@ -73,44 +72,44 @@ class Claim {
       try {
         validator.isAlphanumeric(fingerprint)
       } catch (err) {
-        throw new Error(`Invalid fingerprint`)
+        throw new Error('Invalid fingerprint')
       }
     }
 
-    this._uri = uri ? uri : null
-    this._fingerprint = fingerprint ? fingerprint : null
+    this._uri = uri || null
+    this._fingerprint = fingerprint || null
     this._status = E.ClaimStatus.INIT
     this._matches = null
     this._verification = null
   }
 
-  get uri() {
+  get uri () {
     return this._uri
   }
 
-  get fingerprint() {
+  get fingerprint () {
     return this._fingerprint
   }
 
-  get status() {
+  get status () {
     return this._status
   }
 
-  get matches() {
+  get matches () {
     if (this._status === E.ClaimStatus.INIT) {
       throw new Error('This claim has not yet been matched')
     }
     return this._matches
   }
 
-  get verification() {
+  get verification () {
     if (this._status !== E.ClaimStatus.VERIFIED) {
       throw new Error('This claim has not yet been verified')
     }
     return this._verification
   }
 
-  set uri(uri) {
+  set uri (uri) {
     if (this._status !== E.ClaimStatus.INIT) {
       throw new Error(
         'Cannot change the URI, this claim has already been matched'
@@ -126,7 +125,7 @@ class Claim {
     this._uri = uri
   }
 
-  set fingerprint(fingerprint) {
+  set fingerprint (fingerprint) {
     if (this._status === E.ClaimStatus.VERIFIED) {
       throw new Error(
         'Cannot change the fingerprint, this claim has already been verified'
@@ -135,15 +134,15 @@ class Claim {
     this._fingerprint = fingerprint
   }
 
-  set status(anything) {
+  set status (anything) {
     throw new Error("Cannot change a claim's status")
   }
 
-  set matches(anything) {
+  set matches (anything) {
     throw new Error("Cannot change a claim's matches")
   }
 
-  set verification(anything) {
+  set verification (anything) {
     throw new Error("Cannot change a claim's verification result")
   }
 
@@ -151,7 +150,7 @@ class Claim {
    * Match the claim's URI to candidate definitions
    * @function
    */
-  match() {
+  match () {
     if (this._status !== E.ClaimStatus.INIT) {
       throw new Error('This claim was already matched')
     }
@@ -195,7 +194,7 @@ class Claim {
    * @function
    * @param {object} [opts] - Options for proxy, fetchers
    */
-  async verify(opts) {
+  async verify (opts) {
     if (this._status === E.ClaimStatus.INIT) {
       throw new Error('This claim has not yet been matched')
     }
@@ -207,7 +206,7 @@ class Claim {
     }
 
     // Handle options
-    opts = mergeOptions(defaults.opts, opts ? opts : {})
+    opts = mergeOptions(defaults.opts, opts || {})
 
     // If there are no matches
     if (this._matches.length === 0) {
@@ -215,7 +214,7 @@ class Claim {
         result: false,
         completed: true,
         proof: {},
-        errors: ['No matches for claim'],
+        errors: ['No matches for claim']
       }
     }
 
@@ -223,9 +222,9 @@ class Claim {
     for (let index = 0; index < this._matches.length; index++) {
       const claimData = this._matches[index]
 
-      let verificationResult = null,
-        proofData = null,
-        proofFetchError
+      let verificationResult = null
+      let proofData = null
+      let proofFetchError
 
       try {
         proofData = await proofs.fetch(claimData, opts)
@@ -242,15 +241,15 @@ class Claim {
         )
         verificationResult.proof = {
           fetcher: proofData.fetcher,
-          viaProxy: proofData.viaProxy,
+          viaProxy: proofData.viaProxy
         }
       } else {
         // Consider the proof completed but with a negative result
-        verificationResult = verificationResult ? verificationResult : {
+        verificationResult = verificationResult || {
           result: false,
           completed: true,
           proof: {},
-          errors: [proofFetchError],
+          errors: [proofFetchError]
         }
 
         if (this.isAmbiguous()) {
@@ -268,12 +267,14 @@ class Claim {
     }
 
     // Fail safe verification result
-    this._verification = this._verification ? this._verification : {
-      result: false,
-      completed: true,
-      proof: {},
-      errors: ['Unknown error'],
-    }
+    this._verification = this._verification
+      ? this._verification
+      : {
+          result: false,
+          completed: true,
+          proof: {},
+          errors: ['Unknown error']
+        }
 
     this._status = E.ClaimStatus.VERIFIED
   }
@@ -285,16 +286,14 @@ class Claim {
    * @function
    * @returns {boolean}
    */
-  isAmbiguous() {
+  isAmbiguous () {
     if (this._status === E.ClaimStatus.INIT) {
       throw new Error('The claim has not been matched yet')
     }
     if (this._matches.length === 0) {
       throw new Error('The claim has no matches')
     }
-    return (
-      this._matches.length > 1 || this._matches[0].match.isAmbiguous
-    )
+    return this._matches.length > 1 || this._matches[0].match.isAmbiguous
   }
 
   /**
@@ -303,14 +302,14 @@ class Claim {
    * @function
    * @returns {object}
    */
-  toJSON() {
+  toJSON () {
     return {
       claimVersion: 1,
       uri: this._uri,
       fingerprint: this._fingerprint,
       status: this._status,
       matches: this._matches,
-      verification: this._verification,
+      verification: this._verification
     }
   }
 }

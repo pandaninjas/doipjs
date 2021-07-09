@@ -54,49 +54,37 @@ const handleBrowserRequests = (data, opts) => {
   switch (opts.proxy.policy) {
     case E.ProxyPolicy.ALWAYS:
       return createProxyRequestPromise(data, opts)
-      break
 
     case E.ProxyPolicy.NEVER:
       switch (data.proof.request.access) {
         case E.ProofAccess.GENERIC:
         case E.ProofAccess.GRANTED:
           return createDefaultRequestPromise(data, opts)
-          break
         case E.ProofAccess.NOCORS:
         case E.ProofAccess.SERVER:
           throw new Error(
             'Impossible to fetch proof (bad combination of service access and proxy policy)'
           )
-          break
         default:
           throw new Error('Invalid proof access value')
-          break
       }
-      break
 
     case E.ProxyPolicy.ADAPTIVE:
       switch (data.proof.request.access) {
         case E.ProofAccess.GENERIC:
           return createFallbackRequestPromise(data, opts)
-          break
         case E.ProofAccess.NOCORS:
           return createProxyRequestPromise(data, opts)
-          break
         case E.ProofAccess.GRANTED:
           return createFallbackRequestPromise(data, opts)
-          break
         case E.ProofAccess.SERVER:
           return createProxyRequestPromise(data, opts)
-          break
         default:
           throw new Error('Invalid proof access value')
-          break
       }
-      break
 
     default:
       throw new Error('Invalid proxy policy')
-      break
   }
 }
 
@@ -104,19 +92,15 @@ const handleNodeRequests = (data, opts) => {
   switch (opts.proxy.policy) {
     case E.ProxyPolicy.ALWAYS:
       return createProxyRequestPromise(data, opts)
-      break
 
     case E.ProxyPolicy.NEVER:
       return createDefaultRequestPromise(data, opts)
-      break
 
     case E.ProxyPolicy.ADAPTIVE:
       return createFallbackRequestPromise(data, opts)
-      break
 
     default:
       throw new Error('Invalid proxy policy')
-      break
   }
 }
 
@@ -129,7 +113,7 @@ const createDefaultRequestPromise = (data, opts) => {
           fetcher: data.proof.request.fetcher,
           data: data,
           viaProxy: false,
-          result: res,
+          result: res
         })
       })
       .catch((err) => {
@@ -154,7 +138,7 @@ const createProxyRequestPromise = (data, opts) => {
     const requestData = {
       url: proxyUrl,
       format: data.proof.request.format,
-      fetcherTimeout: fetcher[data.proof.request.fetcher].timeout,
+      fetcherTimeout: fetcher[data.proof.request.fetcher].timeout
     }
     fetcher.http
       .fn(requestData, opts)
@@ -163,7 +147,7 @@ const createProxyRequestPromise = (data, opts) => {
           fetcher: 'http',
           data: data,
           viaProxy: true,
-          result: res,
+          result: res
         })
       })
       .catch((err) => {
@@ -184,7 +168,7 @@ const createFallbackRequestPromise = (data, opts) => {
             return resolve(res)
           })
           .catch((err2) => {
-            return reject([err1, err2])
+            return reject(err2)
           })
       })
   })

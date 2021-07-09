@@ -44,28 +44,45 @@ module.exports.fn = async (data, opts) => {
     )
   })
 
-  const fetchPromise = new Promise(async (resolve, reject) => {
+  const fetchPromise = new Promise((resolve, reject) => {
     const urlUser = `https://${data.domain}/api/v4/users?username=${data.username}`
-    const resUser = await req(urlUser, null, { Accept: 'application/json' })
-    const jsonUser = await resUser.json()
+    // const resUser = await req(urlUser, null, { Accept: 'application/json' })
+    const res = req(urlUser, null, { Accept: 'application/json' })
+      .then(resUser => {
+        return resUser.json()
+      })
+      .then(jsonUser => {
+        return jsonUser.find((user) => user.username === data.username)
+      })
+      .then(user => {
+        if (!user) {
+          throw new Error(`No user with username ${data.username}`)
+        }
+        return user
+      })
+      .then(user => {
+        const urlProject = `https://${data.domain}/api/v4/users/${user.id}/projects`
+        return req(urlProject, null, {
+          Accept: 'application/json'
+        })
+      })
+      .then(resProject => {
+        return resProject.json()
+      })
+      .then(jsonProject => {
+        return jsonProject.find((proj) => proj.path === 'gitlab_proof')
+      })
+      .then(project => {
+        if (!project) {
+          throw new Error('No project found')
+        }
+        return project
+      })
+      .catch(error => {
+        reject(error)
+      })
 
-    const user = jsonUser.find((user) => user.username === data.username)
-    if (!user) {
-      reject(`No user with username ${data.username}`)
-    }
-
-    const urlProject = `https://${data.domain}/api/v4/users/${user.id}/projects`
-    const resProject = await req(urlProject, null, {
-      Accept: 'application/json',
-    })
-    const jsonProject = await resProject.json()
-
-    const project = jsonProject.find((proj) => proj.path === 'gitlab_proof')
-    if (!project) {
-      reject(`No project found`)
-    }
-
-    resolve(project)
+    resolve(res)
   })
 
   return Promise.race([fetchPromise, timeoutPromise]).then((result) => {

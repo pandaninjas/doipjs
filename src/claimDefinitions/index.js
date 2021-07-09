@@ -30,7 +30,7 @@ const list = [
   'mastodon',
   'fediverse',
   'discourse',
-  'owncast',
+  'owncast'
 ]
 
 const data = {
@@ -50,7 +50,7 @@ const data = {
   mastodon: require('./mastodon'),
   fediverse: require('./fediverse'),
   discourse: require('./discourse'),
-  owncast: require('./owncast'),
+  owncast: require('./owncast')
 }
 
 exports.list = list

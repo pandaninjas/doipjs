@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const jsEnv = require("browser-or-node")
+const jsEnv = require('browser-or-node')
 
 /**
  * @module fetcher/irc
@@ -28,7 +28,7 @@ module.exports.timeout = 20000
 if (jsEnv.isNode) {
   const irc = require('irc-upd')
   const validator = require('validator')
-  
+
   /**
    * Execute a fetch request
    * @function
@@ -48,14 +48,14 @@ if (jsEnv.isNode) {
         data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
       )
     })
-  
+
     const fetchPromise = new Promise((resolve, reject) => {
       try {
         validator.isAscii(opts.claims.irc.nick)
       } catch (err) {
         throw new Error(`IRC fetcher was not set up properly (${err.message})`)
       }
-  
+
       try {
         const client = new irc.Client(data.domain, opts.claims.irc.nick, {
           port: 6697,
@@ -64,10 +64,10 @@ if (jsEnv.isNode) {
           showErrors: false,
           debug: false
         })
-        const reKey = /[a-zA-Z0-9\-\_]+\s+:\s(openpgp4fpr\:.*)/
+        const reKey = /[a-zA-Z0-9\-_]+\s+:\s(openpgp4fpr:.*)/
         const reEnd = /End\sof\s.*\staxonomy./
-        let keys = []
-  
+        const keys = []
+
         client.addListener('registered', (message) => {
           client.send(`PRIVMSG NickServ TAXONOMY ${data.nick}`)
         })
@@ -85,7 +85,7 @@ if (jsEnv.isNode) {
         reject(error)
       }
     })
-  
+
     return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
       clearTimeout(timeoutHandle)
       return result

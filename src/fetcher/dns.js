@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const jsEnv = require("browser-or-node")
+const jsEnv = require('browser-or-node')
 
 /**
  * @module fetcher/dns
@@ -55,8 +55,8 @@ if (jsEnv.isNode) {
         resolve({
           domain: data.domain,
           records: {
-            txt: records,
-          },
+            txt: records
+          }
         })
       })
     })

@@ -32,10 +32,10 @@ const generateProxyURL = (type, data, opts) => {
   try {
     validator.isFQDN(opts.proxy.hostname)
   } catch (err) {
-    throw new Error(`Invalid proxy hostname`)
+    throw new Error('Invalid proxy hostname')
   }
 
-  let queryStrings = []
+  const queryStrings = []
 
   Object.keys(data).forEach((key) => {
     queryStrings.push(`${key}=${encodeURIComponent(data[key])}`)
@@ -56,13 +56,10 @@ const generateClaim = (fingerprint, format) => {
   switch (format) {
     case E.ClaimFormat.URI:
       return `openpgp4fpr:${fingerprint}`
-      break
     case E.ClaimFormat.MESSAGE:
       return `[Verifying my OpenPGP key: openpgp4fpr:${fingerprint}]`
-      break
     case E.ClaimFormat.FINGERPRINT:
       return fingerprint
-      break
     default:
       throw new Error('No valid claim format')
   }

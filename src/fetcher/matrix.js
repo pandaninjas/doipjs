@@ -58,7 +58,7 @@ module.exports.fn = async (data, opts) => {
 
     const url = `https://${opts.claims.matrix.instance}/_matrix/client/r0/rooms/${data.roomId}/event/${data.eventId}?access_token=${opts.claims.matrix.accessToken}`
     bentReq(url, null, {
-      Accept: 'application/json',
+      Accept: 'application/json'
     })
       .then(async (res) => {
         return await res.json()

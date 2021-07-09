@@ -23,16 +23,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'liberapay',
+      name: 'liberapay'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false,
+      isAmbiguous: false
     },
     profile: {
       display: match[1],
       uri: uri,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: uri,
@@ -42,31 +42,31 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: `https://liberapay.com/${match[1]}/public.json`,
-          format: E.ProofFormat.JSON,
-        },
-      },
+          format: E.ProofFormat.JSON
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['statements', 'content'],
-    },
+      path: ['statements', 'content']
+    }
   }
 }
 
 const tests = [
   {
     uri: 'https://liberapay.com/alice',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://liberapay.com/alice/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/alice',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI

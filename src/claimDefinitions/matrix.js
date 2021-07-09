@@ -16,7 +16,7 @@ limitations under the License.
 const E = require('../enums')
 const queryString = require('query-string')
 
-const reURI = /^matrix\:u\/(?:\@)?([^@:]*\:[^?]*)(\?.*)?/
+const reURI = /^matrix:u\/(?:@)?([^@:]*:[^?]*)(\?.*)?/
 
 const processURI = (uri) => {
   const match = uri.match(reURI)
@@ -37,16 +37,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'communication',
-      name: 'matrix',
+      name: 'matrix'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false,
+      isAmbiguous: false
     },
     profile: {
       display: `@${match[1]}`,
       uri: profileUrl,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: eventUrl,
@@ -56,15 +56,15 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           eventId: params['org.keyoxide.e'],
-          roomId: params['org.keyoxide.r'],
-        },
-      },
+          roomId: params['org.keyoxide.r']
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['content', 'body'],
-    },
+      path: ['content', 'body']
+    }
   }
 }
 
@@ -72,20 +72,20 @@ const tests = [
   {
     uri:
       'matrix:u/alice:matrix.domain.org?org.keyoxide.r=!123:domain.org&org.keyoxide.e=$123',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'matrix:u/alice:matrix.domain.org',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'xmpp:alice@domain.org',
-    shouldMatch: false,
+    shouldMatch: false
   },
   {
     uri: 'https://domain.org/@alice',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI

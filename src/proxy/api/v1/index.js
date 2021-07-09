@@ -24,40 +24,40 @@ const debug = require('@xmpp/debug')
 const irc = require('irc-upd')
 require('dotenv').config()
 
-const xmpp_service = process.env.XMPP_SERVICE || null
-const xmpp_username = process.env.XMPP_USERNAME || null
-const xmpp_password = process.env.XMPP_PASSWORD || null
-const twitter_bearer_token = process.env.TWITTER_BEARER_TOKEN || null
-const matrix_instance = process.env.MATRIX_INSTANCE || null
-const matrix_access_token = process.env.MATRIX_ACCESS_TOKEN || null
-const irc_nick = process.env.IRC_NICK || null
+const xmppService = process.env.XMPP_SERVICE || null
+const xmppUsername = process.env.XMPP_USERNAME || null
+const xmppPassword = process.env.XMPP_PASSWORD || null
+const twitterBearerToken = process.env.TWITTER_BEARER_TOKEN || null
+const matrixInstance = process.env.MATRIX_INSTANCE || null
+const matrixAccessToken = process.env.MATRIX_ACCESS_TOKEN || null
+const ircNick = process.env.IRC_NICK || null
 
-let xmpp = null,
-  iqCaller = null,
-  xmpp_enabled = true,
-  twitter_enabled = false,
-  matrix_enabled = false,
-  irc_enabled = false
+let xmpp = null
+let iqCaller = null
+let xmppEnabled = true
+let twitterEnabled = false
+let matrixEnabled = false
+let ircEnabled = false
 
-if (!xmpp_service || !xmpp_username || !xmpp_password) {
-  xmpp_enabled = false
+if (!xmppService || !xmppUsername || !xmppPassword) {
+  xmppEnabled = false
 }
-if (twitter_bearer_token) {
-  twitter_enabled = true
+if (twitterBearerToken) {
+  twitterEnabled = true
 }
-if (matrix_instance && matrix_access_token) {
-  matrix_enabled = true
+if (matrixInstance && matrixAccessToken) {
+  matrixEnabled = true
 }
-if (irc_nick) {
-  irc_enabled = true
+if (ircNick) {
+  ircEnabled = true
 }
 
-const xmppStart = async (xmpp_service, xmpp_username, xmpp_password) => {
+const xmppStart = async (xmppService, xmppUsername, xmppPassword) => {
   return new Promise((resolve, reject) => {
     const xmpp = client({
-      service: xmpp_service,
-      username: xmpp_username,
-      password: xmpp_password,
+      service: xmppService,
+      username: xmppUsername,
+      password: xmppPassword
     })
     if (process.env.NODE_ENV !== 'production') {
       debug(xmpp, true)
@@ -77,7 +77,7 @@ const xmppStart = async (xmpp_service, xmpp_username, xmpp_password) => {
 router.get('/', async (req, res) => {
   res.status(200).json({
     message:
-      'Available endpoints: /json/:url, /text/:url, /dns/:hostname, /xmpp/:xmppid, /twitter/:tweetid, /matrix/:roomid/:eventid, /irc/:ircserver/:ircnick',
+      'Available endpoints: /json/:url, /text/:url, /dns/:hostname, /xmpp/:xmppid, /twitter/:tweetid, /matrix/:roomid/:eventid, /irc/:ircserver/:ircnick'
   })
 })
 
@@ -94,7 +94,7 @@ router.param('url', async (req, res, next, url) => {
 router.param('xmppid', async (req, res, next, xmppid) => {
   req.params.xmppid = xmppid
 
-  if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,})+$/.test(req.params.xmppid)) {
+  if (/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,})+$/.test(req.params.xmppid)) {
     next()
   } else {
     return res.status(400).json({ message: 'XMPP_ID was not valid' })
@@ -112,13 +112,13 @@ router.param('xmppdata', async (req, res, next, xmppdata) => {
     'BDAY',
     'NICKNAME',
     'NOTE',
-    'DESC',
+    'DESC'
   ]
 
   if (!allowedData.includes(req.params.xmppdata)) {
     return res.status(400).json({
       message:
-        'Allowed data are: FN, NUMBER, USERID, URL, BDAY, NICKNAME, NOTE, DESC',
+        'Allowed data are: FN, NUMBER, USERID, URL, BDAY, NICKNAME, NOTE, DESC'
     })
   }
 
@@ -127,7 +127,7 @@ router.param('xmppdata', async (req, res, next, xmppdata) => {
 
 router.get('/get/json/:url', (req, res) => {
   bentReq(req.params.url, 'json', {
-    Accept: 'application/json',
+    Accept: 'application/json'
   })
     .then(async (result) => {
       return await result.json()
@@ -155,11 +155,14 @@ router.get('/get/text/:url', (req, res) => {
 
 router.get('/get/dns/:hostname', async (req, res) => {
   dns.resolveTxt(req.params.hostname, (err, records) => {
+    if (err) {
+      throw new Error(err)
+    }
     const out = {
       hostname: req.params.hostname,
       records: {
-        txt: records,
-      },
+        txt: records
+      }
     }
     return res.status(200).json(out)
   })
@@ -174,14 +177,14 @@ router.get('/get/xmpp/:xmppid', async (req, res) => {
 })
 
 router.get('/get/xmpp/:xmppid/:xmppdata', async (req, res) => {
-  if (!xmpp_enabled) {
+  if (!xmppEnabled) {
     return res.status(500).json('XMPP not enabled on server')
   }
   if (!xmpp) {
     const xmppStartRes = await xmppStart(
-      xmpp_service,
-      xmpp_username,
-      xmpp_password
+      xmppService,
+      xmppUsername,
+      xmppPassword
     )
     xmpp = xmppStartRes.xmpp
     iqCaller = xmppStartRes.iqCaller
@@ -231,7 +234,7 @@ router.get('/get/xmpp/:xmppid/:xmppdata', async (req, res) => {
 })
 
 router.get('/get/twitter/:tweetid', async (req, res) => {
-  if (!twitter_enabled) {
+  if (!twitterEnabled) {
     return res.status(500).json('Twitter not enabled on server')
   }
 
@@ -240,7 +243,7 @@ router.get('/get/twitter/:tweetid', async (req, res) => {
     null,
     {
       Accept: 'application/json',
-      Authorization: `Bearer ${twitter_bearer_token}`,
+      Authorization: `Bearer ${twitterBearerToken}`
     }
   )
     .then(async (data) => {
@@ -253,20 +256,20 @@ router.get('/get/twitter/:tweetid', async (req, res) => {
       return res.status(error.statusCode || 400).json({
         data: [],
         message: 'Request could not be fulfilled',
-        error: error,
+        error: error
       })
     })
 })
 
 router.get('/get/matrix/:matrixroomid/:matrixeventid', async (req, res) => {
-  if (!matrix_enabled) {
+  if (!matrixEnabled) {
     return res.status(500).json('Matrix not enabled on server')
   }
 
-  const url = `https://${matrix_instance}/_matrix/client/r0/rooms/${req.params.matrixroomid}/event/${req.params.matrixeventid}?access_token=${matrix_access_token}`
+  const url = `https://${matrixInstance}/_matrix/client/r0/rooms/${req.params.matrixroomid}/event/${req.params.matrixeventid}?access_token=${matrixAccessToken}`
 
   bentReq(url, null, {
-    Accept: 'application/json',
+    Accept: 'application/json'
   })
     .then(async (data) => {
       return await data.json()
@@ -278,25 +281,25 @@ router.get('/get/matrix/:matrixroomid/:matrixeventid', async (req, res) => {
       return res.status(error.statusCode || 400).json({
         data: [],
         message: 'Request could not be fulfilled',
-        error: error,
+        error: error
       })
     })
 })
 
 router.get('/get/irc/:ircserver/:ircnick', async (req, res) => {
-  if (!irc_enabled) {
+  if (!ircEnabled) {
     return res.status(500).json('IRC not enabled on server')
   }
 
   try {
-    const client = new irc.Client(req.params.ircserver, irc_nick, {
+    const client = new irc.Client(req.params.ircserver, ircNick, {
       port: 6697,
       secure: true,
-      channels: [],
+      channels: []
     })
-    const reKey = /[a-zA-Z0-9\-\_]+\s+:\s(openpgp4fpr\:.*)/
+    const reKey = /[a-zA-Z0-9\-_]+\s+:\s(openpgp4fpr:.*)/
     const reEnd = /End\sof\s.*\staxonomy./
-    let keys = []
+    const keys = []
 
     client.addListener('registered', (message) => {
       client.send(`PRIVMSG NickServ :TAXONOMY ${req.params.ircnick}`)
@@ -317,7 +320,7 @@ router.get('/get/irc/:ircserver/:ircnick', async (req, res) => {
     return res.status(400).json({
       data: [],
       message: 'Request could not be fulfilled',
-      error: error,
+      error: error
     })
   }
 })

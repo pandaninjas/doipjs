@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const jsEnv = require("browser-or-node")
+const jsEnv = require('browser-or-node')
 
 /**
  * @module fetcher/xmpp
@@ -30,16 +30,16 @@ if (jsEnv.isNode) {
   const { client, xml } = require('@xmpp/client')
   const debug = require('@xmpp/debug')
   const validator = require('validator')
-  
-  let xmpp = null,
-    iqCaller = null
-  
+
+  let xmpp = null
+  let iqCaller = null
+
   const xmppStart = async (service, username, password) => {
     return new Promise((resolve, reject) => {
       const xmpp = client({
         service: service,
         username: username,
-        password: password,
+        password: password
       })
       if (process.env.NODE_ENV !== 'production') {
         debug(xmpp, true)
@@ -54,7 +54,7 @@ if (jsEnv.isNode) {
       })
     })
   }
-  
+
   /**
    * Execute a fetch request
    * @function
@@ -69,6 +69,32 @@ if (jsEnv.isNode) {
    * @returns {object}
    */
   module.exports.fn = async (data, opts) => {
+    try {
+      validator.isFQDN(opts.claims.xmpp.service)
+      validator.isAscii(opts.claims.xmpp.username)
+      validator.isAscii(opts.claims.xmpp.password)
+    } catch (err) {
+      throw new Error(`XMPP fetcher was not set up properly (${err.message})`)
+    }
+
+    if (!xmpp || xmpp.status !== 'online') {
+      const xmppStartRes = await xmppStart(
+        opts.claims.xmpp.service,
+        opts.claims.xmpp.username,
+        opts.claims.xmpp.password
+      )
+      xmpp = xmppStartRes.xmpp
+      iqCaller = xmppStartRes.iqCaller
+    }
+
+    const response = await iqCaller.request(
+      xml('iq', { type: 'get', to: data.id }, xml('vCard', 'vcard-temp')),
+      30 * 1000
+    )
+
+    const vcardRow = response.getChild('vCard', 'vcard-temp').toString()
+    const dom = new jsdom.JSDOM(vcardRow)
+
     let timeoutHandle
     const timeoutPromise = new Promise((resolve, reject) => {
       timeoutHandle = setTimeout(
@@ -76,37 +102,11 @@ if (jsEnv.isNode) {
         data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
       )
     })
-  
-    const fetchPromise = new Promise(async (resolve, reject) => {
-      try {
-        validator.isFQDN(opts.claims.xmpp.service)
-        validator.isAscii(opts.claims.xmpp.username)
-        validator.isAscii(opts.claims.xmpp.password)
-      } catch (err) {
-        throw new Error(`XMPP fetcher was not set up properly (${err.message})`)
-      }
-  
-      if (!xmpp || xmpp.status !== 'online') {
-        const xmppStartRes = await xmppStart(
-          opts.claims.xmpp.service,
-          opts.claims.xmpp.username,
-          opts.claims.xmpp.password
-        )
-        xmpp = xmppStartRes.xmpp
-        iqCaller = xmppStartRes.iqCaller
-      }
-  
-      const response = await iqCaller.request(
-        xml('iq', { type: 'get', to: data.id }, xml('vCard', 'vcard-temp')),
-        30 * 1000
-      )
-  
-      const vcardRow = response.getChild('vCard', 'vcard-temp').toString()
-      const dom = new jsdom.JSDOM(vcardRow)
-  
+
+    const fetchPromise = new Promise((resolve, reject) => {
       try {
         let vcard
-  
+
         switch (data.field.toLowerCase()) {
           case 'desc':
           case 'note':
@@ -120,7 +120,7 @@ if (jsEnv.isNode) {
               throw new Error('No DESC or NOTE field found in vCard')
             }
             break
-  
+
           default:
             vcard = dom.window.document.querySelector(data).textContent
             break
@@ -131,7 +131,7 @@ if (jsEnv.isNode) {
         reject(error)
       }
     })
-  
+
     return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
       clearTimeout(timeoutHandle)
       return result

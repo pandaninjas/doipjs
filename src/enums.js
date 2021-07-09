@@ -29,7 +29,7 @@ const ProxyPolicy = {
   /** Always use a proxy */
   ALWAYS: 'always',
   /** Never use a proxy, skip a verification if a proxy is inevitable */
-  NEVER: 'never',
+  NEVER: 'never'
 }
 Object.freeze(ProxyPolicy)
 
@@ -52,7 +52,7 @@ const Fetcher = {
   /** HTTP request to Gitlab API */
   GITLAB: 'gitlab',
   /** HTTP request to Twitter API */
-  TWITTER: 'twitter',
+  TWITTER: 'twitter'
 }
 Object.freeze(Fetcher)
 
@@ -69,7 +69,7 @@ const ProofAccess = {
   /** HTTP requests must contain API or access tokens */
   GRANTED: 2,
   /** Not accessible by HTTP request, needs server software */
-  SERVER: 3,
+  SERVER: 3
 }
 Object.freeze(ProofAccess)
 
@@ -82,7 +82,7 @@ const ProofFormat = {
   /** JSON format */
   JSON: 'json',
   /** Plaintext format */
-  TEXT: 'text',
+  TEXT: 'text'
 }
 Object.freeze(ProofFormat)
 
@@ -97,7 +97,7 @@ const ClaimFormat = {
   /** `123123123` */
   FINGERPRINT: 1,
   /** `[Verifying my OpenPGP key: openpgp4fpr:123123123]` */
-  MESSAGE: 2,
+  MESSAGE: 2
 }
 Object.freeze(ClaimFormat)
 
@@ -112,7 +112,7 @@ const ClaimRelation = {
   /** Claim is equal to the JSON field's textual content */
   EQUALS: 1,
   /** Claim is equal to an element of the JSON field's array of strings */
-  ONEOF: 2,
+  ONEOF: 2
 }
 Object.freeze(ClaimRelation)
 
@@ -127,7 +127,7 @@ const ClaimStatus = {
   /** Claim has matched its URI to candidate claim definitions */
   MATCHED: 'matched',
   /** Claim has verified one or multiple candidate claim definitions */
-  VERIFIED: 'verified',
+  VERIFIED: 'verified'
 }
 Object.freeze(ClaimStatus)
 

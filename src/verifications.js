@@ -39,31 +39,26 @@ const runJSON = (proofData, checkPath, checkClaim, checkRelation) => {
     return result
   }
 
-  if (checkPath.length == 0) {
+  if (checkPath.length === 0) {
     switch (checkRelation) {
-      default:
-      case E.ClaimRelation.CONTAINS:
-        re = new RegExp(checkClaim, 'gi')
-        return re.test(proofData.replace(/\r?\n|\r|\\/g, ''))
-        break
-
       case E.ClaimRelation.EQUALS:
         return (
-          proofData.replace(/\r?\n|\r|\\/g, '').toLowerCase() ==
+          proofData.replace(/\r?\n|\r|\\/g, '').toLowerCase() ===
           checkClaim.toLowerCase()
         )
-        break
 
       case E.ClaimRelation.ONEOF:
         re = new RegExp(checkClaim, 'gi')
         return re.test(proofData.join('|'))
-        break
+
+      case E.ClaimRelation.CONTAINS:
+      default:
+        re = new RegExp(checkClaim, 'gi')
+        return re.test(proofData.replace(/\r?\n|\r|\\/g, ''))
     }
   }
 
-  try {
-    checkPath[0] in proofData
-  } catch (e) {
+  if (!(checkPath[0] in proofData)) {
     throw new Error('err_json_structure_incorrect')
   }
 
@@ -83,10 +78,10 @@ const runJSON = (proofData, checkPath, checkClaim, checkRelation) => {
  * @returns {object}
  */
 const run = (proofData, claimData, fingerprint) => {
-  let res = {
+  const res = {
     result: false,
     completed: false,
-    errors: [],
+    errors: []
   }
 
   switch (claimData.proof.request.format) {

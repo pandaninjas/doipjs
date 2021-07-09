@@ -23,16 +23,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'hackernews',
+      name: 'hackernews'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false,
+      isAmbiguous: false
     },
     profile: {
       display: match[1],
       uri: uri,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: `https://hacker-news.firebaseio.com/v0/user/${match[1]}.json`,
@@ -42,31 +42,31 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: `https://hacker-news.firebaseio.com/v0/user/${match[1]}.json`,
-          format: E.ProofFormat.JSON,
-        },
-      },
+          format: E.ProofFormat.JSON
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['about'],
-    },
+      path: ['about']
+    }
   }
 }
 
 const tests = [
   {
     uri: 'https://news.ycombinator.com/user?id=Alice',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://news.ycombinator.com/user?id=Alice/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/user?id=Alice',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI

@@ -23,16 +23,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'github',
+      name: 'github'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false,
+      isAmbiguous: false
     },
     profile: {
       display: match[1],
       uri: `https://github.com/${match[1]}`,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: uri,
@@ -42,31 +42,31 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: `https://api.github.com/gists/${match[2]}`,
-          format: E.ProofFormat.JSON,
-        },
-      },
+          format: E.ProofFormat.JSON
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['files', 'openpgp.md', 'content'],
-    },
+      path: ['files', 'openpgp.md', 'content']
+    }
   }
 }
 
 const tests = [
   {
     uri: 'https://gist.github.com/Alice/123456789',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://gist.github.com/Alice/123456789/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/Alice/123456789',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI

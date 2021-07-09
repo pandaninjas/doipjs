@@ -23,16 +23,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'gitlab',
+      name: 'gitlab'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: true,
+      isAmbiguous: true
     },
     profile: {
       display: `${match[2]}@${match[1]}`,
       uri: `https://${match[1]}/${match[2]}`,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: uri,
@@ -42,31 +42,31 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           domain: match[1],
-          username: match[2],
-        },
-      },
+          username: match[2]
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.EQUALS,
-      path: ['description'],
-    },
+      path: ['description']
+    }
   }
 }
 
 const tests = [
   {
     uri: 'https://gitlab.domain.org/alice/gitlab_proof',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://gitlab.domain.org/alice/gitlab_proof/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/alice/other_proof',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI

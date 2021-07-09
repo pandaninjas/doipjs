@@ -60,7 +60,7 @@ module.exports.fn = async (data, opts) => {
       null,
       {
         Accept: 'application/json',
-        Authorization: `Bearer ${opts.claims.twitter.bearerToken}`,
+        Authorization: `Bearer ${opts.claims.twitter.bearerToken}`
       }
     )
       .then(async (data) => {

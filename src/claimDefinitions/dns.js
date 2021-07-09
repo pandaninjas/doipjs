@@ -15,7 +15,7 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^dns:([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
+const reURI = /^dns:([a-zA-Z0-9.\-_]*)(?:\?(.*))?/
 
 const processURI = (uri) => {
   const match = uri.match(reURI)
@@ -23,16 +23,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'dns',
+      name: 'dns'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false,
+      isAmbiguous: false
     },
     profile: {
       display: match[1],
       uri: `https://${match[1]}`,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: null,
@@ -41,31 +41,31 @@ const processURI = (uri) => {
         access: E.ProofAccess.SERVER,
         format: E.ProofFormat.JSON,
         data: {
-          domain: match[1],
-        },
-      },
+          domain: match[1]
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['records', 'txt'],
-    },
+      path: ['records', 'txt']
+    }
   }
 }
 
 const tests = [
   {
     uri: 'dns:domain.org',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'dns:domain.org?type=TXT',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI

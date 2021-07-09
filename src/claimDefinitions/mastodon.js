@@ -23,16 +23,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'mastodon',
+      name: 'mastodon'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: true,
+      isAmbiguous: true
     },
     profile: {
       display: `@${match[2]}@${match[1]}`,
       uri: uri,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: uri,
@@ -42,31 +42,31 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: uri,
-          format: E.ProofFormat.JSON,
-        },
-      },
+          format: E.ProofFormat.JSON
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.FINGERPRINT,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['attachment', 'value'],
-    },
+      path: ['attachment', 'value']
+    }
   }
 }
 
 const tests = [
   {
     uri: 'https://domain.org/@alice',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/@alice/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/alice',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI

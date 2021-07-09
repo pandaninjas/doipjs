@@ -22,21 +22,21 @@ require('dotenv').config()
 const opts = {
   claims: {
     irc: {
-      nick: process.env.IRC_NICK || null,
+      nick: process.env.IRC_NICK || null
     },
     matrix: {
       instance: process.env.MATRIX_INSTANCE || null,
-      accessToken: process.env.MATRIX_ACCESS_TOKEN || null,
+      accessToken: process.env.MATRIX_ACCESS_TOKEN || null
     },
     xmpp: {
       service: process.env.XMPP_SERVICE || null,
       username: process.env.XMPP_USERNAME || null,
-      password: process.env.XMPP_PASSWORD || null,
+      password: process.env.XMPP_PASSWORD || null
     },
     twitter: {
-      bearerToken: process.env.TWITTER_BEARER_TOKEN || null,
-    },
-  },
+      bearerToken: process.env.TWITTER_BEARER_TOKEN || null
+    }
+  }
 }
 
 // Root route
@@ -61,11 +61,9 @@ router.get(
         switch (req.query.format) {
           case E.ProofFormat.JSON:
             return res.status(200).json(result)
-            break
 
           case E.ProofFormat.TEXT:
             return res.status(200).send(result)
-            break
         }
       })
       .catch((err) => {
@@ -103,7 +101,7 @@ router.get(
     'bday',
     'nickname',
     'note',
-    'desc',
+    'desc'
   ]),
   async (req, res) => {
     if (

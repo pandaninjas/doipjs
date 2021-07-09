@@ -42,25 +42,25 @@ const E = require('./enums')
 const opts = {
   proxy: {
     hostname: null,
-    policy: E.ProxyPolicy.NEVER,
+    policy: E.ProxyPolicy.NEVER
   },
   claims: {
     irc: {
-      nick: null,
+      nick: null
     },
     matrix: {
       instance: null,
-      accessToken: null,
+      accessToken: null
     },
     xmpp: {
       service: null,
       username: null,
-      password: null,
+      password: null
     },
     twitter: {
-      bearerToken: null,
-    },
-  },
+      bearerToken: null
+    }
+  }
 }
 
 exports.opts = opts

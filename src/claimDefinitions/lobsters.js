@@ -23,16 +23,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'lobsters',
+      name: 'lobsters'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false,
+      isAmbiguous: false
     },
     profile: {
       display: match[1],
       uri: uri,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: `https://lobste.rs/u/${match[1]}.json`,
@@ -42,31 +42,31 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: `https://lobste.rs/u/${match[1]}.json`,
-          format: E.ProofFormat.JSON,
-        },
-      },
+          format: E.ProofFormat.JSON
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['about'],
-    },
+      path: ['about']
+    }
   }
 }
 
 const tests = [
   {
     uri: 'https://lobste.rs/u/Alice',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://lobste.rs/u/Alice/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/u/Alice',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI

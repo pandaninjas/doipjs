@@ -23,16 +23,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'owncast',
+      name: 'owncast'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: true,
+      isAmbiguous: true
     },
     profile: {
       display: match[1],
       uri: uri,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: `${uri}/api/config`,
@@ -42,35 +42,35 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: `${uri}/api/config`,
-          format: E.ProofFormat.JSON,
-        },
-      },
+          format: E.ProofFormat.JSON
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.FINGERPRINT,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['socialHandles', 'url'],
-    },
+      path: ['socialHandles', 'url']
+    }
   }
 }
 
 const tests = [
   {
     uri: 'https://live.domain.org',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://live.domain.org/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/live',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/live/',
-    shouldMatch: true,
-  },
+    shouldMatch: true
+  }
 ]
 
 exports.reURI = reURI

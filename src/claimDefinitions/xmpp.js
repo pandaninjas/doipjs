@@ -15,7 +15,7 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^xmpp:([a-zA-Z0-9\.\-\_]*)@([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
+const reURI = /^xmpp:([a-zA-Z0-9.\-_]*)@([a-zA-Z0-9.\-_]*)(?:\?(.*))?/
 
 const processURI = (uri) => {
   const match = uri.match(reURI)
@@ -23,16 +23,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'communication',
-      name: 'xmpp',
+      name: 'xmpp'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false,
+      isAmbiguous: false
     },
     profile: {
       display: `${match[1]}@${match[2]}`,
       uri: uri,
-      qr: uri,
+      qr: uri
     },
     proof: {
       uri: null,
@@ -42,31 +42,31 @@ const processURI = (uri) => {
         format: E.ProofFormat.TEXT,
         data: {
           id: `${match[1]}@${match[2]}`,
-          field: 'note',
-        },
-      },
+          field: 'note'
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: [],
-    },
+      path: []
+    }
   }
 }
 
 const tests = [
   {
     uri: 'xmpp:alice@domain.org',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'xmpp:alice@domain.org?omemo-sid-123456789=A1B2C3D4E5F6G7H8I9',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI

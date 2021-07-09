@@ -34,36 +34,32 @@ const Claim = require('./claim')
  * const key1 = doip.keys.fetchHKP('alice@domain.tld');
  * const key2 = doip.keys.fetchHKP('123abc123abc');
  */
-exports.fetchHKP = (identifier, keyserverDomain) => {
-  return new Promise(async (resolve, reject) => {
-    const keyserverBaseUrl = keyserverDomain
-      ? `https://${keyserverDomain}`
-      : 'https://keys.openpgp.org'
+exports.fetchHKP = async (identifier, keyserverDomain) => {
+  const keyserverBaseUrl = keyserverDomain
+    ? `https://${keyserverDomain}`
+    : 'https://keys.openpgp.org'
 
-    const hkp = new openpgp.HKP(keyserverBaseUrl)
-    const lookupOpts = {
-      query: identifier,
-    }
+  const hkp = new openpgp.HKP(keyserverBaseUrl)
+  const lookupOpts = {
+    query: identifier
+  }
 
-    let publicKey = await hkp.lookup(lookupOpts).catch((error) => {
-      reject('Key does not exist or could not be fetched')
-    })
-
-    publicKey = await openpgp.key
-      .readArmored(publicKey)
-      .then((result) => {
-        return result.keys[0]
-      })
-      .catch((error) => {
-        return null
-      })
-
-    if (publicKey) {
-      resolve(publicKey)
-    } else {
-      reject('Key does not exist or could not be fetched')
-    }
+  const publicKey = await hkp.lookup(lookupOpts).catch((error) => {
+    throw new Error(`Key does not exist or could not be fetched (${error})`)
   })
+
+  if (!publicKey) {
+    throw new Error('Key does not exist or could not be fetched')
+  }
+
+  return await openpgp.key
+    .readArmored(publicKey)
+    .then((result) => {
+      return result.keys[0]
+    })
+    .catch((error) => {
+      throw new Error(`Key does not exist or could not be fetched (${error})`)
+    })
 }
 
 /**
@@ -74,28 +70,20 @@ exports.fetchHKP = (identifier, keyserverDomain) => {
  * @example
  * const key = doip.keys.fetchWKD('alice@domain.tld');
  */
-exports.fetchWKD = (identifier) => {
-  return new Promise(async (resolve, reject) => {
-    const wkd = new openpgp.WKD()
-    const lookupOpts = {
-      email: identifier,
-    }
+exports.fetchWKD = async (identifier) => {
+  const wkd = new openpgp.WKD()
+  const lookupOpts = {
+    email: identifier
+  }
 
-    const publicKey = await wkd
-      .lookup(lookupOpts)
-      .then((result) => {
-        return result.keys[0]
-      })
-      .catch((error) => {
-        return null
-      })
-
-    if (publicKey) {
-      resolve(publicKey)
-    } else {
-      reject('Key does not exist or could not be fetched')
-    }
-  })
+  return await wkd
+    .lookup(lookupOpts)
+    .then((result) => {
+      return result.keys[0]
+    })
+    .catch((error) => {
+      throw new Error(`Key does not exist or could not be fetched (${error})`)
+    })
 }
 
 /**
@@ -107,37 +95,29 @@ exports.fetchWKD = (identifier) => {
  * @example
  * const key = doip.keys.fetchKeybase('alice', '123abc123abc');
  */
-exports.fetchKeybase = (username, fingerprint) => {
-  return new Promise(async (resolve, reject) => {
-    const keyLink = `https://keybase.io/${username}/pgp_keys.asc?fingerprint=${fingerprint}`
-    let rawKeyContent
-    try {
-      rawKeyContent = await req(keyLink)
-        .then((response) => {
-          if (response.status === 200) {
-            return response
-          }
-        })
-        .then((response) => response.text())
-    } catch (e) {
-      reject(`Error fetching Keybase key: ${e.message}`)
-    }
-
-    const publicKey = await openpgp.key
-      .readArmored(rawKeyContent)
-      .then((result) => {
-        return result.keys[0]
+exports.fetchKeybase = async (username, fingerprint) => {
+  const keyLink = `https://keybase.io/${username}/pgp_keys.asc?fingerprint=${fingerprint}`
+  let rawKeyContent
+  try {
+    rawKeyContent = await req(keyLink)
+      .then((response) => {
+        if (response.status === 200) {
+          return response
+        }
       })
-      .catch((error) => {
-        return null
-      })
+      .then((response) => response.text())
+  } catch (e) {
+    throw new Error(`Error fetching Keybase key: ${e.message}`)
+  }
 
-    if (publicKey) {
-      resolve(publicKey)
-    } else {
-      reject('Key does not exist or could not be fetched')
-    }
-  })
+  return await openpgp.key
+    .readArmored(rawKeyContent)
+    .then((result) => {
+      return result.keys[0]
+    })
+    .catch((error) => {
+      throw new Error(`Key does not exist or could not be fetched (${error})`)
+    })
 }
 
 /**
@@ -154,12 +134,9 @@ exports.fetchKeybase = (username, fingerprint) => {
  * -----END PGP PUBLIC KEY BLOCK-----`
  * const key = doip.keys.fetchPlaintext(plainkey);
  */
-exports.fetchPlaintext = (rawKeyContent) => {
-  return new Promise(async (resolve, reject) => {
-    const publicKey = (await openpgp.key.readArmored(rawKeyContent)).keys[0]
-
-    resolve(publicKey)
-  })
+exports.fetchPlaintext = async (rawKeyContent) => {
+  const publicKey = (await openpgp.key.readArmored(rawKeyContent)).keys[0]
+  return publicKey
 }
 
 /**
@@ -172,41 +149,34 @@ exports.fetchPlaintext = (rawKeyContent) => {
  * const key2 = doip.keys.fetchURI('hkp:123abc123abc');
  * const key3 = doip.keys.fetchURI('wkd:alice@domain.tld');
  */
-exports.fetchURI = (uri) => {
-  return new Promise(async (resolve, reject) => {
-    if (!validUrl.isUri(uri)) {
-      reject('Invalid URI')
-    }
+exports.fetchURI = async (uri) => {
+  if (!validUrl.isUri(uri)) {
+    throw new Error('Invalid URI')
+  }
 
-    const re = /([a-zA-Z0-9]*):([a-zA-Z0-9@._=+\-]*)(?:\:([a-zA-Z0-9@._=+\-]*))?/
-    const match = uri.match(re)
+  const re = /([a-zA-Z0-9]*):([a-zA-Z0-9@._=+-]*)(?::([a-zA-Z0-9@._=+-]*))?/
+  const match = uri.match(re)
 
-    if (!match[1]) {
-      reject('Invalid URI')
-    }
+  if (!match[1]) {
+    throw new Error('Invalid URI')
+  }
 
-    switch (match[1]) {
-      case 'hkp':
-        resolve(
-          exports.fetchHKP(
-            match[3] ? match[3] : match[2],
-            match[3] ? match[2] : null
-          )
-        )
-        break
-      case 'wkd':
-        resolve(exports.fetchWKD(match[2]))
-        break
-      case 'kb':
-        resolve(
-          exports.fetchKeybase(match[2], match.length >= 4 ? match[3] : null)
-        )
-        break
-      default:
-        reject('Invalid URI protocol')
-        break
-    }
-  })
+  switch (match[1]) {
+    case 'hkp':
+      return exports.fetchHKP(
+        match[3] ? match[3] : match[2],
+        match[3] ? match[2] : null
+      )
+
+    case 'wkd':
+      return exports.fetchWKD(match[2])
+
+    case 'kb':
+      return exports.fetchKeybase(match[2], match.length >= 4 ? match[3] : null)
+
+    default:
+      throw new Error('Invalid URI protocol')
+  }
 }
 
 /**
@@ -221,51 +191,55 @@ exports.fetchURI = (uri) => {
  *   console.log(claim.uri);
  * });
  */
-exports.process = (publicKey) => {
-  return new Promise(async (resolve, reject) => {
-    if (!publicKey || !(publicKey instanceof openpgp.key.Key)) {
-      reject('Invalid public key')
+exports.process = async (publicKey) => {
+  if (!publicKey || !(publicKey instanceof openpgp.key.Key)) {
+    throw new Error('Invalid public key')
+  }
+
+  const fingerprint = await publicKey.primaryKey.getFingerprint()
+  const primaryUser = await publicKey.getPrimaryUser()
+  const users = publicKey.users
+  const usersOutput = []
+
+  users.forEach((user, i) => {
+    usersOutput[i] = {
+      userData: {
+        id: user.userId ? user.userId.userid : null,
+        name: user.userId ? user.userId.name : null,
+        email: user.userId ? user.userId.email : null,
+        comment: user.userId ? user.userId.comment : null,
+        isPrimary: primaryUser.index === i,
+        isRevoked: false
+      },
+      claims: []
     }
 
-    const fingerprint = await publicKey.primaryKey.getFingerprint()
-    const primaryUser = await publicKey.getPrimaryUser()
-    const users = publicKey.users
-    let usersOutput = []
+    if ('selfCertifications' in user && user.selfCertifications.length > 0) {
+      const selfCertification = user.selfCertifications[0]
 
-    users.forEach((user, i) => {
-      usersOutput[i] = {
-        userData: {
-          id: user.userId ? user.userId.userid : null,
-          name: user.userId ? user.userId.name : null,
-          email: user.userId ? user.userId.email : null,
-          comment: user.userId ? user.userId.comment : null,
-          isPrimary: primaryUser.index === i,
-          isRevoked: false,
-        },
-        claims: [],
-      }
+      const notations = selfCertification.rawNotations
+      usersOutput[i].claims = notations
+        .filter(
+          ({ name, humanReadable }) =>
+            humanReadable && name === 'proof@metacode.biz'
+        )
+        .map(
+          ({ value }) =>
+            new Claim(openpgp.util.decode_utf8(value), fingerprint)
+        )
 
-      if ('selfCertifications' in user && user.selfCertifications.length > 0) {
-        const selfCertification = user.selfCertifications[0]
-        
-        const notations = selfCertification.rawNotations
-        usersOutput[i].claims = notations
-          .filter(({ name, humanReadable }) => humanReadable && name === 'proof@metacode.biz')
-          .map(({ value }) => new Claim(openpgp.util.decode_utf8(value), fingerprint))
-        
-        usersOutput[i].userData.isRevoked = selfCertification.revoked
-      }
-    })
-
-    resolve({
-      fingerprint: fingerprint,
-      users: usersOutput,
-      primaryUserIndex: primaryUser.index,
-      key: {
-        data: publicKey,
-        fetchMethod: null,
-        uri: null,
-      },
-    })
+      usersOutput[i].userData.isRevoked = selfCertification.revoked
+    }
   })
+
+  return {
+    fingerprint: fingerprint,
+    users: usersOutput,
+    primaryUserIndex: primaryUser.index,
+    key: {
+      data: publicKey,
+      fetchMethod: null,
+      uri: null
+    }
+  }
 }

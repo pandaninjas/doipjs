@@ -23,16 +23,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'twitter',
+      name: 'twitter'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false,
+      isAmbiguous: false
     },
     profile: {
       display: `@${match[1]}`,
       uri: `https://twitter.com/${match[1]}`,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: uri,
@@ -41,31 +41,31 @@ const processURI = (uri) => {
         access: E.ProofAccess.GRANTED,
         format: E.ProofFormat.TEXT,
         data: {
-          tweetId: match[2],
-        },
-      },
+          tweetId: match[2]
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: [],
-    },
+      path: []
+    }
   }
 }
 
 const tests = [
   {
     uri: 'https://twitter.com/alice/status/1234567890123456789',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://twitter.com/alice/status/1234567890123456789/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/alice/status/1234567890123456789',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI
