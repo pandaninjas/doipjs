@@ -27,8 +27,10 @@
     "chai-as-promised": "^7.1.1",
     "chai-match-pattern": "^1.2.0",
     "clean-jsdoc-theme": "^3.2.4",
+    "husky": "^7.0.0",
     "jsdoc": "^3.6.6",
     "license-check-and-add": "^3.0.4",
+    "lint-staged": "^11.0.0",
     "minify": "^6.0.1",
     "mocha": "^8.2.0",
     "nodemon": "^2.0.7",
@@ -45,7 +47,8 @@
     "docs:lib": "./node_modules/.bin/jsdoc -c jsdoc-lib.json -r -d ./docs",
     "test": "./node_modules/.bin/mocha",
     "proxy": "NODE_ENV=production node ./src/proxy/",
-    "proxy:dev": "NODE_ENV=development ./node_modules/.bin/nodemon ./src/proxy/"
+    "proxy:dev": "NODE_ENV=development ./node_modules/.bin/nodemon ./src/proxy/",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
