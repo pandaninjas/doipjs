@@ -44,7 +44,7 @@
     "license:check": "./node_modules/.bin/license-check-and-add check",
     "license:add": "./node_modules/.bin/license-check-and-add add",
     "license:remove": "./node_modules/.bin/license-check-and-add remove",
-    "docs:lib": "./node_modules/.bin/jsdoc -c jsdoc-lib.json -r -d ./docs",
+    "docs:lib": "./node_modules/.bin/jsdoc -c jsdoc-lib.json -r -d ./docs -P package.json",
     "standard": "./node_modules/.bin/standard ./src",
     "mocha": "./node_modules/.bin/mocha",
     "test": "yarn run standard && yarn run license:check && yarn run mocha",
