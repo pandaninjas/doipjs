@@ -7515,7 +7515,7 @@ module.exports.default = exports.default;
 },{"./util/assertString":107}],113:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.12.9",
+  "version": "0.13.0",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "src/index.js",
   "dependencies": {
@@ -7542,12 +7542,14 @@ module.exports={
     "chai-as-promised": "^7.1.1",
     "chai-match-pattern": "^1.2.0",
     "clean-jsdoc-theme": "^3.2.4",
+    "husky": "^7.0.0",
     "jsdoc": "^3.6.6",
     "license-check-and-add": "^3.0.4",
+    "lint-staged": "^11.0.0",
     "minify": "^6.0.1",
     "mocha": "^8.2.0",
     "nodemon": "^2.0.7",
-    "prettier": "^2.1.2"
+    "standard": "^16.0.3"
   },
   "scripts": {
     "release:bundle": "./node_modules/.bin/browserify ./src/index.js --standalone doip -x openpgp -x jsdom -x @xmpp/client -x @xmpp/debug -x irc-upd -o ./dist/doip.js",
@@ -7557,10 +7559,13 @@ module.exports={
     "license:check": "./node_modules/.bin/license-check-and-add check",
     "license:add": "./node_modules/.bin/license-check-and-add add",
     "license:remove": "./node_modules/.bin/license-check-and-add remove",
-    "docs:lib": "./node_modules/.bin/jsdoc -c jsdoc-lib.json -r -d ./docs",
-    "test": "./node_modules/.bin/mocha",
+    "docs:lib": "./node_modules/.bin/jsdoc -c jsdoc-lib.json -r -d ./docs -P package.json",
+    "standard": "./node_modules/.bin/standard ./src",
+    "mocha": "./node_modules/.bin/mocha",
+    "test": "yarn run standard && yarn run license:check && yarn run mocha",
     "proxy": "NODE_ENV=production node ./src/proxy/",
-    "proxy:dev": "NODE_ENV=development ./node_modules/.bin/nodemon ./src/proxy/"
+    "proxy:dev": "NODE_ENV=development ./node_modules/.bin/nodemon ./src/proxy/",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
@@ -7586,6 +7591,7 @@ module.exports={
     "openpgp": "global:openpgp"
   }
 }
+
 },{}],114:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -7632,7 +7638,7 @@ class Claim {
    * const claim = doip.Claim('dns:domain.tld?type=TXT', '123abc123abc');
    * const claimAlt = doip.Claim(JSON.stringify(claim));
    */
-  constructor(uri, fingerprint) {
+  constructor (uri, fingerprint) {
     // Import JSON
     if (typeof uri === 'object' && 'claimVersion' in uri) {
       const data = uri
@@ -7647,7 +7653,6 @@ class Claim {
 
         default:
           throw new Error('Invalid claim version')
-          break
       }
       return
     }
@@ -7662,44 +7667,44 @@ class Claim {
       try {
         validator.isAlphanumeric(fingerprint)
       } catch (err) {
-        throw new Error(`Invalid fingerprint`)
+        throw new Error('Invalid fingerprint')
       }
     }
 
-    this._uri = uri ? uri : null
-    this._fingerprint = fingerprint ? fingerprint : null
+    this._uri = uri || null
+    this._fingerprint = fingerprint || null
     this._status = E.ClaimStatus.INIT
     this._matches = null
     this._verification = null
   }
 
-  get uri() {
+  get uri () {
     return this._uri
   }
 
-  get fingerprint() {
+  get fingerprint () {
     return this._fingerprint
   }
 
-  get status() {
+  get status () {
     return this._status
   }
 
-  get matches() {
+  get matches () {
     if (this._status === E.ClaimStatus.INIT) {
       throw new Error('This claim has not yet been matched')
     }
     return this._matches
   }
 
-  get verification() {
+  get verification () {
     if (this._status !== E.ClaimStatus.VERIFIED) {
       throw new Error('This claim has not yet been verified')
     }
     return this._verification
   }
 
-  set uri(uri) {
+  set uri (uri) {
     if (this._status !== E.ClaimStatus.INIT) {
       throw new Error(
         'Cannot change the URI, this claim has already been matched'
@@ -7715,7 +7720,7 @@ class Claim {
     this._uri = uri
   }
 
-  set fingerprint(fingerprint) {
+  set fingerprint (fingerprint) {
     if (this._status === E.ClaimStatus.VERIFIED) {
       throw new Error(
         'Cannot change the fingerprint, this claim has already been verified'
@@ -7724,15 +7729,15 @@ class Claim {
     this._fingerprint = fingerprint
   }
 
-  set status(anything) {
+  set status (anything) {
     throw new Error("Cannot change a claim's status")
   }
 
-  set matches(anything) {
+  set matches (anything) {
     throw new Error("Cannot change a claim's matches")
   }
 
-  set verification(anything) {
+  set verification (anything) {
     throw new Error("Cannot change a claim's verification result")
   }
 
@@ -7740,7 +7745,7 @@ class Claim {
    * Match the claim's URI to candidate definitions
    * @function
    */
-  match() {
+  match () {
     if (this._status !== E.ClaimStatus.INIT) {
       throw new Error('This claim was already matched')
     }
@@ -7784,7 +7789,7 @@ class Claim {
    * @function
    * @param {object} [opts] - Options for proxy, fetchers
    */
-  async verify(opts) {
+  async verify (opts) {
     if (this._status === E.ClaimStatus.INIT) {
       throw new Error('This claim has not yet been matched')
     }
@@ -7796,7 +7801,7 @@ class Claim {
     }
 
     // Handle options
-    opts = mergeOptions(defaults.opts, opts ? opts : {})
+    opts = mergeOptions(defaults.opts, opts || {})
 
     // If there are no matches
     if (this._matches.length === 0) {
@@ -7804,7 +7809,7 @@ class Claim {
         result: false,
         completed: true,
         proof: {},
-        errors: ['No matches for claim'],
+        errors: ['No matches for claim']
       }
     }
 
@@ -7812,9 +7817,9 @@ class Claim {
     for (let index = 0; index < this._matches.length; index++) {
       const claimData = this._matches[index]
 
-      let verificationResult = null,
-        proofData = null,
-        proofFetchError
+      let verificationResult = null
+      let proofData = null
+      let proofFetchError
 
       try {
         proofData = await proofs.fetch(claimData, opts)
@@ -7831,15 +7836,15 @@ class Claim {
         )
         verificationResult.proof = {
           fetcher: proofData.fetcher,
-          viaProxy: proofData.viaProxy,
+          viaProxy: proofData.viaProxy
         }
       } else {
         // Consider the proof completed but with a negative result
-        verificationResult = verificationResult ? verificationResult : {
+        verificationResult = verificationResult || {
           result: false,
           completed: true,
           proof: {},
-          errors: [proofFetchError],
+          errors: [proofFetchError]
         }
 
         if (this.isAmbiguous()) {
@@ -7857,12 +7862,14 @@ class Claim {
     }
 
     // Fail safe verification result
-    this._verification = this._verification ? this._verification : {
-      result: false,
-      completed: true,
-      proof: {},
-      errors: ['Unknown error'],
-    }
+    this._verification = this._verification
+      ? this._verification
+      : {
+          result: false,
+          completed: true,
+          proof: {},
+          errors: ['Unknown error']
+        }
 
     this._status = E.ClaimStatus.VERIFIED
   }
@@ -7874,16 +7881,14 @@ class Claim {
    * @function
    * @returns {boolean}
    */
-  isAmbiguous() {
+  isAmbiguous () {
     if (this._status === E.ClaimStatus.INIT) {
       throw new Error('The claim has not been matched yet')
     }
     if (this._matches.length === 0) {
       throw new Error('The claim has no matches')
     }
-    return (
-      this._matches.length > 1 || this._matches[0].match.isAmbiguous
-    )
+    return this._matches.length > 1 || this._matches[0].match.isAmbiguous
   }
 
   /**
@@ -7892,21 +7897,21 @@ class Claim {
    * @function
    * @returns {object}
    */
-  toJSON() {
+  toJSON () {
     return {
       claimVersion: 1,
       uri: this._uri,
       fingerprint: this._fingerprint,
       status: this._status,
       matches: this._matches,
-      verification: this._verification,
+      verification: this._verification
     }
   }
 }
 
 module.exports = Claim
 
-},{"./claimDefinitions":123,"./defaults":133,"./enums":134,"./proofs":145,"./verifications":148,"merge-options":8,"valid-url":13,"validator":14}],115:[function(require,module,exports){
+},{"./claimDefinitions":123,"./defaults":134,"./enums":135,"./proofs":146,"./verifications":149,"merge-options":8,"valid-url":13,"validator":14}],115:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -7932,16 +7937,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'devto',
+      name: 'devto'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false,
+      isAmbiguous: false
     },
     profile: {
       display: match[1],
       uri: `https://dev.to/${match[1]}`,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: uri,
@@ -7951,38 +7956,38 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: `https://dev.to/api/articles/${match[1]}/${match[2]}`,
-          format: E.ProofFormat.JSON,
-        },
-      },
+          format: E.ProofFormat.JSON
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['body_markdown'],
-    },
+      path: ['body_markdown']
+    }
   }
 }
 
 const tests = [
   {
     uri: 'https://dev.to/alice/post',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://dev.to/alice/post/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/alice/post',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":134}],116:[function(require,module,exports){
+},{"../enums":135}],116:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8008,16 +8013,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'discourse',
+      name: 'discourse'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: true,
+      isAmbiguous: true
     },
     profile: {
       display: `${match[2]}@${match[1]}`,
       uri: uri,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: uri,
@@ -8027,38 +8032,38 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: `https://${match[1]}/u/${match[2]}.json`,
-          format: E.ProofFormat.JSON,
-        },
-      },
+          format: E.ProofFormat.JSON
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['user', 'bio_raw'],
-    },
+      path: ['user', 'bio_raw']
+    }
   }
 }
 
 const tests = [
   {
     uri: 'https://domain.org/u/alice',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/u/alice/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/alice',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":134}],117:[function(require,module,exports){
+},{"../enums":135}],117:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8076,7 +8081,7 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^dns:([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
+const reURI = /^dns:([a-zA-Z0-9.\-_]*)(?:\?(.*))?/
 
 const processURI = (uri) => {
   const match = uri.match(reURI)
@@ -8084,16 +8089,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'dns',
+      name: 'dns'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false,
+      isAmbiguous: false
     },
     profile: {
       display: match[1],
       uri: `https://${match[1]}`,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: null,
@@ -8102,38 +8107,38 @@ const processURI = (uri) => {
         access: E.ProofAccess.SERVER,
         format: E.ProofFormat.JSON,
         data: {
-          domain: match[1],
-        },
-      },
+          domain: match[1]
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['records', 'txt'],
-    },
+      path: ['records', 'txt']
+    }
   }
 }
 
 const tests = [
   {
     uri: 'dns:domain.org',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'dns:domain.org?type=TXT',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":134}],118:[function(require,module,exports){
+},{"../enums":135}],118:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8159,16 +8164,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'fediverse',
+      name: 'fediverse'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: true,
+      isAmbiguous: true
     },
     profile: {
       display: `@${match[2]}@${match[1]}`,
       uri: uri,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: uri,
@@ -8178,38 +8183,38 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: uri,
-          format: E.ProofFormat.JSON,
-        },
-      },
+          format: E.ProofFormat.JSON
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.FINGERPRINT,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['summary'],
-    },
+      path: ['summary']
+    }
   }
 }
 
 const tests = [
   {
     uri: 'https://domain.org/users/alice',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/users/alice/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/alice',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":134}],119:[function(require,module,exports){
+},{"../enums":135}],119:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8235,16 +8240,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'gitea',
+      name: 'gitea'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: true,
+      isAmbiguous: true
     },
     profile: {
       display: `${match[2]}@${match[1]}`,
       uri: `https://${match[1]}/${match[2]}`,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: uri,
@@ -8254,38 +8259,38 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: `https://${match[1]}/api/v1/repos/${match[2]}/gitea_proof`,
-          format: E.ProofFormat.JSON,
-        },
-      },
+          format: E.ProofFormat.JSON
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.EQUALS,
-      path: ['description'],
-    },
+      path: ['description']
+    }
   }
 }
 
 const tests = [
   {
     uri: 'https://domain.org/alice/gitea_proof',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/alice/gitea_proof/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/alice/other_proof',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":134}],120:[function(require,module,exports){
+},{"../enums":135}],120:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8311,16 +8316,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'github',
+      name: 'github'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false,
+      isAmbiguous: false
     },
     profile: {
       display: match[1],
       uri: `https://github.com/${match[1]}`,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: uri,
@@ -8330,38 +8335,38 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: `https://api.github.com/gists/${match[2]}`,
-          format: E.ProofFormat.JSON,
-        },
-      },
+          format: E.ProofFormat.JSON
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['files', 'openpgp.md', 'content'],
-    },
+      path: ['files', 'openpgp.md', 'content']
+    }
   }
 }
 
 const tests = [
   {
     uri: 'https://gist.github.com/Alice/123456789',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://gist.github.com/Alice/123456789/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/Alice/123456789',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":134}],121:[function(require,module,exports){
+},{"../enums":135}],121:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8387,16 +8392,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'gitlab',
+      name: 'gitlab'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: true,
+      isAmbiguous: true
     },
     profile: {
       display: `${match[2]}@${match[1]}`,
       uri: `https://${match[1]}/${match[2]}`,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: uri,
@@ -8406,38 +8411,38 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           domain: match[1],
-          username: match[2],
-        },
-      },
+          username: match[2]
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.EQUALS,
-      path: ['description'],
-    },
+      path: ['description']
+    }
   }
 }
 
 const tests = [
   {
     uri: 'https://gitlab.domain.org/alice/gitlab_proof',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://gitlab.domain.org/alice/gitlab_proof/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/alice/other_proof',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":134}],122:[function(require,module,exports){
+},{"../enums":135}],122:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8463,16 +8468,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'hackernews',
+      name: 'hackernews'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false,
+      isAmbiguous: false
     },
     profile: {
       display: match[1],
       uri: uri,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: `https://hacker-news.firebaseio.com/v0/user/${match[1]}.json`,
@@ -8482,38 +8487,38 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: `https://hacker-news.firebaseio.com/v0/user/${match[1]}.json`,
-          format: E.ProofFormat.JSON,
-        },
-      },
+          format: E.ProofFormat.JSON
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['about'],
-    },
+      path: ['about']
+    }
   }
 }
 
 const tests = [
   {
     uri: 'https://news.ycombinator.com/user?id=Alice',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://news.ycombinator.com/user?id=Alice/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/user?id=Alice',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":134}],123:[function(require,module,exports){
+},{"../enums":135}],123:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8537,6 +8542,7 @@ const list = [
   'twitter',
   'reddit',
   'liberapay',
+  'lichess',
   'hackernews',
   'lobsters',
   'devto',
@@ -8546,7 +8552,7 @@ const list = [
   'mastodon',
   'fediverse',
   'discourse',
-  'owncast',
+  'owncast'
 ]
 
 const data = {
@@ -8557,6 +8563,7 @@ const data = {
   twitter: require('./twitter'),
   reddit: require('./reddit'),
   liberapay: require('./liberapay'),
+  lichess: require('./lichess'),
   hackernews: require('./hackernews'),
   lobsters: require('./lobsters'),
   devto: require('./devto'),
@@ -8566,13 +8573,13 @@ const data = {
   mastodon: require('./mastodon'),
   fediverse: require('./fediverse'),
   discourse: require('./discourse'),
-  owncast: require('./owncast'),
+  owncast: require('./owncast')
 }
 
 exports.list = list
 exports.data = data
 
-},{"./devto":115,"./discourse":116,"./dns":117,"./fediverse":118,"./gitea":119,"./github":120,"./gitlab":121,"./hackernews":122,"./irc":124,"./liberapay":125,"./lobsters":126,"./mastodon":127,"./matrix":128,"./owncast":129,"./reddit":130,"./twitter":131,"./xmpp":132}],124:[function(require,module,exports){
+},{"./devto":115,"./discourse":116,"./dns":117,"./fediverse":118,"./gitea":119,"./github":120,"./gitlab":121,"./hackernews":122,"./irc":124,"./liberapay":125,"./lichess":126,"./lobsters":127,"./mastodon":128,"./matrix":129,"./owncast":130,"./reddit":131,"./twitter":132,"./xmpp":133}],124:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8590,7 +8597,7 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^irc\:\/\/(.*)\/([a-zA-Z0-9\-\[\]\\\`\_\^\{\|\}]*)/
+const reURI = /^irc:\/\/(.*)\/([a-zA-Z0-9\-[\]\\`_^{|}]*)/
 
 const processURI = (uri) => {
   const match = uri.match(reURI)
@@ -8598,16 +8605,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'communication',
-      name: 'irc',
+      name: 'irc'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false,
+      isAmbiguous: false
     },
     profile: {
       display: `irc://${match[1]}/${match[2]}`,
       uri: uri,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: null,
@@ -8617,42 +8624,42 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           domain: match[1],
-          nick: match[2],
-        },
-      },
+          nick: match[2]
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.CONTAINS,
-      path: [],
-    },
+      path: []
+    }
   }
 }
 
 const tests = [
   {
     uri: 'irc://chat.ircserver.org/Alice1',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'irc://chat.ircserver.org/alice?param=123',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'irc://chat.ircserver.org/alice_bob',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://chat.ircserver.org/alice',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":134}],125:[function(require,module,exports){
+},{"../enums":135}],125:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8678,16 +8685,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'liberapay',
+      name: 'liberapay'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false,
+      isAmbiguous: false
     },
     profile: {
       display: match[1],
       uri: uri,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: uri,
@@ -8697,38 +8704,114 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: `https://liberapay.com/${match[1]}/public.json`,
-          format: E.ProofFormat.JSON,
-        },
-      },
+          format: E.ProofFormat.JSON
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['statements', 'content'],
-    },
+      path: ['statements', 'content']
+    }
   }
 }
 
 const tests = [
   {
     uri: 'https://liberapay.com/alice',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://liberapay.com/alice/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/alice',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":134}],126:[function(require,module,exports){
+},{"../enums":135}],126:[function(require,module,exports){
+/*
+Copyright 2021 Yarmo Mackenbach
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+const E = require('../enums')
+
+const reURI = /^https:\/\/lichess\.org\/@\/(.*)\/?/
+
+const processURI = (uri) => {
+  const match = uri.match(reURI)
+
+  return {
+    serviceprovider: {
+      type: 'web',
+      name: 'lichess'
+    },
+    match: {
+      regularExpression: reURI,
+      isAmbiguous: false
+    },
+    profile: {
+      display: match[1],
+      uri: uri,
+      qr: null
+    },
+    proof: {
+      uri: `https://lichess.org/api/user/${match[1]}`,
+      request: {
+        fetcher: E.Fetcher.HTTP,
+        access: E.ProofAccess.GENERIC,
+        format: E.ProofFormat.JSON,
+        data: {
+          url: `https://lichess.org/api/user/${match[1]}`,
+          format: E.ProofFormat.JSON
+        }
+      }
+    },
+    claim: {
+      format: E.ClaimFormat.FINGERPRINT,
+      relation: E.ClaimRelation.CONTAINS,
+      path: ['profile', 'links']
+    }
+  }
+}
+
+const tests = [
+  {
+    uri: 'https://lichess.org/@/Alice',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://lichess.org/@/Alice/',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://domain.org/@/Alice',
+    shouldMatch: false
+  }
+]
+
+exports.reURI = reURI
+exports.processURI = processURI
+exports.tests = tests
+
+},{"../enums":135}],127:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8754,16 +8837,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'lobsters',
+      name: 'lobsters'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false,
+      isAmbiguous: false
     },
     profile: {
       display: match[1],
       uri: uri,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: `https://lobste.rs/u/${match[1]}.json`,
@@ -8773,38 +8856,38 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: `https://lobste.rs/u/${match[1]}.json`,
-          format: E.ProofFormat.JSON,
-        },
-      },
+          format: E.ProofFormat.JSON
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['about'],
-    },
+      path: ['about']
+    }
   }
 }
 
 const tests = [
   {
     uri: 'https://lobste.rs/u/Alice',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://lobste.rs/u/Alice/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/u/Alice',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":134}],127:[function(require,module,exports){
+},{"../enums":135}],128:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8830,16 +8913,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'mastodon',
+      name: 'mastodon'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: true,
+      isAmbiguous: true
     },
     profile: {
       display: `@${match[2]}@${match[1]}`,
       uri: uri,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: uri,
@@ -8849,38 +8932,38 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: uri,
-          format: E.ProofFormat.JSON,
-        },
-      },
+          format: E.ProofFormat.JSON
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.FINGERPRINT,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['attachment', 'value'],
-    },
+      path: ['attachment', 'value']
+    }
   }
 }
 
 const tests = [
   {
     uri: 'https://domain.org/@alice',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/@alice/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/alice',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":134}],128:[function(require,module,exports){
+},{"../enums":135}],129:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -8899,7 +8982,7 @@ limitations under the License.
 const E = require('../enums')
 const queryString = require('query-string')
 
-const reURI = /^matrix\:u\/(?:\@)?([^@:]*\:[^?]*)(\?.*)?/
+const reURI = /^matrix:u\/(?:@)?([^@:]*:[^?]*)(\?.*)?/
 
 const processURI = (uri) => {
   const match = uri.match(reURI)
@@ -8920,16 +9003,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'communication',
-      name: 'matrix',
+      name: 'matrix'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false,
+      isAmbiguous: false
     },
     profile: {
       display: `@${match[1]}`,
       uri: profileUrl,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: eventUrl,
@@ -8939,15 +9022,15 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           eventId: params['org.keyoxide.e'],
-          roomId: params['org.keyoxide.r'],
-        },
-      },
+          roomId: params['org.keyoxide.r']
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['content', 'body'],
-    },
+      path: ['content', 'body']
+    }
   }
 }
 
@@ -8955,27 +9038,27 @@ const tests = [
   {
     uri:
       'matrix:u/alice:matrix.domain.org?org.keyoxide.r=!123:domain.org&org.keyoxide.e=$123',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'matrix:u/alice:matrix.domain.org',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'xmpp:alice@domain.org',
-    shouldMatch: false,
+    shouldMatch: false
   },
   {
     uri: 'https://domain.org/@alice',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":134,"query-string":10}],129:[function(require,module,exports){
+},{"../enums":135,"query-string":10}],130:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9001,16 +9084,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'owncast',
+      name: 'owncast'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: true,
+      isAmbiguous: true
     },
     profile: {
       display: match[1],
       uri: uri,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: `${uri}/api/config`,
@@ -9020,42 +9103,42 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: `${uri}/api/config`,
-          format: E.ProofFormat.JSON,
-        },
-      },
+          format: E.ProofFormat.JSON
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.FINGERPRINT,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['socialHandles', 'url'],
-    },
+      path: ['socialHandles', 'url']
+    }
   }
 }
 
 const tests = [
   {
     uri: 'https://live.domain.org',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://live.domain.org/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/live',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/live/',
-    shouldMatch: true,
-  },
+    shouldMatch: true
+  }
 ]
 
 exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":134}],130:[function(require,module,exports){
+},{"../enums":135}],131:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9081,16 +9164,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'reddit',
+      name: 'reddit'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false,
+      isAmbiguous: false
     },
     profile: {
       display: match[1],
       uri: `https://www.reddit.com/user/${match[1]}`,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: uri,
@@ -9100,46 +9183,46 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           url: `https://www.reddit.com/user/${match[1]}/comments/${match[2]}.json`,
-          format: E.ProofFormat.JSON,
-        },
-      },
+          format: E.ProofFormat.JSON
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['data', 'children', 'data', 'selftext'],
-    },
+      path: ['data', 'children', 'data', 'selftext']
+    }
   }
 }
 
 const tests = [
   {
     uri: 'https://www.reddit.com/user/Alice/comments/123456/post',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://www.reddit.com/user/Alice/comments/123456/post/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://reddit.com/user/Alice/comments/123456/post',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://reddit.com/user/Alice/comments/123456/post/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/user/Alice/comments/123456/post',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":134}],131:[function(require,module,exports){
+},{"../enums":135}],132:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9165,16 +9248,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'twitter',
+      name: 'twitter'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false,
+      isAmbiguous: false
     },
     profile: {
       display: `@${match[1]}`,
       uri: `https://twitter.com/${match[1]}`,
-      qr: null,
+      qr: null
     },
     proof: {
       uri: uri,
@@ -9183,38 +9266,38 @@ const processURI = (uri) => {
         access: E.ProofAccess.GRANTED,
         format: E.ProofFormat.TEXT,
         data: {
-          tweetId: match[2],
-        },
-      },
+          tweetId: match[2]
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: [],
-    },
+      path: []
+    }
   }
 }
 
 const tests = [
   {
     uri: 'https://twitter.com/alice/status/1234567890123456789',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://twitter.com/alice/status/1234567890123456789/',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org/alice/status/1234567890123456789',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":134}],132:[function(require,module,exports){
+},{"../enums":135}],133:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9232,7 +9315,7 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^xmpp:([a-zA-Z0-9\.\-\_]*)@([a-zA-Z0-9\.\-\_]*)(?:\?(.*))?/
+const reURI = /^xmpp:([a-zA-Z0-9.\-_]*)@([a-zA-Z0-9.\-_]*)(?:\?(.*))?/
 
 const processURI = (uri) => {
   const match = uri.match(reURI)
@@ -9240,16 +9323,16 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'communication',
-      name: 'xmpp',
+      name: 'xmpp'
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false,
+      isAmbiguous: false
     },
     profile: {
       display: `${match[1]}@${match[2]}`,
       uri: uri,
-      qr: uri,
+      qr: uri
     },
     proof: {
       uri: null,
@@ -9259,38 +9342,38 @@ const processURI = (uri) => {
         format: E.ProofFormat.TEXT,
         data: {
           id: `${match[1]}@${match[2]}`,
-          field: 'note',
-        },
-      },
+          field: 'note'
+        }
+      }
     },
     claim: {
       format: E.ClaimFormat.MESSAGE,
       relation: E.ClaimRelation.CONTAINS,
-      path: [],
-    },
+      path: []
+    }
   }
 }
 
 const tests = [
   {
     uri: 'xmpp:alice@domain.org',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'xmpp:alice@domain.org?omemo-sid-123456789=A1B2C3D4E5F6G7H8I9',
-    shouldMatch: true,
+    shouldMatch: true
   },
   {
     uri: 'https://domain.org',
-    shouldMatch: false,
-  },
+    shouldMatch: false
+  }
 ]
 
 exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":134}],133:[function(require,module,exports){
+},{"../enums":135}],134:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9335,30 +9418,30 @@ const E = require('./enums')
 const opts = {
   proxy: {
     hostname: null,
-    policy: E.ProxyPolicy.NEVER,
+    policy: E.ProxyPolicy.NEVER
   },
   claims: {
     irc: {
-      nick: null,
+      nick: null
     },
     matrix: {
       instance: null,
-      accessToken: null,
+      accessToken: null
     },
     xmpp: {
       service: null,
       username: null,
-      password: null,
+      password: null
     },
     twitter: {
-      bearerToken: null,
-    },
-  },
+      bearerToken: null
+    }
+  }
 }
 
 exports.opts = opts
 
-},{"./enums":134}],134:[function(require,module,exports){
+},{"./enums":135}],135:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9390,7 +9473,7 @@ const ProxyPolicy = {
   /** Always use a proxy */
   ALWAYS: 'always',
   /** Never use a proxy, skip a verification if a proxy is inevitable */
-  NEVER: 'never',
+  NEVER: 'never'
 }
 Object.freeze(ProxyPolicy)
 
@@ -9413,7 +9496,7 @@ const Fetcher = {
   /** HTTP request to Gitlab API */
   GITLAB: 'gitlab',
   /** HTTP request to Twitter API */
-  TWITTER: 'twitter',
+  TWITTER: 'twitter'
 }
 Object.freeze(Fetcher)
 
@@ -9430,7 +9513,7 @@ const ProofAccess = {
   /** HTTP requests must contain API or access tokens */
   GRANTED: 2,
   /** Not accessible by HTTP request, needs server software */
-  SERVER: 3,
+  SERVER: 3
 }
 Object.freeze(ProofAccess)
 
@@ -9443,7 +9526,7 @@ const ProofFormat = {
   /** JSON format */
   JSON: 'json',
   /** Plaintext format */
-  TEXT: 'text',
+  TEXT: 'text'
 }
 Object.freeze(ProofFormat)
 
@@ -9458,7 +9541,7 @@ const ClaimFormat = {
   /** `123123123` */
   FINGERPRINT: 1,
   /** `[Verifying my OpenPGP key: openpgp4fpr:123123123]` */
-  MESSAGE: 2,
+  MESSAGE: 2
 }
 Object.freeze(ClaimFormat)
 
@@ -9473,7 +9556,7 @@ const ClaimRelation = {
   /** Claim is equal to the JSON field's textual content */
   EQUALS: 1,
   /** Claim is equal to an element of the JSON field's array of strings */
-  ONEOF: 2,
+  ONEOF: 2
 }
 Object.freeze(ClaimRelation)
 
@@ -9488,7 +9571,7 @@ const ClaimStatus = {
   /** Claim has matched its URI to candidate claim definitions */
   MATCHED: 'matched',
   /** Claim has verified one or multiple candidate claim definitions */
-  VERIFIED: 'verified',
+  VERIFIED: 'verified'
 }
 Object.freeze(ClaimStatus)
 
@@ -9500,7 +9583,7 @@ exports.ClaimFormat = ClaimFormat
 exports.ClaimRelation = ClaimRelation
 exports.ClaimStatus = ClaimStatus
 
-},{}],135:[function(require,module,exports){
+},{}],136:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9516,7 +9599,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const jsEnv = require("browser-or-node")
+const jsEnv = require('browser-or-node')
 
 /**
  * @module fetcher/dns
@@ -9558,8 +9641,8 @@ if (jsEnv.isNode) {
         resolve({
           domain: data.domain,
           records: {
-            txt: records,
-          },
+            txt: records
+          }
         })
       })
     })
@@ -9572,7 +9655,8 @@ if (jsEnv.isNode) {
 } else {
   module.exports.fn = null
 }
-},{"browser-or-node":3,"dns":4}],136:[function(require,module,exports){
+
+},{"browser-or-node":3,"dns":4}],137:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9619,28 +9703,45 @@ module.exports.fn = async (data, opts) => {
     )
   })
 
-  const fetchPromise = new Promise(async (resolve, reject) => {
+  const fetchPromise = new Promise((resolve, reject) => {
     const urlUser = `https://${data.domain}/api/v4/users?username=${data.username}`
-    const resUser = await req(urlUser, null, { Accept: 'application/json' })
-    const jsonUser = await resUser.json()
+    // const resUser = await req(urlUser, null, { Accept: 'application/json' })
+    const res = req(urlUser, null, { Accept: 'application/json' })
+      .then(resUser => {
+        return resUser.json()
+      })
+      .then(jsonUser => {
+        return jsonUser.find((user) => user.username === data.username)
+      })
+      .then(user => {
+        if (!user) {
+          throw new Error(`No user with username ${data.username}`)
+        }
+        return user
+      })
+      .then(user => {
+        const urlProject = `https://${data.domain}/api/v4/users/${user.id}/projects`
+        return req(urlProject, null, {
+          Accept: 'application/json'
+        })
+      })
+      .then(resProject => {
+        return resProject.json()
+      })
+      .then(jsonProject => {
+        return jsonProject.find((proj) => proj.path === 'gitlab_proof')
+      })
+      .then(project => {
+        if (!project) {
+          throw new Error('No project found')
+        }
+        return project
+      })
+      .catch(error => {
+        reject(error)
+      })
 
-    const user = jsonUser.find((user) => user.username === data.username)
-    if (!user) {
-      reject(`No user with username ${data.username}`)
-    }
-
-    const urlProject = `https://${data.domain}/api/v4/users/${user.id}/projects`
-    const resProject = await req(urlProject, null, {
-      Accept: 'application/json',
-    })
-    const jsonProject = await resProject.json()
-
-    const project = jsonProject.find((proj) => proj.path === 'gitlab_proof')
-    if (!project) {
-      reject(`No project found`)
-    }
-
-    resolve(project)
+    resolve(res)
   })
 
   return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
@@ -9649,7 +9750,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"bent":1}],137:[function(require,module,exports){
+},{"bent":1}],138:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9699,7 +9800,7 @@ module.exports.fn = async (data, opts) => {
 
   const fetchPromise = new Promise((resolve, reject) => {
     if (!data.url) {
-      reject('No valid URI provided')
+      reject(new Error('No valid URI provided'))
       return
     }
 
@@ -9707,7 +9808,7 @@ module.exports.fn = async (data, opts) => {
       case E.ProofFormat.JSON:
         req(data.url, null, {
           Accept: 'application/json',
-          'User-Agent': `doipjs/${require('../../package.json').version}`,
+          'User-Agent': `doipjs/${require('../../package.json').version}`
         })
           .then(async (res) => {
             return await res.json()
@@ -9732,7 +9833,7 @@ module.exports.fn = async (data, opts) => {
           })
         break
       default:
-        reject('No specified data format')
+        reject(new Error('No specified data format'))
         break
     }
   })
@@ -9743,7 +9844,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"../../package.json":113,"../enums":134,"bent":1}],138:[function(require,module,exports){
+},{"../../package.json":113,"../enums":135,"bent":1}],139:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9768,7 +9869,7 @@ exports.matrix = require('./matrix')
 exports.twitter = require('./twitter')
 exports.xmpp = require('./xmpp')
 
-},{"./dns":135,"./gitlab":136,"./http":137,"./irc":139,"./matrix":140,"./twitter":141,"./xmpp":142}],139:[function(require,module,exports){
+},{"./dns":136,"./gitlab":137,"./http":138,"./irc":140,"./matrix":141,"./twitter":142,"./xmpp":143}],140:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9784,7 +9885,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const jsEnv = require("browser-or-node")
+const jsEnv = require('browser-or-node')
 
 /**
  * @module fetcher/irc
@@ -9799,7 +9900,7 @@ module.exports.timeout = 20000
 if (jsEnv.isNode) {
   const irc = require('irc-upd')
   const validator = require('validator')
-  
+
   /**
    * Execute a fetch request
    * @function
@@ -9819,14 +9920,14 @@ if (jsEnv.isNode) {
         data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
       )
     })
-  
+
     const fetchPromise = new Promise((resolve, reject) => {
       try {
         validator.isAscii(opts.claims.irc.nick)
       } catch (err) {
         throw new Error(`IRC fetcher was not set up properly (${err.message})`)
       }
-  
+
       try {
         const client = new irc.Client(data.domain, opts.claims.irc.nick, {
           port: 6697,
@@ -9835,10 +9936,10 @@ if (jsEnv.isNode) {
           showErrors: false,
           debug: false
         })
-        const reKey = /[a-zA-Z0-9\-\_]+\s+:\s(openpgp4fpr\:.*)/
+        const reKey = /[a-zA-Z0-9\-_]+\s+:\s(openpgp4fpr:.*)/
         const reEnd = /End\sof\s.*\staxonomy./
-        let keys = []
-  
+        const keys = []
+
         client.addListener('registered', (message) => {
           client.send(`PRIVMSG NickServ TAXONOMY ${data.nick}`)
         })
@@ -9856,7 +9957,7 @@ if (jsEnv.isNode) {
         reject(error)
       }
     })
-  
+
     return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
       clearTimeout(timeoutHandle)
       return result
@@ -9866,7 +9967,7 @@ if (jsEnv.isNode) {
   module.exports.fn = null
 }
 
-},{"browser-or-node":3,"irc-upd":"irc-upd","validator":14}],140:[function(require,module,exports){
+},{"browser-or-node":3,"irc-upd":"irc-upd","validator":14}],141:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -9927,7 +10028,7 @@ module.exports.fn = async (data, opts) => {
 
     const url = `https://${opts.claims.matrix.instance}/_matrix/client/r0/rooms/${data.roomId}/event/${data.eventId}?access_token=${opts.claims.matrix.accessToken}`
     bentReq(url, null, {
-      Accept: 'application/json',
+      Accept: 'application/json'
     })
       .then(async (res) => {
         return await res.json()
@@ -9946,7 +10047,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"bent":1,"validator":14}],141:[function(require,module,exports){
+},{"bent":1,"validator":14}],142:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10009,7 +10110,7 @@ module.exports.fn = async (data, opts) => {
       null,
       {
         Accept: 'application/json',
-        Authorization: `Bearer ${opts.claims.twitter.bearerToken}`,
+        Authorization: `Bearer ${opts.claims.twitter.bearerToken}`
       }
     )
       .then(async (data) => {
@@ -10029,7 +10130,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"bent":1,"validator":14}],142:[function(require,module,exports){
+},{"bent":1,"validator":14}],143:[function(require,module,exports){
 (function (process){(function (){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -10046,7 +10147,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const jsEnv = require("browser-or-node")
+const jsEnv = require('browser-or-node')
 
 /**
  * @module fetcher/xmpp
@@ -10063,16 +10164,16 @@ if (jsEnv.isNode) {
   const { client, xml } = require('@xmpp/client')
   const debug = require('@xmpp/debug')
   const validator = require('validator')
-  
-  let xmpp = null,
-    iqCaller = null
-  
+
+  let xmpp = null
+  let iqCaller = null
+
   const xmppStart = async (service, username, password) => {
     return new Promise((resolve, reject) => {
       const xmpp = client({
         service: service,
         username: username,
-        password: password,
+        password: password
       })
       if (process.env.NODE_ENV !== 'production') {
         debug(xmpp, true)
@@ -10087,7 +10188,7 @@ if (jsEnv.isNode) {
       })
     })
   }
-  
+
   /**
    * Execute a fetch request
    * @function
@@ -10102,6 +10203,32 @@ if (jsEnv.isNode) {
    * @returns {object}
    */
   module.exports.fn = async (data, opts) => {
+    try {
+      validator.isFQDN(opts.claims.xmpp.service)
+      validator.isAscii(opts.claims.xmpp.username)
+      validator.isAscii(opts.claims.xmpp.password)
+    } catch (err) {
+      throw new Error(`XMPP fetcher was not set up properly (${err.message})`)
+    }
+
+    if (!xmpp || xmpp.status !== 'online') {
+      const xmppStartRes = await xmppStart(
+        opts.claims.xmpp.service,
+        opts.claims.xmpp.username,
+        opts.claims.xmpp.password
+      )
+      xmpp = xmppStartRes.xmpp
+      iqCaller = xmppStartRes.iqCaller
+    }
+
+    const response = await iqCaller.request(
+      xml('iq', { type: 'get', to: data.id }, xml('vCard', 'vcard-temp')),
+      30 * 1000
+    )
+
+    const vcardRow = response.getChild('vCard', 'vcard-temp').toString()
+    const dom = new jsdom.JSDOM(vcardRow)
+
     let timeoutHandle
     const timeoutPromise = new Promise((resolve, reject) => {
       timeoutHandle = setTimeout(
@@ -10109,37 +10236,11 @@ if (jsEnv.isNode) {
         data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
       )
     })
-  
-    const fetchPromise = new Promise(async (resolve, reject) => {
-      try {
-        validator.isFQDN(opts.claims.xmpp.service)
-        validator.isAscii(opts.claims.xmpp.username)
-        validator.isAscii(opts.claims.xmpp.password)
-      } catch (err) {
-        throw new Error(`XMPP fetcher was not set up properly (${err.message})`)
-      }
-  
-      if (!xmpp || xmpp.status !== 'online') {
-        const xmppStartRes = await xmppStart(
-          opts.claims.xmpp.service,
-          opts.claims.xmpp.username,
-          opts.claims.xmpp.password
-        )
-        xmpp = xmppStartRes.xmpp
-        iqCaller = xmppStartRes.iqCaller
-      }
-  
-      const response = await iqCaller.request(
-        xml('iq', { type: 'get', to: data.id }, xml('vCard', 'vcard-temp')),
-        30 * 1000
-      )
-  
-      const vcardRow = response.getChild('vCard', 'vcard-temp').toString()
-      const dom = new jsdom.JSDOM(vcardRow)
-  
+
+    const fetchPromise = new Promise((resolve, reject) => {
       try {
         let vcard
-  
+
         switch (data.field.toLowerCase()) {
           case 'desc':
           case 'note':
@@ -10153,7 +10254,7 @@ if (jsEnv.isNode) {
               throw new Error('No DESC or NOTE field found in vCard')
             }
             break
-  
+
           default:
             vcard = dom.window.document.querySelector(data).textContent
             break
@@ -10164,7 +10265,7 @@ if (jsEnv.isNode) {
         reject(error)
       }
     })
-  
+
     return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
       clearTimeout(timeoutHandle)
       return result
@@ -10175,7 +10276,7 @@ if (jsEnv.isNode) {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"@xmpp/client":"@xmpp/client","@xmpp/debug":"@xmpp/debug","_process":9,"browser-or-node":3,"jsdom":"jsdom","validator":14}],143:[function(require,module,exports){
+},{"@xmpp/client":"@xmpp/client","@xmpp/debug":"@xmpp/debug","_process":9,"browser-or-node":3,"jsdom":"jsdom","validator":14}],144:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10209,7 +10310,7 @@ exports.enums = enums
 exports.defaults = defaults
 exports.utils = utils
 
-},{"./claim":114,"./claimDefinitions":123,"./defaults":133,"./enums":134,"./keys":144,"./proofs":145,"./signatures":146,"./utils":147}],144:[function(require,module,exports){
+},{"./claim":114,"./claimDefinitions":123,"./defaults":134,"./enums":135,"./keys":145,"./proofs":146,"./signatures":147,"./utils":148}],145:[function(require,module,exports){
 (function (global){(function (){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -10247,36 +10348,32 @@ const Claim = require('./claim')
  * const key1 = doip.keys.fetchHKP('alice@domain.tld');
  * const key2 = doip.keys.fetchHKP('123abc123abc');
  */
-exports.fetchHKP = (identifier, keyserverDomain) => {
-  return new Promise(async (resolve, reject) => {
-    const keyserverBaseUrl = keyserverDomain
-      ? `https://${keyserverDomain}`
-      : 'https://keys.openpgp.org'
+exports.fetchHKP = async (identifier, keyserverDomain) => {
+  const keyserverBaseUrl = keyserverDomain
+    ? `https://${keyserverDomain}`
+    : 'https://keys.openpgp.org'
 
-    const hkp = new openpgp.HKP(keyserverBaseUrl)
-    const lookupOpts = {
-      query: identifier,
-    }
+  const hkp = new openpgp.HKP(keyserverBaseUrl)
+  const lookupOpts = {
+    query: identifier
+  }
 
-    let publicKey = await hkp.lookup(lookupOpts).catch((error) => {
-      reject('Key does not exist or could not be fetched')
-    })
-
-    publicKey = await openpgp.key
-      .readArmored(publicKey)
-      .then((result) => {
-        return result.keys[0]
-      })
-      .catch((error) => {
-        return null
-      })
-
-    if (publicKey) {
-      resolve(publicKey)
-    } else {
-      reject('Key does not exist or could not be fetched')
-    }
+  const publicKey = await hkp.lookup(lookupOpts).catch((error) => {
+    throw new Error(`Key does not exist or could not be fetched (${error})`)
   })
+
+  if (!publicKey) {
+    throw new Error('Key does not exist or could not be fetched')
+  }
+
+  return await openpgp.key
+    .readArmored(publicKey)
+    .then((result) => {
+      return result.keys[0]
+    })
+    .catch((error) => {
+      throw new Error(`Key does not exist or could not be fetched (${error})`)
+    })
 }
 
 /**
@@ -10287,28 +10384,20 @@ exports.fetchHKP = (identifier, keyserverDomain) => {
  * @example
  * const key = doip.keys.fetchWKD('alice@domain.tld');
  */
-exports.fetchWKD = (identifier) => {
-  return new Promise(async (resolve, reject) => {
-    const wkd = new openpgp.WKD()
-    const lookupOpts = {
-      email: identifier,
-    }
+exports.fetchWKD = async (identifier) => {
+  const wkd = new openpgp.WKD()
+  const lookupOpts = {
+    email: identifier
+  }
 
-    const publicKey = await wkd
-      .lookup(lookupOpts)
-      .then((result) => {
-        return result.keys[0]
-      })
-      .catch((error) => {
-        return null
-      })
-
-    if (publicKey) {
-      resolve(publicKey)
-    } else {
-      reject('Key does not exist or could not be fetched')
-    }
-  })
+  return await wkd
+    .lookup(lookupOpts)
+    .then((result) => {
+      return result.keys[0]
+    })
+    .catch((error) => {
+      throw new Error(`Key does not exist or could not be fetched (${error})`)
+    })
 }
 
 /**
@@ -10320,37 +10409,29 @@ exports.fetchWKD = (identifier) => {
  * @example
  * const key = doip.keys.fetchKeybase('alice', '123abc123abc');
  */
-exports.fetchKeybase = (username, fingerprint) => {
-  return new Promise(async (resolve, reject) => {
-    const keyLink = `https://keybase.io/${username}/pgp_keys.asc?fingerprint=${fingerprint}`
-    let rawKeyContent
-    try {
-      rawKeyContent = await req(keyLink)
-        .then((response) => {
-          if (response.status === 200) {
-            return response
-          }
-        })
-        .then((response) => response.text())
-    } catch (e) {
-      reject(`Error fetching Keybase key: ${e.message}`)
-    }
-
-    const publicKey = await openpgp.key
-      .readArmored(rawKeyContent)
-      .then((result) => {
-        return result.keys[0]
+exports.fetchKeybase = async (username, fingerprint) => {
+  const keyLink = `https://keybase.io/${username}/pgp_keys.asc?fingerprint=${fingerprint}`
+  let rawKeyContent
+  try {
+    rawKeyContent = await req(keyLink)
+      .then((response) => {
+        if (response.status === 200) {
+          return response
+        }
       })
-      .catch((error) => {
-        return null
-      })
+      .then((response) => response.text())
+  } catch (e) {
+    throw new Error(`Error fetching Keybase key: ${e.message}`)
+  }
 
-    if (publicKey) {
-      resolve(publicKey)
-    } else {
-      reject('Key does not exist or could not be fetched')
-    }
-  })
+  return await openpgp.key
+    .readArmored(rawKeyContent)
+    .then((result) => {
+      return result.keys[0]
+    })
+    .catch((error) => {
+      throw new Error(`Key does not exist or could not be fetched (${error})`)
+    })
 }
 
 /**
@@ -10367,12 +10448,9 @@ exports.fetchKeybase = (username, fingerprint) => {
  * -----END PGP PUBLIC KEY BLOCK-----`
  * const key = doip.keys.fetchPlaintext(plainkey);
  */
-exports.fetchPlaintext = (rawKeyContent) => {
-  return new Promise(async (resolve, reject) => {
-    const publicKey = (await openpgp.key.readArmored(rawKeyContent)).keys[0]
-
-    resolve(publicKey)
-  })
+exports.fetchPlaintext = async (rawKeyContent) => {
+  const publicKey = (await openpgp.key.readArmored(rawKeyContent)).keys[0]
+  return publicKey
 }
 
 /**
@@ -10385,41 +10463,34 @@ exports.fetchPlaintext = (rawKeyContent) => {
  * const key2 = doip.keys.fetchURI('hkp:123abc123abc');
  * const key3 = doip.keys.fetchURI('wkd:alice@domain.tld');
  */
-exports.fetchURI = (uri) => {
-  return new Promise(async (resolve, reject) => {
-    if (!validUrl.isUri(uri)) {
-      reject('Invalid URI')
-    }
+exports.fetchURI = async (uri) => {
+  if (!validUrl.isUri(uri)) {
+    throw new Error('Invalid URI')
+  }
 
-    const re = /([a-zA-Z0-9]*):([a-zA-Z0-9@._=+\-]*)(?:\:([a-zA-Z0-9@._=+\-]*))?/
-    const match = uri.match(re)
+  const re = /([a-zA-Z0-9]*):([a-zA-Z0-9@._=+-]*)(?::([a-zA-Z0-9@._=+-]*))?/
+  const match = uri.match(re)
 
-    if (!match[1]) {
-      reject('Invalid URI')
-    }
+  if (!match[1]) {
+    throw new Error('Invalid URI')
+  }
 
-    switch (match[1]) {
-      case 'hkp':
-        resolve(
-          exports.fetchHKP(
-            match[3] ? match[3] : match[2],
-            match[3] ? match[2] : null
-          )
-        )
-        break
-      case 'wkd':
-        resolve(exports.fetchWKD(match[2]))
-        break
-      case 'kb':
-        resolve(
-          exports.fetchKeybase(match[2], match.length >= 4 ? match[3] : null)
-        )
-        break
-      default:
-        reject('Invalid URI protocol')
-        break
-    }
-  })
+  switch (match[1]) {
+    case 'hkp':
+      return exports.fetchHKP(
+        match[3] ? match[3] : match[2],
+        match[3] ? match[2] : null
+      )
+
+    case 'wkd':
+      return exports.fetchWKD(match[2])
+
+    case 'kb':
+      return exports.fetchKeybase(match[2], match.length >= 4 ? match[3] : null)
+
+    default:
+      throw new Error('Invalid URI protocol')
+  }
 }
 
 /**
@@ -10434,57 +10505,61 @@ exports.fetchURI = (uri) => {
  *   console.log(claim.uri);
  * });
  */
-exports.process = (publicKey) => {
-  return new Promise(async (resolve, reject) => {
-    if (!publicKey || !(publicKey instanceof openpgp.key.Key)) {
-      reject('Invalid public key')
+exports.process = async (publicKey) => {
+  if (!publicKey || !(publicKey instanceof openpgp.key.Key)) {
+    throw new Error('Invalid public key')
+  }
+
+  const fingerprint = await publicKey.primaryKey.getFingerprint()
+  const primaryUser = await publicKey.getPrimaryUser()
+  const users = publicKey.users
+  const usersOutput = []
+
+  users.forEach((user, i) => {
+    usersOutput[i] = {
+      userData: {
+        id: user.userId ? user.userId.userid : null,
+        name: user.userId ? user.userId.name : null,
+        email: user.userId ? user.userId.email : null,
+        comment: user.userId ? user.userId.comment : null,
+        isPrimary: primaryUser.index === i,
+        isRevoked: false
+      },
+      claims: []
     }
 
-    const fingerprint = await publicKey.primaryKey.getFingerprint()
-    const primaryUser = await publicKey.getPrimaryUser()
-    const users = publicKey.users
-    let usersOutput = []
+    if ('selfCertifications' in user && user.selfCertifications.length > 0) {
+      const selfCertification = user.selfCertifications[0]
 
-    users.forEach((user, i) => {
-      usersOutput[i] = {
-        userData: {
-          id: user.userId ? user.userId.userid : null,
-          name: user.userId ? user.userId.name : null,
-          email: user.userId ? user.userId.email : null,
-          comment: user.userId ? user.userId.comment : null,
-          isPrimary: primaryUser.index === i,
-          isRevoked: false,
-        },
-        claims: [],
-      }
+      const notations = selfCertification.rawNotations
+      usersOutput[i].claims = notations
+        .filter(
+          ({ name, humanReadable }) =>
+            humanReadable && name === 'proof@metacode.biz'
+        )
+        .map(
+          ({ value }) =>
+            new Claim(openpgp.util.decode_utf8(value), fingerprint)
+        )
 
-      if ('selfCertifications' in user && user.selfCertifications.length > 0) {
-        const selfCertification = user.selfCertifications[0]
-        
-        const notations = selfCertification.rawNotations
-        usersOutput[i].claims = notations
-          .filter(({ name, humanReadable }) => humanReadable && name === 'proof@metacode.biz')
-          .map(({ value }) => new Claim(openpgp.util.decode_utf8(value), fingerprint))
-        
-        usersOutput[i].userData.isRevoked = selfCertification.revoked
-      }
-    })
-
-    resolve({
-      fingerprint: fingerprint,
-      users: usersOutput,
-      primaryUserIndex: primaryUser.index,
-      key: {
-        data: publicKey,
-        fetchMethod: null,
-        uri: null,
-      },
-    })
+      usersOutput[i].userData.isRevoked = selfCertification.revoked
+    }
   })
+
+  return {
+    fingerprint: fingerprint,
+    users: usersOutput,
+    primaryUserIndex: primaryUser.index,
+    key: {
+      data: publicKey,
+      fetchMethod: null,
+      uri: null
+    }
+  }
 }
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./claim":114,"bent":1,"valid-url":13}],145:[function(require,module,exports){
+},{"./claim":114,"bent":1,"valid-url":13}],146:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10541,49 +10616,37 @@ const handleBrowserRequests = (data, opts) => {
   switch (opts.proxy.policy) {
     case E.ProxyPolicy.ALWAYS:
       return createProxyRequestPromise(data, opts)
-      break
 
     case E.ProxyPolicy.NEVER:
       switch (data.proof.request.access) {
         case E.ProofAccess.GENERIC:
         case E.ProofAccess.GRANTED:
           return createDefaultRequestPromise(data, opts)
-          break
         case E.ProofAccess.NOCORS:
         case E.ProofAccess.SERVER:
           throw new Error(
             'Impossible to fetch proof (bad combination of service access and proxy policy)'
           )
-          break
         default:
           throw new Error('Invalid proof access value')
-          break
       }
-      break
 
     case E.ProxyPolicy.ADAPTIVE:
       switch (data.proof.request.access) {
         case E.ProofAccess.GENERIC:
           return createFallbackRequestPromise(data, opts)
-          break
         case E.ProofAccess.NOCORS:
           return createProxyRequestPromise(data, opts)
-          break
         case E.ProofAccess.GRANTED:
           return createFallbackRequestPromise(data, opts)
-          break
         case E.ProofAccess.SERVER:
           return createProxyRequestPromise(data, opts)
-          break
         default:
           throw new Error('Invalid proof access value')
-          break
       }
-      break
 
     default:
       throw new Error('Invalid proxy policy')
-      break
   }
 }
 
@@ -10591,19 +10654,15 @@ const handleNodeRequests = (data, opts) => {
   switch (opts.proxy.policy) {
     case E.ProxyPolicy.ALWAYS:
       return createProxyRequestPromise(data, opts)
-      break
 
     case E.ProxyPolicy.NEVER:
       return createDefaultRequestPromise(data, opts)
-      break
 
     case E.ProxyPolicy.ADAPTIVE:
       return createFallbackRequestPromise(data, opts)
-      break
 
     default:
       throw new Error('Invalid proxy policy')
-      break
   }
 }
 
@@ -10616,7 +10675,7 @@ const createDefaultRequestPromise = (data, opts) => {
           fetcher: data.proof.request.fetcher,
           data: data,
           viaProxy: false,
-          result: res,
+          result: res
         })
       })
       .catch((err) => {
@@ -10641,7 +10700,7 @@ const createProxyRequestPromise = (data, opts) => {
     const requestData = {
       url: proxyUrl,
       format: data.proof.request.format,
-      fetcherTimeout: fetcher[data.proof.request.fetcher].timeout,
+      fetcherTimeout: fetcher[data.proof.request.fetcher].timeout
     }
     fetcher.http
       .fn(requestData, opts)
@@ -10650,7 +10709,7 @@ const createProxyRequestPromise = (data, opts) => {
           fetcher: 'http',
           data: data,
           viaProxy: true,
-          result: res,
+          result: res
         })
       })
       .catch((err) => {
@@ -10671,7 +10730,7 @@ const createFallbackRequestPromise = (data, opts) => {
             return resolve(res)
           })
           .catch((err2) => {
-            return reject([err1, err2])
+            return reject(err2)
           })
       })
   })
@@ -10679,7 +10738,7 @@ const createFallbackRequestPromise = (data, opts) => {
 
 exports.fetch = fetch
 
-},{"./enums":134,"./fetcher":138,"./utils":147,"browser-or-node":3}],146:[function(require,module,exports){
+},{"./enums":135,"./fetcher":139,"./utils":148,"browser-or-node":3}],147:[function(require,module,exports){
 (function (global){(function (){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -10710,128 +10769,122 @@ const keys = require('./keys')
  * @param {string} signature - The plaintext signature to process
  * @returns {Promise<object>}
  */
-const process = (signature) => {
-  return new Promise(async (resolve, reject) => {
-    let sigData,
-      result = {
-        fingerprint: null,
-        users: [
-          {
-            userData: {},
-            claims: [],
-          },
-        ],
-        primaryUserIndex: null,
-        key: {
-          data: null,
-          fetchMethod: null,
-          uri: null,
-        },
+const process = async (signature) => {
+  let sigData
+  const result = {
+    fingerprint: null,
+    users: [
+      {
+        userData: {},
+        claims: []
       }
+    ],
+    primaryUserIndex: null,
+    key: {
+      data: null,
+      fetchMethod: null,
+      uri: null
+    }
+  }
 
-    try {
-      sigData = await openpgp.cleartext.readArmored(signature)
-    } catch (error) {
-      reject(new Error('invalid_signature'))
+  try {
+    sigData = await openpgp.cleartext.readArmored(signature)
+  } catch (error) {
+    throw new Error('invalid_signature')
+  }
+
+  const issuerKeyId = sigData.signature.packets[0].issuerKeyId.toHex()
+  const signersUserId = sigData.signature.packets[0].signersUserId
+  const preferredKeyServer =
+    sigData.signature.packets[0].preferredKeyServer ||
+    'https://keys.openpgp.org/'
+  const text = sigData.getText()
+  const sigKeys = []
+
+  text.split('\n').forEach((line, i) => {
+    const match = line.match(/^([a-zA-Z0-9]*)=(.*)$/i)
+    if (!match) {
       return
     }
+    switch (match[1].toLowerCase()) {
+      case 'key':
+        sigKeys.push(match[2])
+        break
 
-    const issuerKeyId = sigData.signature.packets[0].issuerKeyId.toHex()
-    const signersUserId = sigData.signature.packets[0].signersUserId
-    const preferredKeyServer =
-      sigData.signature.packets[0].preferredKeyServer ||
-      'https://keys.openpgp.org/'
-    const text = sigData.getText()
-    let sigKeys = []
+      case 'proof':
+        result.users[0].claims.push(new Claim(match[2]))
+        break
 
-    text.split('\n').forEach((line, i) => {
-      const match = line.match(/^([a-zA-Z0-9]*)\=(.*)$/i)
-      if (!match) {
-        return
-      }
-      switch (match[1].toLowerCase()) {
-        case 'key':
-          sigKeys.push(match[2])
-          break
-
-        case 'proof':
-          result.users[0].claims.push(new Claim(match[2]))
-          break
-
-        default:
-          break
-      }
-    })
-
-    // Try overruling key
-    if (sigKeys.length > 0) {
-      try {
-        result.key.uri = sigKeys[0]
-        result.key.data = await keys.fetchURI(result.key.uri)
-        result.key.fetchMethod = result.key.uri.split(':')[0]
-      } catch (e) {}
+      default:
+        break
     }
-    // Try WKD
-    if (!result.key.data && signersUserId) {
-      try {
-        result.key.uri = `wkd:${signersUserId}`
-        result.key.data = await keys.fetchURI(result.key.uri)
-        result.key.fetchMethod = 'wkd'
-      } catch (e) {}
-    }
-    // Try HKP
-    if (!result.key.data) {
-      try {
-        const match = preferredKeyServer.match(/^(.*\:\/\/)?([^/]*)(?:\/)?$/i)
-        result.key.uri = `hkp:${match[2]}:${
-          issuerKeyId ? issuerKeyId : signersUserId
-        }`
-        result.key.data = await keys.fetchURI(result.key.uri)
-        result.key.fetchMethod = 'hkp'
-      } catch (e) {
-        reject(new Error('key_not_found'))
-        return
-      }
-    }
-
-    result.fingerprint = result.key.data.keyPacket.getFingerprint()
-
-    result.users[0].claims.forEach((claim) => {
-      claim.fingerprint = result.fingerprint
-    })
-
-    const primaryUserData = await result.key.data.getPrimaryUser()
-    let userData
-
-    if (signersUserId) {
-      result.key.data.users.forEach((user) => {
-        if (user.userId.email == signersUserId) {
-          userData = user
-        }
-      })
-    }
-    if (!userData) {
-      userData = primaryUserData.user
-    }
-
-    result.users[0].userData = {
-      id: userData.userId ? userData.userId.userid : null,
-      name: userData.userId ? userData.userId.name : null,
-      email: userData.userId ? userData.userId.email : null,
-      comment: userData.userId ? userData.userId.comment : null,
-      isPrimary: primaryUserData.user.userId.userid === userData.userId.userid,
-    }
-
-    result.primaryUserIndex = result.users[0].userData.isPrimary ? 0 : null
-
-    resolve(result)
   })
+
+  // Try overruling key
+  if (sigKeys.length > 0) {
+    try {
+      result.key.uri = sigKeys[0]
+      result.key.data = await keys.fetchURI(result.key.uri)
+      result.key.fetchMethod = result.key.uri.split(':')[0]
+    } catch (e) {}
+  }
+  // Try WKD
+  if (!result.key.data && signersUserId) {
+    try {
+      result.key.uri = `wkd:${signersUserId}`
+      result.key.data = await keys.fetchURI(result.key.uri)
+      result.key.fetchMethod = 'wkd'
+    } catch (e) {}
+  }
+  // Try HKP
+  if (!result.key.data) {
+    try {
+      const match = preferredKeyServer.match(/^(.*:\/\/)?([^/]*)(?:\/)?$/i)
+      result.key.uri = `hkp:${match[2]}:${issuerKeyId || signersUserId}`
+      result.key.data = await keys.fetchURI(result.key.uri)
+      result.key.fetchMethod = 'hkp'
+    } catch (e) {
+      throw new Error('key_not_found')
+    }
+  }
+
+  result.fingerprint = result.key.data.keyPacket.getFingerprint()
+
+  result.users[0].claims.forEach((claim) => {
+    claim.fingerprint = result.fingerprint
+  })
+
+  const primaryUserData = await result.key.data.getPrimaryUser()
+  let userData
+
+  if (signersUserId) {
+    result.key.data.users.forEach((user) => {
+      if (user.userId.email === signersUserId) {
+        userData = user
+      }
+    })
+  }
+  if (!userData) {
+    userData = primaryUserData.user
+  }
+
+  result.users[0].userData = {
+    id: userData.userId ? userData.userId.userid : null,
+    name: userData.userId ? userData.userId.name : null,
+    email: userData.userId ? userData.userId.email : null,
+    comment: userData.userId ? userData.userId.comment : null,
+    isPrimary: primaryUserData.user.userId.userid === userData.userId.userid
+  }
+
+  result.primaryUserIndex = result.users[0].userData.isPrimary ? 0 : null
+
+  return result
 }
 
 exports.process = process
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./claim":114,"./keys":144}],147:[function(require,module,exports){
+},{"./claim":114,"./keys":145}],148:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10866,10 +10919,10 @@ const generateProxyURL = (type, data, opts) => {
   try {
     validator.isFQDN(opts.proxy.hostname)
   } catch (err) {
-    throw new Error(`Invalid proxy hostname`)
+    throw new Error('Invalid proxy hostname')
   }
 
-  let queryStrings = []
+  const queryStrings = []
 
   Object.keys(data).forEach((key) => {
     queryStrings.push(`${key}=${encodeURIComponent(data[key])}`)
@@ -10890,13 +10943,10 @@ const generateClaim = (fingerprint, format) => {
   switch (format) {
     case E.ClaimFormat.URI:
       return `openpgp4fpr:${fingerprint}`
-      break
     case E.ClaimFormat.MESSAGE:
       return `[Verifying my OpenPGP key: openpgp4fpr:${fingerprint}]`
-      break
     case E.ClaimFormat.FINGERPRINT:
       return fingerprint
-      break
     default:
       throw new Error('No valid claim format')
   }
@@ -10905,7 +10955,7 @@ const generateClaim = (fingerprint, format) => {
 exports.generateProxyURL = generateProxyURL
 exports.generateClaim = generateClaim
 
-},{"./enums":134,"validator":14}],148:[function(require,module,exports){
+},{"./enums":135,"validator":14}],149:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10947,31 +10997,26 @@ const runJSON = (proofData, checkPath, checkClaim, checkRelation) => {
     return result
   }
 
-  if (checkPath.length == 0) {
+  if (checkPath.length === 0) {
     switch (checkRelation) {
-      default:
-      case E.ClaimRelation.CONTAINS:
-        re = new RegExp(checkClaim, 'gi')
-        return re.test(proofData.replace(/\r?\n|\r|\\/g, ''))
-        break
-
       case E.ClaimRelation.EQUALS:
         return (
-          proofData.replace(/\r?\n|\r|\\/g, '').toLowerCase() ==
+          proofData.replace(/\r?\n|\r|\\/g, '').toLowerCase() ===
           checkClaim.toLowerCase()
         )
-        break
 
       case E.ClaimRelation.ONEOF:
         re = new RegExp(checkClaim, 'gi')
         return re.test(proofData.join('|'))
-        break
+
+      case E.ClaimRelation.CONTAINS:
+      default:
+        re = new RegExp(checkClaim, 'gi')
+        return re.test(proofData.replace(/\r?\n|\r|\\/g, ''))
     }
   }
 
-  try {
-    checkPath[0] in proofData
-  } catch (e) {
+  if (!(checkPath[0] in proofData)) {
     throw new Error('err_json_structure_incorrect')
   }
 
@@ -10991,10 +11036,10 @@ const runJSON = (proofData, checkPath, checkClaim, checkRelation) => {
  * @returns {object}
  */
 const run = (proofData, claimData, fingerprint) => {
-  let res = {
+  const res = {
     result: false,
     completed: false,
-    errors: [],
+    errors: []
   }
 
   switch (claimData.proof.request.format) {
@@ -11033,5 +11078,5 @@ const run = (proofData, claimData, fingerprint) => {
 
 exports.run = run
 
-},{"./enums":134,"./utils":147}]},{},[143])(143)
+},{"./enums":135,"./utils":148}]},{},[144])(144)
 });

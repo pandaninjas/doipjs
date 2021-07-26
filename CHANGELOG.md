@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2021-07-26
+### Added
+- Lichess.org claim verification
+
 ## [0.12.9] - 2021-06-03
 ### Fixed
 - Typo during claim generation
