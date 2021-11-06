@@ -1,14 +1,6 @@
-FROM node:14
-
-RUN mkdir /app
+FROM node:14-alpine
 WORKDIR /app
-
-COPY package.json /app
-COPY yarn.lock /app
-
+COPY . .
 RUN yarn --production --pure-lockfile
-
-COPY . /app
-
 EXPOSE 3000
 CMD yarn run proxy
