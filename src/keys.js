@@ -221,7 +221,7 @@ exports.process = async (publicKey) => {
       usersOutput[i].claims = notations
         .filter(
           ({ name, humanReadable }) =>
-            humanReadable && name === 'proof@metacode.biz'
+            humanReadable && (name === 'proof@ariadne.id' || name === 'proof@metacode.biz')
         )
         .map(
           ({ value }) =>
