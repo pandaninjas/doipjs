@@ -29,8 +29,6 @@ steps:
       username: yarmo_eu
       password:
         from_secret: npm_password
-      token:
-        from_secret: npm_token
       email:
         from_secret: npm_email
 
