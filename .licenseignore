@@ -10,8 +10,8 @@
 
 ignore
 docs
+examples
 \.husky
-\.examples
 
 package.json
 yarn.lock

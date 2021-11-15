@@ -29,7 +29,7 @@
     "clean-jsdoc-theme": "^3.2.4",
     "husky": "^7.0.0",
     "jsdoc": "^3.6.6",
-    "license-check-and-add": "^3.0.4",
+    "license-check-and-add": "^4.0.3",
     "lint-staged": "^11.0.0",
     "minify": "^6.0.1",
     "mocha": "^8.2.0",

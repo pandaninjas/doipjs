@@ -1,5 +1,5 @@
 {
-  "ignore": ".licenseignore",
+  "ignoreFile": ".licenseignore",
   "license": "LICENSE.HEADER",
   "licenseFormats": {
     "dotfile|licenseignore|gitignore|yml": {
