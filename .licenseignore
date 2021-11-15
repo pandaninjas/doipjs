@@ -11,6 +11,7 @@
 ignore
 docs
 \.husky
+\.examples
 
 package.json
 yarn.lock
