@@ -46,13 +46,14 @@ const process = async (signature) => {
   }
 
   try {
-    sigData = await openpgp.cleartext.readArmored(signature)
+    sigData = await openpgp.readCleartextMessage({
+      cleartextMessage: signature
+    })
   } catch (error) {
-    throw new Error('invalid_signature')
+    throw new Error(`Signature could not be read (${error})`)
   }
-
-  const issuerKeyId = sigData.signature.packets[0].issuerKeyId.toHex()
-  const signersUserId = sigData.signature.packets[0].signersUserId
+  const issuerKeyID = sigData.signature.packets[0].issuerKeyID.toHex()
+  const signersUserID = sigData.signature.packets[0].signersUserID
   const preferredKeyServer =
     sigData.signature.packets[0].preferredKeyServer ||
     'https://keys.openpgp.org/'
@@ -87,9 +88,9 @@ const process = async (signature) => {
     } catch (e) {}
   }
   // Try WKD
-  if (!result.key.data && signersUserId) {
+  if (!result.key.data && signersUserID) {
     try {
-      result.key.uri = `wkd:${signersUserId}`
+      result.key.uri = `wkd:${signersUserID}`
       result.key.data = await keys.fetchURI(result.key.uri)
       result.key.fetchMethod = 'wkd'
     } catch (e) {}
@@ -98,7 +99,7 @@ const process = async (signature) => {
   if (!result.key.data) {
     try {
       const match = preferredKeyServer.match(/^(.*:\/\/)?([^/]*)(?:\/)?$/i)
-      result.key.uri = `hkp:${match[2]}:${issuerKeyId || signersUserId}`
+      result.key.uri = `hkp:${match[2]}:${issuerKeyID || signersUserID}`
       result.key.data = await keys.fetchURI(result.key.uri)
       result.key.fetchMethod = 'hkp'
     } catch (e) {
@@ -115,9 +116,9 @@ const process = async (signature) => {
   const primaryUserData = await result.key.data.getPrimaryUser()
   let userData
 
-  if (signersUserId) {
+  if (signersUserID) {
     result.key.data.users.forEach((user) => {
-      if (user.userId.email === signersUserId) {
+      if (user.userID.email === signersUserID) {
         userData = user
       }
     })
@@ -127,11 +128,11 @@ const process = async (signature) => {
   }
 
   result.users[0].userData = {
-    id: userData.userId ? userData.userId.userid : null,
-    name: userData.userId ? userData.userId.name : null,
-    email: userData.userId ? userData.userId.email : null,
-    comment: userData.userId ? userData.userId.comment : null,
-    isPrimary: primaryUserData.user.userId.userid === userData.userId.userid
+    id: userData.userID ? userData.userID.userid : null,
+    name: userData.userID ? userData.userID.name : null,
+    email: userData.userID ? userData.userID.email : null,
+    comment: userData.userID ? userData.userID.comment : null,
+    isPrimary: primaryUserData.user.userID.userid === userData.userID.userid
   }
 
   result.primaryUserIndex = result.users[0].userData.isPrimary ? 0 : null

@@ -99,7 +99,7 @@ describe('keys.fetchURI', () => {
   it('should return a Key object when provided a hkp: uri', async () => {
     expect(
       await doipjs.keys.fetchURI(`hkp:${pubKeyFingerprint}`)
-    ).to.be.instanceOf(openpgp.key.Key)
+    ).to.be.instanceOf(openpgp.PublicKey)
   }).timeout('12s')
   it('should reject when provided an invalid uri', () => {
     return expect(
@@ -115,12 +115,12 @@ describe('keys.fetchHKP', () => {
   })
   it('should return a Key object when provided a valid fingerprint', async () => {
     expect(await doipjs.keys.fetchHKP(pubKeyFingerprint)).to.be.instanceOf(
-      openpgp.key.Key
+      openpgp.PublicKey
     )
   })
   it('should return a Key object when provided a valid email address', async () => {
     expect(await doipjs.keys.fetchHKP(pubKeyEmail)).to.be.instanceOf(
-      openpgp.key.Key
+      openpgp.PublicKey
     )
   })
   it('should reject when provided an invalid fingerprint', async () => {
@@ -146,7 +146,7 @@ describe('keys.fetchPlaintext', () => {
   })
   it('should return a Key object', async () => {
     expect(await doipjs.keys.fetchPlaintext(pubKeyPlaintext)).to.be.instanceOf(
-      openpgp.key.Key
+      openpgp.PublicKey
     )
   })
 })
