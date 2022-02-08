@@ -7,8 +7,17 @@ const main = async () => {
     // Process it to extract the UIDs and their claims
     const obj = await doip.keys.process(key)
 
-    // Log the claims of the first UID
-    console.log(obj.users[0].claims)
+    // Process every claim for every user
+    obj.users.forEach(async user => {
+        user.claims.forEach(async claim => {
+            // Match the claim
+            await claim.match()
+
+            // Verify the claim
+            await claim.verify()
+            console.log(claim)
+        })
+    })
 }
 
 main()
