@@ -13,8 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const bent = require('bent')
-const bentReq = bent('GET')
+const axios = require('axios')
 const validator = require('validator')
 
 /**
@@ -57,11 +56,12 @@ module.exports.fn = async (data, opts) => {
     }
 
     const url = `https://${opts.claims.matrix.instance}/_matrix/client/r0/rooms/${data.roomId}/event/${data.eventId}?access_token=${opts.claims.matrix.accessToken}`
-    bentReq(url, null, {
-      Accept: 'application/json'
-    })
-      .then(async (res) => {
-        return await res.json()
+    axios.get(url,
+      {
+        headers: { Accept: 'application/json' }
+      })
+      .then(res => {
+        return res.data
       })
       .then((res) => {
         resolve(res)

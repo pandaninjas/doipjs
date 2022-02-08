@@ -13,8 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const bent = require('bent')
-const bentReq = bent('GET')
+const axios = require('axios')
 const validator = require('validator')
 
 /**
@@ -55,16 +54,17 @@ module.exports.fn = async (data, opts) => {
       )
     }
 
-    bentReq(
+    axios.get(
       `https://api.twitter.com/1.1/statuses/show.json?id=${data.tweetId}&tweet_mode=extended`,
-      null,
       {
-        Accept: 'application/json',
-        Authorization: `Bearer ${opts.claims.twitter.bearerToken}`
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${opts.claims.twitter.bearerToken}`
+        }
       }
     )
-      .then(async (data) => {
-        return await data.json()
+      .then(data => {
+        return data.data
       })
       .then((data) => {
         resolve(data.full_text)

@@ -13,8 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const bent = require('bent')
-const req = bent('GET')
+const axios = require('axios')
 const validUrl = require('valid-url')
 const openpgp = require('openpgp')
 const Claim = require('./claim')
@@ -99,13 +98,18 @@ exports.fetchKeybase = async (username, fingerprint) => {
   const keyLink = `https://keybase.io/${username}/pgp_keys.asc?fingerprint=${fingerprint}`
   let rawKeyContent
   try {
-    rawKeyContent = await req(keyLink)
+    rawKeyContent = await axios.get(
+      keyLink,
+      {
+        responseType: 'text'
+      }
+    )
       .then((response) => {
         if (response.status === 200) {
           return response
         }
       })
-      .then((response) => response.text())
+      .then((response) => response.data)
   } catch (e) {
     throw new Error(`Error fetching Keybase key: ${e.message}`)
   }

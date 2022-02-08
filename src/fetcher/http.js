@@ -13,8 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const bent = require('bent')
-const req = bent('GET')
+const axios = require('axios')
 const E = require('../enums')
 
 /**
@@ -53,29 +52,33 @@ module.exports.fn = async (data, opts) => {
 
     switch (data.format) {
       case E.ProofFormat.JSON:
-        req(data.url, null, {
-          Accept: 'application/json',
-          'User-Agent': `doipjs/${require('../../package.json').version}`
+        axios.get(data.url, {
+          headers: {
+            Accept: 'application/json',
+            'User-Agent': `doipjs/${require('../../package.json').version}`
+          },
+          validateStatus: function (status) {
+            return status >= 200 && status < 400
+          }
         })
-          .then(async (res) => {
-            return await res.json()
+          .then(res => {
+            resolve(res.data)
           })
-          .then((res) => {
-            resolve(res)
-          })
-          .catch((e) => {
+          .catch(e => {
             reject(e)
           })
         break
       case E.ProofFormat.TEXT:
-        req(data.url)
-          .then(async (res) => {
-            return await res.text()
+        axios.get(data.url, {
+          validateStatus: function (status) {
+            return status >= 200 && status < 400
+          },
+          responseType: 'text'
+        })
+          .then(res => {
+            resolve(res.data)
           })
-          .then((res) => {
-            resolve(res)
-          })
-          .catch((e) => {
+          .catch(e => {
             reject(e)
           })
         break

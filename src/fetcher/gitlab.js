@@ -13,8 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const bent = require('bent')
-const req = bent('GET')
+const axios = require('axios')
 
 /**
  * @module fetcher/gitlab
@@ -47,9 +46,12 @@ module.exports.fn = async (data, opts) => {
   const fetchPromise = new Promise((resolve, reject) => {
     const urlUser = `https://${data.domain}/api/v4/users?username=${data.username}`
     // const resUser = await req(urlUser, null, { Accept: 'application/json' })
-    const res = req(urlUser, null, { Accept: 'application/json' })
+    const res = axios.get(urlUser,
+      {
+        headers: { Accept: 'application/json' }
+      })
       .then(resUser => {
-        return resUser.json()
+        return resUser.data
       })
       .then(jsonUser => {
         return jsonUser.find((user) => user.username === data.username)
@@ -62,12 +64,13 @@ module.exports.fn = async (data, opts) => {
       })
       .then(user => {
         const urlProject = `https://${data.domain}/api/v4/users/${user.id}/projects`
-        return req(urlProject, null, {
-          Accept: 'application/json'
-        })
+        return axios.get(urlProject,
+          {
+            headers: { Accept: 'application/json' }
+          })
       })
       .then(resProject => {
-        return resProject.json()
+        return resProject.data
       })
       .then(jsonProject => {
         return jsonProject.find((proj) => proj.path === 'gitlab_proof')

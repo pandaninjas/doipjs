@@ -15,8 +15,7 @@ limitations under the License.
 */
 const router = require('express').Router()
 const dns = require('dns')
-const bent = require('bent')
-const bentReq = bent('GET')
+const axios = require('axios')
 const validUrl = require('valid-url')
 const jsdom = require('jsdom')
 const { client, xml } = require('@xmpp/client')
@@ -126,11 +125,14 @@ router.param('xmppdata', async (req, res, next, xmppdata) => {
 })
 
 router.get('/get/json/:url', (req, res) => {
-  bentReq(req.params.url, 'json', {
-    Accept: 'application/json'
-  })
-    .then(async (result) => {
-      return await result.json()
+  axios.get(req.params.url,
+    {
+      headers: {
+        Accept: 'application/json'
+      }
+    })
+    .then(result => {
+      return result.data
     })
     .then(async (result) => {
       return res.status(200).json({ url: req.params.url, content: result })
@@ -141,9 +143,12 @@ router.get('/get/json/:url', (req, res) => {
 })
 
 router.get('/get/text/:url', (req, res) => {
-  bentReq(req.params.url)
-    .then(async (result) => {
-      return await result.text()
+  axios.get(req.params.url,
+    {
+      responseType: 'text'
+    })
+    .then(result => {
+      return result.data
     })
     .then(async (result) => {
       return res.status(200).json({ url: req.params.url, content: result })
@@ -238,16 +243,17 @@ router.get('/get/twitter/:tweetid', async (req, res) => {
     return res.status(500).json('Twitter not enabled on server')
   }
 
-  bentReq(
+  axios.get(
     `https://api.twitter.com/1.1/statuses/show.json?id=${req.params.tweetid}`,
-    null,
     {
-      Accept: 'application/json',
-      Authorization: `Bearer ${twitterBearerToken}`
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${twitterBearerToken}`
+      }
     }
   )
-    .then(async (data) => {
-      return await data.json()
+    .then(data => {
+      return data.data
     })
     .then((data) => {
       return res.status(200).json({ data: data, message: 'Success', error: {} })
@@ -268,11 +274,14 @@ router.get('/get/matrix/:matrixroomid/:matrixeventid', async (req, res) => {
 
   const url = `https://${matrixInstance}/_matrix/client/r0/rooms/${req.params.matrixroomid}/event/${req.params.matrixeventid}?access_token=${matrixAccessToken}`
 
-  bentReq(url, null, {
-    Accept: 'application/json'
-  })
-    .then(async (data) => {
-      return await data.json()
+  axios.get(url,
+    {
+      headers: {
+        Accept: 'application/json'
+      }
+    })
+    .then(data => {
+      return data.data
     })
     .then((data) => {
       return res.status(200).json({ data: data, message: 'Success', error: {} })
