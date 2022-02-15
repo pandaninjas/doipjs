@@ -16,6 +16,8 @@ limitations under the License.
 const axios = require('axios')
 const validUrl = require('valid-url')
 const openpgp = require('openpgp')
+const HKP = require('@openpgp/hkp-client')
+const WKD = require('@openpgp/wkd-client')
 const Claim = require('./claim')
 
 /**
@@ -28,7 +30,7 @@ const Claim = require('./claim')
  * @function
  * @param {string} identifier                         - Fingerprint or email address
  * @param {string} [keyserverDomain=keys.openpgp.org] - Domain of the keyserver
- * @returns {openpgp.key.Key}
+ * @returns {openpgp.PublicKey}
  * @example
  * const key1 = doip.keys.fetchHKP('alice@domain.tld');
  * const key2 = doip.keys.fetchHKP('123abc123abc');
@@ -38,26 +40,26 @@ exports.fetchHKP = async (identifier, keyserverDomain) => {
     ? `https://${keyserverDomain}`
     : 'https://keys.openpgp.org'
 
-  const hkp = new openpgp.HKP(keyserverBaseUrl)
+  const hkp = new HKP(keyserverBaseUrl)
   const lookupOpts = {
     query: identifier
   }
 
-  const publicKey = await hkp.lookup(lookupOpts).catch((error) => {
-    throw new Error(`Key does not exist or could not be fetched (${error})`)
-  })
+  const publicKey = await hkp
+    .lookup(lookupOpts)
+    .catch((error) => {
+      throw new Error(`Key does not exist or could not be fetched (${error})`)
+    })
 
   if (!publicKey) {
     throw new Error('Key does not exist or could not be fetched')
   }
 
-  return await openpgp.key
-    .readArmored(publicKey)
-    .then((result) => {
-      return result.keys[0]
-    })
+  return await openpgp.readKey({
+    armoredKey: publicKey
+  })
     .catch((error) => {
-      throw new Error(`Key does not exist or could not be fetched (${error})`)
+      throw new Error(`Key could not be read (${error})`)
     })
 }
 
@@ -65,23 +67,31 @@ exports.fetchHKP = async (identifier, keyserverDomain) => {
  * Fetch a public key using Web Key Directory
  * @function
  * @param {string} identifier - Identifier of format 'username@domain.tld`
- * @returns {openpgp.key.Key}
+ * @returns {openpgp.PublicKey}
  * @example
  * const key = doip.keys.fetchWKD('alice@domain.tld');
  */
 exports.fetchWKD = async (identifier) => {
-  const wkd = new openpgp.WKD()
+  const wkd = new WKD()
   const lookupOpts = {
     email: identifier
   }
 
-  return await wkd
+  const publicKey = await wkd
     .lookup(lookupOpts)
-    .then((result) => {
-      return result.keys[0]
-    })
     .catch((error) => {
       throw new Error(`Key does not exist or could not be fetched (${error})`)
+    })
+
+  if (!publicKey) {
+    throw new Error('Key does not exist or could not be fetched')
+  }
+
+  return await openpgp.readKey({
+    binaryKey: publicKey
+  })
+    .catch((error) => {
+      throw new Error(`Key could not be read (${error})`)
     })
 }
 
@@ -90,7 +100,7 @@ exports.fetchWKD = async (identifier) => {
  * @function
  * @param {string} username     - Keybase username
  * @param {string} fingerprint  - Fingerprint of key
- * @returns {openpgp.key.Key}
+ * @returns {openpgp.PublicKey}
  * @example
  * const key = doip.keys.fetchKeybase('alice', '123abc123abc');
  */
@@ -114,11 +124,9 @@ exports.fetchKeybase = async (username, fingerprint) => {
     throw new Error(`Error fetching Keybase key: ${e.message}`)
   }
 
-  return await openpgp.key
-    .readArmored(rawKeyContent)
-    .then((result) => {
-      return result.keys[0]
-    })
+  return await openpgp.readKey({
+    armoredKey: rawKeyContent
+  })
     .catch((error) => {
       throw new Error(`Key does not exist or could not be fetched (${error})`)
     })
@@ -128,7 +136,7 @@ exports.fetchKeybase = async (username, fingerprint) => {
  * Get a public key from plaintext data
  * @function
  * @param {string} rawKeyContent - Plaintext ASCII-formatted public key data
- * @returns {openpgp.key.Key}
+ * @returns {openpgp.PublicKey}
  * @example
  * const plainkey = `-----BEGIN PGP PUBLIC KEY BLOCK-----
  *
@@ -139,7 +147,13 @@ exports.fetchKeybase = async (username, fingerprint) => {
  * const key = doip.keys.fetchPlaintext(plainkey);
  */
 exports.fetchPlaintext = async (rawKeyContent) => {
-  const publicKey = (await openpgp.key.readArmored(rawKeyContent)).keys[0]
+  const publicKey = await openpgp.readKey({
+    armoredKey: rawKeyContent
+  })
+    .catch((error) => {
+      throw new Error(`Key could not be read (${error})`)
+    })
+
   return publicKey
 }
 
@@ -147,7 +161,7 @@ exports.fetchPlaintext = async (rawKeyContent) => {
  * Fetch a public key using an URI
  * @function
  * @param {string} uri - URI that defines the location of the key
- * @returns {openpgp.key.Key}
+ * @returns {openpgp.PublicKey}
  * @example
  * const key1 = doip.keys.fetchURI('hkp:alice@domain.tld');
  * const key2 = doip.keys.fetchURI('hkp:123abc123abc');
@@ -186,7 +200,7 @@ exports.fetchURI = async (uri) => {
 /**
  * Process a public key to get user data and claims
  * @function
- * @param {openpgp.key.Key} publicKey - The public key to process
+ * @param {openpgp.PublicKey} publicKey - The public key to process
  * @returns {object}
  * @example
  * const key = doip.keys.fetchURI('hkp:alice@domain.tld');
@@ -196,11 +210,11 @@ exports.fetchURI = async (uri) => {
  * });
  */
 exports.process = async (publicKey) => {
-  if (!publicKey || !(publicKey instanceof openpgp.key.Key)) {
+  if (!publicKey || !(publicKey instanceof openpgp.PublicKey)) {
     throw new Error('Invalid public key')
   }
 
-  const fingerprint = await publicKey.primaryKey.getFingerprint()
+  const fingerprint = publicKey.getFingerprint()
   const primaryUser = await publicKey.getPrimaryUser()
   const users = publicKey.users
   const usersOutput = []
@@ -229,7 +243,7 @@ exports.process = async (publicKey) => {
         )
         .map(
           ({ value }) =>
-            new Claim(openpgp.util.decode_utf8(value), fingerprint)
+            new Claim(new TextDecoder().decode(value), fingerprint)
         )
 
       usersOutput[i].userData.isRevoked = selfCertification.revoked
