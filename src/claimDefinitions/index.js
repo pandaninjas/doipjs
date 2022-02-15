@@ -29,7 +29,7 @@ const list = [
   'gitlab',
   'github',
   'mastodon',
-  'fediverse',
+  'pleroma',
   'discourse',
   'owncast'
 ]
@@ -50,7 +50,7 @@ const data = {
   gitlab: require('./gitlab'),
   github: require('./github'),
   mastodon: require('./mastodon'),
-  fediverse: require('./fediverse'),
+  pleroma: require('./pleroma'),
   discourse: require('./discourse'),
   owncast: require('./owncast')
 }

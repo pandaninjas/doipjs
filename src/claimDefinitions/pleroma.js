@@ -23,7 +23,7 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'fediverse'
+      name: 'pleroma'
     },
     match: {
       regularExpression: reURI,
