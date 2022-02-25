@@ -1,0 +1,37 @@
+pipeline:
+  build-dev-container:
+    image: plugins/docker
+    settings:
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      dockerfile: docker/proxy/Dockerfile
+      repo: keyoxide/doip-proxy
+      tags: dev
+    when:
+      event: push
+  build-stable-container:
+    image: plugins/docker
+    settings:
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      dockerfile: docker/proxy/Dockerfile
+      repo: keyoxide/doip-proxy
+      tags: stable
+    when:
+      event: tag
+  build-tag-container:
+    image: plugins/docker
+    settings:
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      dockerfile: docker/proxy/Dockerfile
+      repo: keyoxide/doip-proxy
+      auto_tag: true
+    when:
+      event: tag

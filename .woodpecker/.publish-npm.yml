@@ -1,0 +1,11 @@
+pipeline:
+  publish-npm:
+    image: plugins/npm
+    settings:
+      username: yarmo_eu
+      password:
+        from_secret: npm_password
+      email:
+        from_secret: npm_email
+    when:
+      event: tag
