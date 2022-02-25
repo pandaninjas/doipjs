@@ -222,10 +222,10 @@ exports.process = async (publicKey) => {
   users.forEach((user, i) => {
     usersOutput[i] = {
       userData: {
-        id: user.userId ? user.userId.userid : null,
-        name: user.userId ? user.userId.name : null,
-        email: user.userId ? user.userId.email : null,
-        comment: user.userId ? user.userId.comment : null,
+        id: user.userID ? user.userID.userID : null,
+        name: user.userID ? user.userID.name : null,
+        email: user.userID ? user.userID.email : null,
+        comment: user.userID ? user.userID.comment : null,
         isPrimary: primaryUser.index === i,
         isRevoked: false
       },
