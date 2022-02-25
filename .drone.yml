@@ -1,9 +1,48 @@
 ---
 kind: pipeline
-name: release-stable-version
+name: test
 
 steps:
-  - name: build stable proxy container
+  - name: run tests
+    image: node
+    commands:
+    - yarn
+    - yarn run prepare
+    - yarn run test
+
+trigger:
+  event:
+    - push
+    - pull_request
+    - tag
+
+---
+kind: pipeline
+name: publish-npm
+
+steps:
+  - name: publish on npm
+    image: plugins/npm
+    settings:
+      username: yarmo_eu
+      token:
+        from_secret: npm_token
+      email:
+        from_secret: npm_email
+
+trigger:
+  event:
+    - tag
+
+depends_on:
+  - test
+
+---
+kind: pipeline
+name: publish-docker-latest
+
+steps:
+  - name: publish latest proxy container
     image: plugins/docker
     settings:
       username:
@@ -12,7 +51,7 @@ steps:
         from_secret: docker_password
       dockerfile: docker/proxy/Dockerfile
       repo: keyoxide/doip-proxy
-      tags: stable
+      tags: latest
   - name: build tag proxy container
     image: plugins/docker
     settings:
@@ -23,22 +62,17 @@ steps:
       dockerfile: docker/proxy/Dockerfile
       repo: keyoxide/doip-proxy
       auto_tag: true
-  - name: publish on npm
-    image: plugins/npm
-    settings:
-      username: yarmo_eu
-      password:
-        from_secret: npm_password
-      email:
-        from_secret: npm_email
 
 trigger:
   event:
     - tag
 
+depends_on:
+  - test
+
 ---
 kind: pipeline
-name: release-dev-version
+name: publish-docker-dev
 
 steps:
   - name: run tests
@@ -58,24 +92,9 @@ steps:
       repo: keyoxide/doip-proxy
       tags: dev
 
+depends_on:
+  - test
+
 trigger:
-  branch:
-    - main
   event:
     - push
-
----
-kind: pipeline
-name: test-pr
-
-steps:
-  - name: run tests
-    image: node
-    commands:
-    - yarn
-    - yarn run prepare
-    - yarn run test
-
-trigger:
-  event:
-    - pull_request
