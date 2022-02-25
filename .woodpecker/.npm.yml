@@ -1,5 +1,5 @@
 pipeline:
-  publish-npm:
+  npm:
     image: plugins/npm
     settings:
       username: yarmo_eu

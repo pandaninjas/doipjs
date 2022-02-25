@@ -1,5 +1,5 @@
 pipeline:
-  build-dev-container:
+  dev:
     image: plugins/docker
     settings:
       username:
@@ -11,7 +11,7 @@ pipeline:
       tags: dev
     when:
       event: push
-  build-stable-container:
+  stable:
     image: plugins/docker
     settings:
       username:
@@ -23,7 +23,7 @@ pipeline:
       tags: stable
     when:
       event: tag
-  build-tag-container:
+  tag:
     image: plugins/docker
     settings:
       username:
