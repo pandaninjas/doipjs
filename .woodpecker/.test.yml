@@ -1,9 +1,0 @@
-pipeline:
-  test:
-    image: node
-    commands:
-      - yarn
-      - yarn run prepare
-      - yarn run test
-    when:
-      event: [push, pull_request, tag]

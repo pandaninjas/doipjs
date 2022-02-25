@@ -12,11 +12,11 @@ ignore
 docs
 examples
 \.husky
-\.woodpecker
 
 package.json
 yarn.lock
 \.editorconfig
 \.gitignore
 \.licenseignore
+\.drone.yml
 Dockerfile
