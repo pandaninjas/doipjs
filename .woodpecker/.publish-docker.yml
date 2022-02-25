@@ -35,3 +35,6 @@ pipeline:
       auto_tag: true
     when:
       event: tag
+
+depends_on:
+  - test

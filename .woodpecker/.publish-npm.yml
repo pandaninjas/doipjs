@@ -9,3 +9,6 @@ pipeline:
         from_secret: npm_email
     when:
       event: tag
+
+depends_on:
+  - test
