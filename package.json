@@ -2,7 +2,8 @@
   "name": "doipjs",
   "version": "0.14.0",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
-  "main": "src/index.js",
+  "main": "./src/index.js",
+  "browser": "./dist/doip.min.js",
   "dependencies": {
     "@openpgp/hkp-client": "^0.0.2",
     "@openpgp/wkd-client": "^0.0.3",
