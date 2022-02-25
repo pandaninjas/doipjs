@@ -1,6 +1,6 @@
 {
   "name": "doipjs",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "./src/index.js",
   "browser": "./dist/doip.min.js",
@@ -40,6 +40,7 @@
     "standard": "^16.0.3"
   },
   "scripts": {
+    "release": "yarn run test && yarn run release:bundle && yarn run release:minify",
     "release:bundle": "./node_modules/.bin/browserify ./src/index.js --standalone doip -x openpgp -x jsdom -x @xmpp/client -x @xmpp/debug -x irc-upd -o ./dist/doip.js",
     "release:minify": "./node_modules/.bin/minify ./dist/doip.js > ./dist/doip.min.js",
     "license:check": "./node_modules/.bin/license-check-and-add check",
