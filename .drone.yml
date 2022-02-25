@@ -75,12 +75,6 @@ kind: pipeline
 name: publish-docker-dev
 
 steps:
-  - name: run tests
-    image: node
-    commands:
-    - yarn
-    - yarn run prepare
-    - yarn run test
   - name: build dev proxy container
     image: plugins/docker
     settings:
