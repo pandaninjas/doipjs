@@ -18,7 +18,5 @@ yarn.lock
 \.editorconfig
 \.gitignore
 \.licenseignore
-\.prettierignore
-\.prettierrc.yaml
 \.drone.yml
 Dockerfile

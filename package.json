@@ -41,8 +41,6 @@
   "scripts": {
     "release:bundle": "./node_modules/.bin/browserify ./src/index.js --standalone doip -x openpgp -x jsdom -x @xmpp/client -x @xmpp/debug -x irc-upd -o ./dist/doip.js",
     "release:minify": "./node_modules/.bin/minify ./dist/doip.js > ./dist/doip.min.js",
-    "prettier:check": "./node_modules/.bin/prettier --check .",
-    "prettier:write": "./node_modules/.bin/prettier --write .",
     "license:check": "./node_modules/.bin/license-check-and-add check",
     "license:add": "./node_modules/.bin/license-check-and-add add",
     "license:remove": "./node_modules/.bin/license-check-and-add remove",
