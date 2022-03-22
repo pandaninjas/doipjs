@@ -6,7 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.15.2] - 2022-02-25
+## [0.15.3] - 2022-03-22
+### Updated
+- Bump dependencies
+
+## [0.15.3] - 2022-02-25
 ### Fixed
 - OpenPGP 5 migration issue
 
