@@ -7,8 +7,8 @@
   "dependencies": {
     "@openpgp/hkp-client": "^0.0.2",
     "@openpgp/wkd-client": "^0.0.3",
-    "@xmpp/client": "^0.12.0",
-    "@xmpp/debug": "^0.12.0",
+    "@xmpp/client": "^0.13.1",
+    "@xmpp/debug": "^0.13.0",
     "axios": "^0.25.0",
     "browser-or-node": "^1.3.0",
     "cors": "^2.8.5",
@@ -36,7 +36,7 @@
     "lint-staged": "^11.0.0",
     "minify": "^6.0.1",
     "mocha": "^9.2.0",
-    "nodemon": "^2.0.7",
+    "nodemon": "^2.0.15",
     "standard": "^16.0.3"
   },
   "scripts": {
