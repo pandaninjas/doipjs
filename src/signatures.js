@@ -45,13 +45,15 @@ const process = async (signature) => {
     }
   }
 
+  // Read the signature
   try {
     sigData = await openpgp.readCleartextMessage({
       cleartextMessage: signature
     })
-  } catch (error) {
-    throw new Error(`Signature could not be read (${error})`)
+  } catch (e) {
+    throw new Error(`Signature could not be read (${e.message})`)
   }
+
   const issuerKeyID = sigData.signature.packets[0].issuerKeyID.toHex()
   const signersUserID = sigData.signature.packets[0].signersUserID
   const preferredKeyServer =
@@ -103,8 +105,20 @@ const process = async (signature) => {
       result.key.data = await keys.fetchURI(result.key.uri)
       result.key.fetchMethod = 'hkp'
     } catch (e) {
-      throw new Error('key_not_found')
+      throw new Error('Public key not found')
     }
+  }
+
+  // Verify the signature
+  const verificationResult = await openpgp.verify({
+    message: sigData,
+    verificationKeys: result.key.data
+  })
+  const { verified } = verificationResult.signatures[0]
+  try {
+    await verified
+  } catch (e) {
+    throw new Error(`Signature could not be verified (${e.message})`)
   }
 
   result.fingerprint = result.key.data.keyPacket.getFingerprint()
