@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.5] - 2022-03-25
+### Fixed
+- Signature profile verification
+
 ## [0.15.4] - 2022-03-25
 ### Fixed
 - UserIDs in signature profile processing were undefined
