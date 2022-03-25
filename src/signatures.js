@@ -128,11 +128,11 @@ const process = async (signature) => {
   }
 
   result.users[0].userData = {
-    id: userData.userID ? userData.userID.userid : null,
+    id: userData.userID ? userData.userID.userID : null,
     name: userData.userID ? userData.userID.name : null,
     email: userData.userID ? userData.userID.email : null,
     comment: userData.userID ? userData.userID.comment : null,
-    isPrimary: primaryUserData.user.userID.userid === userData.userID.userid
+    isPrimary: primaryUserData.user.userID.userID === userData.userID.userID
   }
 
   result.primaryUserIndex = result.users[0].userData.isPrimary ? 0 : null
