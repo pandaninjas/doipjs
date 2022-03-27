@@ -35,7 +35,7 @@ const Claim = require('./claim')
  * const key1 = doip.keys.fetchHKP('alice@domain.tld');
  * const key2 = doip.keys.fetchHKP('123abc123abc');
  */
-exports.fetchHKP = async (identifier, keyserverDomain) => {
+const fetchHKP = async (identifier, keyserverDomain) => {
   const keyserverBaseUrl = keyserverDomain
     ? `https://${keyserverDomain}`
     : 'https://keys.openpgp.org'
@@ -71,7 +71,7 @@ exports.fetchHKP = async (identifier, keyserverDomain) => {
  * @example
  * const key = doip.keys.fetchWKD('alice@domain.tld');
  */
-exports.fetchWKD = async (identifier) => {
+const fetchWKD = async (identifier) => {
   const wkd = new WKD()
   const lookupOpts = {
     email: identifier
@@ -104,7 +104,7 @@ exports.fetchWKD = async (identifier) => {
  * @example
  * const key = doip.keys.fetchKeybase('alice', '123abc123abc');
  */
-exports.fetchKeybase = async (username, fingerprint) => {
+const fetchKeybase = async (username, fingerprint) => {
   const keyLink = `https://keybase.io/${username}/pgp_keys.asc?fingerprint=${fingerprint}`
   let rawKeyContent
   try {
@@ -146,7 +146,7 @@ exports.fetchKeybase = async (username, fingerprint) => {
  * -----END PGP PUBLIC KEY BLOCK-----`
  * const key = doip.keys.fetchPlaintext(plainkey);
  */
-exports.fetchPlaintext = async (rawKeyContent) => {
+const fetchPlaintext = async (rawKeyContent) => {
   const publicKey = await openpgp.readKey({
     armoredKey: rawKeyContent
   })
@@ -167,7 +167,7 @@ exports.fetchPlaintext = async (rawKeyContent) => {
  * const key2 = doip.keys.fetchURI('hkp:123abc123abc');
  * const key3 = doip.keys.fetchURI('wkd:alice@domain.tld');
  */
-exports.fetchURI = async (uri) => {
+const fetchURI = async (uri) => {
   if (!validUrl.isUri(uri)) {
     throw new Error('Invalid URI')
   }
@@ -181,20 +181,70 @@ exports.fetchURI = async (uri) => {
 
   switch (match[1]) {
     case 'hkp':
-      return exports.fetchHKP(
+      return await fetchHKP(
         match[3] ? match[3] : match[2],
         match[3] ? match[2] : null
       )
 
     case 'wkd':
-      return exports.fetchWKD(match[2])
+      return await fetchWKD(match[2])
 
     case 'kb':
-      return exports.fetchKeybase(match[2], match.length >= 4 ? match[3] : null)
+      return await fetchKeybase(match[2], match.length >= 4 ? match[3] : null)
 
     default:
       throw new Error('Invalid URI protocol')
   }
+}
+
+/**
+ * Fetch a public key
+ *
+ * This function will attempt to detect the identifier and fetch the key
+ * accordingly. If the identifier is an email address, it will first try and
+ * fetch the key using WKD and then HKP. Otherwise, it will try HKP only.
+ *
+ * This function will also try and parse the input as a plaintext key
+ * @function
+ * @param {string} identifier - URI that defines the location of the key
+ * @returns {openpgp.PublicKey}
+ * @example
+ * const key1 = doip.keys.fetch('alice@domain.tld');
+ * const key2 = doip.keys.fetch('123abc123abc');
+ */
+const fetch = async (identifier) => {
+  const re = /([a-zA-Z0-9@._=+-]*)(?::([a-zA-Z0-9@._=+-]*))?/
+  const match = identifier.match(re)
+
+  let pubKey = null
+
+  // Attempt plaintext
+  if (!pubKey) {
+    try {
+      pubKey = await fetchPlaintext(identifier)
+    } catch (e) {}
+  }
+
+  // Attempt WKD
+  if (!pubKey && identifier.includes('@')) {
+    try {
+      pubKey = await fetchWKD(match[1])
+    } catch (e) {}
+  }
+
+  // Attempt HKP
+  if (!pubKey) {
+    pubKey = await fetchHKP(
+      match[2] ? match[2] : match[1],
+      match[2] ? match[1] : null
+    )
+  }
+
+  if (!pubKey) {
+    throw new Error('Key does not exist or could not be fetched')
+  }
+
+  return pubKey
 }
 
 /**
@@ -209,7 +259,7 @@ exports.fetchURI = async (uri) => {
  *   console.log(claim.uri);
  * });
  */
-exports.process = async (publicKey) => {
+const process = async (publicKey) => {
   if (!publicKey || !(publicKey instanceof openpgp.PublicKey)) {
     throw new Error('Invalid public key')
   }
@@ -261,3 +311,11 @@ exports.process = async (publicKey) => {
     }
   }
 }
+
+exports.fetchHKP = fetchHKP
+exports.fetchWKD = fetchWKD
+exports.fetchKeybase = fetchKeybase
+exports.fetchPlaintext = fetchPlaintext
+exports.fetchURI = fetchURI
+exports.fetch = fetch
+exports.process = process

@@ -91,6 +91,28 @@ Q+AZdYCbM0hdBjP4xdKZcpqak8ksb+aQFXjGacDL/XN4VrP+tBGxkqIqreoDcgIb
 =tVW7
 -----END PGP PUBLIC KEY BLOCK-----`
 
+describe('keys.fetch', () => {
+  it('should be a function (1 argument)', () => {
+    expect(doipjs.keys.fetch).to.be.a('function')
+    expect(doipjs.keys.fetch).to.have.length(1)
+  })
+  it('should return a Key object when provided a valid fingerprint', async () => {
+    expect(
+      await doipjs.keys.fetch(pubKeyFingerprint)
+    ).to.be.instanceOf(openpgp.PublicKey)
+  }).timeout('12s')
+  it('should return a Key object when provided a valid email address', async () => {
+    expect(
+      await doipjs.keys.fetch(pubKeyEmail)
+    ).to.be.instanceOf(openpgp.PublicKey)
+  }).timeout('12s')
+  it('should reject when provided an invalid email address', () => {
+    return expect(
+      doipjs.keys.fetch('invalid@doip.rocks')
+    ).to.eventually.be.rejectedWith('Key does not exist or could not be fetched')
+  }).timeout('12s')
+})
+
 describe('keys.fetchURI', () => {
   it('should be a function (1 argument)', () => {
     expect(doipjs.keys.fetchURI).to.be.a('function')
