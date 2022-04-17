@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 exports.dns = require('./dns')
-exports.gitlab = require('./gitlab')
 exports.http = require('./http')
 exports.irc = require('./irc')
 exports.matrix = require('./matrix')
