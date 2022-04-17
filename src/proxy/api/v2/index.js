@@ -203,8 +203,11 @@ router.get(
       return res.status(400).json({ errors: errors.array() })
     }
 
-    fetcher.gitlab
-      .fn(req.query, opts)
+    fetcher.http
+      .fn({
+        url: `https://${req.query.domain}/api/v4/projects/${req.query.username}%2Fgitlab_proof`,
+        format: 'json'
+      }, opts)
       .then((data) => {
         return res.status(200).send(data)
       })
