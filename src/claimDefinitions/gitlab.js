@@ -37,12 +37,12 @@ const processURI = (uri) => {
     proof: {
       uri: uri,
       request: {
-        fetcher: E.Fetcher.GITLAB,
+        fetcher: E.Fetcher.HTTP,
         access: E.ProofAccess.GENERIC,
         format: E.ProofFormat.JSON,
         data: {
-          domain: match[1],
-          username: match[2]
+          url: `https://${match[1]}/api/v4/projects/${match[2]}%2Fgitlab_proof`,
+          format: E.ProofFormat.JSON
         }
       }
     },
