@@ -1,6 +1,209 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.doip = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+// hkp-client - A HKP client implementation in javascript
+// Copyright (C) 2015 Tankred Hase
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3.0 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+/**
+ * This class implements a client for the OpenPGP HTTP Keyserver Protocol (HKP)
+ * in order to lookup and upload keys on standard public key servers.
+ */
+class HKP {
+  /**
+   * Initialize the HKP client and configure it with the key server url and fetch function.
+   * @param {String} [keyServerBaseUrl] - The HKP key server base url including
+   *   the protocol to use, e.g. 'https://pgp.mit.edu'; defaults to
+   *   openpgp.config.keyserver (https://keyserver.ubuntu.com)
+   * @param {Object} [config] - Full configuration, defaults to openpgp.config
+   */
+  constructor(keyServerBaseUrl = 'https://keyserver.ubuntu.com') {
+    this._baseUrl = keyServerBaseUrl;
+    this._fetch = typeof globalThis.fetch === 'function' ? globalThis.fetch : require('node-fetch');
+  }
+
+  /**
+   * Search for a public key on the key server either by key ID or part of the user ID.
+   * @param  {String}   options.keyId   The long public key ID.
+   * @param  {String}   options.query   This can be any part of the key user ID such as name
+   *   or email address.
+   * @returns {String} The ascii armored public key.
+   * @async
+   */
+  lookup(options) {
+    let uri = this._baseUrl + '/pks/lookup?op=get&options=mr&search=';
+    const fetch = this._fetch;
+
+    if (options.keyId) {
+      uri += '0x' + encodeURIComponent(options.keyId);
+    } else if (options.query) {
+      uri += encodeURIComponent(options.query);
+    } else {
+      throw new Error('You must provide a query parameter!');
+    }
+
+    return fetch(uri).then(function(response) {
+      if (response.status === 200) {
+        return response.text();
+      }
+    }).then(function(publicKeyArmored) {
+      if (!publicKeyArmored || publicKeyArmored.indexOf('-----END PGP PUBLIC KEY BLOCK-----') < 0) {
+        return;
+      }
+      return publicKeyArmored.trim();
+    });
+  }
+
+  /**
+   * Upload a public key to the server.
+   * @param {String} publicKeyArmored - An ascii armored public key to be uploaded.
+   * @returns {Promise}
+   * @async
+   */
+  upload(publicKeyArmored) {
+    const uri = this._baseUrl + '/pks/add';
+    const fetch = this._fetch;
+
+    return fetch(uri, {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+      },
+      body: 'keytext=' + encodeURIComponent(publicKeyArmored)
+    });
+  }
+}
+
+module.exports = HKP;
+
+},{"node-fetch":33}],2:[function(require,module,exports){
+// wkd-client - A WKD client implementation in javascript
+// Copyright (C) 2018 Wiktor Kwapisiewicz
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3.0 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+/**
+ * This class implements a client for the Web Key Directory (WKD) protocol
+ * in order to lookup keys on designated servers.
+ * @see https://datatracker.ietf.org/doc/draft-koch-openpgp-webkey-service/
+ */
+class WKD {
+  /**
+   * Initialize the WKD client
+   */
+  constructor() {
+    this._fetch = typeof globalThis.fetch === 'function' ? globalThis.fetch : require('node-fetch');
+    const { subtle } = globalThis.crypto || require('crypto').webcrypto || new (require('@peculiar/webcrypto').Crypto)();
+    this._subtle = subtle;
+  }
+
+  /**
+   * Search for a public key using Web Key Directory protocol.
+   * @param   {String}   options.email         User's email.
+   * @returns {Uint8Array} The public key.
+   * @async
+   */
+  async lookup(options) {
+    const fetch = this._fetch;
+
+    if (!options.email) {
+      throw new Error('You must provide an email parameter!');
+    }
+
+    if (typeof options.email !== 'string' || !options.email.includes('@')) {
+      throw new Error('Invalid e-mail address.');
+    }
+
+    const [localPart, domain] = options.email.split('@');
+    const localPartEncoded = new TextEncoder().encode(localPart.toLowerCase());
+    const localPartHashed = new Uint8Array(await this._subtle.digest('SHA-1', localPartEncoded));
+    const localPartBase32 = encodeZBase32(localPartHashed);
+    const localPartEscaped = encodeURIComponent(localPart);
+
+    const urlAdvanced = `https://openpgpkey.${domain}/.well-known/openpgpkey/${domain}/hu/${localPartBase32}?l=${localPartEscaped}`;
+    const urlDirect = `https://${domain}/.well-known/openpgpkey/hu/${localPartBase32}?l=${localPartEscaped}`;
+
+    let response;
+    try {
+      response = await fetch(urlAdvanced);
+      if (response.status !== 200) {
+        throw new Error('Advanced WKD lookup failed: ' + response.statusText);
+      }
+    } catch (err) {
+      response = await fetch(urlDirect);
+      if (response.status !== 200) {
+        throw new Error('Direct WKD lookup failed: ' + response.statusText);
+      }
+    }
+
+    return new Uint8Array(await response.arrayBuffer());
+  }
+}
+
+/**
+ * Encode input buffer using Z-Base32 encoding.
+ * See: https://tools.ietf.org/html/rfc6189#section-5.1.6
+ *
+ * @param {Uint8Array} data - The binary data to encode
+ * @returns {String} Binary data encoded using Z-Base32.
+ */
+function encodeZBase32(data) {
+  if (data.length === 0) {
+    return "";
+  }
+  const ALPHABET = "ybndrfg8ejkmcpqxot1uwisza345h769";
+  const SHIFT = 5;
+  const MASK = 31;
+  let buffer = data[0];
+  let index = 1;
+  let bitsLeft = 8;
+  let result = '';
+  while (bitsLeft > 0 || index < data.length) {
+    if (bitsLeft < SHIFT) {
+      if (index < data.length) {
+        buffer <<= 8;
+        buffer |= data[index++] & 0xff;
+        bitsLeft += 8;
+      } else {
+        const pad = SHIFT - bitsLeft;
+        buffer <<= pad;
+        bitsLeft += pad;
+      }
+    }
+    bitsLeft -= SHIFT;
+    result += ALPHABET[MASK & (buffer >> bitsLeft)];
+  }
+  return result;
+}
+
+module.exports = WKD;
+
+},{"@peculiar/webcrypto":33,"crypto":33,"node-fetch":33}],3:[function(require,module,exports){
 module.exports = require('./lib/axios');
-},{"./lib/axios":3}],2:[function(require,module,exports){
+},{"./lib/axios":5}],4:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -214,7 +417,7 @@ module.exports = function xhrAdapter(config) {
   });
 };
 
-},{"../cancel/Cancel":4,"../core/buildFullPath":9,"../core/createError":10,"../defaults":16,"./../core/settle":14,"./../helpers/buildURL":19,"./../helpers/cookies":21,"./../helpers/isURLSameOrigin":24,"./../helpers/parseHeaders":26,"./../utils":29}],3:[function(require,module,exports){
+},{"../cancel/Cancel":6,"../core/buildFullPath":11,"../core/createError":12,"../defaults":18,"./../core/settle":16,"./../helpers/buildURL":21,"./../helpers/cookies":23,"./../helpers/isURLSameOrigin":26,"./../helpers/parseHeaders":28,"./../utils":31}],5:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -273,7 +476,7 @@ module.exports = axios;
 // Allow use of default import syntax in TypeScript
 module.exports.default = axios;
 
-},{"./cancel/Cancel":4,"./cancel/CancelToken":5,"./cancel/isCancel":6,"./core/Axios":7,"./core/mergeConfig":13,"./defaults":16,"./env/data":17,"./helpers/bind":18,"./helpers/isAxiosError":23,"./helpers/spread":27,"./utils":29}],4:[function(require,module,exports){
+},{"./cancel/Cancel":6,"./cancel/CancelToken":7,"./cancel/isCancel":8,"./core/Axios":9,"./core/mergeConfig":15,"./defaults":18,"./env/data":19,"./helpers/bind":20,"./helpers/isAxiosError":25,"./helpers/spread":29,"./utils":31}],6:[function(require,module,exports){
 'use strict';
 
 /**
@@ -294,7 +497,7 @@ Cancel.prototype.__CANCEL__ = true;
 
 module.exports = Cancel;
 
-},{}],5:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 var Cancel = require('./Cancel');
@@ -415,14 +618,14 @@ CancelToken.source = function source() {
 
 module.exports = CancelToken;
 
-},{"./Cancel":4}],6:[function(require,module,exports){
+},{"./Cancel":6}],8:[function(require,module,exports){
 'use strict';
 
 module.exports = function isCancel(value) {
   return !!(value && value.__CANCEL__);
 };
 
-},{}],7:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -579,7 +782,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = Axios;
 
-},{"../helpers/buildURL":19,"../helpers/validator":28,"./../utils":29,"./InterceptorManager":8,"./dispatchRequest":11,"./mergeConfig":13}],8:[function(require,module,exports){
+},{"../helpers/buildURL":21,"../helpers/validator":30,"./../utils":31,"./InterceptorManager":10,"./dispatchRequest":13,"./mergeConfig":15}],10:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -635,7 +838,7 @@ InterceptorManager.prototype.forEach = function forEach(fn) {
 
 module.exports = InterceptorManager;
 
-},{"./../utils":29}],9:[function(require,module,exports){
+},{"./../utils":31}],11:[function(require,module,exports){
 'use strict';
 
 var isAbsoluteURL = require('../helpers/isAbsoluteURL');
@@ -657,7 +860,7 @@ module.exports = function buildFullPath(baseURL, requestedURL) {
   return requestedURL;
 };
 
-},{"../helpers/combineURLs":20,"../helpers/isAbsoluteURL":22}],10:[function(require,module,exports){
+},{"../helpers/combineURLs":22,"../helpers/isAbsoluteURL":24}],12:[function(require,module,exports){
 'use strict';
 
 var enhanceError = require('./enhanceError');
@@ -677,7 +880,7 @@ module.exports = function createError(message, config, code, request, response) 
   return enhanceError(error, config, code, request, response);
 };
 
-},{"./enhanceError":12}],11:[function(require,module,exports){
+},{"./enhanceError":14}],13:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -766,7 +969,7 @@ module.exports = function dispatchRequest(config) {
   });
 };
 
-},{"../cancel/Cancel":4,"../cancel/isCancel":6,"../defaults":16,"./../utils":29,"./transformData":15}],12:[function(require,module,exports){
+},{"../cancel/Cancel":6,"../cancel/isCancel":8,"../defaults":18,"./../utils":31,"./transformData":17}],14:[function(require,module,exports){
 'use strict';
 
 /**
@@ -811,7 +1014,7 @@ module.exports = function enhanceError(error, config, code, request, response) {
   return error;
 };
 
-},{}],13:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -912,7 +1115,7 @@ module.exports = function mergeConfig(config1, config2) {
   return config;
 };
 
-},{"../utils":29}],14:[function(require,module,exports){
+},{"../utils":31}],16:[function(require,module,exports){
 'use strict';
 
 var createError = require('./createError');
@@ -939,7 +1142,7 @@ module.exports = function settle(resolve, reject, response) {
   }
 };
 
-},{"./createError":10}],15:[function(require,module,exports){
+},{"./createError":12}],17:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -963,7 +1166,7 @@ module.exports = function transformData(data, headers, fns) {
   return data;
 };
 
-},{"./../defaults":16,"./../utils":29}],16:[function(require,module,exports){
+},{"./../defaults":18,"./../utils":31}],18:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -1101,11 +1304,11 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 module.exports = defaults;
 
 }).call(this)}).call(this,require('_process'))
-},{"./adapters/http":2,"./adapters/xhr":2,"./core/enhanceError":12,"./helpers/normalizeHeaderName":25,"./utils":29,"_process":36}],17:[function(require,module,exports){
+},{"./adapters/http":4,"./adapters/xhr":4,"./core/enhanceError":14,"./helpers/normalizeHeaderName":27,"./utils":31,"_process":39}],19:[function(require,module,exports){
 module.exports = {
   "version": "0.25.0"
 };
-},{}],18:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
 module.exports = function bind(fn, thisArg) {
@@ -1118,7 +1321,7 @@ module.exports = function bind(fn, thisArg) {
   };
 };
 
-},{}],19:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -1190,7 +1393,7 @@ module.exports = function buildURL(url, params, paramsSerializer) {
   return url;
 };
 
-},{"./../utils":29}],20:[function(require,module,exports){
+},{"./../utils":31}],22:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1206,7 +1409,7 @@ module.exports = function combineURLs(baseURL, relativeURL) {
     : baseURL;
 };
 
-},{}],21:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -1261,7 +1464,7 @@ module.exports = (
     })()
 );
 
-},{"./../utils":29}],22:[function(require,module,exports){
+},{"./../utils":31}],24:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1277,7 +1480,7 @@ module.exports = function isAbsoluteURL(url) {
   return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url);
 };
 
-},{}],23:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -1292,7 +1495,7 @@ module.exports = function isAxiosError(payload) {
   return utils.isObject(payload) && (payload.isAxiosError === true);
 };
 
-},{"./../utils":29}],24:[function(require,module,exports){
+},{"./../utils":31}],26:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -1362,7 +1565,7 @@ module.exports = (
     })()
 );
 
-},{"./../utils":29}],25:[function(require,module,exports){
+},{"./../utils":31}],27:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -1376,7 +1579,7 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
   });
 };
 
-},{"../utils":29}],26:[function(require,module,exports){
+},{"../utils":31}],28:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -1431,7 +1634,7 @@ module.exports = function parseHeaders(headers) {
   return parsed;
 };
 
-},{"./../utils":29}],27:[function(require,module,exports){
+},{"./../utils":31}],29:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1460,7 +1663,7 @@ module.exports = function spread(callback) {
   };
 };
 
-},{}],28:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 'use strict';
 
 var VERSION = require('../env/data').version;
@@ -1544,7 +1747,7 @@ module.exports = {
   validators: validators
 };
 
-},{"../env/data":17}],29:[function(require,module,exports){
+},{"../env/data":19}],31:[function(require,module,exports){
 'use strict';
 
 var bind = require('./helpers/bind');
@@ -1895,7 +2098,7 @@ module.exports = {
   stripBOM: stripBOM
 };
 
-},{"./helpers/bind":18}],30:[function(require,module,exports){
+},{"./helpers/bind":20}],32:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -1929,9 +2132,11 @@ exports.isWebWorker = isWebWorker;
 exports.isNode = isNode;
 exports.isJsDom = isJsDom;
 }).call(this)}).call(this,require('_process'))
-},{"_process":36}],31:[function(require,module,exports){
+},{"_process":39}],33:[function(require,module,exports){
 
-},{}],32:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
+arguments[4][33][0].apply(exports,arguments)
+},{"dup":33}],35:[function(require,module,exports){
 'use strict';
 var token = '%[a-f0-9]{2}';
 var singleMatcher = new RegExp(token, 'gi');
@@ -2027,7 +2232,7 @@ module.exports = function (encodedURI) {
 	}
 };
 
-},{}],33:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 'use strict';
 module.exports = function (obj, predicate) {
 	var ret = {};
@@ -2046,7 +2251,7 @@ module.exports = function (obj, predicate) {
 	return ret;
 };
 
-},{}],34:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 'use strict';
 
 module.exports = value => {
@@ -2058,7 +2263,7 @@ module.exports = value => {
 	return prototype === null || prototype === Object.prototype;
 };
 
-},{}],35:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 'use strict';
 const isOptionObject = require('is-plain-obj');
 
@@ -2231,7 +2436,7 @@ module.exports = function (...options) {
 	return merged._;
 };
 
-},{"is-plain-obj":34}],36:[function(require,module,exports){
+},{"is-plain-obj":37}],39:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -2417,7 +2622,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],37:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 'use strict';
 const strictUriEncode = require('strict-uri-encode');
 const decodeComponent = require('decode-uri-component');
@@ -2823,7 +3028,7 @@ exports.exclude = (input, filter, options) => {
 	return exports.pick(input, exclusionFilter, options);
 };
 
-},{"decode-uri-component":32,"filter-obj":33,"split-on-first":38,"strict-uri-encode":39}],38:[function(require,module,exports){
+},{"decode-uri-component":35,"filter-obj":36,"split-on-first":41,"strict-uri-encode":42}],41:[function(require,module,exports){
 'use strict';
 
 module.exports = (string, separator) => {
@@ -2847,11 +3052,11 @@ module.exports = (string, separator) => {
 	];
 };
 
-},{}],39:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 'use strict';
 module.exports = str => encodeURIComponent(str).replace(/[!'()*]/g, x => `%${x.charCodeAt(0).toString(16).toUpperCase()}`);
 
-},{}],40:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 (function(module) {
     'use strict';
 
@@ -3006,7 +3211,7 @@ module.exports = str => encodeURIComponent(str).replace(/[!'()*]/g, x => `%${x.c
 
 })(module);
 
-},{}],41:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 "use strict";
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -3316,7 +3521,7 @@ var _default = validator;
 exports.default = _default;
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./lib/blacklist":43,"./lib/contains":44,"./lib/equals":45,"./lib/escape":46,"./lib/isAfter":47,"./lib/isAlpha":48,"./lib/isAlphanumeric":49,"./lib/isAscii":50,"./lib/isBIC":51,"./lib/isBase32":52,"./lib/isBase58":53,"./lib/isBase64":54,"./lib/isBefore":55,"./lib/isBoolean":56,"./lib/isBtcAddress":57,"./lib/isByteLength":58,"./lib/isCreditCard":59,"./lib/isCurrency":60,"./lib/isDataURI":61,"./lib/isDate":62,"./lib/isDecimal":63,"./lib/isDivisibleBy":64,"./lib/isEAN":65,"./lib/isEmail":66,"./lib/isEmpty":67,"./lib/isEthereumAddress":68,"./lib/isFQDN":69,"./lib/isFloat":70,"./lib/isFullWidth":71,"./lib/isHSL":72,"./lib/isHalfWidth":73,"./lib/isHash":74,"./lib/isHexColor":75,"./lib/isHexadecimal":76,"./lib/isIBAN":77,"./lib/isIMEI":78,"./lib/isIP":79,"./lib/isIPRange":80,"./lib/isISBN":81,"./lib/isISIN":82,"./lib/isISO31661Alpha2":83,"./lib/isISO31661Alpha3":84,"./lib/isISO4217":85,"./lib/isISO8601":86,"./lib/isISRC":87,"./lib/isISSN":88,"./lib/isIdentityCard":89,"./lib/isIn":90,"./lib/isInt":91,"./lib/isJSON":92,"./lib/isJWT":93,"./lib/isLatLong":94,"./lib/isLength":95,"./lib/isLicensePlate":96,"./lib/isLocale":97,"./lib/isLowercase":98,"./lib/isMACAddress":99,"./lib/isMD5":100,"./lib/isMagnetURI":101,"./lib/isMimeType":102,"./lib/isMobilePhone":103,"./lib/isMongoId":104,"./lib/isMultibyte":105,"./lib/isNumeric":106,"./lib/isOctal":107,"./lib/isPassportNumber":108,"./lib/isPort":109,"./lib/isPostalCode":110,"./lib/isRFC3339":111,"./lib/isRgbColor":112,"./lib/isSemVer":113,"./lib/isSlug":114,"./lib/isStrongPassword":115,"./lib/isSurrogatePair":116,"./lib/isTaxID":117,"./lib/isURL":118,"./lib/isUUID":119,"./lib/isUppercase":120,"./lib/isVAT":121,"./lib/isVariableWidth":122,"./lib/isWhitelisted":123,"./lib/ltrim":124,"./lib/matches":125,"./lib/normalizeEmail":126,"./lib/rtrim":127,"./lib/stripLow":128,"./lib/toBoolean":129,"./lib/toDate":130,"./lib/toFloat":131,"./lib/toInt":132,"./lib/trim":133,"./lib/unescape":134,"./lib/whitelist":141}],42:[function(require,module,exports){
+},{"./lib/blacklist":46,"./lib/contains":47,"./lib/equals":48,"./lib/escape":49,"./lib/isAfter":50,"./lib/isAlpha":51,"./lib/isAlphanumeric":52,"./lib/isAscii":53,"./lib/isBIC":54,"./lib/isBase32":55,"./lib/isBase58":56,"./lib/isBase64":57,"./lib/isBefore":58,"./lib/isBoolean":59,"./lib/isBtcAddress":60,"./lib/isByteLength":61,"./lib/isCreditCard":62,"./lib/isCurrency":63,"./lib/isDataURI":64,"./lib/isDate":65,"./lib/isDecimal":66,"./lib/isDivisibleBy":67,"./lib/isEAN":68,"./lib/isEmail":69,"./lib/isEmpty":70,"./lib/isEthereumAddress":71,"./lib/isFQDN":72,"./lib/isFloat":73,"./lib/isFullWidth":74,"./lib/isHSL":75,"./lib/isHalfWidth":76,"./lib/isHash":77,"./lib/isHexColor":78,"./lib/isHexadecimal":79,"./lib/isIBAN":80,"./lib/isIMEI":81,"./lib/isIP":82,"./lib/isIPRange":83,"./lib/isISBN":84,"./lib/isISIN":85,"./lib/isISO31661Alpha2":86,"./lib/isISO31661Alpha3":87,"./lib/isISO4217":88,"./lib/isISO8601":89,"./lib/isISRC":90,"./lib/isISSN":91,"./lib/isIdentityCard":92,"./lib/isIn":93,"./lib/isInt":94,"./lib/isJSON":95,"./lib/isJWT":96,"./lib/isLatLong":97,"./lib/isLength":98,"./lib/isLicensePlate":99,"./lib/isLocale":100,"./lib/isLowercase":101,"./lib/isMACAddress":102,"./lib/isMD5":103,"./lib/isMagnetURI":104,"./lib/isMimeType":105,"./lib/isMobilePhone":106,"./lib/isMongoId":107,"./lib/isMultibyte":108,"./lib/isNumeric":109,"./lib/isOctal":110,"./lib/isPassportNumber":111,"./lib/isPort":112,"./lib/isPostalCode":113,"./lib/isRFC3339":114,"./lib/isRgbColor":115,"./lib/isSemVer":116,"./lib/isSlug":117,"./lib/isStrongPassword":118,"./lib/isSurrogatePair":119,"./lib/isTaxID":120,"./lib/isURL":121,"./lib/isUUID":122,"./lib/isUppercase":123,"./lib/isVAT":124,"./lib/isVariableWidth":125,"./lib/isWhitelisted":126,"./lib/ltrim":127,"./lib/matches":128,"./lib/normalizeEmail":129,"./lib/rtrim":130,"./lib/stripLow":131,"./lib/toBoolean":132,"./lib/toDate":133,"./lib/toFloat":134,"./lib/toInt":135,"./lib/trim":136,"./lib/unescape":137,"./lib/whitelist":144}],45:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3454,7 +3659,7 @@ alphanumeric['pl-Pl'] = alphanumeric['pl-PL'];
 decimal['pl-Pl'] = decimal['pl-PL']; // see #1455
 
 alpha['fa-AF'] = alpha.fa;
-},{}],43:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3473,7 +3678,7 @@ function blacklist(str, chars) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],44:[function(require,module,exports){
+},{"./util/assertString":139}],47:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3507,7 +3712,7 @@ function contains(str, elem, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136,"./util/merge":138,"./util/toString":140}],45:[function(require,module,exports){
+},{"./util/assertString":139,"./util/merge":141,"./util/toString":143}],48:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3526,7 +3731,7 @@ function equals(str, comparison) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],46:[function(require,module,exports){
+},{"./util/assertString":139}],49:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3545,7 +3750,7 @@ function escape(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],47:[function(require,module,exports){
+},{"./util/assertString":139}],50:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3569,7 +3774,7 @@ function isAfter(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./toDate":130,"./util/assertString":136}],48:[function(require,module,exports){
+},{"./toDate":133,"./util/assertString":139}],51:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3610,7 +3815,7 @@ function isAlpha(_str) {
 
 var locales = Object.keys(_alpha.alpha);
 exports.locales = locales;
-},{"./alpha":42,"./util/assertString":136}],49:[function(require,module,exports){
+},{"./alpha":45,"./util/assertString":139}],52:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3651,7 +3856,7 @@ function isAlphanumeric(_str) {
 
 var locales = Object.keys(_alpha.alphanumeric);
 exports.locales = locales;
-},{"./alpha":42,"./util/assertString":136}],50:[function(require,module,exports){
+},{"./alpha":45,"./util/assertString":139}],53:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3674,7 +3879,7 @@ function isAscii(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],51:[function(require,module,exports){
+},{"./util/assertString":139}],54:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3704,7 +3909,7 @@ function isBIC(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isISO31661Alpha2":83,"./util/assertString":136}],52:[function(require,module,exports){
+},{"./isISO31661Alpha2":86,"./util/assertString":139}],55:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3731,7 +3936,7 @@ function isBase32(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],53:[function(require,module,exports){
+},{"./util/assertString":139}],56:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3758,7 +3963,7 @@ function isBase58(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],54:[function(require,module,exports){
+},{"./util/assertString":139}],57:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3797,7 +4002,7 @@ function isBase64(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136,"./util/merge":138}],55:[function(require,module,exports){
+},{"./util/assertString":139,"./util/merge":141}],58:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3821,7 +4026,7 @@ function isBefore(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./toDate":130,"./util/assertString":136}],56:[function(require,module,exports){
+},{"./toDate":133,"./util/assertString":139}],59:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3852,7 +4057,7 @@ function isBoolean(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],57:[function(require,module,exports){
+},{"./util/assertString":139}],60:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3880,7 +4085,7 @@ function isBtcAddress(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],58:[function(require,module,exports){
+},{"./util/assertString":139}],61:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3915,7 +4120,7 @@ function isByteLength(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],59:[function(require,module,exports){
+},{"./util/assertString":139}],62:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3968,7 +4173,7 @@ function isCreditCard(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],60:[function(require,module,exports){
+},{"./util/assertString":139}],63:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4060,7 +4265,7 @@ function isCurrency(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136,"./util/merge":138}],61:[function(require,module,exports){
+},{"./util/assertString":139,"./util/merge":141}],64:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4114,7 +4319,7 @@ function isDataURI(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],62:[function(require,module,exports){
+},{"./util/assertString":139}],65:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4214,7 +4419,7 @@ function isDate(input, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/merge":138}],63:[function(require,module,exports){
+},{"./util/merge":141}],66:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4257,7 +4462,7 @@ function isDecimal(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./alpha":42,"./util/assertString":136,"./util/includes":137,"./util/merge":138}],64:[function(require,module,exports){
+},{"./alpha":45,"./util/assertString":139,"./util/includes":140,"./util/merge":141}],67:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4278,7 +4483,7 @@ function isDivisibleBy(str, num) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./toFloat":131,"./util/assertString":136}],65:[function(require,module,exports){
+},{"./toFloat":134,"./util/assertString":139}],68:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4364,7 +4569,7 @@ function isEAN(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],66:[function(require,module,exports){
+},{"./util/assertString":139}],69:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4562,7 +4767,7 @@ function isEmail(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isByteLength":58,"./isFQDN":69,"./isIP":79,"./util/assertString":136,"./util/merge":138}],67:[function(require,module,exports){
+},{"./isByteLength":61,"./isFQDN":72,"./isIP":82,"./util/assertString":139,"./util/merge":141}],70:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4588,7 +4793,7 @@ function isEmpty(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136,"./util/merge":138}],68:[function(require,module,exports){
+},{"./util/assertString":139,"./util/merge":141}],71:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4609,7 +4814,7 @@ function isEthereumAddress(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],69:[function(require,module,exports){
+},{"./util/assertString":139}],72:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4699,7 +4904,7 @@ function isFQDN(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136,"./util/merge":138}],70:[function(require,module,exports){
+},{"./util/assertString":139,"./util/merge":141}],73:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4729,7 +4934,7 @@ function isFloat(str, options) {
 
 var locales = Object.keys(_alpha.decimal);
 exports.locales = locales;
-},{"./alpha":42,"./util/assertString":136}],71:[function(require,module,exports){
+},{"./alpha":45,"./util/assertString":139}],74:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4749,7 +4954,7 @@ function isFullWidth(str) {
   (0, _assertString.default)(str);
   return fullWidth.test(str);
 }
-},{"./util/assertString":136}],72:[function(require,module,exports){
+},{"./util/assertString":139}],75:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4778,7 +4983,7 @@ function isHSL(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],73:[function(require,module,exports){
+},{"./util/assertString":139}],76:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4798,7 +5003,7 @@ function isHalfWidth(str) {
   (0, _assertString.default)(str);
   return halfWidth.test(str);
 }
-},{"./util/assertString":136}],74:[function(require,module,exports){
+},{"./util/assertString":139}],77:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4834,7 +5039,7 @@ function isHash(str, algorithm) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],75:[function(require,module,exports){
+},{"./util/assertString":139}],78:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4855,7 +5060,7 @@ function isHexColor(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],76:[function(require,module,exports){
+},{"./util/assertString":139}],79:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4876,7 +5081,7 @@ function isHexadecimal(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],77:[function(require,module,exports){
+},{"./util/assertString":139}],80:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5027,7 +5232,7 @@ function isIBAN(str) {
 
 var locales = Object.keys(ibanRegexThroughCountryCode);
 exports.locales = locales;
-},{"./util/assertString":136}],78:[function(require,module,exports){
+},{"./util/assertString":139}],81:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5089,7 +5294,7 @@ function isIMEI(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],79:[function(require,module,exports){
+},{"./util/assertString":139}],82:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5165,7 +5370,7 @@ function isIP(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],80:[function(require,module,exports){
+},{"./util/assertString":139}],83:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5228,7 +5433,7 @@ function isIPRange(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isIP":79,"./util/assertString":136}],81:[function(require,module,exports){
+},{"./isIP":82,"./util/assertString":139}],84:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5294,7 +5499,7 @@ function isISBN(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],82:[function(require,module,exports){
+},{"./util/assertString":139}],85:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5368,7 +5573,7 @@ function isISIN(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],83:[function(require,module,exports){
+},{"./util/assertString":139}],86:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5391,7 +5596,7 @@ function isISO31661Alpha2(str) {
 
 var CountryCodes = validISO31661Alpha2CountriesCodes;
 exports.CountryCodes = CountryCodes;
-},{"./util/assertString":136}],84:[function(require,module,exports){
+},{"./util/assertString":139}],87:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5413,7 +5618,7 @@ function isISO31661Alpha3(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],85:[function(require,module,exports){
+},{"./util/assertString":139}],88:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5436,7 +5641,7 @@ function isISO4217(str) {
 
 var CurrencyCodes = validISO4217CurrencyCodes;
 exports.CurrencyCodes = CurrencyCodes;
-},{"./util/assertString":136}],86:[function(require,module,exports){
+},{"./util/assertString":139}],89:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5496,7 +5701,7 @@ function isISO8601(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],87:[function(require,module,exports){
+},{"./util/assertString":139}],90:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5518,7 +5723,7 @@ function isISRC(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],88:[function(require,module,exports){
+},{"./util/assertString":139}],91:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5556,7 +5761,7 @@ function isISSN(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],89:[function(require,module,exports){
+},{"./util/assertString":139}],92:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5941,7 +6146,7 @@ function isIdentityCard(str, locale) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isInt":91,"./util/assertString":136}],90:[function(require,module,exports){
+},{"./isInt":94,"./util/assertString":139}],93:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5984,7 +6189,7 @@ function isIn(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136,"./util/toString":140}],91:[function(require,module,exports){
+},{"./util/assertString":139,"./util/toString":143}],94:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6015,7 +6220,7 @@ function isInt(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],92:[function(require,module,exports){
+},{"./util/assertString":139}],95:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6057,7 +6262,7 @@ function isJSON(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136,"./util/merge":138}],93:[function(require,module,exports){
+},{"./util/assertString":139,"./util/merge":141}],96:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6089,7 +6294,7 @@ function isJWT(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isBase64":54,"./util/assertString":136}],94:[function(require,module,exports){
+},{"./isBase64":57,"./util/assertString":139}],97:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6127,7 +6332,7 @@ function isLatLong(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136,"./util/merge":138}],95:[function(require,module,exports){
+},{"./util/assertString":139,"./util/merge":141}],98:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6163,7 +6368,7 @@ function isLength(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],96:[function(require,module,exports){
+},{"./util/assertString":139}],99:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6222,7 +6427,7 @@ function isLicensePlate(str, locale) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],97:[function(require,module,exports){
+},{"./util/assertString":139}],100:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6248,7 +6453,7 @@ function isLocale(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],98:[function(require,module,exports){
+},{"./util/assertString":139}],101:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6267,7 +6472,7 @@ function isLowercase(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],99:[function(require,module,exports){
+},{"./util/assertString":139}],102:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6298,7 +6503,7 @@ function isMACAddress(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],100:[function(require,module,exports){
+},{"./util/assertString":139}],103:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6319,7 +6524,7 @@ function isMD5(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],101:[function(require,module,exports){
+},{"./util/assertString":139}],104:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6340,7 +6545,7 @@ function isMagnetURI(url) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],102:[function(require,module,exports){
+},{"./util/assertString":139}],105:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6392,7 +6597,7 @@ function isMimeType(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],103:[function(require,module,exports){
+},{"./util/assertString":139}],106:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6593,7 +6798,7 @@ function isMobilePhone(str, locale, options) {
 
 var locales = Object.keys(phones);
 exports.locales = locales;
-},{"./util/assertString":136}],104:[function(require,module,exports){
+},{"./util/assertString":139}],107:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6614,7 +6819,7 @@ function isMongoId(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isHexadecimal":76,"./util/assertString":136}],105:[function(require,module,exports){
+},{"./isHexadecimal":79,"./util/assertString":139}],108:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6637,7 +6842,7 @@ function isMultibyte(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],106:[function(require,module,exports){
+},{"./util/assertString":139}],109:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6665,7 +6870,7 @@ function isNumeric(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./alpha":42,"./util/assertString":136}],107:[function(require,module,exports){
+},{"./alpha":45,"./util/assertString":139}],110:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6686,7 +6891,7 @@ function isOctal(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],108:[function(require,module,exports){
+},{"./util/assertString":139}],111:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6825,7 +7030,7 @@ function isPassportNumber(str, countryCode) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],109:[function(require,module,exports){
+},{"./util/assertString":139}],112:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6846,7 +7051,7 @@ function isPort(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isInt":91}],110:[function(require,module,exports){
+},{"./isInt":94}],113:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6956,7 +7161,7 @@ function isPostalCode(str, locale) {
 
   throw new Error("Invalid locale '".concat(locale, "'"));
 }
-},{"./util/assertString":136}],111:[function(require,module,exports){
+},{"./util/assertString":139}],114:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6990,7 +7195,7 @@ function isRFC3339(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],112:[function(require,module,exports){
+},{"./util/assertString":139}],115:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7020,7 +7225,7 @@ function isRgbColor(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],113:[function(require,module,exports){
+},{"./util/assertString":139}],116:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7049,7 +7254,7 @@ function isSemVer(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136,"./util/multilineRegex":139}],114:[function(require,module,exports){
+},{"./util/assertString":139,"./util/multilineRegex":142}],117:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7070,7 +7275,7 @@ function isSlug(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],115:[function(require,module,exports){
+},{"./util/assertString":139}],118:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7186,7 +7391,7 @@ function isStrongPassword(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136,"./util/merge":138}],116:[function(require,module,exports){
+},{"./util/assertString":139,"./util/merge":141}],119:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7207,7 +7412,7 @@ function isSurrogatePair(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],117:[function(require,module,exports){
+},{"./util/assertString":139}],120:[function(require,module,exports){
 "use strict";
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -8736,7 +8941,7 @@ function isTaxID(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isDate":62,"./util/algorithms":135,"./util/assertString":136}],118:[function(require,module,exports){
+},{"./isDate":65,"./util/algorithms":138,"./util/assertString":139}],121:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8945,7 +9150,7 @@ function isURL(url, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isFQDN":69,"./isIP":79,"./util/assertString":136,"./util/merge":138}],119:[function(require,module,exports){
+},{"./isFQDN":72,"./isIP":82,"./util/assertString":139,"./util/merge":141}],122:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8974,7 +9179,7 @@ function isUUID(str, version) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],120:[function(require,module,exports){
+},{"./util/assertString":139}],123:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8993,7 +9198,7 @@ function isUppercase(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],121:[function(require,module,exports){
+},{"./util/assertString":139}],124:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9023,7 +9228,7 @@ function isVAT(str, countryCode) {
 
   throw new Error("Invalid country code: '".concat(countryCode, "'"));
 }
-},{"./util/assertString":136}],122:[function(require,module,exports){
+},{"./util/assertString":139}],125:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9046,7 +9251,7 @@ function isVariableWidth(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isFullWidth":71,"./isHalfWidth":73,"./util/assertString":136}],123:[function(require,module,exports){
+},{"./isFullWidth":74,"./isHalfWidth":76,"./util/assertString":139}],126:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9072,7 +9277,7 @@ function isWhitelisted(str, chars) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],124:[function(require,module,exports){
+},{"./util/assertString":139}],127:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9093,7 +9298,7 @@ function ltrim(str, chars) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],125:[function(require,module,exports){
+},{"./util/assertString":139}],128:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9117,7 +9322,7 @@ function matches(str, pattern, modifiers) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],126:[function(require,module,exports){
+},{"./util/assertString":139}],129:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9269,7 +9474,7 @@ function normalizeEmail(email, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/merge":138}],127:[function(require,module,exports){
+},{"./util/merge":141}],130:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9302,7 +9507,7 @@ function rtrim(str, chars) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],128:[function(require,module,exports){
+},{"./util/assertString":139}],131:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9324,7 +9529,7 @@ function stripLow(str, keep_new_lines) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./blacklist":43,"./util/assertString":136}],129:[function(require,module,exports){
+},{"./blacklist":46,"./util/assertString":139}],132:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9348,7 +9553,7 @@ function toBoolean(str, strict) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],130:[function(require,module,exports){
+},{"./util/assertString":139}],133:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9368,7 +9573,7 @@ function toDate(date) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],131:[function(require,module,exports){
+},{"./util/assertString":139}],134:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9387,7 +9592,7 @@ function toFloat(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isFloat":70}],132:[function(require,module,exports){
+},{"./isFloat":73}],135:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9406,7 +9611,7 @@ function toInt(str, radix) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],133:[function(require,module,exports){
+},{"./util/assertString":139}],136:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9426,7 +9631,7 @@ function trim(str, chars) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./ltrim":124,"./rtrim":127}],134:[function(require,module,exports){
+},{"./ltrim":127,"./rtrim":130}],137:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9447,7 +9652,7 @@ function unescape(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],135:[function(require,module,exports){
+},{"./util/assertString":139}],138:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9549,7 +9754,7 @@ function verhoeffCheck(str) {
 
   return checksum === 0;
 }
-},{}],136:[function(require,module,exports){
+},{}],139:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9572,7 +9777,7 @@ function assertString(input) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{}],137:[function(require,module,exports){
+},{}],140:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9590,7 +9795,7 @@ var _default = includes;
 exports.default = _default;
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{}],138:[function(require,module,exports){
+},{}],141:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9613,7 +9818,7 @@ function merge() {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{}],139:[function(require,module,exports){
+},{}],142:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9636,7 +9841,7 @@ function multilineRegexp(parts, flags) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{}],140:[function(require,module,exports){
+},{}],143:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9662,7 +9867,7 @@ function toString(input) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{}],141:[function(require,module,exports){
+},{}],144:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9681,10 +9886,10 @@ function whitelist(str, chars) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":136}],142:[function(require,module,exports){
+},{"./util/assertString":139}],145:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.15.6",
+  "version": "0.15.7",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "./src/index.js",
   "dependencies": {
@@ -9720,13 +9925,11 @@ module.exports={
     "minify": "^6.0.1",
     "mocha": "^9.2.0",
     "nodemon": "^2.0.15",
-    "standard": "^16.0.3",
-    "webpack": "^5.70.0",
-    "webpack-cli": "^4.9.2"
+    "standard": "^16.0.3"
   },
   "scripts": {
     "release": "yarn run test && yarn run release:bundle && yarn run release:minify",
-    "release:bundle": "./node_modules/.bin/browserify ./src/index.js --standalone doip -x openpgp -x @openpgp/hkp-client -x @openpgp/wkd-client -x jsdom -x @xmpp/client -x @xmpp/debug -x irc-upd -o ./dist/doip.js",
+    "release:bundle": "./node_modules/.bin/browserify ./src/index.js --standalone doip -x openpgp -x jsdom -x @xmpp/client -x @xmpp/debug -x irc-upd -o ./dist/doip.js",
     "release:minify": "./node_modules/.bin/minify ./dist/doip.js > ./dist/doip.min.js",
     "license:check": "./node_modules/.bin/license-check-and-add check",
     "license:add": "./node_modules/.bin/license-check-and-add add",
@@ -9765,7 +9968,7 @@ module.exports={
   }
 }
 
-},{}],143:[function(require,module,exports){
+},{}],146:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10084,7 +10287,7 @@ class Claim {
 
 module.exports = Claim
 
-},{"./claimDefinitions":151,"./defaults":163,"./enums":164,"./proofs":175,"./verifications":178,"merge-options":35,"valid-url":40,"validator":41}],144:[function(require,module,exports){
+},{"./claimDefinitions":154,"./defaults":166,"./enums":167,"./proofs":177,"./verifications":180,"merge-options":38,"valid-url":43,"validator":44}],147:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10160,7 +10363,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":164}],145:[function(require,module,exports){
+},{"../enums":167}],148:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10236,7 +10439,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":164}],146:[function(require,module,exports){
+},{"../enums":167}],149:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10311,7 +10514,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":164}],147:[function(require,module,exports){
+},{"../enums":167}],150:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10387,7 +10590,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":164}],148:[function(require,module,exports){
+},{"../enums":167}],151:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10463,7 +10666,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":164}],149:[function(require,module,exports){
+},{"../enums":167}],152:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10503,12 +10706,12 @@ const processURI = (uri) => {
     proof: {
       uri: uri,
       request: {
-        fetcher: E.Fetcher.GITLAB,
+        fetcher: E.Fetcher.HTTP,
         access: E.ProofAccess.GENERIC,
         format: E.ProofFormat.JSON,
         data: {
-          domain: match[1],
-          username: match[2]
+          url: `https://${match[1]}/api/v4/projects/${match[2]}%2Fgitlab_proof`,
+          format: E.ProofFormat.JSON
         }
       }
     },
@@ -10539,7 +10742,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":164}],150:[function(require,module,exports){
+},{"../enums":167}],153:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10615,7 +10818,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":164}],151:[function(require,module,exports){
+},{"../enums":167}],154:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10676,7 +10879,7 @@ const data = {
 exports.list = list
 exports.data = data
 
-},{"./devto":144,"./discourse":145,"./dns":146,"./gitea":147,"./github":148,"./gitlab":149,"./hackernews":150,"./irc":152,"./liberapay":153,"./lichess":154,"./lobsters":155,"./mastodon":156,"./matrix":157,"./owncast":158,"./pleroma":159,"./reddit":160,"./twitter":161,"./xmpp":162}],152:[function(require,module,exports){
+},{"./devto":147,"./discourse":148,"./dns":149,"./gitea":150,"./github":151,"./gitlab":152,"./hackernews":153,"./irc":155,"./liberapay":156,"./lichess":157,"./lobsters":158,"./mastodon":159,"./matrix":160,"./owncast":161,"./pleroma":162,"./reddit":163,"./twitter":164,"./xmpp":165}],155:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10756,7 +10959,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":164}],153:[function(require,module,exports){
+},{"../enums":167}],156:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10832,7 +11035,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":164}],154:[function(require,module,exports){
+},{"../enums":167}],157:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10908,7 +11111,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":164}],155:[function(require,module,exports){
+},{"../enums":167}],158:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10984,7 +11187,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":164}],156:[function(require,module,exports){
+},{"../enums":167}],159:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11060,7 +11263,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":164}],157:[function(require,module,exports){
+},{"../enums":167}],160:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11155,7 +11358,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":164,"query-string":37}],158:[function(require,module,exports){
+},{"../enums":167,"query-string":40}],161:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11235,7 +11438,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":164}],159:[function(require,module,exports){
+},{"../enums":167}],162:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11311,7 +11514,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":164}],160:[function(require,module,exports){
+},{"../enums":167}],163:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11395,7 +11598,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":164}],161:[function(require,module,exports){
+},{"../enums":167}],164:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11470,7 +11673,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":164}],162:[function(require,module,exports){
+},{"../enums":167}],165:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11546,7 +11749,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":164}],163:[function(require,module,exports){
+},{"../enums":167}],166:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11614,7 +11817,7 @@ const opts = {
 
 exports.opts = opts
 
-},{"./enums":164}],164:[function(require,module,exports){
+},{"./enums":167}],167:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11666,8 +11869,6 @@ const Fetcher = {
   XMPP: 'xmpp',
   /** HTTP request to Matrix API */
   MATRIX: 'matrix',
-  /** HTTP request to Gitlab API */
-  GITLAB: 'gitlab',
   /** HTTP request to Twitter API */
   TWITTER: 'twitter'
 }
@@ -11756,7 +11957,7 @@ exports.ClaimFormat = ClaimFormat
 exports.ClaimRelation = ClaimRelation
 exports.ClaimStatus = ClaimStatus
 
-},{}],165:[function(require,module,exports){
+},{}],168:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11829,104 +12030,7 @@ if (jsEnv.isNode) {
   module.exports.fn = null
 }
 
-},{"browser-or-node":30,"dns":31}],166:[function(require,module,exports){
-/*
-Copyright 2021 Yarmo Mackenbach
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-const axios = require('axios')
-
-/**
- * @module fetcher/gitlab
- */
-
-/**
- * The request's timeout value in milliseconds
- * @constant {number} timeout
- */
-module.exports.timeout = 5000
-
-/**
- * Execute a fetch request
- * @function
- * @async
- * @param {object} data           - Data used in the request
- * @param {string} data.username  - The username of the targeted account
- * @param {string} data.domain    - The domain on which the targeted account is registered
- * @returns {object}
- */
-module.exports.fn = async (data, opts) => {
-  let timeoutHandle
-  const timeoutPromise = new Promise((resolve, reject) => {
-    timeoutHandle = setTimeout(
-      () => reject(new Error('Request was timed out')),
-      data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
-    )
-  })
-
-  const fetchPromise = new Promise((resolve, reject) => {
-    const urlUser = `https://${data.domain}/api/v4/users?username=${data.username}`
-    // const resUser = await req(urlUser, null, { Accept: 'application/json' })
-    const res = axios.get(urlUser,
-      {
-        headers: { Accept: 'application/json' }
-      })
-      .then(resUser => {
-        return resUser.data
-      })
-      .then(jsonUser => {
-        return jsonUser.find((user) => user.username === data.username)
-      })
-      .then(user => {
-        if (!user) {
-          throw new Error(`No user with username ${data.username}`)
-        }
-        return user
-      })
-      .then(user => {
-        const urlProject = `https://${data.domain}/api/v4/users/${user.id}/projects`
-        return axios.get(urlProject,
-          {
-            headers: { Accept: 'application/json' }
-          })
-      })
-      .then(resProject => {
-        return resProject.data
-      })
-      .then(jsonProject => {
-        return jsonProject.find((proj) => proj.path === 'gitlab_proof')
-      })
-      .then(project => {
-        if (!project) {
-          throw new Error('No project found')
-        }
-        return project
-      })
-      .catch(error => {
-        reject(error)
-      })
-
-    resolve(res)
-  })
-
-  return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
-    clearTimeout(timeoutHandle)
-    return result
-  })
-}
-
-},{"axios":1}],167:[function(require,module,exports){
+},{"browser-or-node":32,"dns":34}],169:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12023,7 +12127,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"../../package.json":142,"../enums":164,"axios":1}],168:[function(require,module,exports){
+},{"../../package.json":145,"../enums":167,"axios":3}],170:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12041,14 +12145,13 @@ limitations under the License.
 */
 
 exports.dns = require('./dns')
-exports.gitlab = require('./gitlab')
 exports.http = require('./http')
 exports.irc = require('./irc')
 exports.matrix = require('./matrix')
 exports.twitter = require('./twitter')
 exports.xmpp = require('./xmpp')
 
-},{"./dns":165,"./gitlab":166,"./http":167,"./irc":169,"./matrix":170,"./twitter":171,"./xmpp":172}],169:[function(require,module,exports){
+},{"./dns":168,"./http":169,"./irc":171,"./matrix":172,"./twitter":173,"./xmpp":174}],171:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12146,7 +12249,7 @@ if (jsEnv.isNode) {
   module.exports.fn = null
 }
 
-},{"browser-or-node":30,"irc-upd":"irc-upd","validator":41}],170:[function(require,module,exports){
+},{"browser-or-node":32,"irc-upd":"irc-upd","validator":44}],172:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12226,7 +12329,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"axios":1,"validator":41}],171:[function(require,module,exports){
+},{"axios":3,"validator":44}],173:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12309,7 +12412,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"axios":1,"validator":41}],172:[function(require,module,exports){
+},{"axios":3,"validator":44}],174:[function(require,module,exports){
 (function (process){(function (){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -12423,7 +12526,10 @@ if (jsEnv.isNode) {
         switch (data.field.toLowerCase()) {
           case 'desc':
           case 'note':
-            vcard = dom.window.document.querySelector('note text')
+            vcard = dom.window.document.querySelector('note')
+            if (!vcard) {
+              vcard = dom.window.document.querySelector('note text')
+            }
             if (!vcard) {
               vcard = dom.window.document.querySelector('DESC')
             }
@@ -12455,7 +12561,7 @@ if (jsEnv.isNode) {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"@xmpp/client":"@xmpp/client","@xmpp/debug":"@xmpp/debug","_process":36,"browser-or-node":30,"jsdom":"jsdom","validator":41}],173:[function(require,module,exports){
+},{"@xmpp/client":"@xmpp/client","@xmpp/debug":"@xmpp/debug","_process":39,"browser-or-node":32,"jsdom":"jsdom","validator":44}],175:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12489,7 +12595,7 @@ exports.enums = enums
 exports.defaults = defaults
 exports.utils = utils
 
-},{"./claim":143,"./claimDefinitions":151,"./defaults":163,"./enums":164,"./keys":174,"./proofs":175,"./signatures":176,"./utils":177}],174:[function(require,module,exports){
+},{"./claim":146,"./claimDefinitions":154,"./defaults":166,"./enums":167,"./keys":176,"./proofs":177,"./signatures":178,"./utils":179}],176:[function(require,module,exports){
 (function (global){(function (){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -12814,7 +12920,7 @@ exports.fetch = fetch
 exports.process = process
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./claim":143,"@openpgp/hkp-client":"@openpgp/hkp-client","@openpgp/wkd-client":"@openpgp/wkd-client","axios":1,"valid-url":40}],175:[function(require,module,exports){
+},{"./claim":146,"@openpgp/hkp-client":1,"@openpgp/wkd-client":2,"axios":3,"valid-url":43}],177:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12993,7 +13099,7 @@ const createFallbackRequestPromise = (data, opts) => {
 
 exports.fetch = fetch
 
-},{"./enums":164,"./fetcher":168,"./utils":177,"browser-or-node":30}],176:[function(require,module,exports){
+},{"./enums":167,"./fetcher":170,"./utils":179,"browser-or-node":32}],178:[function(require,module,exports){
 (function (global){(function (){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -13154,7 +13260,7 @@ const process = async (signature) => {
 exports.process = process
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./claim":143,"./keys":174}],177:[function(require,module,exports){
+},{"./claim":146,"./keys":176}],179:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -13225,7 +13331,7 @@ const generateClaim = (fingerprint, format) => {
 exports.generateProxyURL = generateProxyURL
 exports.generateClaim = generateClaim
 
-},{"./enums":164,"validator":41}],178:[function(require,module,exports){
+},{"./enums":167,"validator":44}],180:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -13348,5 +13454,5 @@ const run = (proofData, claimData, fingerprint) => {
 
 exports.run = run
 
-},{"./enums":164,"./utils":177}]},{},[173])(173)
+},{"./enums":167,"./utils":179}]},{},[175])(175)
 });
