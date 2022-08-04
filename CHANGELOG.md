@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.15.6] - 2022-03-27
+## [0.15.7] - 2022-08-04
 ### Changed
 - Gitlab claims now use HTTP fetcher (thank [hosaka](https://codeberg.org/hosaka)!)
 ### Removed
