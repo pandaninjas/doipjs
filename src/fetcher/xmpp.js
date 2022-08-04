@@ -110,7 +110,10 @@ if (jsEnv.isNode) {
         switch (data.field.toLowerCase()) {
           case 'desc':
           case 'note':
-            vcard = dom.window.document.querySelector('note text')
+            vcard = dom.window.document.querySelector('note')
+            if (!vcard) {
+              vcard = dom.window.document.querySelector('note text')
+            }
             if (!vcard) {
               vcard = dom.window.document.querySelector('DESC')
             }
