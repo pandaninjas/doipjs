@@ -15,7 +15,7 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^tg:user=([a-zA-Z0-9_]{5,32})&chat=([a-zA-Z0-9_]{5,32})/
+const reURI = /https:\/\/t.me\/([A-Za-z0-9_]{5,32})\?user=([A-Za-z0-9_]{5,32})/
 
 const processURI = (uri) => {
   const match = uri.match(reURI)
@@ -30,8 +30,8 @@ const processURI = (uri) => {
       isAmbiguous: false
     },
     profile: {
-      display: `@${match[1]}`,
-      uri: `https://t.me/${match[1]}`,
+      display: `@${match[2]}`,
+      uri: `https://t.me/${match[2]}`,
       qr: null
     },
     proof: {
@@ -41,8 +41,8 @@ const processURI = (uri) => {
         access: E.ProofAccess.GRANTED,
         format: E.ProofFormat.JSON,
         data: {
-          user: match[1],
-          chat: match[2]
+          chat: match[1],
+          user: match[2]
         }
       }
     },
@@ -56,19 +56,23 @@ const processURI = (uri) => {
 
 const tests = [
   {
-    uri: 'tg:user=alice&chat=foobar',
+    uri: 'https://t.me/foobar?user=alice',
     shouldMatch: true
   },
   {
-    uri: 'tg:user=complex_user_1234&chat=complex_chat_1234',
+    uri: 'https://t.me/complex_chat_1234?user=complex_user_1234',
     shouldMatch: true
   },
   {
-    uri: 'tg:user=&chat=foobar',
+    uri: 'https://t.me/foobar',
     shouldMatch: false
   },
   {
-    uri: 'tg:user=foobar&chat=',
+    uri: 'https://t.me/foobar?user=',
+    shouldMatch: false
+  },
+  {
+    uri: 'https://t.me/?user=foobar',
     shouldMatch: false
   }
 ]
