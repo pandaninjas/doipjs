@@ -28,6 +28,9 @@ const opts = {
       instance: process.env.MATRIX_INSTANCE || null,
       accessToken: process.env.MATRIX_ACCESS_TOKEN || null
     },
+    telegram: {
+      token: process.env.TELEGRAM_TOKEN || null
+    },
     xmpp: {
       service: process.env.XMPP_SERVICE || null,
       username: process.env.XMPP_USERNAME || null,
@@ -162,6 +165,30 @@ router.get(
     }
 
     fetcher.matrix
+      .fn(req.query, opts)
+      .then((data) => {
+        return res.status(200).send(data)
+      })
+      .catch((err) => {
+        return res.status(400).json({ errors: err.message ? err.message : err })
+      })
+  }
+)
+
+// Telegram route
+router.get(
+  '/get/telegram', query('chat').isString(),
+  async (req, res) => {
+    if (!opts.claims.telegram.token) {
+      return res.status(501).json({ errors: 'Telegram not enabled on server' })
+    }
+
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() })
+    }
+
+    fetcher.telegram
       .fn(req.query, opts)
       .then((data) => {
         return res.status(200).send(data)
