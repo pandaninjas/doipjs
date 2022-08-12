@@ -1,5 +1,5 @@
 /*
-Copyright 2021 Yarmo Mackenbach
+Copyright 2022 Maximilian Siling
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /https:\/\/t.me\/([A-Za-z0-9_]{5,32})\?user=([A-Za-z0-9_]{5,32})/
+const reURI = /https:\/\/t.me\/([A-Za-z0-9_]{5,32})\?proof=([A-Za-z0-9_]{5,32})/
 
 const processURI = (uri) => {
   const match = uri.match(reURI)
@@ -30,8 +30,8 @@ const processURI = (uri) => {
       isAmbiguous: false
     },
     profile: {
-      display: `@${match[2]}`,
-      uri: `https://t.me/${match[2]}`,
+      display: `@${match[1]}`,
+      uri: `https://t.me/${match[1]}`,
       qr: null
     },
     proof: {
@@ -41,13 +41,13 @@ const processURI = (uri) => {
         access: E.ProofAccess.GRANTED,
         format: E.ProofFormat.JSON,
         data: {
-          chat: match[1],
-          user: match[2]
+          user: match[1],
+          chat: match[2]
         }
       }
     },
     claim: {
-      format: E.ClaimFormat.FINGERPRINT,
+      format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.EQUALS,
       path: ['text']
     }
@@ -56,11 +56,11 @@ const processURI = (uri) => {
 
 const tests = [
   {
-    uri: 'https://t.me/foobar?user=alice',
+    uri: 'https://t.me/alice?proof=foobar',
     shouldMatch: true
   },
   {
-    uri: 'https://t.me/complex_chat_1234?user=complex_user_1234',
+    uri: 'https://t.me/complex_user_1234?proof=complex_chat_1234',
     shouldMatch: true
   },
   {
@@ -68,11 +68,11 @@ const tests = [
     shouldMatch: false
   },
   {
-    uri: 'https://t.me/foobar?user=',
+    uri: 'https://t.me/foobar?proof=',
     shouldMatch: false
   },
   {
-    uri: 'https://t.me/?user=foobar',
+    uri: 'https://t.me/?proof=foobar',
     shouldMatch: false
   }
 ]
