@@ -32,10 +32,10 @@ const processURI = (uri) => {
     profile: {
       display: `@${match[1]}`,
       uri: `https://t.me/${match[1]}`,
-      qr: null
+      qr: `https://t.me/${match[1]}`
     },
     proof: {
-      uri: null,
+      uri: `https://t.me/${match[2]}`,
       request: {
         fetcher: E.Fetcher.TELEGRAM,
         access: E.ProofAccess.GRANTED,
