@@ -56,8 +56,6 @@ const generateClaim = (fingerprint, format) => {
   switch (format) {
     case E.ClaimFormat.URI:
       return `openpgp4fpr:${fingerprint}`
-    case E.ClaimFormat.MESSAGE:
-      return `[Verifying my OpenPGP key: openpgp4fpr:${fingerprint}]`
     case E.ClaimFormat.FINGERPRINT:
       return fingerprint
     default:

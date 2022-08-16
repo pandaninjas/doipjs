@@ -47,7 +47,7 @@ const processURI = (uri) => {
       }
     },
     claim: {
-      format: E.ClaimFormat.MESSAGE,
+      format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.CONTAINS,
       path: ['body_markdown']
     }

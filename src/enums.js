@@ -95,9 +95,7 @@ const ClaimFormat = {
   /** `openpgp4fpr:123123123` */
   URI: 0,
   /** `123123123` */
-  FINGERPRINT: 1,
-  /** `[Verifying my OpenPGP key: openpgp4fpr:123123123]` */
-  MESSAGE: 2
+  FINGERPRINT: 1
 }
 Object.freeze(ClaimFormat)
 

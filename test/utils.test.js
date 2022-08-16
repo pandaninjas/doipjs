@@ -28,11 +28,6 @@ describe('utils.generateClaim', () => {
       doipjs.utils.generateClaim('123456789', doipjs.enums.ClaimFormat.URI)
     ).to.equal('openpgp4fpr:123456789')
   })
-  it('should generate a correct "message" claim', () => {
-    expect(
-      doipjs.utils.generateClaim('123456789', doipjs.enums.ClaimFormat.MESSAGE)
-    ).to.equal('[Verifying my OpenPGP key: openpgp4fpr:123456789]')
-  })
   it('should generate a correct "fingerprint" claim', () => {
     expect(
       doipjs.utils.generateClaim(
