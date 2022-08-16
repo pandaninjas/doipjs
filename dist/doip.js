@@ -10287,7 +10287,7 @@ class Claim {
 
 module.exports = Claim
 
-},{"./claimDefinitions":154,"./defaults":166,"./enums":167,"./proofs":177,"./verifications":180,"merge-options":38,"valid-url":43,"validator":44}],147:[function(require,module,exports){
+},{"./claimDefinitions":154,"./defaults":168,"./enums":169,"./proofs":180,"./verifications":183,"merge-options":38,"valid-url":43,"validator":44}],147:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10337,7 +10337,7 @@ const processURI = (uri) => {
       }
     },
     claim: {
-      format: E.ClaimFormat.MESSAGE,
+      format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.CONTAINS,
       path: ['body_markdown']
     }
@@ -10363,7 +10363,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":167}],148:[function(require,module,exports){
+},{"../enums":169}],148:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10413,7 +10413,7 @@ const processURI = (uri) => {
       }
     },
     claim: {
-      format: E.ClaimFormat.MESSAGE,
+      format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.CONTAINS,
       path: ['user', 'bio_raw']
     }
@@ -10439,7 +10439,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":167}],149:[function(require,module,exports){
+},{"../enums":169}],149:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10514,7 +10514,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":167}],150:[function(require,module,exports){
+},{"../enums":169}],150:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10564,7 +10564,7 @@ const processURI = (uri) => {
       }
     },
     claim: {
-      format: E.ClaimFormat.MESSAGE,
+      format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.EQUALS,
       path: ['description']
     }
@@ -10590,7 +10590,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":167}],151:[function(require,module,exports){
+},{"../enums":169}],151:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10640,7 +10640,7 @@ const processURI = (uri) => {
       }
     },
     claim: {
-      format: E.ClaimFormat.MESSAGE,
+      format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.CONTAINS,
       path: ['files', 'openpgp.md', 'content']
     }
@@ -10666,7 +10666,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":167}],152:[function(require,module,exports){
+},{"../enums":169}],152:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10716,7 +10716,7 @@ const processURI = (uri) => {
       }
     },
     claim: {
-      format: E.ClaimFormat.MESSAGE,
+      format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.EQUALS,
       path: ['description']
     }
@@ -10742,7 +10742,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":167}],153:[function(require,module,exports){
+},{"../enums":169}],153:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10818,7 +10818,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":167}],154:[function(require,module,exports){
+},{"../enums":169}],154:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10839,6 +10839,7 @@ const list = [
   'irc',
   'xmpp',
   'matrix',
+  'telegram',
   'twitter',
   'reddit',
   'liberapay',
@@ -10852,7 +10853,8 @@ const list = [
   'mastodon',
   'pleroma',
   'discourse',
-  'owncast'
+  'owncast',
+  'stackexchange'
 ]
 
 const data = {
@@ -10860,6 +10862,7 @@ const data = {
   irc: require('./irc'),
   xmpp: require('./xmpp'),
   matrix: require('./matrix'),
+  telegram: require('./telegram'),
   twitter: require('./twitter'),
   reddit: require('./reddit'),
   liberapay: require('./liberapay'),
@@ -10873,13 +10876,14 @@ const data = {
   mastodon: require('./mastodon'),
   pleroma: require('./pleroma'),
   discourse: require('./discourse'),
-  owncast: require('./owncast')
+  owncast: require('./owncast'),
+  stackexchange: require('./stackexchange')
 }
 
 exports.list = list
 exports.data = data
 
-},{"./devto":147,"./discourse":148,"./dns":149,"./gitea":150,"./github":151,"./gitlab":152,"./hackernews":153,"./irc":155,"./liberapay":156,"./lichess":157,"./lobsters":158,"./mastodon":159,"./matrix":160,"./owncast":161,"./pleroma":162,"./reddit":163,"./twitter":164,"./xmpp":165}],155:[function(require,module,exports){
+},{"./devto":147,"./discourse":148,"./dns":149,"./gitea":150,"./github":151,"./gitlab":152,"./hackernews":153,"./irc":155,"./liberapay":156,"./lichess":157,"./lobsters":158,"./mastodon":159,"./matrix":160,"./owncast":161,"./pleroma":162,"./reddit":163,"./stackexchange":164,"./telegram":165,"./twitter":166,"./xmpp":167}],155:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10959,7 +10963,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":167}],156:[function(require,module,exports){
+},{"../enums":169}],156:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11009,7 +11013,7 @@ const processURI = (uri) => {
       }
     },
     claim: {
-      format: E.ClaimFormat.MESSAGE,
+      format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.CONTAINS,
       path: ['statements', 'content']
     }
@@ -11035,7 +11039,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":167}],157:[function(require,module,exports){
+},{"../enums":169}],157:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11111,7 +11115,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":167}],158:[function(require,module,exports){
+},{"../enums":169}],158:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11161,7 +11165,7 @@ const processURI = (uri) => {
       }
     },
     claim: {
-      format: E.ClaimFormat.MESSAGE,
+      format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.CONTAINS,
       path: ['about']
     }
@@ -11187,7 +11191,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":167}],159:[function(require,module,exports){
+},{"../enums":169}],159:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11263,7 +11267,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":167}],160:[function(require,module,exports){
+},{"../enums":169}],160:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11327,7 +11331,7 @@ const processURI = (uri) => {
       }
     },
     claim: {
-      format: E.ClaimFormat.MESSAGE,
+      format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.CONTAINS,
       path: ['content', 'body']
     }
@@ -11358,7 +11362,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":167,"query-string":40}],161:[function(require,module,exports){
+},{"../enums":169,"query-string":40}],161:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11438,7 +11442,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":167}],162:[function(require,module,exports){
+},{"../enums":169}],162:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11514,7 +11518,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":167}],163:[function(require,module,exports){
+},{"../enums":169}],163:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11564,7 +11568,7 @@ const processURI = (uri) => {
       }
     },
     claim: {
-      format: E.ClaimFormat.MESSAGE,
+      format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.CONTAINS,
       path: ['data', 'children', 'data', 'selftext']
     }
@@ -11598,7 +11602,210 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":167}],164:[function(require,module,exports){
+},{"../enums":169}],164:[function(require,module,exports){
+/*
+Copyright 2022 Yarmo Mackenbach
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+const E = require('../enums')
+
+const reURI = /^https:\/\/(.*(?:askubuntu|mathoverflow|serverfault|stackapps|stackoverflow)|.+\.stackexchange)\.com\/users\/(\d+)/
+const reStackExchange = /\.stackexchange$/
+
+const processURI = (uri) => {
+  const [, domain, id] = uri.match(reURI)
+  const site = domain.replace(reStackExchange, '')
+
+  return {
+    serviceprovider: {
+      type: 'web',
+      name: 'stackexchange'
+    },
+    match: {
+      regularExpression: reURI,
+      isAmbiguous: false
+    },
+    profile: {
+      display: `${id}@${site}`,
+      uri: uri,
+      qr: null
+    },
+    proof: {
+      uri: `https://${domain}.com/users/${id}?tab=profile`,
+      request: {
+        fetcher: E.Fetcher.HTTP,
+        access: E.ProofAccess.GENERIC,
+        format: E.ProofFormat.JSON,
+        data: {
+          url: `https://api.stackexchange.com/2.3/users/${id}?site=${site}&filter=!AH)b5JqVyImf`,
+          format: E.ProofFormat.JSON
+        }
+      }
+    },
+    claim: {
+      format: E.ClaimFormat.URI,
+      relation: E.ClaimRelation.CONTAINS,
+      path: ['items', 'about_me']
+    }
+  }
+}
+
+const tests = [
+  {
+    uri: 'https://stackoverflow.com/users/1234',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://stackoverflow.com/users/1234/alice',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://stackoverflow.com/users/1234?tab=topactivity',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://stackoverflow.com/users/1234/alice?tab=profile',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://meta.stackoverflow.com/users/1234',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://pt.stackoverflow.com/users/1234',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://pt.meta.stackoverflow.com/users/1234',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://serverfault.com/users/1234',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://meta.stackexchange.com/users/1234',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://gaming.meta.stackexchange.com/users/1234',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://stackexchange.com/users/1234',
+    shouldMatch: false
+  },
+  {
+    uri: 'https://domain.com/users/1234',
+    shouldMatch: false
+  },
+  {
+    uri: 'https://meta.domain.com/users/1234',
+    shouldMatch: false
+  }
+
+]
+
+exports.reURI = reURI
+exports.processURI = processURI
+exports.tests = tests
+
+},{"../enums":169}],165:[function(require,module,exports){
+/*
+Copyright 2022 Maximilian Siling
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+const E = require('../enums')
+
+const reURI = /https:\/\/t.me\/([A-Za-z0-9_]{5,32})\?proof=([A-Za-z0-9_]{5,32})/
+
+const processURI = (uri) => {
+  const match = uri.match(reURI)
+
+  return {
+    serviceprovider: {
+      type: 'communication',
+      name: 'telegram'
+    },
+    match: {
+      regularExpression: reURI,
+      isAmbiguous: false
+    },
+    profile: {
+      display: `@${match[1]}`,
+      uri: `https://t.me/${match[1]}`,
+      qr: `https://t.me/${match[1]}`
+    },
+    proof: {
+      uri: `https://t.me/${match[2]}`,
+      request: {
+        fetcher: E.Fetcher.TELEGRAM,
+        access: E.ProofAccess.GRANTED,
+        format: E.ProofFormat.JSON,
+        data: {
+          user: match[1],
+          chat: match[2]
+        }
+      }
+    },
+    claim: {
+      format: E.ClaimFormat.URI,
+      relation: E.ClaimRelation.EQUALS,
+      path: ['text']
+    }
+  }
+}
+
+const tests = [
+  {
+    uri: 'https://t.me/alice?proof=foobar',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://t.me/complex_user_1234?proof=complex_chat_1234',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://t.me/foobar',
+    shouldMatch: false
+  },
+  {
+    uri: 'https://t.me/foobar?proof=',
+    shouldMatch: false
+  },
+  {
+    uri: 'https://t.me/?proof=foobar',
+    shouldMatch: false
+  }
+]
+
+exports.reURI = reURI
+exports.processURI = processURI
+exports.tests = tests
+
+},{"../enums":169}],166:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11647,7 +11854,7 @@ const processURI = (uri) => {
       }
     },
     claim: {
-      format: E.ClaimFormat.MESSAGE,
+      format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.CONTAINS,
       path: []
     }
@@ -11673,7 +11880,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":167}],165:[function(require,module,exports){
+},{"../enums":169}],167:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11723,7 +11930,7 @@ const processURI = (uri) => {
       }
     },
     claim: {
-      format: E.ClaimFormat.MESSAGE,
+      format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.CONTAINS,
       path: []
     }
@@ -11749,7 +11956,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":167}],166:[function(require,module,exports){
+},{"../enums":169}],168:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11817,7 +12024,7 @@ const opts = {
 
 exports.opts = opts
 
-},{"./enums":167}],167:[function(require,module,exports){
+},{"./enums":169}],169:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11869,6 +12076,8 @@ const Fetcher = {
   XMPP: 'xmpp',
   /** HTTP request to Matrix API */
   MATRIX: 'matrix',
+  /** HTTP request to Telegram API */
+  TELEGRAM: 'telegram',
   /** HTTP request to Twitter API */
   TWITTER: 'twitter'
 }
@@ -11913,9 +12122,7 @@ const ClaimFormat = {
   /** `openpgp4fpr:123123123` */
   URI: 0,
   /** `123123123` */
-  FINGERPRINT: 1,
-  /** `[Verifying my OpenPGP key: openpgp4fpr:123123123]` */
-  MESSAGE: 2
+  FINGERPRINT: 1
 }
 Object.freeze(ClaimFormat)
 
@@ -11957,7 +12164,7 @@ exports.ClaimFormat = ClaimFormat
 exports.ClaimRelation = ClaimRelation
 exports.ClaimStatus = ClaimStatus
 
-},{}],168:[function(require,module,exports){
+},{}],170:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12030,7 +12237,7 @@ if (jsEnv.isNode) {
   module.exports.fn = null
 }
 
-},{"browser-or-node":32,"dns":34}],169:[function(require,module,exports){
+},{"browser-or-node":32,"dns":34}],171:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12127,7 +12334,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"../../package.json":145,"../enums":167,"axios":3}],170:[function(require,module,exports){
+},{"../../package.json":145,"../enums":169,"axios":3}],172:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12148,10 +12355,11 @@ exports.dns = require('./dns')
 exports.http = require('./http')
 exports.irc = require('./irc')
 exports.matrix = require('./matrix')
+exports.telegram = require('./telegram')
 exports.twitter = require('./twitter')
 exports.xmpp = require('./xmpp')
 
-},{"./dns":168,"./http":169,"./irc":171,"./matrix":172,"./twitter":173,"./xmpp":174}],171:[function(require,module,exports){
+},{"./dns":170,"./http":171,"./irc":173,"./matrix":174,"./telegram":175,"./twitter":176,"./xmpp":177}],173:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12249,7 +12457,7 @@ if (jsEnv.isNode) {
   module.exports.fn = null
 }
 
-},{"browser-or-node":32,"irc-upd":"irc-upd","validator":44}],172:[function(require,module,exports){
+},{"browser-or-node":32,"irc-upd":"irc-upd","validator":44}],174:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12329,7 +12537,119 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"axios":3,"validator":44}],173:[function(require,module,exports){
+},{"axios":3,"validator":44}],175:[function(require,module,exports){
+/*
+Copyright 2022 Maximilian Siling
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+const axios = require('axios')
+const validator = require('validator')
+
+/**
+ * @module fetcher/telegram
+ */
+
+/**
+ * The single request's timeout value in milliseconds
+ * This fetcher makes two requests in total
+ * @constant {number} timeout
+ */
+module.exports.timeout = 5000
+
+/**
+ * Execute a fetch request
+ * @function
+ * @async
+ * @param {object} data                          - Data used in the request
+ * @param {string} data.chat                     - Telegram public chat username
+ * @param {string} data.user                     - Telegram user username
+ * @param {object} opts                          - Options used to enable the request
+ * @param {string} opts.claims.telegram.token    - The Telegram Bot API token
+ * @returns {object|string}
+ */
+module.exports.fn = async (data, opts) => {
+  let timeoutHandle
+  const timeoutPromise = new Promise((resolve, reject) => {
+    timeoutHandle = setTimeout(
+      () => reject(new Error('Request was timed out')),
+      data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
+    )
+  })
+
+  const apiPromise = (method) => new Promise((resolve, reject) => {
+    try {
+      validator.isAscii(opts.claims.telegram.token)
+    } catch (err) {
+      throw new Error(`Telegram fetcher was not set up properly (${err.message})`)
+    }
+
+    if (!data.chat || !data.user) {
+      reject(new Error('Both chat name and user name must be provided'))
+      return
+    }
+
+    const url = `https://api.telegram.org/bot${opts.claims.telegram.token}/${method}?chat_id=@${data.chat}`
+    axios.get(url, {
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': `doipjs/${require('../../package.json').version}`
+      },
+      validateStatus: (status) => status === 200
+    })
+      .then(res => resolve(res.data))
+      .catch(e => reject(e))
+  })
+
+  const fetchPromise = apiPromise('getChatAdministrators').then(admins => {
+    if (!admins.ok) {
+      throw new Error('Request to get chat administrators failed')
+    }
+
+    return apiPromise('getChat').then(chat => {
+      if (!chat.ok) {
+        throw new Error('Request to get chat info failed')
+      }
+
+      let creator
+      for (const admin of admins.result) {
+        if (admin.status === 'creator') {
+          creator = admin.user.username
+        }
+      }
+
+      if (!chat.result.description) {
+        throw new Error('There is no chat description')
+      }
+
+      if (creator !== data.user) {
+        throw new Error('User doesn\'t match')
+      }
+
+      return {
+        user: creator,
+        text: chat.result.description
+      }
+    })
+  })
+
+  return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+    clearTimeout(timeoutHandle)
+    return result
+  })
+}
+
+},{"../../package.json":145,"axios":3,"validator":44}],176:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12412,7 +12732,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"axios":3,"validator":44}],174:[function(require,module,exports){
+},{"axios":3,"validator":44}],177:[function(require,module,exports){
 (function (process){(function (){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -12561,7 +12881,7 @@ if (jsEnv.isNode) {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"@xmpp/client":"@xmpp/client","@xmpp/debug":"@xmpp/debug","_process":39,"browser-or-node":32,"jsdom":"jsdom","validator":44}],175:[function(require,module,exports){
+},{"@xmpp/client":"@xmpp/client","@xmpp/debug":"@xmpp/debug","_process":39,"browser-or-node":32,"jsdom":"jsdom","validator":44}],178:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12595,7 +12915,7 @@ exports.enums = enums
 exports.defaults = defaults
 exports.utils = utils
 
-},{"./claim":146,"./claimDefinitions":154,"./defaults":166,"./enums":167,"./keys":176,"./proofs":177,"./signatures":178,"./utils":179}],176:[function(require,module,exports){
+},{"./claim":146,"./claimDefinitions":154,"./defaults":168,"./enums":169,"./keys":179,"./proofs":180,"./signatures":181,"./utils":182}],179:[function(require,module,exports){
 (function (global){(function (){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -12920,7 +13240,7 @@ exports.fetch = fetch
 exports.process = process
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./claim":146,"@openpgp/hkp-client":1,"@openpgp/wkd-client":2,"axios":3,"valid-url":43}],177:[function(require,module,exports){
+},{"./claim":146,"@openpgp/hkp-client":1,"@openpgp/wkd-client":2,"axios":3,"valid-url":43}],180:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -13099,7 +13419,7 @@ const createFallbackRequestPromise = (data, opts) => {
 
 exports.fetch = fetch
 
-},{"./enums":167,"./fetcher":170,"./utils":179,"browser-or-node":32}],178:[function(require,module,exports){
+},{"./enums":169,"./fetcher":172,"./utils":182,"browser-or-node":32}],181:[function(require,module,exports){
 (function (global){(function (){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -13260,7 +13580,7 @@ const process = async (signature) => {
 exports.process = process
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./claim":146,"./keys":176}],179:[function(require,module,exports){
+},{"./claim":146,"./keys":179}],182:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -13319,8 +13639,6 @@ const generateClaim = (fingerprint, format) => {
   switch (format) {
     case E.ClaimFormat.URI:
       return `openpgp4fpr:${fingerprint}`
-    case E.ClaimFormat.MESSAGE:
-      return `[Verifying my OpenPGP key: openpgp4fpr:${fingerprint}]`
     case E.ClaimFormat.FINGERPRINT:
       return fingerprint
     default:
@@ -13331,7 +13649,7 @@ const generateClaim = (fingerprint, format) => {
 exports.generateProxyURL = generateProxyURL
 exports.generateClaim = generateClaim
 
-},{"./enums":167,"validator":44}],180:[function(require,module,exports){
+},{"./enums":169,"validator":44}],183:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -13454,5 +13772,5 @@ const run = (proofData, claimData, fingerprint) => {
 
 exports.run = run
 
-},{"./enums":167,"./utils":179}]},{},[175])(175)
+},{"./enums":169,"./utils":182}]},{},[178])(178)
 });
