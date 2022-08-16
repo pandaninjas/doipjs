@@ -32,7 +32,8 @@ const list = [
   'mastodon',
   'pleroma',
   'discourse',
-  'owncast'
+  'owncast',
+  'stackexchange'
 ]
 
 const data = {
@@ -54,7 +55,8 @@ const data = {
   mastodon: require('./mastodon'),
   pleroma: require('./pleroma'),
   discourse: require('./discourse'),
-  owncast: require('./owncast')
+  owncast: require('./owncast'),
+  stackexchange: require('./stackexchange')
 }
 
 exports.list = list
