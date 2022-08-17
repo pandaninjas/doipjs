@@ -7,13 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - StackExchange claim verification
-- Telegram claim verification
+- Telegram claim verification (thanks [Goldstein](https://codeberg.org/Goldstein)!)
 ### Removed
 - Message proof format
 
 ## [0.15.7] - 2022-08-04
 ### Changed
-- Gitlab claims now use HTTP fetcher (thank [hosaka](https://codeberg.org/hosaka)!)
+- Gitlab claims now use HTTP fetcher (thanks [hosaka](https://codeberg.org/hosaka)!)
 ### Removed
 - Obsolete Gitlab proof fetcher
 ### Fixed
