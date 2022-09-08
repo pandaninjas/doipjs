@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - StackExchange claim verification
 - Telegram claim verification (thanks [Goldstein](https://codeberg.org/Goldstein)!)
+### Fixed
+- Fix XMPP fetcher logic
 ### Removed
 - Message proof format
 
