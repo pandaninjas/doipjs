@@ -1304,7 +1304,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 module.exports = defaults;
 
 }).call(this)}).call(this,require('_process'))
-},{"./adapters/http":4,"./adapters/xhr":4,"./core/enhanceError":14,"./helpers/normalizeHeaderName":27,"./utils":31,"_process":39}],19:[function(require,module,exports){
+},{"./adapters/http":4,"./adapters/xhr":4,"./core/enhanceError":14,"./helpers/normalizeHeaderName":27,"./utils":31,"_process":40}],19:[function(require,module,exports){
 module.exports = {
   "version": "0.25.0"
 };
@@ -2132,11 +2132,548 @@ exports.isWebWorker = isWebWorker;
 exports.isNode = isNode;
 exports.isJsDom = isJsDom;
 }).call(this)}).call(this,require('_process'))
-},{"_process":39}],33:[function(require,module,exports){
+},{"_process":40}],33:[function(require,module,exports){
 
 },{}],34:[function(require,module,exports){
 arguments[4][33][0].apply(exports,arguments)
 },{"dup":33}],35:[function(require,module,exports){
+(function (global){(function (){
+/*! https://mths.be/punycode v1.4.1 by @mathias */
+;(function(root) {
+
+	/** Detect free variables */
+	var freeExports = typeof exports == 'object' && exports &&
+		!exports.nodeType && exports;
+	var freeModule = typeof module == 'object' && module &&
+		!module.nodeType && module;
+	var freeGlobal = typeof global == 'object' && global;
+	if (
+		freeGlobal.global === freeGlobal ||
+		freeGlobal.window === freeGlobal ||
+		freeGlobal.self === freeGlobal
+	) {
+		root = freeGlobal;
+	}
+
+	/**
+	 * The `punycode` object.
+	 * @name punycode
+	 * @type Object
+	 */
+	var punycode,
+
+	/** Highest positive signed 32-bit float value */
+	maxInt = 2147483647, // aka. 0x7FFFFFFF or 2^31-1
+
+	/** Bootstring parameters */
+	base = 36,
+	tMin = 1,
+	tMax = 26,
+	skew = 38,
+	damp = 700,
+	initialBias = 72,
+	initialN = 128, // 0x80
+	delimiter = '-', // '\x2D'
+
+	/** Regular expressions */
+	regexPunycode = /^xn--/,
+	regexNonASCII = /[^\x20-\x7E]/, // unprintable ASCII chars + non-ASCII chars
+	regexSeparators = /[\x2E\u3002\uFF0E\uFF61]/g, // RFC 3490 separators
+
+	/** Error messages */
+	errors = {
+		'overflow': 'Overflow: input needs wider integers to process',
+		'not-basic': 'Illegal input >= 0x80 (not a basic code point)',
+		'invalid-input': 'Invalid input'
+	},
+
+	/** Convenience shortcuts */
+	baseMinusTMin = base - tMin,
+	floor = Math.floor,
+	stringFromCharCode = String.fromCharCode,
+
+	/** Temporary variable */
+	key;
+
+	/*--------------------------------------------------------------------------*/
+
+	/**
+	 * A generic error utility function.
+	 * @private
+	 * @param {String} type The error type.
+	 * @returns {Error} Throws a `RangeError` with the applicable error message.
+	 */
+	function error(type) {
+		throw new RangeError(errors[type]);
+	}
+
+	/**
+	 * A generic `Array#map` utility function.
+	 * @private
+	 * @param {Array} array The array to iterate over.
+	 * @param {Function} callback The function that gets called for every array
+	 * item.
+	 * @returns {Array} A new array of values returned by the callback function.
+	 */
+	function map(array, fn) {
+		var length = array.length;
+		var result = [];
+		while (length--) {
+			result[length] = fn(array[length]);
+		}
+		return result;
+	}
+
+	/**
+	 * A simple `Array#map`-like wrapper to work with domain name strings or email
+	 * addresses.
+	 * @private
+	 * @param {String} domain The domain name or email address.
+	 * @param {Function} callback The function that gets called for every
+	 * character.
+	 * @returns {Array} A new string of characters returned by the callback
+	 * function.
+	 */
+	function mapDomain(string, fn) {
+		var parts = string.split('@');
+		var result = '';
+		if (parts.length > 1) {
+			// In email addresses, only the domain name should be punycoded. Leave
+			// the local part (i.e. everything up to `@`) intact.
+			result = parts[0] + '@';
+			string = parts[1];
+		}
+		// Avoid `split(regex)` for IE8 compatibility. See #17.
+		string = string.replace(regexSeparators, '\x2E');
+		var labels = string.split('.');
+		var encoded = map(labels, fn).join('.');
+		return result + encoded;
+	}
+
+	/**
+	 * Creates an array containing the numeric code points of each Unicode
+	 * character in the string. While JavaScript uses UCS-2 internally,
+	 * this function will convert a pair of surrogate halves (each of which
+	 * UCS-2 exposes as separate characters) into a single code point,
+	 * matching UTF-16.
+	 * @see `punycode.ucs2.encode`
+	 * @see <https://mathiasbynens.be/notes/javascript-encoding>
+	 * @memberOf punycode.ucs2
+	 * @name decode
+	 * @param {String} string The Unicode input string (UCS-2).
+	 * @returns {Array} The new array of code points.
+	 */
+	function ucs2decode(string) {
+		var output = [],
+		    counter = 0,
+		    length = string.length,
+		    value,
+		    extra;
+		while (counter < length) {
+			value = string.charCodeAt(counter++);
+			if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
+				// high surrogate, and there is a next character
+				extra = string.charCodeAt(counter++);
+				if ((extra & 0xFC00) == 0xDC00) { // low surrogate
+					output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
+				} else {
+					// unmatched surrogate; only append this code unit, in case the next
+					// code unit is the high surrogate of a surrogate pair
+					output.push(value);
+					counter--;
+				}
+			} else {
+				output.push(value);
+			}
+		}
+		return output;
+	}
+
+	/**
+	 * Creates a string based on an array of numeric code points.
+	 * @see `punycode.ucs2.decode`
+	 * @memberOf punycode.ucs2
+	 * @name encode
+	 * @param {Array} codePoints The array of numeric code points.
+	 * @returns {String} The new Unicode string (UCS-2).
+	 */
+	function ucs2encode(array) {
+		return map(array, function(value) {
+			var output = '';
+			if (value > 0xFFFF) {
+				value -= 0x10000;
+				output += stringFromCharCode(value >>> 10 & 0x3FF | 0xD800);
+				value = 0xDC00 | value & 0x3FF;
+			}
+			output += stringFromCharCode(value);
+			return output;
+		}).join('');
+	}
+
+	/**
+	 * Converts a basic code point into a digit/integer.
+	 * @see `digitToBasic()`
+	 * @private
+	 * @param {Number} codePoint The basic numeric code point value.
+	 * @returns {Number} The numeric value of a basic code point (for use in
+	 * representing integers) in the range `0` to `base - 1`, or `base` if
+	 * the code point does not represent a value.
+	 */
+	function basicToDigit(codePoint) {
+		if (codePoint - 48 < 10) {
+			return codePoint - 22;
+		}
+		if (codePoint - 65 < 26) {
+			return codePoint - 65;
+		}
+		if (codePoint - 97 < 26) {
+			return codePoint - 97;
+		}
+		return base;
+	}
+
+	/**
+	 * Converts a digit/integer into a basic code point.
+	 * @see `basicToDigit()`
+	 * @private
+	 * @param {Number} digit The numeric value of a basic code point.
+	 * @returns {Number} The basic code point whose value (when used for
+	 * representing integers) is `digit`, which needs to be in the range
+	 * `0` to `base - 1`. If `flag` is non-zero, the uppercase form is
+	 * used; else, the lowercase form is used. The behavior is undefined
+	 * if `flag` is non-zero and `digit` has no uppercase form.
+	 */
+	function digitToBasic(digit, flag) {
+		//  0..25 map to ASCII a..z or A..Z
+		// 26..35 map to ASCII 0..9
+		return digit + 22 + 75 * (digit < 26) - ((flag != 0) << 5);
+	}
+
+	/**
+	 * Bias adaptation function as per section 3.4 of RFC 3492.
+	 * https://tools.ietf.org/html/rfc3492#section-3.4
+	 * @private
+	 */
+	function adapt(delta, numPoints, firstTime) {
+		var k = 0;
+		delta = firstTime ? floor(delta / damp) : delta >> 1;
+		delta += floor(delta / numPoints);
+		for (/* no initialization */; delta > baseMinusTMin * tMax >> 1; k += base) {
+			delta = floor(delta / baseMinusTMin);
+		}
+		return floor(k + (baseMinusTMin + 1) * delta / (delta + skew));
+	}
+
+	/**
+	 * Converts a Punycode string of ASCII-only symbols to a string of Unicode
+	 * symbols.
+	 * @memberOf punycode
+	 * @param {String} input The Punycode string of ASCII-only symbols.
+	 * @returns {String} The resulting string of Unicode symbols.
+	 */
+	function decode(input) {
+		// Don't use UCS-2
+		var output = [],
+		    inputLength = input.length,
+		    out,
+		    i = 0,
+		    n = initialN,
+		    bias = initialBias,
+		    basic,
+		    j,
+		    index,
+		    oldi,
+		    w,
+		    k,
+		    digit,
+		    t,
+		    /** Cached calculation results */
+		    baseMinusT;
+
+		// Handle the basic code points: let `basic` be the number of input code
+		// points before the last delimiter, or `0` if there is none, then copy
+		// the first basic code points to the output.
+
+		basic = input.lastIndexOf(delimiter);
+		if (basic < 0) {
+			basic = 0;
+		}
+
+		for (j = 0; j < basic; ++j) {
+			// if it's not a basic code point
+			if (input.charCodeAt(j) >= 0x80) {
+				error('not-basic');
+			}
+			output.push(input.charCodeAt(j));
+		}
+
+		// Main decoding loop: start just after the last delimiter if any basic code
+		// points were copied; start at the beginning otherwise.
+
+		for (index = basic > 0 ? basic + 1 : 0; index < inputLength; /* no final expression */) {
+
+			// `index` is the index of the next character to be consumed.
+			// Decode a generalized variable-length integer into `delta`,
+			// which gets added to `i`. The overflow checking is easier
+			// if we increase `i` as we go, then subtract off its starting
+			// value at the end to obtain `delta`.
+			for (oldi = i, w = 1, k = base; /* no condition */; k += base) {
+
+				if (index >= inputLength) {
+					error('invalid-input');
+				}
+
+				digit = basicToDigit(input.charCodeAt(index++));
+
+				if (digit >= base || digit > floor((maxInt - i) / w)) {
+					error('overflow');
+				}
+
+				i += digit * w;
+				t = k <= bias ? tMin : (k >= bias + tMax ? tMax : k - bias);
+
+				if (digit < t) {
+					break;
+				}
+
+				baseMinusT = base - t;
+				if (w > floor(maxInt / baseMinusT)) {
+					error('overflow');
+				}
+
+				w *= baseMinusT;
+
+			}
+
+			out = output.length + 1;
+			bias = adapt(i - oldi, out, oldi == 0);
+
+			// `i` was supposed to wrap around from `out` to `0`,
+			// incrementing `n` each time, so we'll fix that now:
+			if (floor(i / out) > maxInt - n) {
+				error('overflow');
+			}
+
+			n += floor(i / out);
+			i %= out;
+
+			// Insert `n` at position `i` of the output
+			output.splice(i++, 0, n);
+
+		}
+
+		return ucs2encode(output);
+	}
+
+	/**
+	 * Converts a string of Unicode symbols (e.g. a domain name label) to a
+	 * Punycode string of ASCII-only symbols.
+	 * @memberOf punycode
+	 * @param {String} input The string of Unicode symbols.
+	 * @returns {String} The resulting Punycode string of ASCII-only symbols.
+	 */
+	function encode(input) {
+		var n,
+		    delta,
+		    handledCPCount,
+		    basicLength,
+		    bias,
+		    j,
+		    m,
+		    q,
+		    k,
+		    t,
+		    currentValue,
+		    output = [],
+		    /** `inputLength` will hold the number of code points in `input`. */
+		    inputLength,
+		    /** Cached calculation results */
+		    handledCPCountPlusOne,
+		    baseMinusT,
+		    qMinusT;
+
+		// Convert the input in UCS-2 to Unicode
+		input = ucs2decode(input);
+
+		// Cache the length
+		inputLength = input.length;
+
+		// Initialize the state
+		n = initialN;
+		delta = 0;
+		bias = initialBias;
+
+		// Handle the basic code points
+		for (j = 0; j < inputLength; ++j) {
+			currentValue = input[j];
+			if (currentValue < 0x80) {
+				output.push(stringFromCharCode(currentValue));
+			}
+		}
+
+		handledCPCount = basicLength = output.length;
+
+		// `handledCPCount` is the number of code points that have been handled;
+		// `basicLength` is the number of basic code points.
+
+		// Finish the basic string - if it is not empty - with a delimiter
+		if (basicLength) {
+			output.push(delimiter);
+		}
+
+		// Main encoding loop:
+		while (handledCPCount < inputLength) {
+
+			// All non-basic code points < n have been handled already. Find the next
+			// larger one:
+			for (m = maxInt, j = 0; j < inputLength; ++j) {
+				currentValue = input[j];
+				if (currentValue >= n && currentValue < m) {
+					m = currentValue;
+				}
+			}
+
+			// Increase `delta` enough to advance the decoder's <n,i> state to <m,0>,
+			// but guard against overflow
+			handledCPCountPlusOne = handledCPCount + 1;
+			if (m - n > floor((maxInt - delta) / handledCPCountPlusOne)) {
+				error('overflow');
+			}
+
+			delta += (m - n) * handledCPCountPlusOne;
+			n = m;
+
+			for (j = 0; j < inputLength; ++j) {
+				currentValue = input[j];
+
+				if (currentValue < n && ++delta > maxInt) {
+					error('overflow');
+				}
+
+				if (currentValue == n) {
+					// Represent delta as a generalized variable-length integer
+					for (q = delta, k = base; /* no condition */; k += base) {
+						t = k <= bias ? tMin : (k >= bias + tMax ? tMax : k - bias);
+						if (q < t) {
+							break;
+						}
+						qMinusT = q - t;
+						baseMinusT = base - t;
+						output.push(
+							stringFromCharCode(digitToBasic(t + qMinusT % baseMinusT, 0))
+						);
+						q = floor(qMinusT / baseMinusT);
+					}
+
+					output.push(stringFromCharCode(digitToBasic(q, 0)));
+					bias = adapt(delta, handledCPCountPlusOne, handledCPCount == basicLength);
+					delta = 0;
+					++handledCPCount;
+				}
+			}
+
+			++delta;
+			++n;
+
+		}
+		return output.join('');
+	}
+
+	/**
+	 * Converts a Punycode string representing a domain name or an email address
+	 * to Unicode. Only the Punycoded parts of the input will be converted, i.e.
+	 * it doesn't matter if you call it on a string that has already been
+	 * converted to Unicode.
+	 * @memberOf punycode
+	 * @param {String} input The Punycoded domain name or email address to
+	 * convert to Unicode.
+	 * @returns {String} The Unicode representation of the given Punycode
+	 * string.
+	 */
+	function toUnicode(input) {
+		return mapDomain(input, function(string) {
+			return regexPunycode.test(string)
+				? decode(string.slice(4).toLowerCase())
+				: string;
+		});
+	}
+
+	/**
+	 * Converts a Unicode string representing a domain name or an email address to
+	 * Punycode. Only the non-ASCII parts of the domain name will be converted,
+	 * i.e. it doesn't matter if you call it with a domain that's already in
+	 * ASCII.
+	 * @memberOf punycode
+	 * @param {String} input The domain name or email address to convert, as a
+	 * Unicode string.
+	 * @returns {String} The Punycode representation of the given domain name or
+	 * email address.
+	 */
+	function toASCII(input) {
+		return mapDomain(input, function(string) {
+			return regexNonASCII.test(string)
+				? 'xn--' + encode(string)
+				: string;
+		});
+	}
+
+	/*--------------------------------------------------------------------------*/
+
+	/** Define the public API */
+	punycode = {
+		/**
+		 * A string representing the current Punycode.js version number.
+		 * @memberOf punycode
+		 * @type String
+		 */
+		'version': '1.4.1',
+		/**
+		 * An object of methods to convert from JavaScript's internal character
+		 * representation (UCS-2) to Unicode code points, and back.
+		 * @see <https://mathiasbynens.be/notes/javascript-encoding>
+		 * @memberOf punycode
+		 * @type Object
+		 */
+		'ucs2': {
+			'decode': ucs2decode,
+			'encode': ucs2encode
+		},
+		'decode': decode,
+		'encode': encode,
+		'toASCII': toASCII,
+		'toUnicode': toUnicode
+	};
+
+	/** Expose `punycode` */
+	// Some AMD build optimizers, like r.js, check for specific condition patterns
+	// like the following:
+	if (
+		typeof define == 'function' &&
+		typeof define.amd == 'object' &&
+		define.amd
+	) {
+		define('punycode', function() {
+			return punycode;
+		});
+	} else if (freeExports && freeModule) {
+		if (module.exports == freeExports) {
+			// in Node.js, io.js, or RingoJS v0.8.0+
+			freeModule.exports = punycode;
+		} else {
+			// in Narwhal or RingoJS v0.7.0-
+			for (key in punycode) {
+				punycode.hasOwnProperty(key) && (freeExports[key] = punycode[key]);
+			}
+		}
+	} else {
+		// in Rhino or a web browser
+		root.punycode = punycode;
+	}
+
+}(this));
+
+}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],36:[function(require,module,exports){
 'use strict';
 var token = '%[a-f0-9]{2}';
 var singleMatcher = new RegExp(token, 'gi');
@@ -2232,7 +2769,7 @@ module.exports = function (encodedURI) {
 	}
 };
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 'use strict';
 module.exports = function (obj, predicate) {
 	var ret = {};
@@ -2251,7 +2788,7 @@ module.exports = function (obj, predicate) {
 	return ret;
 };
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 'use strict';
 
 module.exports = value => {
@@ -2263,7 +2800,7 @@ module.exports = value => {
 	return prototype === null || prototype === Object.prototype;
 };
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 'use strict';
 const isOptionObject = require('is-plain-obj');
 
@@ -2436,7 +2973,7 @@ module.exports = function (...options) {
 	return merged._;
 };
 
-},{"is-plain-obj":37}],39:[function(require,module,exports){
+},{"is-plain-obj":38}],40:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -2622,7 +3159,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 'use strict';
 const strictUriEncode = require('strict-uri-encode');
 const decodeComponent = require('decode-uri-component');
@@ -3028,7 +3565,186 @@ exports.exclude = (input, filter, options) => {
 	return exports.pick(input, exclusionFilter, options);
 };
 
-},{"decode-uri-component":35,"filter-obj":36,"split-on-first":41,"strict-uri-encode":42}],41:[function(require,module,exports){
+},{"decode-uri-component":36,"filter-obj":37,"split-on-first":45,"strict-uri-encode":46}],42:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'use strict';
+
+// If obj.hasOwnProperty has been overridden, then calling
+// obj.hasOwnProperty(prop) will break.
+// See: https://github.com/joyent/node/issues/1707
+function hasOwnProperty(obj, prop) {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+
+module.exports = function(qs, sep, eq, options) {
+  sep = sep || '&';
+  eq = eq || '=';
+  var obj = {};
+
+  if (typeof qs !== 'string' || qs.length === 0) {
+    return obj;
+  }
+
+  var regexp = /\+/g;
+  qs = qs.split(sep);
+
+  var maxKeys = 1000;
+  if (options && typeof options.maxKeys === 'number') {
+    maxKeys = options.maxKeys;
+  }
+
+  var len = qs.length;
+  // maxKeys <= 0 means that we should not limit keys count
+  if (maxKeys > 0 && len > maxKeys) {
+    len = maxKeys;
+  }
+
+  for (var i = 0; i < len; ++i) {
+    var x = qs[i].replace(regexp, '%20'),
+        idx = x.indexOf(eq),
+        kstr, vstr, k, v;
+
+    if (idx >= 0) {
+      kstr = x.substr(0, idx);
+      vstr = x.substr(idx + 1);
+    } else {
+      kstr = x;
+      vstr = '';
+    }
+
+    k = decodeURIComponent(kstr);
+    v = decodeURIComponent(vstr);
+
+    if (!hasOwnProperty(obj, k)) {
+      obj[k] = v;
+    } else if (isArray(obj[k])) {
+      obj[k].push(v);
+    } else {
+      obj[k] = [obj[k], v];
+    }
+  }
+
+  return obj;
+};
+
+var isArray = Array.isArray || function (xs) {
+  return Object.prototype.toString.call(xs) === '[object Array]';
+};
+
+},{}],43:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'use strict';
+
+var stringifyPrimitive = function(v) {
+  switch (typeof v) {
+    case 'string':
+      return v;
+
+    case 'boolean':
+      return v ? 'true' : 'false';
+
+    case 'number':
+      return isFinite(v) ? v : '';
+
+    default:
+      return '';
+  }
+};
+
+module.exports = function(obj, sep, eq, name) {
+  sep = sep || '&';
+  eq = eq || '=';
+  if (obj === null) {
+    obj = undefined;
+  }
+
+  if (typeof obj === 'object') {
+    return map(objectKeys(obj), function(k) {
+      var ks = encodeURIComponent(stringifyPrimitive(k)) + eq;
+      if (isArray(obj[k])) {
+        return map(obj[k], function(v) {
+          return ks + encodeURIComponent(stringifyPrimitive(v));
+        }).join(sep);
+      } else {
+        return ks + encodeURIComponent(stringifyPrimitive(obj[k]));
+      }
+    }).join(sep);
+
+  }
+
+  if (!name) return '';
+  return encodeURIComponent(stringifyPrimitive(name)) + eq +
+         encodeURIComponent(stringifyPrimitive(obj));
+};
+
+var isArray = Array.isArray || function (xs) {
+  return Object.prototype.toString.call(xs) === '[object Array]';
+};
+
+function map (xs, f) {
+  if (xs.map) return xs.map(f);
+  var res = [];
+  for (var i = 0; i < xs.length; i++) {
+    res.push(f(xs[i], i));
+  }
+  return res;
+}
+
+var objectKeys = Object.keys || function (obj) {
+  var res = [];
+  for (var key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) res.push(key);
+  }
+  return res;
+};
+
+},{}],44:[function(require,module,exports){
+'use strict';
+
+exports.decode = exports.parse = require('./decode');
+exports.encode = exports.stringify = require('./encode');
+
+},{"./decode":42,"./encode":43}],45:[function(require,module,exports){
 'use strict';
 
 module.exports = (string, separator) => {
@@ -3052,11 +3768,763 @@ module.exports = (string, separator) => {
 	];
 };
 
-},{}],42:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 'use strict';
 module.exports = str => encodeURIComponent(str).replace(/[!'()*]/g, x => `%${x.charCodeAt(0).toString(16).toUpperCase()}`);
 
-},{}],43:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'use strict';
+
+var punycode = require('punycode');
+var util = require('./util');
+
+exports.parse = urlParse;
+exports.resolve = urlResolve;
+exports.resolveObject = urlResolveObject;
+exports.format = urlFormat;
+
+exports.Url = Url;
+
+function Url() {
+  this.protocol = null;
+  this.slashes = null;
+  this.auth = null;
+  this.host = null;
+  this.port = null;
+  this.hostname = null;
+  this.hash = null;
+  this.search = null;
+  this.query = null;
+  this.pathname = null;
+  this.path = null;
+  this.href = null;
+}
+
+// Reference: RFC 3986, RFC 1808, RFC 2396
+
+// define these here so at least they only have to be
+// compiled once on the first module load.
+var protocolPattern = /^([a-z0-9.+-]+:)/i,
+    portPattern = /:[0-9]*$/,
+
+    // Special case for a simple path URL
+    simplePathPattern = /^(\/\/?(?!\/)[^\?\s]*)(\?[^\s]*)?$/,
+
+    // RFC 2396: characters reserved for delimiting URLs.
+    // We actually just auto-escape these.
+    delims = ['<', '>', '"', '`', ' ', '\r', '\n', '\t'],
+
+    // RFC 2396: characters not allowed for various reasons.
+    unwise = ['{', '}', '|', '\\', '^', '`'].concat(delims),
+
+    // Allowed by RFCs, but cause of XSS attacks.  Always escape these.
+    autoEscape = ['\''].concat(unwise),
+    // Characters that are never ever allowed in a hostname.
+    // Note that any invalid chars are also handled, but these
+    // are the ones that are *expected* to be seen, so we fast-path
+    // them.
+    nonHostChars = ['%', '/', '?', ';', '#'].concat(autoEscape),
+    hostEndingChars = ['/', '?', '#'],
+    hostnameMaxLen = 255,
+    hostnamePartPattern = /^[+a-z0-9A-Z_-]{0,63}$/,
+    hostnamePartStart = /^([+a-z0-9A-Z_-]{0,63})(.*)$/,
+    // protocols that can allow "unsafe" and "unwise" chars.
+    unsafeProtocol = {
+      'javascript': true,
+      'javascript:': true
+    },
+    // protocols that never have a hostname.
+    hostlessProtocol = {
+      'javascript': true,
+      'javascript:': true
+    },
+    // protocols that always contain a // bit.
+    slashedProtocol = {
+      'http': true,
+      'https': true,
+      'ftp': true,
+      'gopher': true,
+      'file': true,
+      'http:': true,
+      'https:': true,
+      'ftp:': true,
+      'gopher:': true,
+      'file:': true
+    },
+    querystring = require('querystring');
+
+function urlParse(url, parseQueryString, slashesDenoteHost) {
+  if (url && util.isObject(url) && url instanceof Url) return url;
+
+  var u = new Url;
+  u.parse(url, parseQueryString, slashesDenoteHost);
+  return u;
+}
+
+Url.prototype.parse = function(url, parseQueryString, slashesDenoteHost) {
+  if (!util.isString(url)) {
+    throw new TypeError("Parameter 'url' must be a string, not " + typeof url);
+  }
+
+  // Copy chrome, IE, opera backslash-handling behavior.
+  // Back slashes before the query string get converted to forward slashes
+  // See: https://code.google.com/p/chromium/issues/detail?id=25916
+  var queryIndex = url.indexOf('?'),
+      splitter =
+          (queryIndex !== -1 && queryIndex < url.indexOf('#')) ? '?' : '#',
+      uSplit = url.split(splitter),
+      slashRegex = /\\/g;
+  uSplit[0] = uSplit[0].replace(slashRegex, '/');
+  url = uSplit.join(splitter);
+
+  var rest = url;
+
+  // trim before proceeding.
+  // This is to support parse stuff like "  http://foo.com  \n"
+  rest = rest.trim();
+
+  if (!slashesDenoteHost && url.split('#').length === 1) {
+    // Try fast path regexp
+    var simplePath = simplePathPattern.exec(rest);
+    if (simplePath) {
+      this.path = rest;
+      this.href = rest;
+      this.pathname = simplePath[1];
+      if (simplePath[2]) {
+        this.search = simplePath[2];
+        if (parseQueryString) {
+          this.query = querystring.parse(this.search.substr(1));
+        } else {
+          this.query = this.search.substr(1);
+        }
+      } else if (parseQueryString) {
+        this.search = '';
+        this.query = {};
+      }
+      return this;
+    }
+  }
+
+  var proto = protocolPattern.exec(rest);
+  if (proto) {
+    proto = proto[0];
+    var lowerProto = proto.toLowerCase();
+    this.protocol = lowerProto;
+    rest = rest.substr(proto.length);
+  }
+
+  // figure out if it's got a host
+  // user@server is *always* interpreted as a hostname, and url
+  // resolution will treat //foo/bar as host=foo,path=bar because that's
+  // how the browser resolves relative URLs.
+  if (slashesDenoteHost || proto || rest.match(/^\/\/[^@\/]+@[^@\/]+/)) {
+    var slashes = rest.substr(0, 2) === '//';
+    if (slashes && !(proto && hostlessProtocol[proto])) {
+      rest = rest.substr(2);
+      this.slashes = true;
+    }
+  }
+
+  if (!hostlessProtocol[proto] &&
+      (slashes || (proto && !slashedProtocol[proto]))) {
+
+    // there's a hostname.
+    // the first instance of /, ?, ;, or # ends the host.
+    //
+    // If there is an @ in the hostname, then non-host chars *are* allowed
+    // to the left of the last @ sign, unless some host-ending character
+    // comes *before* the @-sign.
+    // URLs are obnoxious.
+    //
+    // ex:
+    // http://a@b@c/ => user:a@b host:c
+    // http://a@b?@c => user:a host:c path:/?@c
+
+    // v0.12 TODO(isaacs): This is not quite how Chrome does things.
+    // Review our test case against browsers more comprehensively.
+
+    // find the first instance of any hostEndingChars
+    var hostEnd = -1;
+    for (var i = 0; i < hostEndingChars.length; i++) {
+      var hec = rest.indexOf(hostEndingChars[i]);
+      if (hec !== -1 && (hostEnd === -1 || hec < hostEnd))
+        hostEnd = hec;
+    }
+
+    // at this point, either we have an explicit point where the
+    // auth portion cannot go past, or the last @ char is the decider.
+    var auth, atSign;
+    if (hostEnd === -1) {
+      // atSign can be anywhere.
+      atSign = rest.lastIndexOf('@');
+    } else {
+      // atSign must be in auth portion.
+      // http://a@b/c@d => host:b auth:a path:/c@d
+      atSign = rest.lastIndexOf('@', hostEnd);
+    }
+
+    // Now we have a portion which is definitely the auth.
+    // Pull that off.
+    if (atSign !== -1) {
+      auth = rest.slice(0, atSign);
+      rest = rest.slice(atSign + 1);
+      this.auth = decodeURIComponent(auth);
+    }
+
+    // the host is the remaining to the left of the first non-host char
+    hostEnd = -1;
+    for (var i = 0; i < nonHostChars.length; i++) {
+      var hec = rest.indexOf(nonHostChars[i]);
+      if (hec !== -1 && (hostEnd === -1 || hec < hostEnd))
+        hostEnd = hec;
+    }
+    // if we still have not hit it, then the entire thing is a host.
+    if (hostEnd === -1)
+      hostEnd = rest.length;
+
+    this.host = rest.slice(0, hostEnd);
+    rest = rest.slice(hostEnd);
+
+    // pull out port.
+    this.parseHost();
+
+    // we've indicated that there is a hostname,
+    // so even if it's empty, it has to be present.
+    this.hostname = this.hostname || '';
+
+    // if hostname begins with [ and ends with ]
+    // assume that it's an IPv6 address.
+    var ipv6Hostname = this.hostname[0] === '[' &&
+        this.hostname[this.hostname.length - 1] === ']';
+
+    // validate a little.
+    if (!ipv6Hostname) {
+      var hostparts = this.hostname.split(/\./);
+      for (var i = 0, l = hostparts.length; i < l; i++) {
+        var part = hostparts[i];
+        if (!part) continue;
+        if (!part.match(hostnamePartPattern)) {
+          var newpart = '';
+          for (var j = 0, k = part.length; j < k; j++) {
+            if (part.charCodeAt(j) > 127) {
+              // we replace non-ASCII char with a temporary placeholder
+              // we need this to make sure size of hostname is not
+              // broken by replacing non-ASCII by nothing
+              newpart += 'x';
+            } else {
+              newpart += part[j];
+            }
+          }
+          // we test again with ASCII char only
+          if (!newpart.match(hostnamePartPattern)) {
+            var validParts = hostparts.slice(0, i);
+            var notHost = hostparts.slice(i + 1);
+            var bit = part.match(hostnamePartStart);
+            if (bit) {
+              validParts.push(bit[1]);
+              notHost.unshift(bit[2]);
+            }
+            if (notHost.length) {
+              rest = '/' + notHost.join('.') + rest;
+            }
+            this.hostname = validParts.join('.');
+            break;
+          }
+        }
+      }
+    }
+
+    if (this.hostname.length > hostnameMaxLen) {
+      this.hostname = '';
+    } else {
+      // hostnames are always lower case.
+      this.hostname = this.hostname.toLowerCase();
+    }
+
+    if (!ipv6Hostname) {
+      // IDNA Support: Returns a punycoded representation of "domain".
+      // It only converts parts of the domain name that
+      // have non-ASCII characters, i.e. it doesn't matter if
+      // you call it with a domain that already is ASCII-only.
+      this.hostname = punycode.toASCII(this.hostname);
+    }
+
+    var p = this.port ? ':' + this.port : '';
+    var h = this.hostname || '';
+    this.host = h + p;
+    this.href += this.host;
+
+    // strip [ and ] from the hostname
+    // the host field still retains them, though
+    if (ipv6Hostname) {
+      this.hostname = this.hostname.substr(1, this.hostname.length - 2);
+      if (rest[0] !== '/') {
+        rest = '/' + rest;
+      }
+    }
+  }
+
+  // now rest is set to the post-host stuff.
+  // chop off any delim chars.
+  if (!unsafeProtocol[lowerProto]) {
+
+    // First, make 100% sure that any "autoEscape" chars get
+    // escaped, even if encodeURIComponent doesn't think they
+    // need to be.
+    for (var i = 0, l = autoEscape.length; i < l; i++) {
+      var ae = autoEscape[i];
+      if (rest.indexOf(ae) === -1)
+        continue;
+      var esc = encodeURIComponent(ae);
+      if (esc === ae) {
+        esc = escape(ae);
+      }
+      rest = rest.split(ae).join(esc);
+    }
+  }
+
+
+  // chop off from the tail first.
+  var hash = rest.indexOf('#');
+  if (hash !== -1) {
+    // got a fragment string.
+    this.hash = rest.substr(hash);
+    rest = rest.slice(0, hash);
+  }
+  var qm = rest.indexOf('?');
+  if (qm !== -1) {
+    this.search = rest.substr(qm);
+    this.query = rest.substr(qm + 1);
+    if (parseQueryString) {
+      this.query = querystring.parse(this.query);
+    }
+    rest = rest.slice(0, qm);
+  } else if (parseQueryString) {
+    // no query string, but parseQueryString still requested
+    this.search = '';
+    this.query = {};
+  }
+  if (rest) this.pathname = rest;
+  if (slashedProtocol[lowerProto] &&
+      this.hostname && !this.pathname) {
+    this.pathname = '/';
+  }
+
+  //to support http.request
+  if (this.pathname || this.search) {
+    var p = this.pathname || '';
+    var s = this.search || '';
+    this.path = p + s;
+  }
+
+  // finally, reconstruct the href based on what has been validated.
+  this.href = this.format();
+  return this;
+};
+
+// format a parsed object into a url string
+function urlFormat(obj) {
+  // ensure it's an object, and not a string url.
+  // If it's an obj, this is a no-op.
+  // this way, you can call url_format() on strings
+  // to clean up potentially wonky urls.
+  if (util.isString(obj)) obj = urlParse(obj);
+  if (!(obj instanceof Url)) return Url.prototype.format.call(obj);
+  return obj.format();
+}
+
+Url.prototype.format = function() {
+  var auth = this.auth || '';
+  if (auth) {
+    auth = encodeURIComponent(auth);
+    auth = auth.replace(/%3A/i, ':');
+    auth += '@';
+  }
+
+  var protocol = this.protocol || '',
+      pathname = this.pathname || '',
+      hash = this.hash || '',
+      host = false,
+      query = '';
+
+  if (this.host) {
+    host = auth + this.host;
+  } else if (this.hostname) {
+    host = auth + (this.hostname.indexOf(':') === -1 ?
+        this.hostname :
+        '[' + this.hostname + ']');
+    if (this.port) {
+      host += ':' + this.port;
+    }
+  }
+
+  if (this.query &&
+      util.isObject(this.query) &&
+      Object.keys(this.query).length) {
+    query = querystring.stringify(this.query);
+  }
+
+  var search = this.search || (query && ('?' + query)) || '';
+
+  if (protocol && protocol.substr(-1) !== ':') protocol += ':';
+
+  // only the slashedProtocols get the //.  Not mailto:, xmpp:, etc.
+  // unless they had them to begin with.
+  if (this.slashes ||
+      (!protocol || slashedProtocol[protocol]) && host !== false) {
+    host = '//' + (host || '');
+    if (pathname && pathname.charAt(0) !== '/') pathname = '/' + pathname;
+  } else if (!host) {
+    host = '';
+  }
+
+  if (hash && hash.charAt(0) !== '#') hash = '#' + hash;
+  if (search && search.charAt(0) !== '?') search = '?' + search;
+
+  pathname = pathname.replace(/[?#]/g, function(match) {
+    return encodeURIComponent(match);
+  });
+  search = search.replace('#', '%23');
+
+  return protocol + host + pathname + search + hash;
+};
+
+function urlResolve(source, relative) {
+  return urlParse(source, false, true).resolve(relative);
+}
+
+Url.prototype.resolve = function(relative) {
+  return this.resolveObject(urlParse(relative, false, true)).format();
+};
+
+function urlResolveObject(source, relative) {
+  if (!source) return relative;
+  return urlParse(source, false, true).resolveObject(relative);
+}
+
+Url.prototype.resolveObject = function(relative) {
+  if (util.isString(relative)) {
+    var rel = new Url();
+    rel.parse(relative, false, true);
+    relative = rel;
+  }
+
+  var result = new Url();
+  var tkeys = Object.keys(this);
+  for (var tk = 0; tk < tkeys.length; tk++) {
+    var tkey = tkeys[tk];
+    result[tkey] = this[tkey];
+  }
+
+  // hash is always overridden, no matter what.
+  // even href="" will remove it.
+  result.hash = relative.hash;
+
+  // if the relative url is empty, then there's nothing left to do here.
+  if (relative.href === '') {
+    result.href = result.format();
+    return result;
+  }
+
+  // hrefs like //foo/bar always cut to the protocol.
+  if (relative.slashes && !relative.protocol) {
+    // take everything except the protocol from relative
+    var rkeys = Object.keys(relative);
+    for (var rk = 0; rk < rkeys.length; rk++) {
+      var rkey = rkeys[rk];
+      if (rkey !== 'protocol')
+        result[rkey] = relative[rkey];
+    }
+
+    //urlParse appends trailing / to urls like http://www.example.com
+    if (slashedProtocol[result.protocol] &&
+        result.hostname && !result.pathname) {
+      result.path = result.pathname = '/';
+    }
+
+    result.href = result.format();
+    return result;
+  }
+
+  if (relative.protocol && relative.protocol !== result.protocol) {
+    // if it's a known url protocol, then changing
+    // the protocol does weird things
+    // first, if it's not file:, then we MUST have a host,
+    // and if there was a path
+    // to begin with, then we MUST have a path.
+    // if it is file:, then the host is dropped,
+    // because that's known to be hostless.
+    // anything else is assumed to be absolute.
+    if (!slashedProtocol[relative.protocol]) {
+      var keys = Object.keys(relative);
+      for (var v = 0; v < keys.length; v++) {
+        var k = keys[v];
+        result[k] = relative[k];
+      }
+      result.href = result.format();
+      return result;
+    }
+
+    result.protocol = relative.protocol;
+    if (!relative.host && !hostlessProtocol[relative.protocol]) {
+      var relPath = (relative.pathname || '').split('/');
+      while (relPath.length && !(relative.host = relPath.shift()));
+      if (!relative.host) relative.host = '';
+      if (!relative.hostname) relative.hostname = '';
+      if (relPath[0] !== '') relPath.unshift('');
+      if (relPath.length < 2) relPath.unshift('');
+      result.pathname = relPath.join('/');
+    } else {
+      result.pathname = relative.pathname;
+    }
+    result.search = relative.search;
+    result.query = relative.query;
+    result.host = relative.host || '';
+    result.auth = relative.auth;
+    result.hostname = relative.hostname || relative.host;
+    result.port = relative.port;
+    // to support http.request
+    if (result.pathname || result.search) {
+      var p = result.pathname || '';
+      var s = result.search || '';
+      result.path = p + s;
+    }
+    result.slashes = result.slashes || relative.slashes;
+    result.href = result.format();
+    return result;
+  }
+
+  var isSourceAbs = (result.pathname && result.pathname.charAt(0) === '/'),
+      isRelAbs = (
+          relative.host ||
+          relative.pathname && relative.pathname.charAt(0) === '/'
+      ),
+      mustEndAbs = (isRelAbs || isSourceAbs ||
+                    (result.host && relative.pathname)),
+      removeAllDots = mustEndAbs,
+      srcPath = result.pathname && result.pathname.split('/') || [],
+      relPath = relative.pathname && relative.pathname.split('/') || [],
+      psychotic = result.protocol && !slashedProtocol[result.protocol];
+
+  // if the url is a non-slashed url, then relative
+  // links like ../.. should be able
+  // to crawl up to the hostname, as well.  This is strange.
+  // result.protocol has already been set by now.
+  // Later on, put the first path part into the host field.
+  if (psychotic) {
+    result.hostname = '';
+    result.port = null;
+    if (result.host) {
+      if (srcPath[0] === '') srcPath[0] = result.host;
+      else srcPath.unshift(result.host);
+    }
+    result.host = '';
+    if (relative.protocol) {
+      relative.hostname = null;
+      relative.port = null;
+      if (relative.host) {
+        if (relPath[0] === '') relPath[0] = relative.host;
+        else relPath.unshift(relative.host);
+      }
+      relative.host = null;
+    }
+    mustEndAbs = mustEndAbs && (relPath[0] === '' || srcPath[0] === '');
+  }
+
+  if (isRelAbs) {
+    // it's absolute.
+    result.host = (relative.host || relative.host === '') ?
+                  relative.host : result.host;
+    result.hostname = (relative.hostname || relative.hostname === '') ?
+                      relative.hostname : result.hostname;
+    result.search = relative.search;
+    result.query = relative.query;
+    srcPath = relPath;
+    // fall through to the dot-handling below.
+  } else if (relPath.length) {
+    // it's relative
+    // throw away the existing file, and take the new path instead.
+    if (!srcPath) srcPath = [];
+    srcPath.pop();
+    srcPath = srcPath.concat(relPath);
+    result.search = relative.search;
+    result.query = relative.query;
+  } else if (!util.isNullOrUndefined(relative.search)) {
+    // just pull out the search.
+    // like href='?foo'.
+    // Put this after the other two cases because it simplifies the booleans
+    if (psychotic) {
+      result.hostname = result.host = srcPath.shift();
+      //occationaly the auth can get stuck only in host
+      //this especially happens in cases like
+      //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
+      var authInHost = result.host && result.host.indexOf('@') > 0 ?
+                       result.host.split('@') : false;
+      if (authInHost) {
+        result.auth = authInHost.shift();
+        result.host = result.hostname = authInHost.shift();
+      }
+    }
+    result.search = relative.search;
+    result.query = relative.query;
+    //to support http.request
+    if (!util.isNull(result.pathname) || !util.isNull(result.search)) {
+      result.path = (result.pathname ? result.pathname : '') +
+                    (result.search ? result.search : '');
+    }
+    result.href = result.format();
+    return result;
+  }
+
+  if (!srcPath.length) {
+    // no path at all.  easy.
+    // we've already handled the other stuff above.
+    result.pathname = null;
+    //to support http.request
+    if (result.search) {
+      result.path = '/' + result.search;
+    } else {
+      result.path = null;
+    }
+    result.href = result.format();
+    return result;
+  }
+
+  // if a url ENDs in . or .., then it must get a trailing slash.
+  // however, if it ends in anything else non-slashy,
+  // then it must NOT get a trailing slash.
+  var last = srcPath.slice(-1)[0];
+  var hasTrailingSlash = (
+      (result.host || relative.host || srcPath.length > 1) &&
+      (last === '.' || last === '..') || last === '');
+
+  // strip single dots, resolve double dots to parent dir
+  // if the path tries to go above the root, `up` ends up > 0
+  var up = 0;
+  for (var i = srcPath.length; i >= 0; i--) {
+    last = srcPath[i];
+    if (last === '.') {
+      srcPath.splice(i, 1);
+    } else if (last === '..') {
+      srcPath.splice(i, 1);
+      up++;
+    } else if (up) {
+      srcPath.splice(i, 1);
+      up--;
+    }
+  }
+
+  // if the path is allowed to go above the root, restore leading ..s
+  if (!mustEndAbs && !removeAllDots) {
+    for (; up--; up) {
+      srcPath.unshift('..');
+    }
+  }
+
+  if (mustEndAbs && srcPath[0] !== '' &&
+      (!srcPath[0] || srcPath[0].charAt(0) !== '/')) {
+    srcPath.unshift('');
+  }
+
+  if (hasTrailingSlash && (srcPath.join('/').substr(-1) !== '/')) {
+    srcPath.push('');
+  }
+
+  var isAbsolute = srcPath[0] === '' ||
+      (srcPath[0] && srcPath[0].charAt(0) === '/');
+
+  // put the host back
+  if (psychotic) {
+    result.hostname = result.host = isAbsolute ? '' :
+                                    srcPath.length ? srcPath.shift() : '';
+    //occationaly the auth can get stuck only in host
+    //this especially happens in cases like
+    //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
+    var authInHost = result.host && result.host.indexOf('@') > 0 ?
+                     result.host.split('@') : false;
+    if (authInHost) {
+      result.auth = authInHost.shift();
+      result.host = result.hostname = authInHost.shift();
+    }
+  }
+
+  mustEndAbs = mustEndAbs || (result.host && srcPath.length);
+
+  if (mustEndAbs && !isAbsolute) {
+    srcPath.unshift('');
+  }
+
+  if (!srcPath.length) {
+    result.pathname = null;
+    result.path = null;
+  } else {
+    result.pathname = srcPath.join('/');
+  }
+
+  //to support request.http
+  if (!util.isNull(result.pathname) || !util.isNull(result.search)) {
+    result.path = (result.pathname ? result.pathname : '') +
+                  (result.search ? result.search : '');
+  }
+  result.auth = relative.auth || result.auth;
+  result.slashes = result.slashes || relative.slashes;
+  result.href = result.format();
+  return result;
+};
+
+Url.prototype.parseHost = function() {
+  var host = this.host;
+  var port = portPattern.exec(host);
+  if (port) {
+    port = port[0];
+    if (port !== ':') {
+      this.port = port.substr(1);
+    }
+    host = host.substr(0, host.length - port.length);
+  }
+  if (host) this.hostname = host;
+};
+
+},{"./util":48,"punycode":35,"querystring":44}],48:[function(require,module,exports){
+'use strict';
+
+module.exports = {
+  isString: function(arg) {
+    return typeof(arg) === 'string';
+  },
+  isObject: function(arg) {
+    return typeof(arg) === 'object' && arg !== null;
+  },
+  isNull: function(arg) {
+    return arg === null;
+  },
+  isNullOrUndefined: function(arg) {
+    return arg == null;
+  }
+};
+
+},{}],49:[function(require,module,exports){
 (function(module) {
     'use strict';
 
@@ -3211,7 +4679,7 @@ module.exports = str => encodeURIComponent(str).replace(/[!'()*]/g, x => `%${x.c
 
 })(module);
 
-},{}],44:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 "use strict";
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -3521,7 +4989,7 @@ var _default = validator;
 exports.default = _default;
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./lib/blacklist":46,"./lib/contains":47,"./lib/equals":48,"./lib/escape":49,"./lib/isAfter":50,"./lib/isAlpha":51,"./lib/isAlphanumeric":52,"./lib/isAscii":53,"./lib/isBIC":54,"./lib/isBase32":55,"./lib/isBase58":56,"./lib/isBase64":57,"./lib/isBefore":58,"./lib/isBoolean":59,"./lib/isBtcAddress":60,"./lib/isByteLength":61,"./lib/isCreditCard":62,"./lib/isCurrency":63,"./lib/isDataURI":64,"./lib/isDate":65,"./lib/isDecimal":66,"./lib/isDivisibleBy":67,"./lib/isEAN":68,"./lib/isEmail":69,"./lib/isEmpty":70,"./lib/isEthereumAddress":71,"./lib/isFQDN":72,"./lib/isFloat":73,"./lib/isFullWidth":74,"./lib/isHSL":75,"./lib/isHalfWidth":76,"./lib/isHash":77,"./lib/isHexColor":78,"./lib/isHexadecimal":79,"./lib/isIBAN":80,"./lib/isIMEI":81,"./lib/isIP":82,"./lib/isIPRange":83,"./lib/isISBN":84,"./lib/isISIN":85,"./lib/isISO31661Alpha2":86,"./lib/isISO31661Alpha3":87,"./lib/isISO4217":88,"./lib/isISO8601":89,"./lib/isISRC":90,"./lib/isISSN":91,"./lib/isIdentityCard":92,"./lib/isIn":93,"./lib/isInt":94,"./lib/isJSON":95,"./lib/isJWT":96,"./lib/isLatLong":97,"./lib/isLength":98,"./lib/isLicensePlate":99,"./lib/isLocale":100,"./lib/isLowercase":101,"./lib/isMACAddress":102,"./lib/isMD5":103,"./lib/isMagnetURI":104,"./lib/isMimeType":105,"./lib/isMobilePhone":106,"./lib/isMongoId":107,"./lib/isMultibyte":108,"./lib/isNumeric":109,"./lib/isOctal":110,"./lib/isPassportNumber":111,"./lib/isPort":112,"./lib/isPostalCode":113,"./lib/isRFC3339":114,"./lib/isRgbColor":115,"./lib/isSemVer":116,"./lib/isSlug":117,"./lib/isStrongPassword":118,"./lib/isSurrogatePair":119,"./lib/isTaxID":120,"./lib/isURL":121,"./lib/isUUID":122,"./lib/isUppercase":123,"./lib/isVAT":124,"./lib/isVariableWidth":125,"./lib/isWhitelisted":126,"./lib/ltrim":127,"./lib/matches":128,"./lib/normalizeEmail":129,"./lib/rtrim":130,"./lib/stripLow":131,"./lib/toBoolean":132,"./lib/toDate":133,"./lib/toFloat":134,"./lib/toInt":135,"./lib/trim":136,"./lib/unescape":137,"./lib/whitelist":144}],45:[function(require,module,exports){
+},{"./lib/blacklist":52,"./lib/contains":53,"./lib/equals":54,"./lib/escape":55,"./lib/isAfter":56,"./lib/isAlpha":57,"./lib/isAlphanumeric":58,"./lib/isAscii":59,"./lib/isBIC":60,"./lib/isBase32":61,"./lib/isBase58":62,"./lib/isBase64":63,"./lib/isBefore":64,"./lib/isBoolean":65,"./lib/isBtcAddress":66,"./lib/isByteLength":67,"./lib/isCreditCard":68,"./lib/isCurrency":69,"./lib/isDataURI":70,"./lib/isDate":71,"./lib/isDecimal":72,"./lib/isDivisibleBy":73,"./lib/isEAN":74,"./lib/isEmail":75,"./lib/isEmpty":76,"./lib/isEthereumAddress":77,"./lib/isFQDN":78,"./lib/isFloat":79,"./lib/isFullWidth":80,"./lib/isHSL":81,"./lib/isHalfWidth":82,"./lib/isHash":83,"./lib/isHexColor":84,"./lib/isHexadecimal":85,"./lib/isIBAN":86,"./lib/isIMEI":87,"./lib/isIP":88,"./lib/isIPRange":89,"./lib/isISBN":90,"./lib/isISIN":91,"./lib/isISO31661Alpha2":92,"./lib/isISO31661Alpha3":93,"./lib/isISO4217":94,"./lib/isISO8601":95,"./lib/isISRC":96,"./lib/isISSN":97,"./lib/isIdentityCard":98,"./lib/isIn":99,"./lib/isInt":100,"./lib/isJSON":101,"./lib/isJWT":102,"./lib/isLatLong":103,"./lib/isLength":104,"./lib/isLicensePlate":105,"./lib/isLocale":106,"./lib/isLowercase":107,"./lib/isMACAddress":108,"./lib/isMD5":109,"./lib/isMagnetURI":110,"./lib/isMimeType":111,"./lib/isMobilePhone":112,"./lib/isMongoId":113,"./lib/isMultibyte":114,"./lib/isNumeric":115,"./lib/isOctal":116,"./lib/isPassportNumber":117,"./lib/isPort":118,"./lib/isPostalCode":119,"./lib/isRFC3339":120,"./lib/isRgbColor":121,"./lib/isSemVer":122,"./lib/isSlug":123,"./lib/isStrongPassword":124,"./lib/isSurrogatePair":125,"./lib/isTaxID":126,"./lib/isURL":127,"./lib/isUUID":128,"./lib/isUppercase":129,"./lib/isVAT":130,"./lib/isVariableWidth":131,"./lib/isWhitelisted":132,"./lib/ltrim":133,"./lib/matches":134,"./lib/normalizeEmail":135,"./lib/rtrim":136,"./lib/stripLow":137,"./lib/toBoolean":138,"./lib/toDate":139,"./lib/toFloat":140,"./lib/toInt":141,"./lib/trim":142,"./lib/unescape":143,"./lib/whitelist":150}],51:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3659,7 +5127,7 @@ alphanumeric['pl-Pl'] = alphanumeric['pl-PL'];
 decimal['pl-Pl'] = decimal['pl-PL']; // see #1455
 
 alpha['fa-AF'] = alpha.fa;
-},{}],46:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3678,7 +5146,7 @@ function blacklist(str, chars) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],47:[function(require,module,exports){
+},{"./util/assertString":145}],53:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3712,7 +5180,7 @@ function contains(str, elem, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139,"./util/merge":141,"./util/toString":143}],48:[function(require,module,exports){
+},{"./util/assertString":145,"./util/merge":147,"./util/toString":149}],54:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3731,7 +5199,7 @@ function equals(str, comparison) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],49:[function(require,module,exports){
+},{"./util/assertString":145}],55:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3750,7 +5218,7 @@ function escape(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],50:[function(require,module,exports){
+},{"./util/assertString":145}],56:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3774,7 +5242,7 @@ function isAfter(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./toDate":133,"./util/assertString":139}],51:[function(require,module,exports){
+},{"./toDate":139,"./util/assertString":145}],57:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3815,7 +5283,7 @@ function isAlpha(_str) {
 
 var locales = Object.keys(_alpha.alpha);
 exports.locales = locales;
-},{"./alpha":45,"./util/assertString":139}],52:[function(require,module,exports){
+},{"./alpha":51,"./util/assertString":145}],58:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3856,7 +5324,7 @@ function isAlphanumeric(_str) {
 
 var locales = Object.keys(_alpha.alphanumeric);
 exports.locales = locales;
-},{"./alpha":45,"./util/assertString":139}],53:[function(require,module,exports){
+},{"./alpha":51,"./util/assertString":145}],59:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3879,7 +5347,7 @@ function isAscii(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],54:[function(require,module,exports){
+},{"./util/assertString":145}],60:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3909,7 +5377,7 @@ function isBIC(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isISO31661Alpha2":86,"./util/assertString":139}],55:[function(require,module,exports){
+},{"./isISO31661Alpha2":92,"./util/assertString":145}],61:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3936,7 +5404,7 @@ function isBase32(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],56:[function(require,module,exports){
+},{"./util/assertString":145}],62:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3963,7 +5431,7 @@ function isBase58(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],57:[function(require,module,exports){
+},{"./util/assertString":145}],63:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4002,7 +5470,7 @@ function isBase64(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139,"./util/merge":141}],58:[function(require,module,exports){
+},{"./util/assertString":145,"./util/merge":147}],64:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4026,7 +5494,7 @@ function isBefore(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./toDate":133,"./util/assertString":139}],59:[function(require,module,exports){
+},{"./toDate":139,"./util/assertString":145}],65:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4057,7 +5525,7 @@ function isBoolean(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],60:[function(require,module,exports){
+},{"./util/assertString":145}],66:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4085,7 +5553,7 @@ function isBtcAddress(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],61:[function(require,module,exports){
+},{"./util/assertString":145}],67:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4120,7 +5588,7 @@ function isByteLength(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],62:[function(require,module,exports){
+},{"./util/assertString":145}],68:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4173,7 +5641,7 @@ function isCreditCard(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],63:[function(require,module,exports){
+},{"./util/assertString":145}],69:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4265,7 +5733,7 @@ function isCurrency(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139,"./util/merge":141}],64:[function(require,module,exports){
+},{"./util/assertString":145,"./util/merge":147}],70:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4319,7 +5787,7 @@ function isDataURI(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],65:[function(require,module,exports){
+},{"./util/assertString":145}],71:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4419,7 +5887,7 @@ function isDate(input, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/merge":141}],66:[function(require,module,exports){
+},{"./util/merge":147}],72:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4462,7 +5930,7 @@ function isDecimal(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./alpha":45,"./util/assertString":139,"./util/includes":140,"./util/merge":141}],67:[function(require,module,exports){
+},{"./alpha":51,"./util/assertString":145,"./util/includes":146,"./util/merge":147}],73:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4483,7 +5951,7 @@ function isDivisibleBy(str, num) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./toFloat":134,"./util/assertString":139}],68:[function(require,module,exports){
+},{"./toFloat":140,"./util/assertString":145}],74:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4569,7 +6037,7 @@ function isEAN(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],69:[function(require,module,exports){
+},{"./util/assertString":145}],75:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4767,7 +6235,7 @@ function isEmail(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isByteLength":61,"./isFQDN":72,"./isIP":82,"./util/assertString":139,"./util/merge":141}],70:[function(require,module,exports){
+},{"./isByteLength":67,"./isFQDN":78,"./isIP":88,"./util/assertString":145,"./util/merge":147}],76:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4793,7 +6261,7 @@ function isEmpty(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139,"./util/merge":141}],71:[function(require,module,exports){
+},{"./util/assertString":145,"./util/merge":147}],77:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4814,7 +6282,7 @@ function isEthereumAddress(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],72:[function(require,module,exports){
+},{"./util/assertString":145}],78:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4904,7 +6372,7 @@ function isFQDN(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139,"./util/merge":141}],73:[function(require,module,exports){
+},{"./util/assertString":145,"./util/merge":147}],79:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4934,7 +6402,7 @@ function isFloat(str, options) {
 
 var locales = Object.keys(_alpha.decimal);
 exports.locales = locales;
-},{"./alpha":45,"./util/assertString":139}],74:[function(require,module,exports){
+},{"./alpha":51,"./util/assertString":145}],80:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4954,7 +6422,7 @@ function isFullWidth(str) {
   (0, _assertString.default)(str);
   return fullWidth.test(str);
 }
-},{"./util/assertString":139}],75:[function(require,module,exports){
+},{"./util/assertString":145}],81:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4983,7 +6451,7 @@ function isHSL(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],76:[function(require,module,exports){
+},{"./util/assertString":145}],82:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5003,7 +6471,7 @@ function isHalfWidth(str) {
   (0, _assertString.default)(str);
   return halfWidth.test(str);
 }
-},{"./util/assertString":139}],77:[function(require,module,exports){
+},{"./util/assertString":145}],83:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5039,7 +6507,7 @@ function isHash(str, algorithm) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],78:[function(require,module,exports){
+},{"./util/assertString":145}],84:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5060,7 +6528,7 @@ function isHexColor(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],79:[function(require,module,exports){
+},{"./util/assertString":145}],85:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5081,7 +6549,7 @@ function isHexadecimal(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],80:[function(require,module,exports){
+},{"./util/assertString":145}],86:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5232,7 +6700,7 @@ function isIBAN(str) {
 
 var locales = Object.keys(ibanRegexThroughCountryCode);
 exports.locales = locales;
-},{"./util/assertString":139}],81:[function(require,module,exports){
+},{"./util/assertString":145}],87:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5294,7 +6762,7 @@ function isIMEI(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],82:[function(require,module,exports){
+},{"./util/assertString":145}],88:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5370,7 +6838,7 @@ function isIP(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],83:[function(require,module,exports){
+},{"./util/assertString":145}],89:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5433,7 +6901,7 @@ function isIPRange(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isIP":82,"./util/assertString":139}],84:[function(require,module,exports){
+},{"./isIP":88,"./util/assertString":145}],90:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5499,7 +6967,7 @@ function isISBN(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],85:[function(require,module,exports){
+},{"./util/assertString":145}],91:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5573,7 +7041,7 @@ function isISIN(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],86:[function(require,module,exports){
+},{"./util/assertString":145}],92:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5596,7 +7064,7 @@ function isISO31661Alpha2(str) {
 
 var CountryCodes = validISO31661Alpha2CountriesCodes;
 exports.CountryCodes = CountryCodes;
-},{"./util/assertString":139}],87:[function(require,module,exports){
+},{"./util/assertString":145}],93:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5618,7 +7086,7 @@ function isISO31661Alpha3(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],88:[function(require,module,exports){
+},{"./util/assertString":145}],94:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5641,7 +7109,7 @@ function isISO4217(str) {
 
 var CurrencyCodes = validISO4217CurrencyCodes;
 exports.CurrencyCodes = CurrencyCodes;
-},{"./util/assertString":139}],89:[function(require,module,exports){
+},{"./util/assertString":145}],95:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5701,7 +7169,7 @@ function isISO8601(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],90:[function(require,module,exports){
+},{"./util/assertString":145}],96:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5723,7 +7191,7 @@ function isISRC(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],91:[function(require,module,exports){
+},{"./util/assertString":145}],97:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5761,7 +7229,7 @@ function isISSN(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],92:[function(require,module,exports){
+},{"./util/assertString":145}],98:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6146,7 +7614,7 @@ function isIdentityCard(str, locale) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isInt":94,"./util/assertString":139}],93:[function(require,module,exports){
+},{"./isInt":100,"./util/assertString":145}],99:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6189,7 +7657,7 @@ function isIn(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139,"./util/toString":143}],94:[function(require,module,exports){
+},{"./util/assertString":145,"./util/toString":149}],100:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6220,7 +7688,7 @@ function isInt(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],95:[function(require,module,exports){
+},{"./util/assertString":145}],101:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6262,7 +7730,7 @@ function isJSON(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139,"./util/merge":141}],96:[function(require,module,exports){
+},{"./util/assertString":145,"./util/merge":147}],102:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6294,7 +7762,7 @@ function isJWT(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isBase64":57,"./util/assertString":139}],97:[function(require,module,exports){
+},{"./isBase64":63,"./util/assertString":145}],103:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6332,7 +7800,7 @@ function isLatLong(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139,"./util/merge":141}],98:[function(require,module,exports){
+},{"./util/assertString":145,"./util/merge":147}],104:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6368,7 +7836,7 @@ function isLength(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],99:[function(require,module,exports){
+},{"./util/assertString":145}],105:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6427,7 +7895,7 @@ function isLicensePlate(str, locale) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],100:[function(require,module,exports){
+},{"./util/assertString":145}],106:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6453,7 +7921,7 @@ function isLocale(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],101:[function(require,module,exports){
+},{"./util/assertString":145}],107:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6472,7 +7940,7 @@ function isLowercase(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],102:[function(require,module,exports){
+},{"./util/assertString":145}],108:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6503,7 +7971,7 @@ function isMACAddress(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],103:[function(require,module,exports){
+},{"./util/assertString":145}],109:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6524,7 +7992,7 @@ function isMD5(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],104:[function(require,module,exports){
+},{"./util/assertString":145}],110:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6545,7 +8013,7 @@ function isMagnetURI(url) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],105:[function(require,module,exports){
+},{"./util/assertString":145}],111:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6597,7 +8065,7 @@ function isMimeType(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],106:[function(require,module,exports){
+},{"./util/assertString":145}],112:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6798,7 +8266,7 @@ function isMobilePhone(str, locale, options) {
 
 var locales = Object.keys(phones);
 exports.locales = locales;
-},{"./util/assertString":139}],107:[function(require,module,exports){
+},{"./util/assertString":145}],113:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6819,7 +8287,7 @@ function isMongoId(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isHexadecimal":79,"./util/assertString":139}],108:[function(require,module,exports){
+},{"./isHexadecimal":85,"./util/assertString":145}],114:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6842,7 +8310,7 @@ function isMultibyte(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],109:[function(require,module,exports){
+},{"./util/assertString":145}],115:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6870,7 +8338,7 @@ function isNumeric(str, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./alpha":45,"./util/assertString":139}],110:[function(require,module,exports){
+},{"./alpha":51,"./util/assertString":145}],116:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6891,7 +8359,7 @@ function isOctal(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],111:[function(require,module,exports){
+},{"./util/assertString":145}],117:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7030,7 +8498,7 @@ function isPassportNumber(str, countryCode) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],112:[function(require,module,exports){
+},{"./util/assertString":145}],118:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7051,7 +8519,7 @@ function isPort(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isInt":94}],113:[function(require,module,exports){
+},{"./isInt":100}],119:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7161,7 +8629,7 @@ function isPostalCode(str, locale) {
 
   throw new Error("Invalid locale '".concat(locale, "'"));
 }
-},{"./util/assertString":139}],114:[function(require,module,exports){
+},{"./util/assertString":145}],120:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7195,7 +8663,7 @@ function isRFC3339(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],115:[function(require,module,exports){
+},{"./util/assertString":145}],121:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7225,7 +8693,7 @@ function isRgbColor(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],116:[function(require,module,exports){
+},{"./util/assertString":145}],122:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7254,7 +8722,7 @@ function isSemVer(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139,"./util/multilineRegex":142}],117:[function(require,module,exports){
+},{"./util/assertString":145,"./util/multilineRegex":148}],123:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7275,7 +8743,7 @@ function isSlug(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],118:[function(require,module,exports){
+},{"./util/assertString":145}],124:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7391,7 +8859,7 @@ function isStrongPassword(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139,"./util/merge":141}],119:[function(require,module,exports){
+},{"./util/assertString":145,"./util/merge":147}],125:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7412,7 +8880,7 @@ function isSurrogatePair(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],120:[function(require,module,exports){
+},{"./util/assertString":145}],126:[function(require,module,exports){
 "use strict";
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -8941,7 +10409,7 @@ function isTaxID(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isDate":65,"./util/algorithms":138,"./util/assertString":139}],121:[function(require,module,exports){
+},{"./isDate":71,"./util/algorithms":144,"./util/assertString":145}],127:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9150,7 +10618,7 @@ function isURL(url, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isFQDN":72,"./isIP":82,"./util/assertString":139,"./util/merge":141}],122:[function(require,module,exports){
+},{"./isFQDN":78,"./isIP":88,"./util/assertString":145,"./util/merge":147}],128:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9179,7 +10647,7 @@ function isUUID(str, version) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],123:[function(require,module,exports){
+},{"./util/assertString":145}],129:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9198,7 +10666,7 @@ function isUppercase(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],124:[function(require,module,exports){
+},{"./util/assertString":145}],130:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9228,7 +10696,7 @@ function isVAT(str, countryCode) {
 
   throw new Error("Invalid country code: '".concat(countryCode, "'"));
 }
-},{"./util/assertString":139}],125:[function(require,module,exports){
+},{"./util/assertString":145}],131:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9251,7 +10719,7 @@ function isVariableWidth(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isFullWidth":74,"./isHalfWidth":76,"./util/assertString":139}],126:[function(require,module,exports){
+},{"./isFullWidth":80,"./isHalfWidth":82,"./util/assertString":145}],132:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9277,7 +10745,7 @@ function isWhitelisted(str, chars) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],127:[function(require,module,exports){
+},{"./util/assertString":145}],133:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9298,7 +10766,7 @@ function ltrim(str, chars) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],128:[function(require,module,exports){
+},{"./util/assertString":145}],134:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9322,7 +10790,7 @@ function matches(str, pattern, modifiers) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],129:[function(require,module,exports){
+},{"./util/assertString":145}],135:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9474,7 +10942,7 @@ function normalizeEmail(email, options) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/merge":141}],130:[function(require,module,exports){
+},{"./util/merge":147}],136:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9507,7 +10975,7 @@ function rtrim(str, chars) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],131:[function(require,module,exports){
+},{"./util/assertString":145}],137:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9529,7 +10997,7 @@ function stripLow(str, keep_new_lines) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./blacklist":46,"./util/assertString":139}],132:[function(require,module,exports){
+},{"./blacklist":52,"./util/assertString":145}],138:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9553,7 +11021,7 @@ function toBoolean(str, strict) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],133:[function(require,module,exports){
+},{"./util/assertString":145}],139:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9573,7 +11041,7 @@ function toDate(date) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],134:[function(require,module,exports){
+},{"./util/assertString":145}],140:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9592,7 +11060,7 @@ function toFloat(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./isFloat":73}],135:[function(require,module,exports){
+},{"./isFloat":79}],141:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9611,7 +11079,7 @@ function toInt(str, radix) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],136:[function(require,module,exports){
+},{"./util/assertString":145}],142:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9631,7 +11099,7 @@ function trim(str, chars) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./ltrim":127,"./rtrim":130}],137:[function(require,module,exports){
+},{"./ltrim":133,"./rtrim":136}],143:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9652,7 +11120,7 @@ function unescape(str) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],138:[function(require,module,exports){
+},{"./util/assertString":145}],144:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9754,7 +11222,7 @@ function verhoeffCheck(str) {
 
   return checksum === 0;
 }
-},{}],139:[function(require,module,exports){
+},{}],145:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9777,7 +11245,7 @@ function assertString(input) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{}],140:[function(require,module,exports){
+},{}],146:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9795,7 +11263,7 @@ var _default = includes;
 exports.default = _default;
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{}],141:[function(require,module,exports){
+},{}],147:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9818,7 +11286,7 @@ function merge() {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{}],142:[function(require,module,exports){
+},{}],148:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9841,7 +11309,7 @@ function multilineRegexp(parts, flags) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{}],143:[function(require,module,exports){
+},{}],149:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9867,7 +11335,7 @@ function toString(input) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{}],144:[function(require,module,exports){
+},{}],150:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9886,10 +11354,10 @@ function whitelist(str, chars) {
 
 module.exports = exports.default;
 module.exports.default = exports.default;
-},{"./util/assertString":139}],145:[function(require,module,exports){
+},{"./util/assertString":145}],151:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.15.7",
+  "version": "0.16.0",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "./src/index.js",
   "dependencies": {
@@ -9968,7 +11436,7 @@ module.exports={
   }
 }
 
-},{}],146:[function(require,module,exports){
+},{}],152:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10205,7 +11673,7 @@ class Claim {
 
       if (proofData) {
         // Run the verification process
-        verificationResult = verifications.run(
+        verificationResult = await verifications.run(
           proofData.result,
           claimData,
           this._fingerprint
@@ -10287,7 +11755,7 @@ class Claim {
 
 module.exports = Claim
 
-},{"./claimDefinitions":154,"./defaults":168,"./enums":169,"./proofs":180,"./verifications":183,"merge-options":38,"valid-url":43,"validator":44}],147:[function(require,module,exports){
+},{"./claimDefinitions":160,"./defaults":174,"./enums":175,"./proofs":186,"./verifications":189,"merge-options":39,"valid-url":49,"validator":50}],153:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10363,7 +11831,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":169}],148:[function(require,module,exports){
+},{"../enums":175}],154:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10439,7 +11907,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":169}],149:[function(require,module,exports){
+},{"../enums":175}],155:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10514,7 +11982,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":169}],150:[function(require,module,exports){
+},{"../enums":175}],156:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10590,7 +12058,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":169}],151:[function(require,module,exports){
+},{"../enums":175}],157:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10666,7 +12134,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":169}],152:[function(require,module,exports){
+},{"../enums":175}],158:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10742,7 +12210,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":169}],153:[function(require,module,exports){
+},{"../enums":175}],159:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10818,7 +12286,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":169}],154:[function(require,module,exports){
+},{"../enums":175}],160:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10883,7 +12351,7 @@ const data = {
 exports.list = list
 exports.data = data
 
-},{"./devto":147,"./discourse":148,"./dns":149,"./gitea":150,"./github":151,"./gitlab":152,"./hackernews":153,"./irc":155,"./liberapay":156,"./lichess":157,"./lobsters":158,"./mastodon":159,"./matrix":160,"./owncast":161,"./pleroma":162,"./reddit":163,"./stackexchange":164,"./telegram":165,"./twitter":166,"./xmpp":167}],155:[function(require,module,exports){
+},{"./devto":153,"./discourse":154,"./dns":155,"./gitea":156,"./github":157,"./gitlab":158,"./hackernews":159,"./irc":161,"./liberapay":162,"./lichess":163,"./lobsters":164,"./mastodon":165,"./matrix":166,"./owncast":167,"./pleroma":168,"./reddit":169,"./stackexchange":170,"./telegram":171,"./twitter":172,"./xmpp":173}],161:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -10963,7 +12431,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":169}],156:[function(require,module,exports){
+},{"../enums":175}],162:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11039,7 +12507,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":169}],157:[function(require,module,exports){
+},{"../enums":175}],163:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11115,7 +12583,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":169}],158:[function(require,module,exports){
+},{"../enums":175}],164:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11191,7 +12659,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":169}],159:[function(require,module,exports){
+},{"../enums":175}],165:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11267,7 +12735,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":169}],160:[function(require,module,exports){
+},{"../enums":175}],166:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11362,7 +12830,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":169,"query-string":40}],161:[function(require,module,exports){
+},{"../enums":175,"query-string":41}],167:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11442,7 +12910,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":169}],162:[function(require,module,exports){
+},{"../enums":175}],168:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11518,7 +12986,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":169}],163:[function(require,module,exports){
+},{"../enums":175}],169:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11602,7 +13070,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":169}],164:[function(require,module,exports){
+},{"../enums":175}],170:[function(require,module,exports){
 /*
 Copyright 2022 Yarmo Mackenbach
 
@@ -11721,7 +13189,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":169}],165:[function(require,module,exports){
+},{"../enums":175}],171:[function(require,module,exports){
 /*
 Copyright 2022 Maximilian Siling
 
@@ -11805,7 +13273,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":169}],166:[function(require,module,exports){
+},{"../enums":175}],172:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11880,7 +13348,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":169}],167:[function(require,module,exports){
+},{"../enums":175}],173:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -11956,7 +13424,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":169}],168:[function(require,module,exports){
+},{"../enums":175}],174:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12024,7 +13492,7 @@ const opts = {
 
 exports.opts = opts
 
-},{"./enums":169}],169:[function(require,module,exports){
+},{"./enums":175}],175:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12164,7 +13632,7 @@ exports.ClaimFormat = ClaimFormat
 exports.ClaimRelation = ClaimRelation
 exports.ClaimStatus = ClaimStatus
 
-},{}],170:[function(require,module,exports){
+},{}],176:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12237,7 +13705,7 @@ if (jsEnv.isNode) {
   module.exports.fn = null
 }
 
-},{"browser-or-node":32,"dns":34}],171:[function(require,module,exports){
+},{"browser-or-node":32,"dns":34}],177:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12334,7 +13802,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"../../package.json":145,"../enums":169,"axios":3}],172:[function(require,module,exports){
+},{"../../package.json":151,"../enums":175,"axios":3}],178:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12359,7 +13827,7 @@ exports.telegram = require('./telegram')
 exports.twitter = require('./twitter')
 exports.xmpp = require('./xmpp')
 
-},{"./dns":170,"./http":171,"./irc":173,"./matrix":174,"./telegram":175,"./twitter":176,"./xmpp":177}],173:[function(require,module,exports){
+},{"./dns":176,"./http":177,"./irc":179,"./matrix":180,"./telegram":181,"./twitter":182,"./xmpp":183}],179:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12457,7 +13925,7 @@ if (jsEnv.isNode) {
   module.exports.fn = null
 }
 
-},{"browser-or-node":32,"irc-upd":"irc-upd","validator":44}],174:[function(require,module,exports){
+},{"browser-or-node":32,"irc-upd":"irc-upd","validator":50}],180:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12537,7 +14005,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"axios":3,"validator":44}],175:[function(require,module,exports){
+},{"axios":3,"validator":50}],181:[function(require,module,exports){
 /*
 Copyright 2022 Maximilian Siling
 
@@ -12649,7 +14117,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"../../package.json":145,"axios":3,"validator":44}],176:[function(require,module,exports){
+},{"../../package.json":151,"axios":3,"validator":50}],182:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12732,7 +14200,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"axios":3,"validator":44}],177:[function(require,module,exports){
+},{"axios":3,"validator":50}],183:[function(require,module,exports){
 (function (process){(function (){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -12846,9 +14314,9 @@ if (jsEnv.isNode) {
         switch (data.field.toLowerCase()) {
           case 'desc':
           case 'note':
-            vcard = dom.window.document.querySelector('note')
+            vcard = dom.window.document.querySelector('note text')
             if (!vcard) {
-              vcard = dom.window.document.querySelector('note text')
+              vcard = dom.window.document.querySelector('note')
             }
             if (!vcard) {
               vcard = dom.window.document.querySelector('DESC')
@@ -12881,7 +14349,7 @@ if (jsEnv.isNode) {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"@xmpp/client":"@xmpp/client","@xmpp/debug":"@xmpp/debug","_process":39,"browser-or-node":32,"jsdom":"jsdom","validator":44}],178:[function(require,module,exports){
+},{"@xmpp/client":"@xmpp/client","@xmpp/debug":"@xmpp/debug","_process":40,"browser-or-node":32,"jsdom":"jsdom","validator":50}],184:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -12915,7 +14383,7 @@ exports.enums = enums
 exports.defaults = defaults
 exports.utils = utils
 
-},{"./claim":146,"./claimDefinitions":154,"./defaults":168,"./enums":169,"./keys":179,"./proofs":180,"./signatures":181,"./utils":182}],179:[function(require,module,exports){
+},{"./claim":152,"./claimDefinitions":160,"./defaults":174,"./enums":175,"./keys":185,"./proofs":186,"./signatures":187,"./utils":188}],185:[function(require,module,exports){
 (function (global){(function (){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -13240,7 +14708,7 @@ exports.fetch = fetch
 exports.process = process
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./claim":146,"@openpgp/hkp-client":1,"@openpgp/wkd-client":2,"axios":3,"valid-url":43}],180:[function(require,module,exports){
+},{"./claim":152,"@openpgp/hkp-client":1,"@openpgp/wkd-client":2,"axios":3,"valid-url":49}],186:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -13419,7 +14887,7 @@ const createFallbackRequestPromise = (data, opts) => {
 
 exports.fetch = fetch
 
-},{"./enums":169,"./fetcher":172,"./utils":182,"browser-or-node":32}],181:[function(require,module,exports){
+},{"./enums":175,"./fetcher":178,"./utils":188,"browser-or-node":32}],187:[function(require,module,exports){
 (function (global){(function (){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -13580,7 +15048,7 @@ const process = async (signature) => {
 exports.process = process
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./claim":146,"./keys":179}],182:[function(require,module,exports){
+},{"./claim":152,"./keys":185}],188:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -13646,10 +15114,45 @@ const generateClaim = (fingerprint, format) => {
   }
 }
 
+/**
+ * Get the URIs from a string and return them as an array
+ * @param {string} text         - The text that may contain URIs
+ * @returns {Array.string}
+ */
+const getUriFromString = (text) => {
+  const re = /((([A-Za-z0-9]+:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www\.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w\-_]*)?\??(?:[-+=&;%@.\w_]*)#?(?:[.!/\\\w]*))?)/gi
+  const res = text.match(re)
+
+  const urls = []
+
+  if (!res) {
+    return []
+  }
+
+  res.forEach(url => {
+    // Remove bad trailing characters
+    let hasBadTrailingChars = true
+
+    while (hasBadTrailingChars) {
+      const lastChar = url.charAt(url.length - 1)
+      if ('?!.'.indexOf(lastChar) === -1) {
+        hasBadTrailingChars = false
+        continue
+      }
+      url = url.substring(0, url.length - 1)
+    }
+
+    urls.push(url)
+  })
+
+  return urls
+}
+
 exports.generateProxyURL = generateProxyURL
 exports.generateClaim = generateClaim
+exports.getUriFromString = getUriFromString
 
-},{"./enums":169,"validator":44}],183:[function(require,module,exports){
+},{"./enums":175,"validator":50}],189:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -13665,6 +15168,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+const axios = require('axios')
+const { URL } = require('url')
 const utils = require('./utils')
 const E = require('./enums')
 
@@ -13673,40 +15178,80 @@ const E = require('./enums')
  * @ignore
  */
 
-const runJSON = (proofData, checkPath, checkClaim, checkRelation) => {
-  let re
+const containsProof = async (data, target) => {
+  let result = false
 
+  // Check for plaintext proof
+  result = data.replace(/\r?\n|\r/g, '')
+    .toLowerCase()
+    .indexOf(target.toLowerCase()) !== -1
+
+  // Check for HTTP proof if plaintext not found
+  if (!result) {
+    const uris = utils.getUriFromString(data)
+
+    for (let index = 0; index < uris.length; index++) {
+      if (result) continue
+
+      const candidate = uris[index]
+      let candidateURL
+
+      try {
+        candidateURL = new URL(candidate)
+      } catch (_) {
+        continue
+      }
+
+      if (candidateURL.protocol !== 'https:') {
+        continue
+      }
+
+      const response = await axios.head(candidate, {
+        maxRedirects: 1
+      })
+
+      if (response.status !== 200) continue
+      if (!response.headers['ariadne-identity-proof']) continue
+
+      result = response.headers['ariadne-identity-proof']
+        .toLowerCase()
+        .indexOf(target.toLowerCase()) !== -1
+    }
+  }
+
+  return result
+}
+
+const runJSON = async (proofData, checkPath, checkClaim, checkRelation) => {
   if (!proofData) {
     return false
   }
 
   if (Array.isArray(proofData)) {
     let result = false
-    proofData.forEach((item, i) => {
+
+    for (let index = 0; index < proofData.length; index++) {
+      const item = proofData[index]
+
       if (result) {
-        return
+        continue
       }
-      result = runJSON(item, checkPath, checkClaim, checkRelation)
-    })
+
+      result = await runJSON(item, checkPath, checkClaim, checkRelation)
+    }
+
     return result
   }
 
   if (checkPath.length === 0) {
     switch (checkRelation) {
-      case E.ClaimRelation.EQUALS:
-        return (
-          proofData.replace(/\r?\n|\r|\\/g, '').toLowerCase() ===
-          checkClaim.toLowerCase()
-        )
-
       case E.ClaimRelation.ONEOF:
-        re = new RegExp(checkClaim, 'gi')
-        return re.test(proofData.join('|'))
+        return await containsProof(proofData.join('|'), checkClaim)
 
       case E.ClaimRelation.CONTAINS:
+      case E.ClaimRelation.EQUALS:
       default:
-        re = new RegExp(checkClaim, 'gi')
-        return re.test(proofData.replace(/\r?\n|\r|\\/g, ''))
+        return await containsProof(proofData, checkClaim)
     }
   }
 
@@ -13714,7 +15259,7 @@ const runJSON = (proofData, checkPath, checkClaim, checkRelation) => {
     throw new Error('err_json_structure_incorrect')
   }
 
-  return runJSON(
+  return await runJSON(
     proofData[checkPath[0]],
     checkPath.slice(1),
     checkClaim,
@@ -13724,12 +15269,13 @@ const runJSON = (proofData, checkPath, checkClaim, checkRelation) => {
 
 /**
  * Run the verification by finding the formatted fingerprint in the proof
+ * @async
  * @param {object} proofData    - The proof data
  * @param {object} claimData    - The claim data
  * @param {string} fingerprint  - The fingerprint
  * @returns {object}
  */
-const run = (proofData, claimData, fingerprint) => {
+const run = async (proofData, claimData, fingerprint) => {
   const res = {
     result: false,
     completed: false,
@@ -13739,7 +15285,7 @@ const run = (proofData, claimData, fingerprint) => {
   switch (claimData.proof.request.format) {
     case E.ProofFormat.JSON:
       try {
-        res.result = runJSON(
+        res.result = await runJSON(
           proofData,
           claimData.claim.path,
           utils.generateClaim(fingerprint, claimData.claim.format),
@@ -13752,14 +15298,8 @@ const run = (proofData, claimData, fingerprint) => {
       break
     case E.ProofFormat.TEXT:
       try {
-        const re = new RegExp(
-          utils
-            .generateClaim(fingerprint, claimData.claim.format)
-            .replace('[', '\\[')
-            .replace(']', '\\]'),
-          'gi'
-        )
-        res.result = re.test(proofData.replace(/\r?\n|\r/, ''))
+        res.result = await containsProof(proofData,
+          utils.generateClaim(fingerprint, claimData.claim.format))
         res.completed = true
       } catch (error) {
         res.errors.push('err_unknown_text_verification')
@@ -13772,5 +15312,5 @@ const run = (proofData, claimData, fingerprint) => {
 
 exports.run = run
 
-},{"./enums":169,"./utils":182}]},{},[178])(178)
+},{"./enums":175,"./utils":188,"axios":3,"url":47}]},{},[184])(184)
 });

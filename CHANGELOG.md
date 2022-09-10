@@ -5,9 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.16.0] - 2022-09-10
 ### Added
 - StackExchange claim verification
 - Telegram claim verification (thanks [Goldstein](https://codeberg.org/Goldstein)!)
+- HTTP proof support
 ### Fixed
 - Fix XMPP fetcher logic
 ### Removed
