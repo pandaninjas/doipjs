@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.1] - 2022-09-10
+### Changed
+- Updated dependencies
+### Fixed
+- Telegram route input validation
+- Use fetch instead of axios for HTTP proofs
+
 ## [0.16.0] - 2022-09-10
 ### Added
 - StackExchange claim verification
