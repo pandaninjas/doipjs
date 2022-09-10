@@ -234,7 +234,7 @@ class Claim {
 
       if (proofData) {
         // Run the verification process
-        verificationResult = verifications.run(
+        verificationResult = await verifications.run(
           proofData.result,
           claimData,
           this._fingerprint
