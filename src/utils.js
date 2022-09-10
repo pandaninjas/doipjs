@@ -63,5 +63,40 @@ const generateClaim = (fingerprint, format) => {
   }
 }
 
+/**
+ * Get the URIs from a string and return them as an array
+ * @param {string} text         - The text that may contain URIs
+ * @returns {Array.string}
+ */
+const getUriFromString = (text) => {
+  const re = /((([A-Za-z0-9]+:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www\.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w\-_]*)?\??(?:[-+=&;%@.\w_]*)#?(?:[.!/\\\w]*))?)/gi
+  const res = text.match(re)
+
+  const urls = []
+
+  if (!res) {
+    return []
+  }
+
+  res.forEach(url => {
+    // Remove bad trailing characters
+    let hasBadTrailingChars = true
+
+    while (hasBadTrailingChars) {
+      const lastChar = url.charAt(url.length - 1)
+      if ('?!.'.indexOf(lastChar) === -1) {
+        hasBadTrailingChars = false
+        continue
+      }
+      url = url.substring(0, url.length - 1)
+    }
+
+    urls.push(url)
+  })
+
+  return urls
+}
+
 exports.generateProxyURL = generateProxyURL
 exports.generateClaim = generateClaim
+exports.getUriFromString = getUriFromString

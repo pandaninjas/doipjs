@@ -18,6 +18,14 @@ const expect = chai.expect
 
 const doipjs = require('../src')
 
+const textWithUrls = `This is text with URLs like https://domain.tld. Ow, a trailing dot.
+What about (https://between.parentheses)? What about [https://between.brackets]?
+What about https://in.question? What about https://in.exclamation!
+And openpgp4fpr:123123, nonsense:123123`
+const urlsFromText = ["https://domain.tld", "https://between.parentheses",
+  "https://between.brackets", "https://in.question", "https://in.exclamation",
+  "openpgp4fpr:123123", "nonsense:123123"]
+
 describe('utils.generateClaim', () => {
   it('should be a function (2 arguments)', () => {
     expect(doipjs.utils.generateClaim).to.be.a('function')
@@ -56,4 +64,17 @@ describe('utils.generateProxyURL', () => {
       doipjs.utils.generateProxyURL('dns', { domain: 'domain.org' }, opts)
     ).to.equal('https://localhost/api/2/get/dns?domain=domain.org')
   })
+})
+
+describe('utils.getUriFromString', () => {
+  it('should be a function (1 arguments)', () => {
+    expect(doipjs.utils.getUriFromString).to.be.a('function')
+    expect(doipjs.utils.getUriFromString).to.have.length(1)
+  })
+  it('should extract URLs from text', () => {
+    expect(
+      doipjs.utils.getUriFromString(textWithUrls)
+    ).to.have.length(urlsFromText.length)
+  })
+  // TODO Properly check each URL
 })
