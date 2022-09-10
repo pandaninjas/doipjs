@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 const axios = require('axios')
-const { URL } = require('node:url')
+const { URL } = require('url')
 const utils = require('./utils')
 const E = require('./enums')
 
