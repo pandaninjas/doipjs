@@ -177,7 +177,9 @@ router.get(
 
 // Telegram route
 router.get(
-  '/get/telegram', query('chat').isString(),
+  '/get/telegram',
+  query('user').isString(),
+  query('chat').isString(),
   async (req, res) => {
     if (!opts.claims.telegram.token) {
       return res.status(501).json({ errors: 'Telegram not enabled on server' })
