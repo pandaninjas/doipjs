@@ -13,8 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const axios = require('axios')
-const { URL } = require('url')
 const utils = require('./utils')
 const E = require('./enums')
 
@@ -51,14 +49,19 @@ const containsProof = async (data, target) => {
         continue
       }
 
-      const response = await axios.head(candidate, {
-        maxRedirects: 1
+      // Using fetch -> axios doesn't find the ariadne-identity-proof header
+      const response = await fetch(candidate, { // eslint-disable-line
+        method: 'HEAD'
       })
+        .catch(e => {
+          return false
+        })
 
+      if (!response) continue
       if (response.status !== 200) continue
-      if (!response.headers['ariadne-identity-proof']) continue
+      if (!response.headers.get('ariadne-identity-proof')) continue
 
-      result = response.headers['ariadne-identity-proof']
+      result = response.headers.get('ariadne-identity-proof')
         .toLowerCase()
         .indexOf(target.toLowerCase()) !== -1
     }
