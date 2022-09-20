@@ -17,7 +17,7 @@ const chai = require('chai')
 const expect = chai.expect
 chai.use(require('chai-as-promised'))
 
-const doipjs = require('../dist/doip')
+const doipjs = require('../src')
 
 const fingerprint = '3637202523e7c1309ab79e99ef2dc5827b445f4b'
 const plaintextCorrectProofData = [
@@ -40,7 +40,7 @@ const bcryptIncorrectProofData = [
 ]
 const claimData = doipjs.claimDefinitions.data.irc.processURI('irc://domain.tld/test')
 
-describe('run', () => {
+describe('verifications.run', () => {
   it('should verify a plaintext proof', async () => {
     const result = await doipjs.verifications.run(plaintextCorrectProofData, claimData, fingerprint)
     expect(result.result).to.be.true
