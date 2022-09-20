@@ -21,6 +21,7 @@ const signatures = require('./signatures')
 const enums = require('./enums')
 const defaults = require('./defaults')
 const utils = require('./utils')
+const verifications = require('./verifications')
 
 exports.Claim = Claim
 exports.claimDefinitions = claimDefinitions
@@ -30,3 +31,4 @@ exports.signatures = signatures
 exports.enums = enums
 exports.defaults = defaults
 exports.utils = utils
+exports.verifications = verifications
