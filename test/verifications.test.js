@@ -18,8 +18,6 @@ const expect = chai.expect
 chai.use(require('chai-as-promised'))
 
 const doipjs = require('../dist/doip')
-// const verifications = require('../dist/verifications')
-// const verifications = require('../src/verifications')
 
 const fingerprint = '3637202523e7c1309ab79e99ef2dc5827b445f4b'
 const plaintextCorrectProofData = [
