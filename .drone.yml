@@ -25,17 +25,19 @@ steps:
     image: plugins/npm
     settings:
       username: yarmo_eu
-      token:
+      password:
         from_secret: npm_token
       email:
         from_secret: npm_email
 
-trigger:
-  event:
-    - tag
-
 depends_on:
   - test
+
+trigger:
+  branch:
+    - main
+  event:
+    - tag
 
 ---
 kind: pipeline
@@ -63,12 +65,14 @@ steps:
       repo: keyoxide/doip-proxy
       auto_tag: true
 
-trigger:
-  event:
-    - tag
-
 depends_on:
   - test
+
+trigger:
+  branch:
+    - main
+  event:
+    - tag
 
 ---
 kind: pipeline
@@ -90,5 +94,7 @@ depends_on:
   - test
 
 trigger:
+  branch:
+    - main
   event:
     - push
