@@ -38,14 +38,33 @@ const containsProof = async (data, fingerprint, claimFormat) => {
     let match
 
     while (!result && (match = hashRe.exec(data)) != null) {
+      let timeoutHandle
+      const timeoutPromise = new Promise((resolve, reject) => {
+        timeoutHandle = setTimeout(
+          () => {
+            resolve(false)
+          }, 1000
+        )
+      })
+
       switch (match[1]) {
         case '2a':
         case '2b':
         case '2y':
           try {
-            result = await bcryptVerify({
+            // Patch until promise.race properly works on WASM
+            if (parseInt(match[0].split('$')[2]) > 12) continue
+
+            const hashPromise = bcryptVerify({
               password: fingerprintURI,
               hash: match[0]
+            })
+              .then(result => result)
+              .catch(_ => false)
+
+            result = await Promise.race([hashPromise, timeoutPromise]).then((result) => {
+              clearTimeout(timeoutHandle)
+              return result
             })
           } catch (err) {
             result = false
@@ -57,9 +76,16 @@ const containsProof = async (data, fingerprint, claimFormat) => {
         case 'argon2d':
         case 'argon2id':
           try {
-            result = await argon2Verify({
+            const hashPromise = argon2Verify({
               password: fingerprintURI,
               hash: match[0]
+            })
+              .then(result => result)
+              .catch(_ => false)
+
+            result = await Promise.race([hashPromise, timeoutPromise]).then((result) => {
+              clearTimeout(timeoutHandle)
+              return result
             })
           } catch (err) {
             result = false

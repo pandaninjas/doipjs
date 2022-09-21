@@ -38,6 +38,9 @@ const bcryptCorrectProofData = [
 const bcryptIncorrectProofData = [
   '$2y$10$iHUhy320iUqJRVh7a/WlneAuJA/xRI/YEv7qxW8jfCDVmC7bmezX2'
 ]
+const bcryptCostlyProofData = [
+  '$2y$16$4Knuu11ZyPXa1qxEbEsKQemKY6ZHM8Bk7WElYfL8q5kmzNjY1Ty8W'
+]
 const claimData = doipjs.claimDefinitions.data.irc.processURI('irc://domain.tld/test')
 
 describe('verifications.run', () => {
@@ -45,7 +48,7 @@ describe('verifications.run', () => {
     const result = await doipjs.verifications.run(plaintextCorrectProofData, claimData, fingerprint)
     expect(result.result).to.be.true
   })
-  it('should not verify a wrong plaintext proof', async () => {
+  it('should reject a wrong plaintext proof', async () => {
     const result = await doipjs.verifications.run(plaintextIncorrectProofData, claimData, fingerprint)
     expect(result.result).to.be.false
   })
@@ -53,7 +56,7 @@ describe('verifications.run', () => {
     const result = await doipjs.verifications.run(argon2CorrectProofData, claimData, fingerprint)
     expect(result.result).to.be.true
   })
-  it('should not verify a wrong argon2-hashed proof', async () => {
+  it('should reject a wrong argon2-hashed proof', async () => {
     const result = await doipjs.verifications.run(argon2IncorrectProofData, claimData, fingerprint)
     expect(result.result).to.be.false
   })
@@ -61,8 +64,12 @@ describe('verifications.run', () => {
     const result = await doipjs.verifications.run(bcryptCorrectProofData, claimData, fingerprint)
     expect(result.result).to.be.true
   })
-  it('should not verify a wrong bcrypt-hashed proof', async () => {
+  it('should reject a wrong bcrypt-hashed proof', async () => {
     const result = await doipjs.verifications.run(bcryptIncorrectProofData, claimData, fingerprint)
+    expect(result.result).to.be.false
+  })
+  it('should reject a too costly hashed proof', async () => {
+    const result = await doipjs.verifications.run(bcryptCostlyProofData, claimData, fingerprint)
     expect(result.result).to.be.false
   })
 })
