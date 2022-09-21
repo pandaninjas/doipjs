@@ -34,7 +34,7 @@ const containsProof = async (data, fingerprint, claimFormat) => {
 
   // Check for hashed proof
   if (!result) {
-    const hashRe = /\$(argon2(?:id|d|i)|2a|2b|2y)(?:\$[a-zA-Z0-9=+\-,.]+)+/g
+    const hashRe = /\$(argon2(?:id|d|i)|2a|2b|2y)(?:\$[a-zA-Z0-9=+\-,./]+)+/g
     let match
 
     while (!result && (match = hashRe.exec(data)) != null) {
