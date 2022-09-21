@@ -21,6 +21,11 @@ kind: pipeline
 name: publish-npm
 
 steps:
+  - name: prepare
+    image: node
+    commands:
+    - yarn
+    - yarn run prepare
   - name: publish on npm
     image: plugins/npm
     settings:
