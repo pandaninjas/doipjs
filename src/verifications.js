@@ -15,21 +15,64 @@ limitations under the License.
 */
 const utils = require('./utils')
 const E = require('./enums')
+const { bcryptVerify, argon2Verify } = require('hash-wasm')
 
 /**
  * @module verifications
  * @ignore
  */
 
-const containsProof = async (data, target) => {
+const containsProof = async (data, fingerprint, claimFormat) => {
+  const fingerprintFormatted = utils.generateClaim(fingerprint, claimFormat)
+  const fingerprintURI = utils.generateClaim(fingerprint, E.ClaimFormat.URI)
   let result = false
 
   // Check for plaintext proof
   result = data.replace(/\r?\n|\r/g, '')
     .toLowerCase()
-    .indexOf(target.toLowerCase()) !== -1
+    .indexOf(fingerprintFormatted.toLowerCase()) !== -1
 
-  // Check for HTTP proof if plaintext not found
+  // Check for hashed proof
+  if (!result) {
+    const hashRe = /\$(argon2(?:id|d|i)|2a|2b|2y)(?:\$[a-zA-Z0-9=+\-,.]+)+/g
+    let match
+
+    while (!result && (match = hashRe.exec(data)) != null) {
+      switch (match[1]) {
+        case '2a':
+        case '2b':
+        case '2y':
+          try {
+            result = await bcryptVerify({
+              password: fingerprintURI,
+              hash: match[0]
+            })
+          } catch (err) {
+            result = false
+          }
+          break
+
+        case 'argon2':
+        case 'argon2i':
+        case 'argon2d':
+        case 'argon2id':
+          try {
+            result = await argon2Verify({
+              password: fingerprintURI,
+              hash: match[0]
+            })
+          } catch (err) {
+            result = false
+          }
+          break
+
+        default:
+          continue
+      }
+    }
+  }
+
+  // Check for HTTP proof
   if (!result) {
     const uris = utils.getUriFromString(data)
 
@@ -63,14 +106,14 @@ const containsProof = async (data, target) => {
 
       result = response.headers.get('ariadne-identity-proof')
         .toLowerCase()
-        .indexOf(target.toLowerCase()) !== -1
+        .indexOf(fingerprintURI.toLowerCase()) !== -1
     }
   }
 
   return result
 }
 
-const runJSON = async (proofData, checkPath, checkClaim, checkRelation) => {
+const runJSON = async (proofData, checkPath, checkClaim, checkClaimFormat, checkRelation) => {
   if (!proofData) {
     return false
   }
@@ -85,7 +128,7 @@ const runJSON = async (proofData, checkPath, checkClaim, checkRelation) => {
         continue
       }
 
-      result = await runJSON(item, checkPath, checkClaim, checkRelation)
+      result = await runJSON(item, checkPath, checkClaim, checkClaimFormat, checkRelation)
     }
 
     return result
@@ -94,12 +137,12 @@ const runJSON = async (proofData, checkPath, checkClaim, checkRelation) => {
   if (checkPath.length === 0) {
     switch (checkRelation) {
       case E.ClaimRelation.ONEOF:
-        return await containsProof(proofData.join('|'), checkClaim)
+        return await containsProof(proofData.join('|'), checkClaim, checkClaimFormat)
 
       case E.ClaimRelation.CONTAINS:
       case E.ClaimRelation.EQUALS:
       default:
-        return await containsProof(proofData, checkClaim)
+        return await containsProof(proofData, checkClaim, checkClaimFormat)
     }
   }
 
@@ -111,6 +154,7 @@ const runJSON = async (proofData, checkPath, checkClaim, checkRelation) => {
     proofData[checkPath[0]],
     checkPath.slice(1),
     checkClaim,
+    checkClaimFormat,
     checkRelation
   )
 }
@@ -136,7 +180,8 @@ const run = async (proofData, claimData, fingerprint) => {
         res.result = await runJSON(
           proofData,
           claimData.claim.path,
-          utils.generateClaim(fingerprint, claimData.claim.format),
+          fingerprint,
+          claimData.claim.format,
           claimData.claim.relation
         )
         res.completed = true
@@ -147,7 +192,8 @@ const run = async (proofData, claimData, fingerprint) => {
     case E.ProofFormat.TEXT:
       try {
         res.result = await containsProof(proofData,
-          utils.generateClaim(fingerprint, claimData.claim.format))
+          fingerprint,
+          claimData.claim.format)
         res.completed = true
       } catch (error) {
         res.errors.push('err_unknown_text_verification')
