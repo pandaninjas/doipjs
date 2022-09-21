@@ -34,8 +34,6 @@ depends_on:
   - test
 
 trigger:
-  branch:
-    - main
   event:
     - tag
 
@@ -69,8 +67,6 @@ depends_on:
   - test
 
 trigger:
-  branch:
-    - main
   event:
     - tag
 
