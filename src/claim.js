@@ -169,6 +169,13 @@ class Claim {
       }
 
       const candidate = def.processURI(this._uri)
+
+      // If the candidate is valid but the URI could not be processed,
+      // continue matching
+      if (!candidate) {
+        return true
+      }
+
       if (candidate.match.isAmbiguous) {
         // Add to the possible candidates
         this._matches.push(candidate)
@@ -239,9 +246,22 @@ class Claim {
           claimData,
           this._fingerprint
         )
-        verificationResult.proof = {
-          fetcher: proofData.fetcher,
-          viaProxy: proofData.viaProxy
+
+        if (verificationResult.completed) {
+          if (!verificationResult.result && this.isAmbiguous()) {
+            // Assume a wrong match and continue
+            continue
+          }
+
+          verificationResult.proof = {
+            fetcher: proofData.fetcher,
+            viaProxy: proofData.viaProxy
+          }
+
+          // Store the result, keep a single match and stop verifying
+          this._verification = verificationResult
+          this._matches = [claimData]
+          index = this._matches.length
         }
       } else {
         // Consider the proof completed but with a negative result
@@ -251,18 +271,6 @@ class Claim {
           proof: {},
           errors: [proofFetchError]
         }
-
-        if (this.isAmbiguous()) {
-          // Assume a wrong match and continue
-          continue
-        }
-      }
-
-      if (verificationResult.completed) {
-        // Store the result, keep a single match and stop verifying
-        this._verification = verificationResult
-        this._matches = [claimData]
-        index = this._matches.length
       }
     }
 
