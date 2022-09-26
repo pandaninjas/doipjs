@@ -17,7 +17,7 @@ const axios = require('axios')
 const validator = require('validator')
 
 /**
- * @module fetcher/matrix
+ * @module fetcher/matrix_legacy
  */
 
 /**
@@ -31,7 +31,8 @@ module.exports.timeout = 5000
  * @function
  * @async
  * @param {object} data                           - Data used in the request
- * @param {string} data.roomId                    - The identifier of the room containing the proof
+ * @param {string} data.eventId                   - The identifier of the targeted post
+ * @param {string} data.roomId                    - The identifier of the room containing the targeted post
  * @param {object} opts                           - Options used to enable the request
  * @param {string} opts.claims.matrix.instance    - The server hostname on which the library can log in
  * @param {string} opts.claims.matrix.accessToken - The access token required to identify the library ({@link https://www.matrix.org/docs/guides/client-server-api|Matrix docs})
@@ -51,13 +52,10 @@ module.exports.fn = async (data, opts) => {
       validator.isFQDN(opts.claims.matrix.instance)
       validator.isAscii(opts.claims.matrix.accessToken)
     } catch (err) {
-      throw new Error(`Matrix fetcher was not set up properly (${err.message})`)
+      throw new Error(`Matrix_legacy fetcher was not set up properly (${err.message})`)
     }
 
-    const urlFilter = encodeURI('{"limit": 1,"types": ["m.room.topic"]}')
-    const url = `https://${opts.claims.matrix.instance}` +
-      `/_matrix/client/v3/rooms/${data.roomId}/messages` +
-      `?access_token=${opts.claims.matrix.accessToken}&dir=b&filter=${urlFilter}`
+    const url = `https://${opts.claims.matrix.instance}/_matrix/client/r0/rooms/${data.roomId}/event/${data.eventId}?access_token=${opts.claims.matrix.accessToken}`
     axios.get(url,
       {
         headers: { Accept: 'application/json' }

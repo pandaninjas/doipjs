@@ -27,12 +27,12 @@ const processURI = (uri) => {
 
   const params = queryString.parse(match[2])
 
-  if (!('org.keyoxide.r' in params)) {
+  if (!('org.keyoxide.e' in params && 'org.keyoxide.r' in params)) {
     return null
   }
 
   const profileUrl = `https://matrix.to/#/@${match[1]}`
-  const eventUrl = `https://matrix.to/#/${params['org.keyoxide.r']}`
+  const eventUrl = `https://matrix.to/#/${params['org.keyoxide.r']}/${params['org.keyoxide.e']}`
 
   return {
     serviceprovider: {
@@ -51,10 +51,11 @@ const processURI = (uri) => {
     proof: {
       uri: eventUrl,
       request: {
-        fetcher: E.Fetcher.MATRIX,
+        fetcher: E.Fetcher.MATRIX_LEGACY,
         access: E.ProofAccess.GRANTED,
         format: E.ProofFormat.JSON,
         data: {
+          eventId: params['org.keyoxide.e'],
           roomId: params['org.keyoxide.r']
         }
       }
@@ -62,7 +63,7 @@ const processURI = (uri) => {
     claim: {
       format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.CONTAINS,
-      path: ['chunk', 'content', 'topic']
+      path: ['content', 'body']
     }
   }
 }
@@ -70,7 +71,7 @@ const processURI = (uri) => {
 const tests = [
   {
     uri:
-      'matrix:u/alice:matrix.domain.org?org.keyoxide.r=!123:domain.org',
+      'matrix:u/alice:matrix.domain.org?org.keyoxide.r=!123:domain.org&org.keyoxide.e=$123',
     shouldMatch: true
   },
   {
