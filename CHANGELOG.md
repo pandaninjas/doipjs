@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.3] - 2022-09-30
+### Changed
+- Updated dependencies
+
 ## [0.16.2] - 2022-09-21
 ### Added
 - Support for hashed proofs
