@@ -49,10 +49,8 @@ const pattern = {
       data: _.isObject,
     },
   },
-  claim: {
-    format: _.isInteger,
-    relation: _.isInteger,
-    path: _.isArray,
+  claim: (x) => {
+    return _.isObject(x) || _.isArray(x)
   },
 }
 
