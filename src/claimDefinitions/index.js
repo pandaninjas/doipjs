@@ -13,28 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const list = [
-  'dns',
-  'irc',
-  'xmpp',
-  'matrix',
-  'telegram',
-  'twitter',
-  'reddit',
-  'liberapay',
-  'lichess',
-  'hackernews',
-  'lobsters',
-  'devto',
-  'gitea',
-  'gitlab',
-  'github',
-  'mastodon',
-  'pleroma',
-  'discourse',
-  'owncast',
-  'stackexchange'
-]
 
 const data = {
   dns: require('./dns'),
@@ -52,6 +30,7 @@ const data = {
   gitea: require('./gitea'),
   gitlab: require('./gitlab'),
   github: require('./github'),
+  activitypub: require('./activitypub'),
   mastodon: require('./mastodon'),
   pleroma: require('./pleroma'),
   discourse: require('./discourse'),
@@ -59,5 +38,5 @@ const data = {
   stackexchange: require('./stackexchange')
 }
 
-exports.list = list
+exports.list = Object.keys(data)
 exports.data = data

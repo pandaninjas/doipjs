@@ -39,20 +39,22 @@ Object.freeze(ProxyPolicy)
  * @enum {string}
  */
 const Fetcher = {
-  /** Basic HTTP requests */
-  HTTP: 'http',
+  /** HTTP requests to ActivityPub */
+  ACTIVITYPUB: 'activitypub',
   /** DNS module from Node.js */
   DNS: 'dns',
+  /** Basic HTTP requests */
+  HTTP: 'http',
   /** IRC module from Node.js */
   IRC: 'irc',
-  /** XMPP module from Node.js */
-  XMPP: 'xmpp',
   /** HTTP request to Matrix API */
   MATRIX: 'matrix',
   /** HTTP request to Telegram API */
   TELEGRAM: 'telegram',
   /** HTTP request to Twitter API */
-  TWITTER: 'twitter'
+  TWITTER: 'twitter',
+  /** XMPP module from Node.js */
+  XMPP: 'xmpp'
 }
 Object.freeze(Fetcher)
 
