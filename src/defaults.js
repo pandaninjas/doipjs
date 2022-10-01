@@ -59,6 +59,10 @@ const opts = {
     },
     twitter: {
       bearerToken: null
+    },
+    activitypub: {
+      acct: null,
+      privateKey: null
     }
   }
 }
