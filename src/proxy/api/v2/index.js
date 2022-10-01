@@ -246,4 +246,26 @@ router.get(
   }
 )
 
+// ActivityPub route
+router.get(
+  '/get/activitypub',
+  query('username').isString(),
+  query('domain').isFQDN(),
+  async (req, res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() })
+    }
+
+    fetcher.activitypub
+      .fn(req.query, opts)
+      .then((data) => {
+        return res.status(200).send(data)
+      })
+      .catch((err) => {
+        return res.status(400).json({ errors: err.message ? err.message : err })
+      })
+  }
+)
+
 module.exports = router
