@@ -15,11 +15,9 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^acct:(.*)@(.*)\/?/
+const reURI = /^https:\/\/(.*)\/?/
 
 const processURI = (uri) => {
-  const match = uri.match(reURI)
-
   return {
     serviceprovider: {
       type: 'web',
@@ -30,7 +28,7 @@ const processURI = (uri) => {
       isAmbiguous: false
     },
     profile: {
-      display: `${match[1]}@${match[2]}`,
+      display: uri,
       uri: uri,
       qr: null
     },
@@ -41,8 +39,7 @@ const processURI = (uri) => {
         access: E.ProofAccess.GENERIC,
         format: E.ProofFormat.JSON,
         data: {
-          username: match[1],
-          domain: match[2]
+          url: uri
         }
       }
     },
@@ -57,25 +54,39 @@ const processURI = (uri) => {
         relation: E.ClaimRelation.CONTAINS,
         path: ['attachment', 'value']
       }
-    ]
+    ],
+    functions: {
+      postprocess: (claimData, proofData) => {
+        claimData.profile.display = `${proofData.result.preferredUsername}@${new URL(proofData.result.url).hostname}`
+        return { claimData, proofData }
+      }
+    }
   }
 }
 
 const tests = [
   {
-    uri: 'acct:alice@domain.org',
+    uri: 'https://domain.org',
     shouldMatch: true
   },
   {
-    uri: 'acct:alice',
-    shouldMatch: false
+    uri: 'https://domain.org/@/alice/',
+    shouldMatch: true
   },
   {
-    uri: 'https://domain.org/@alice/',
-    shouldMatch: false
+    uri: 'https://domain.org/@alice',
+    shouldMatch: true
   },
   {
-    uri: 'https://domain.org/alice',
+    uri: 'https://domain.org/u/alice/',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://domain.org/users/alice/',
+    shouldMatch: true
+  },
+  {
+    uri: 'http://domain.org/alice',
     shouldMatch: false
   }
 ]

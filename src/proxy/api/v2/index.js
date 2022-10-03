@@ -249,8 +249,7 @@ router.get(
 // ActivityPub route
 router.get(
   '/get/activitypub',
-  query('username').isString(),
-  query('domain').isFQDN(),
+  query('url').isURL(),
   async (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {

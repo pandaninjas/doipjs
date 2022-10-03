@@ -220,7 +220,7 @@ class Claim {
 
     // For each match
     for (let index = 0; index < this._matches.length; index++) {
-      const claimData = this._matches[index]
+      let claimData = this._matches[index]
 
       let verificationResult = null
       let proofData = null
@@ -242,6 +242,11 @@ class Claim {
         verificationResult.proof = {
           fetcher: proofData.fetcher,
           viaProxy: proofData.viaProxy
+        }
+
+        // Post process the data
+        if (claimData.functions && claimData.functions.postprocess) {
+          ({ claimData, proofData } = claimData.functions.postprocess(claimData, proofData))
         }
       } else {
         // Consider the proof completed but with a negative result

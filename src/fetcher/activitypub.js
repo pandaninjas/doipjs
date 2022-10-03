@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 const axios = require('axios')
+const validator = require('validator')
 const jsEnv = require('browser-or-node')
 
 /**
@@ -31,10 +32,9 @@ module.exports.timeout = 5000
  * @function
  * @async
  * @param {object} data                           - Data used in the request
- * @param {string} data.username                  - The username of the account to verify
- * @param {string} data.domain                    - The domain of the ActivityPub instance
+ * @param {string} data.url                       - The URL of the account to verify
  * @param {object} opts                           - Options used to enable the request
- * @param {string} opts.claims.activitypub.acct   - The identifier of the verifier account
+ * @param {string} opts.claims.activitypub.url    - The URL of the verifier account
  * @param {string} opts.claims.activitypub.privateKey   - The private key to sign the request
  * @returns {object}
  */
@@ -54,33 +54,15 @@ module.exports.fn = async (data, opts) => {
 
   const fetchPromise = new Promise((resolve, reject) => {
     (async () => {
-      if (!opts.claims.activitypub.acct.match(/acct:(.*)@(.*)/)) {
-        reject(new Error('ActivityPub fetcher was not set up properly'))
+      try {
+        validator.isURL(opts.claims.activitypub.url)
+      } catch (err) {
+        throw new Error(`ActivityPub fetcher was not set up properly (${err.message})`)
       }
 
-      const urlWebfinger = `https://${data.domain}/.well-known/webfinger?resource=acct:${data.username}@${data.domain}`
-      const webfinger = await axios.get(urlWebfinger,
-        {
-          headers: { Accept: 'application/json' }
-        })
-        .then(res => {
-          return res.data
-        })
-        .catch(error => {
-          reject(error)
-        })
-
-      let urlActivitypub = null
-      webfinger.links.forEach(element => {
-        if (element.type === 'application/activity+json') {
-          urlActivitypub = element.href
-        }
-      })
-
       // Prepare the signature
-      const matchAcct = opts.claims.activitypub.acct.match(/acct:(.*)@(.*)/)
       const now = new Date()
-      const { host, pathname, search } = new URL(urlActivitypub)
+      const { host, pathname, search } = new URL(data.url)
       const signedString = `(request-target): get ${pathname}${search}\nhost: ${host}\ndate: ${now.toUTCString()}`
 
       const headers = {
@@ -95,10 +77,10 @@ module.exports.fn = async (data, opts) => {
         sign.write(signedString)
         sign.end()
         const signatureSig = sign.sign(opts.claims.activitypub.privateKey, 'base64')
-        headers.signature = `keyId="https://${matchAcct[2]}/${matchAcct[1]}#main-key",headers="(request-target) host date",signature="${signatureSig}",algorithm="rsa-sha256"`
+        headers.signature = `keyId="${opts.claims.activitypub.url}#main-key",headers="(request-target) host date",signature="${signatureSig}",algorithm="rsa-sha256"`
       }
 
-      axios.get(urlActivitypub,
+      axios.get(data.url,
         {
           headers
         })

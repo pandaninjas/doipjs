@@ -52,6 +52,9 @@ const pattern = {
   claim: (x) => {
     return _.isObject(x) || _.isArray(x)
   },
+  functions: (x) => {
+    return _.isObject(x) || _.isUndefined(x)
+  },
 }
 
 doipjs.claimDefinitions.list.forEach((claimDefName, i) => {
