@@ -12371,7 +12371,7 @@ module.exports.default = exports.default;
 },{"./util/assertString":140}],146:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.16.2",
+  "version": "0.16.4",
   "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
   "main": "./src/index.js",
   "dependencies": {
@@ -12623,6 +12623,11 @@ class Claim {
       }
 
       const candidate = def.processURI(this._uri)
+      // If the candidate could not be processed, continue matching
+      if (!candidate) {
+        return true
+      }
+
       if (candidate.match.isAmbiguous) {
         // Add to the possible candidates
         this._matches.push(candidate)
@@ -14103,7 +14108,7 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^https:\/\/(.*(?:askubuntu|mathoverflow|serverfault|stackapps|stackoverflow)|.+\.stackexchange)\.com\/users\/(\d+)/
+const reURI = /^https:\/\/(.*(?:askubuntu|mathoverflow|serverfault|stackapps|stackoverflow|superuser)|.+\.stackexchange)\.com\/users\/(\d+)/
 const reStackExchange = /\.stackexchange$/
 
 const processURI = (uri) => {
