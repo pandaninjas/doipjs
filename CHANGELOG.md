@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.4] - 2022-10-07
+### Fixed
+- superuser.com not being detected
+
 ## [0.16.3] - 2022-09-30
 ### Changed
 - Updated dependencies

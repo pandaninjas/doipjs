@@ -169,6 +169,11 @@ class Claim {
       }
 
       const candidate = def.processURI(this._uri)
+      // If the candidate could not be processed, continue matching
+      if (!candidate) {
+        return true
+      }
+
       if (candidate.match.isAmbiguous) {
         // Add to the possible candidates
         this._matches.push(candidate)
