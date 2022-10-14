@@ -58,9 +58,7 @@ module.exports.fn = async (data, opts) => {
       try {
         validator.isURL(opts.claims.activitypub.url)
         isConfigured = true
-      } catch (err) {
-        console.log(`ActivityPub fetcher was not set up (${err.message})`)
-      }
+      } catch (_) {}
 
       const now = new Date()
       const { host, pathname, search } = new URL(data.url)
