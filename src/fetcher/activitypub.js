@@ -54,16 +54,16 @@ module.exports.fn = async (data, opts) => {
 
   const fetchPromise = new Promise((resolve, reject) => {
     (async () => {
+      let isConfigured = false
       try {
         validator.isURL(opts.claims.activitypub.url)
+        isConfigured = true
       } catch (err) {
-        throw new Error(`ActivityPub fetcher was not set up properly (${err.message})`)
+        console.log(`ActivityPub fetcher was not set up (${err.message})`)
       }
 
-      // Prepare the signature
       const now = new Date()
       const { host, pathname, search } = new URL(data.url)
-      const signedString = `(request-target): get ${pathname}${search}\nhost: ${host}\ndate: ${now.toUTCString()}`
 
       const headers = {
         host,
@@ -71,12 +71,13 @@ module.exports.fn = async (data, opts) => {
         accept: 'application/activity+json'
       }
 
-      if (jsEnv.isNode) {
+      if (isConfigured && jsEnv.isNode) {
         // Generate the signature
+        const signedString = `(request-target): get ${pathname}${search}\nhost: ${host}\ndate: ${now.toUTCString()}`
         const sign = crypto.createSign('SHA256')
         sign.write(signedString)
         sign.end()
-        const signatureSig = sign.sign(opts.claims.activitypub.privateKey, 'base64')
+        const signatureSig = sign.sign(opts.claims.activitypub.privateKey.replace(/\\n/g, '\n'), 'base64')
         headers.signature = `keyId="${opts.claims.activitypub.url}#main-key",headers="(request-target) host date",signature="${signatureSig}",algorithm="rsa-sha256"`
       }
 
