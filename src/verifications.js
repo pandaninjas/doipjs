@@ -200,31 +200,48 @@ const run = async (proofData, claimData, fingerprint) => {
     errors: []
   }
 
+  const claimMethods = Array.isArray(claimData.claim)
+    ? claimData.claim
+    : [claimData.claim]
+
   switch (claimData.proof.request.format) {
     case E.ProofFormat.JSON:
-      try {
-        res.result = await runJSON(
-          proofData,
-          claimData.claim.path,
-          fingerprint,
-          claimData.claim.format,
-          claimData.claim.relation
-        )
-        res.completed = true
-      } catch (error) {
-        res.errors.push(error.message ? error.message : error)
+      for (let index = 0; index < claimMethods.length; index++) {
+        const claimMethod = claimMethods[index]
+        try {
+          res.result = res.result || await runJSON(
+            proofData,
+            claimMethod.path,
+            fingerprint,
+            claimMethod.format,
+            claimMethod.relation
+          )
+        } catch (error) {
+          res.errors.push(error.message ? error.message : error)
+        }
       }
+      res.completed = true
       break
     case E.ProofFormat.TEXT:
-      try {
-        res.result = await containsProof(proofData,
-          fingerprint,
-          claimData.claim.format)
-        res.completed = true
-      } catch (error) {
-        res.errors.push('err_unknown_text_verification')
+      for (let index = 0; index < claimMethods.length; index++) {
+        const claimMethod = claimMethods[index]
+        try {
+          res.result = res.result || await containsProof(
+            proofData,
+            fingerprint,
+            claimMethod.format
+          )
+        } catch (error) {
+          res.errors.push('err_unknown_text_verification')
+        }
       }
+      res.completed = true
       break
+  }
+
+  // Reset the errors if one of the claim methods was successful
+  if (res.result) {
+    res.errors = []
   }
 
   return res

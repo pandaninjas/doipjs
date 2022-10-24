@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+exports.activitypub = require('./activitypub')
 exports.dns = require('./dns')
 exports.http = require('./http')
 exports.irc = require('./irc')
