@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.1] - 2022-10-25
+### Fixed
+- ActivityPub definition
+- Claim verification logic
+
 ## [0.17.0] - 2022-10-24
 ### Added
 - ActivityPub claim verification

@@ -38808,8 +38808,8 @@ module.exports.default = exports.default;
 },{"./util/assertString":323}],329:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.17.0",
-  "description": "Decentralized OpenPGP Identity Proofs library in Node.js",
+  "version": "0.17.1",
+  "description": "Decentralized Online Identity Proofs library in Node.js",
   "main": "./src/index.js",
   "dependencies": {
     "@openpgp/hkp-client": "^0.0.2",
@@ -39142,7 +39142,9 @@ class Claim {
 
         // Post process the data
         if (claimData.functions && claimData.functions.postprocess) {
-          ({ claimData, proofData } = claimData.functions.postprocess(claimData, proofData))
+          try {
+            ({ claimData, proofData } = claimData.functions.postprocess(claimData, proofData))
+          } catch (_) {}
         }
       } else {
         // Consider the proof completed but with a negative result
@@ -39152,11 +39154,11 @@ class Claim {
           proof: {},
           errors: [proofFetchError]
         }
+      }
 
-        if (this.isAmbiguous()) {
-          // Assume a wrong match and continue
-          continue
-        }
+      if (this.isAmbiguous() && !verificationResult.result) {
+        // Assume a wrong match and continue
+        continue
       }
 
       if (verificationResult.completed) {
@@ -39174,7 +39176,7 @@ class Claim {
           result: false,
           completed: true,
           proof: {},
-          errors: ['Unknown error']
+          errors: []
         }
 
     this._status = E.ClaimStatus.VERIFIED
@@ -39245,7 +39247,7 @@ const processURI = (uri) => {
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false
+      isAmbiguous: true
     },
     profile: {
       display: uri,
@@ -42979,7 +42981,7 @@ const runJSON = async (proofData, checkPath, checkClaim, checkClaimFormat, check
     }
   }
 
-  if (!(checkPath[0] in proofData)) {
+  if (typeof proofData === 'object' && !(checkPath[0] in proofData)) {
     throw new Error('err_json_structure_incorrect')
   }
 
