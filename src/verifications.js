@@ -172,7 +172,7 @@ const runJSON = async (proofData, checkPath, checkClaim, checkClaimFormat, check
     }
   }
 
-  if (!(checkPath[0] in proofData)) {
+  if (typeof proofData === 'object' && !(checkPath[0] in proofData)) {
     throw new Error('err_json_structure_incorrect')
   }
 

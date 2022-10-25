@@ -251,7 +251,9 @@ class Claim {
 
         // Post process the data
         if (claimData.functions && claimData.functions.postprocess) {
-          ({ claimData, proofData } = claimData.functions.postprocess(claimData, proofData))
+          try {
+            ({ claimData, proofData } = claimData.functions.postprocess(claimData, proofData))
+          } catch (_) {}
         }
       } else {
         // Consider the proof completed but with a negative result
@@ -261,11 +263,11 @@ class Claim {
           proof: {},
           errors: [proofFetchError]
         }
+      }
 
-        if (this.isAmbiguous()) {
-          // Assume a wrong match and continue
-          continue
-        }
+      if (this.isAmbiguous() && !verificationResult.result) {
+        // Assume a wrong match and continue
+        continue
       }
 
       if (verificationResult.completed) {
@@ -283,7 +285,7 @@ class Claim {
           result: false,
           completed: true,
           proof: {},
-          errors: ['Unknown error']
+          errors: []
         }
 
     this._status = E.ClaimStatus.VERIFIED
