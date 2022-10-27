@@ -38808,7 +38808,7 @@ module.exports.default = exports.default;
 },{"./util/assertString":323}],329:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.17.1",
+  "version": "0.17.2",
   "description": "Decentralized Online Identity Proofs library in Node.js",
   "main": "./src/index.js",
   "dependencies": {
@@ -40995,17 +40995,22 @@ const E = require('./enums')
  * @property {string|null} proxy.hostname             - The hostname of the proxy
  * @property {string} proxy.policy                    - The policy that defines when to use a proxy ({@link module:enums~ProxyPolicy|here})
  * @property {object} claims                          - Options related to claim verification
+ * @property {object} claims.activitypub              - Options related to the verification of activitypub claims
+ * @property {string|null} claims.activitypub.url     - The URL of the verifier account
+ * @property {string|null} claims.activitypub.privateKey - The private key to sign the request
  * @property {object} claims.irc                      - Options related to the verification of IRC claims
  * @property {string|null} claims.irc.nick            - The nick that the library uses to connect to the IRC server
  * @property {object} claims.matrix                   - Options related to the verification of Matrix claims
  * @property {string|null} claims.matrix.instance     - The server hostname on which the library can log in
  * @property {string|null} claims.matrix.accessToken  - The access token required to identify the library ({@link https://www.matrix.org/docs/guides/client-server-api|Matrix docs})
+ * @property {object} claims.telegram                 - Options related to the verification of Telegram claims
+ * @property {string|null} claims.telegram.token      - The Telegram API's token ({@link https://core.telegram.org/bots/api#authorizing-your-bot|Telegram docs})
+ * @property {object} claims.twitter                  - Options related to the verification of Twitter claims
+ * @property {string|null} claims.twitter.bearerToken - The Twitter API's bearer token ({@link https://developer.twitter.com/en/docs/authentication/oauth-2-0/bearer-tokens|Twitter docs})
  * @property {object} claims.xmpp                     - Options related to the verification of XMPP claims
  * @property {string|null} claims.xmpp.service        - The server hostname on which the library can log in
  * @property {string|null} claims.xmpp.username       - The username used to log in
  * @property {string|null} claims.xmpp.password       - The password used to log in
- * @property {object} claims.twitter                  - Options related to the verification of Twitter claims
- * @property {string|null} claims.twitter.bearerToken - The Twitter API's bearer token ({@link https://developer.twitter.com/en/docs/authentication/oauth-2-0/bearer-tokens|Twitter docs})
  */
 const opts = {
   proxy: {
@@ -41013,6 +41018,10 @@ const opts = {
     policy: E.ProxyPolicy.NEVER
   },
   claims: {
+    activitypub: {
+      url: null,
+      privateKey: null
+    },
     irc: {
       nick: null
     },
@@ -41020,17 +41029,16 @@ const opts = {
       instance: null,
       accessToken: null
     },
-    xmpp: {
-      service: null,
-      username: null,
-      password: null
+    telegram: {
+      token: null
     },
     twitter: {
       bearerToken: null
     },
-    activitypub: {
-      acct: null,
-      privateKey: null
+    xmpp: {
+      service: null,
+      username: null,
+      password: null
     }
   }
 }
