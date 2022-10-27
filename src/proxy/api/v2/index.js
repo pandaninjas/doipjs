@@ -21,6 +21,10 @@ require('dotenv').config()
 
 const opts = {
   claims: {
+    activitypub: {
+      url: process.env.ACTIVITYPUB_URL || null,
+      privateKey: process.env.ACTIVITYPUB_PRIVATE_KEY || null
+    },
     irc: {
       nick: process.env.IRC_NICK || null
     },
@@ -31,13 +35,13 @@ const opts = {
     telegram: {
       token: process.env.TELEGRAM_TOKEN || null
     },
+    twitter: {
+      bearerToken: process.env.TWITTER_BEARER_TOKEN || null
+    },
     xmpp: {
       service: process.env.XMPP_SERVICE || null,
       username: process.env.XMPP_USERNAME || null,
       password: process.env.XMPP_PASSWORD || null
-    },
-    twitter: {
-      bearerToken: process.env.TWITTER_BEARER_TOKEN || null
     }
   }
 }
