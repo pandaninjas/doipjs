@@ -250,9 +250,10 @@ class Claim {
         }
 
         // Post process the data
-        if (claimData.functions && claimData.functions.postprocess) {
+        const def = claimDefinitions.data[claimData.serviceprovider.name]
+        if (def.functions && def.functions.postprocess) {
           try {
-            ({ claimData, proofData } = claimData.functions.postprocess(claimData, proofData))
+            ({ claimData, proofData } = def.functions.postprocess(claimData, proofData))
           } catch (_) {}
         }
       } else {

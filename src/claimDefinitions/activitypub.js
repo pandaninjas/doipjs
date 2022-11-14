@@ -54,13 +54,14 @@ const processURI = (uri) => {
         relation: E.ClaimRelation.CONTAINS,
         path: ['attachment', 'value']
       }
-    ],
-    functions: {
-      postprocess: (claimData, proofData) => {
-        claimData.profile.display = `${proofData.result.preferredUsername}@${new URL(proofData.result.url).hostname}`
-        return { claimData, proofData }
-      }
-    }
+    ]
+  }
+}
+
+const functions = {
+  postprocess: (claimData, proofData) => {
+    claimData.profile.display = `${proofData.result.preferredUsername}@${new URL(proofData.result.url).hostname}`
+    return { claimData, proofData }
   }
 }
 
@@ -93,4 +94,5 @@ const tests = [
 
 exports.reURI = reURI
 exports.processURI = processURI
+exports.functions = functions
 exports.tests = tests
