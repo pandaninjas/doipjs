@@ -38808,7 +38808,7 @@ module.exports.default = exports.default;
 },{"./util/assertString":323}],329:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.17.3",
+  "version": "0.17.5",
   "description": "Decentralized Online Identity Proofs library in Node.js",
   "main": "./src/index.js",
   "dependencies": {
@@ -39141,9 +39141,10 @@ class Claim {
         }
 
         // Post process the data
-        if (claimData.functions && claimData.functions.postprocess) {
+        const def = claimDefinitions.data[claimData.serviceprovider.name]
+        if (def.functions && def.functions.postprocess) {
           try {
-            ({ claimData, proofData } = claimData.functions.postprocess(claimData, proofData))
+            ({ claimData, proofData } = def.functions.postprocess(claimData, proofData))
           } catch (_) {}
         }
       } else {
@@ -39276,13 +39277,14 @@ const processURI = (uri) => {
         relation: E.ClaimRelation.CONTAINS,
         path: ['attachment', 'value']
       }
-    ],
-    functions: {
-      postprocess: (claimData, proofData) => {
-        claimData.profile.display = `${proofData.result.preferredUsername}@${new URL(proofData.result.url).hostname}`
-        return { claimData, proofData }
-      }
-    }
+    ]
+  }
+}
+
+const functions = {
+  postprocess: (claimData, proofData) => {
+    claimData.profile.display = `${proofData.result.preferredUsername}@${new URL(proofData.result.url).hostname}`
+    return { claimData, proofData }
   }
 }
 
@@ -39315,6 +39317,7 @@ const tests = [
 
 exports.reURI = reURI
 exports.processURI = processURI
+exports.functions = functions
 exports.tests = tests
 
 },{"../enums":354}],332:[function(require,module,exports){

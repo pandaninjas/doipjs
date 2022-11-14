@@ -1,6 +1,6 @@
 {
   "name": "doipjs",
-  "version": "0.17.3",
+  "version": "0.17.5",
   "description": "Decentralized Online Identity Proofs library in Node.js",
   "main": "./src/index.js",
   "dependencies": {
