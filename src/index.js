@@ -22,6 +22,7 @@ const enums = require('./enums')
 const defaults = require('./defaults')
 const utils = require('./utils')
 const verifications = require('./verifications')
+const fetcher = require('./fetcher')
 
 exports.Claim = Claim
 exports.claimDefinitions = claimDefinitions
@@ -32,3 +33,4 @@ exports.enums = enums
 exports.defaults = defaults
 exports.utils = utils
 exports.verifications = verifications
+exports.fetcher = fetcher
