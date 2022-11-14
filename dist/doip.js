@@ -38808,7 +38808,7 @@ module.exports.default = exports.default;
 },{"./util/assertString":323}],329:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.17.2",
+  "version": "0.17.3",
   "description": "Decentralized Online Identity Proofs library in Node.js",
   "main": "./src/index.js",
   "dependencies": {
@@ -42034,6 +42034,7 @@ const enums = require('./enums')
 const defaults = require('./defaults')
 const utils = require('./utils')
 const verifications = require('./verifications')
+const fetcher = require('./fetcher')
 
 exports.Claim = Claim
 exports.claimDefinitions = claimDefinitions
@@ -42044,8 +42045,9 @@ exports.enums = enums
 exports.defaults = defaults
 exports.utils = utils
 exports.verifications = verifications
+exports.fetcher = fetcher
 
-},{"./claim":330,"./claimDefinitions":339,"./defaults":353,"./enums":354,"./keys":365,"./proofs":366,"./signatures":367,"./utils":368,"./verifications":369}],365:[function(require,module,exports){
+},{"./claim":330,"./claimDefinitions":339,"./defaults":353,"./enums":354,"./fetcher":358,"./keys":365,"./proofs":366,"./signatures":367,"./utils":368,"./verifications":369}],365:[function(require,module,exports){
 (function (global){(function (){
 /*
 Copyright 2021 Yarmo Mackenbach

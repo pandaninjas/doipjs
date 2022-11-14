@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.3] - 2022-11-14
+### Changed
+- Add fetcher to lib exports
+
 ## [0.17.2] - 2022-10-27
 ### Fixed
 - Proxy verification options
