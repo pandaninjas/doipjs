@@ -60,11 +60,11 @@ const processURI = (uri) => {
         }
       }
     },
-    claim: {
+    claim: [{
       format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.CONTAINS,
       path: ['content', 'body']
-    }
+    }]
   }
 }
 
