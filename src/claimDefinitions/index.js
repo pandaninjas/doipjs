@@ -31,8 +31,6 @@ const data = {
   gitlab: require('./gitlab'),
   github: require('./github'),
   activitypub: require('./activitypub'),
-  mastodon: require('./mastodon'),
-  pleroma: require('./pleroma'),
   discourse: require('./discourse'),
   owncast: require('./owncast'),
   stackexchange: require('./stackexchange')
