@@ -53,6 +53,11 @@ const processURI = (uri) => {
         format: E.ClaimFormat.FINGERPRINT,
         relation: E.ClaimRelation.CONTAINS,
         path: ['attachment', 'value']
+      },
+      {
+        format: E.ClaimFormat.FINGERPRINT,
+        relation: E.ClaimRelation.CONTAINS,
+        path: ['content']
       }
     ]
   }
@@ -79,11 +84,19 @@ const tests = [
     shouldMatch: true
   },
   {
+    uri: 'https://domain.org/@alice/123456',
+    shouldMatch: true
+  },
+  {
     uri: 'https://domain.org/u/alice/',
     shouldMatch: true
   },
   {
     uri: 'https://domain.org/users/alice/',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://domain.org/users/alice/123456',
     shouldMatch: true
   },
   {
