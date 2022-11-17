@@ -61,17 +61,17 @@ Object.freeze(Fetcher)
 /**
  * Levels of access restriction for proof fetching
  * @readonly
- * @enum {number}
+ * @enum {string}
  */
 const ProofAccess = {
   /** Any HTTP request will work */
-  GENERIC: 0,
+  GENERIC: 'generic',
   /** CORS requests are denied */
-  NOCORS: 1,
+  NOCORS: 'nocors',
   /** HTTP requests must contain API or access tokens */
-  GRANTED: 2,
+  GRANTED: 'granted',
   /** Not accessible by HTTP request, needs server software */
-  SERVER: 3
+  SERVER: 'server'
 }
 Object.freeze(ProofAccess)
 
@@ -91,28 +91,28 @@ Object.freeze(ProofFormat)
 /**
  * Format of claim
  * @readonly
- * @enum {number}
+ * @enum {string}
  */
 const ClaimFormat = {
   /** `openpgp4fpr:123123123` */
-  URI: 0,
+  URI: 'uri',
   /** `123123123` */
-  FINGERPRINT: 1
+  FINGERPRINT: 'fingerprint'
 }
 Object.freeze(ClaimFormat)
 
 /**
  * How to find the claim inside the proof's JSON data
  * @readonly
- * @enum {number}
+ * @enum {string}
  */
 const ClaimRelation = {
   /** Claim is somewhere in the JSON field's textual content */
-  CONTAINS: 0,
+  CONTAINS: 'contains',
   /** Claim is equal to the JSON field's textual content */
-  EQUALS: 1,
+  EQUALS: 'equals',
   /** Claim is equal to an element of the JSON field's array of strings */
-  ONEOF: 2
+  ONEOF: 'oneof'
 }
 Object.freeze(ClaimRelation)
 

@@ -44,16 +44,13 @@ const pattern = {
     },
     request: {
       fetcher: _.isString,
-      access: _.isInteger,
+      access: _.isString,
       format: _.isString,
       data: _.isObject,
     },
   },
   claim: (x) => {
     return _.isObject(x) || _.isArray(x)
-  },
-  functions: (x) => {
-    return _.isObject(x) || _.isUndefined(x)
   },
 }
 
