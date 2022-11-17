@@ -76,11 +76,11 @@ class Claim {
       }
     }
 
-    this._uri = uri || null
-    this._fingerprint = fingerprint || null
+    this._uri = uri || ''
+    this._fingerprint = fingerprint || ''
     this._status = E.ClaimStatus.INIT
-    this._matches = null
-    this._verification = null
+    this._matches = []
+    this._verification = {}
   }
 
   get uri () {
@@ -116,7 +116,7 @@ class Claim {
       )
     }
     // Verify validity of URI
-    if (uri && !validUrl.isUri(uri)) {
+    if (uri.length > 0 && !validUrl.isUri(uri)) {
       throw new Error('The URI was invalid')
     }
     // Remove leading and trailing spaces
@@ -154,7 +154,7 @@ class Claim {
     if (this._status !== E.ClaimStatus.INIT) {
       throw new Error('This claim was already matched')
     }
-    if (this._uri === null) {
+    if (this._uri.length === 0 || !validUrl.isUri(this._uri)) {
       throw new Error('This claim has no URI')
     }
 
@@ -206,7 +206,7 @@ class Claim {
     if (this._status === E.ClaimStatus.VERIFIED) {
       throw new Error('This claim has already been verified')
     }
-    if (this._fingerprint === null) {
+    if (this._fingerprint.length === 0) {
       throw new Error('This claim has no fingerprint')
     }
 
