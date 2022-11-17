@@ -200,14 +200,10 @@ const run = async (proofData, claimData, fingerprint) => {
     errors: []
   }
 
-  const claimMethods = Array.isArray(claimData.claim)
-    ? claimData.claim
-    : [claimData.claim]
-
   switch (claimData.proof.request.format) {
     case E.ProofFormat.JSON:
-      for (let index = 0; index < claimMethods.length; index++) {
-        const claimMethod = claimMethods[index]
+      for (let index = 0; index < claimData.claim.length; index++) {
+        const claimMethod = claimData.claim[index]
         try {
           res.result = res.result || await runJSON(
             proofData,
@@ -223,8 +219,8 @@ const run = async (proofData, claimData, fingerprint) => {
       res.completed = true
       break
     case E.ProofFormat.TEXT:
-      for (let index = 0; index < claimMethods.length; index++) {
-        const claimMethod = claimMethods[index]
+      for (let index = 0; index < claimData.claim.length; index++) {
+        const claimMethod = claimData.claim[index]
         try {
           res.result = res.result || await containsProof(
             proofData,

@@ -46,11 +46,11 @@ const processURI = (uri) => {
         }
       }
     },
-    claim: {
+    claim: [{
       format: E.ClaimFormat.FINGERPRINT,
       relation: E.ClaimRelation.CONTAINS,
       path: ['socialHandles', 'url']
-    }
+    }]
   }
 }
 
