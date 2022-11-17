@@ -19,4 +19,3 @@ yarn.lock
 \.gitignore
 \.licenseignore
 \.drone.yml
-Dockerfile

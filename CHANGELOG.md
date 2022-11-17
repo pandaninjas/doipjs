@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Allow ActivityPub verification through posts
 - Improve type consistency
+### Removed
+- Proxy server code
 
 ## [0.17.5] - 2022-11-14
 ### Fixed
