@@ -59,6 +59,7 @@ module.exports.fn = async (data, opts) => {
       {
         headers: {
           Accept: 'application/json',
+          'User-Agent': `doipjs/${require('../../package.json').version}`,
           Authorization: `Bearer ${opts.claims.twitter.bearerToken}`
         }
       }

@@ -66,7 +66,8 @@ module.exports.fn = async (data, opts) => {
       const headers = {
         host,
         date: now.toUTCString(),
-        accept: 'application/activity+json'
+        accept: 'application/activity+json',
+        'User-Agent': `doipjs/${require('../../package.json').version}`
       }
 
       if (isConfigured && jsEnv.isNode) {
