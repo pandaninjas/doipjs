@@ -49,6 +49,10 @@ const opts = {
     hostname: null,
     policy: E.ProxyPolicy.NEVER
   },
+  flaresolverr: {
+    url: '',
+    maxTimeout: 60000
+  },
   claims: {
     activitypub: {
       url: null,

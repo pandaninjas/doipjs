@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const axios = require('axios')
+const network = require('../network')
 const validator = require('validator')
 const jsEnv = require('browser-or-node')
 
@@ -80,10 +80,10 @@ module.exports.fn = async (data, opts) => {
         headers.signature = `keyId="${opts.claims.activitypub.url}#main-key",headers="(request-target) host date",signature="${signatureSig}",algorithm="rsa-sha256"`
       }
 
-      axios.get(data.url,
+      network.get(data.url,
         {
           headers
-        })
+        }, opts)
         .then(res => {
           return res.data
         })
