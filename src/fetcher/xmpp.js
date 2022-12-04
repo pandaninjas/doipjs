@@ -26,7 +26,6 @@ const jsEnv = require('browser-or-node')
 module.exports.timeout = 5000
 
 if (jsEnv.isNode) {
-  const jsdom = require('jsdom')
   const { client, xml } = require('@xmpp/client')
   const debug = require('@xmpp/debug')
   const validator = require('validator')
@@ -61,7 +60,6 @@ if (jsEnv.isNode) {
    * @async
    * @param {object} data                       - Data used in the request
    * @param {string} data.id                    - The identifier of the targeted account
-   * @param {string} data.field                 - The vCard field to return (should be "note")
    * @param {object} opts                       - Options used to enable the request
    * @param {string} opts.claims.xmpp.service   - The server hostname on which the library can log in
    * @param {string} opts.claims.xmpp.username  - The username used to log in
@@ -87,14 +85,6 @@ if (jsEnv.isNode) {
       iqCaller = xmppStartRes.iqCaller
     }
 
-    const response = await iqCaller.request(
-      xml('iq', { type: 'get', to: data.id }, xml('vCard', 'vcard-temp')),
-      30 * 1000
-    )
-
-    const vcardRow = response.getChild('vCard', 'vcard-temp').toString()
-    const dom = new jsdom.JSDOM(vcardRow)
-
     let timeoutHandle
     const timeoutPromise = new Promise((resolve, reject) => {
       timeoutHandle = setTimeout(
@@ -104,35 +94,89 @@ if (jsEnv.isNode) {
     })
 
     const fetchPromise = new Promise((resolve, reject) => {
-      try {
-        let vcard
-
-        switch (data.field.toLowerCase()) {
-          case 'desc':
-          case 'note':
-            vcard = dom.window.document.querySelector('note text')
-            if (!vcard) {
-              vcard = dom.window.document.querySelector('note')
-            }
-            if (!vcard) {
-              vcard = dom.window.document.querySelector('DESC')
-            }
-            if (vcard) {
-              vcard = vcard.textContent
-            } else {
-              throw new Error('No DESC or NOTE field found in vCard')
-            }
-            break
-
-          default:
-            vcard = dom.window.document.querySelector(data).textContent
-            break
+      (async () => {
+        let completed = false
+        const vcard = {
+          url: [],
+          note: []
         }
+
+        // Try the vcard4 pubsub request
+        if (!completed) {
+          try {
+            const response = await iqCaller.request(
+              xml('iq', { type: 'get', to: data.id }, xml('pubsub', 'http://jabber.org/protocol/pubsub', xml('items', { node: 'urn:xmpp:vcard4', max_items: '1' }))),
+              30 * 1000
+            )
+
+            // Traverse the XML response
+            response.getChild('pubsub').getChildren('items').forEach(items => {
+              if (items.attrs.node === 'urn:xmpp:vcard4') {
+                items.getChildren('item').forEach(item => {
+                  if (item.attrs.id === 'current') {
+                    const itemVcard = item.getChild('vcard', 'urn:ietf:params:xml:ns:vcard-4.0')
+                    // Find the vCard URLs
+                    itemVcard.getChildren('url').forEach(url => {
+                      vcard.url.push(url.getChildText('uri'))
+                    })
+                    // Find the vCard notes
+                    itemVcard.getChildren('note').forEach(note => {
+                      vcard.note.push(note.getChildText('text'))
+                    })
+                  }
+                })
+              }
+            })
+
+            resolve(vcard)
+            completed = true
+          } catch (_) {}
+        }
+
+        // // Try the vcard4 IQ request (not implemented on any server yet)
+        // if (!completed) {
+        //   try {
+        //     const response = await iqCaller.request(
+        //       xml('iq', { type: 'get', to: data.id }, xml('vcard', 'urn:ietf:params:xml:ns:vcard-4.0' )),
+        //       30 * 1000
+        //     )
+
+        //     // Traverse the XML response
+
+        //     resolve(vcard)
+        //     completed = true
+        //   } catch (_) {}
+        // }
+
+        // Try the vcard-temp IQ request
+        if (!completed) {
+          try {
+            const response = await iqCaller.request(
+              xml('iq', { type: 'get', to: data.id }, xml('vCard', 'vcard-temp')),
+              30 * 1000
+            )
+
+            // Find the vCard URLs
+            response.getChild('vCard', 'vcard-temp').getChildren('URL').forEach(url => {
+              vcard.url.push(url.children[0])
+            })
+            // Find the vCard notes
+            response.getChild('vCard', 'vcard-temp').getChildren('NOTE').forEach(note => {
+              vcard.note.push(note.children[0])
+            })
+            response.getChild('vCard', 'vcard-temp').getChildren('DESC').forEach(note => {
+              vcard.note.push(note.children[0])
+            })
+
+            resolve(vcard)
+            completed = true
+          } catch (error) {
+            reject(error)
+          }
+        }
+
         xmpp.stop()
-        resolve(vcard)
-      } catch (error) {
-        reject(error)
-      }
+      })()
     })
 
     return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
