@@ -45,10 +45,10 @@ if (jsEnv.isNode) {
       }
       const { iqCaller } = xmpp
       xmpp.start()
-      xmpp.on('online', (address) => {
+      xmpp.on('online', _ => {
         resolve({ xmpp: xmpp, iqCaller: iqCaller })
       })
-      xmpp.on('error', (error) => {
+      xmpp.on('error', error => {
         reject(error)
       })
     })
@@ -96,12 +96,31 @@ if (jsEnv.isNode) {
     const fetchPromise = new Promise((resolve, reject) => {
       (async () => {
         let completed = false
-        const vcard = {
-          url: [],
-          note: []
+        const proofs = []
+
+        // Try the ariadne-id pubsub request
+        if (!completed) {
+          try {
+            const response = await iqCaller.request(
+              xml('iq', { type: 'get', to: data.id }, xml('pubsub', 'http://jabber.org/protocol/pubsub', xml('items', { node: 'http://ariadne.id/protocol/proof' }))),
+              30 * 1000
+            )
+
+            // Traverse the XML response
+            response.getChild('pubsub').getChildren('items').forEach(items => {
+              if (items.attrs.node === 'http://ariadne.id/protocol/proof') {
+                items.getChildren('item').forEach(item => {
+                  proofs.push(item.getChildText('value'))
+                })
+              }
+            })
+
+            resolve(proofs)
+            completed = true
+          } catch (_) {}
         }
 
-        // Try the vcard4 pubsub request
+        // Try the vcard4 pubsub request [backward compatibility]
         if (!completed) {
           try {
             const response = await iqCaller.request(
@@ -117,38 +136,23 @@ if (jsEnv.isNode) {
                     const itemVcard = item.getChild('vcard', 'urn:ietf:params:xml:ns:vcard-4.0')
                     // Find the vCard URLs
                     itemVcard.getChildren('url').forEach(url => {
-                      vcard.url.push(url.getChildText('uri'))
+                      proofs.push(url.getChildText('uri'))
                     })
                     // Find the vCard notes
                     itemVcard.getChildren('note').forEach(note => {
-                      vcard.note.push(note.getChildText('text'))
+                      proofs.push(note.getChildText('text'))
                     })
                   }
                 })
               }
             })
 
-            resolve(vcard)
+            resolve(proofs)
             completed = true
           } catch (_) {}
         }
 
-        // // Try the vcard4 IQ request (not implemented on any server yet)
-        // if (!completed) {
-        //   try {
-        //     const response = await iqCaller.request(
-        //       xml('iq', { type: 'get', to: data.id }, xml('vcard', 'urn:ietf:params:xml:ns:vcard-4.0' )),
-        //       30 * 1000
-        //     )
-
-        //     // Traverse the XML response
-
-        //     resolve(vcard)
-        //     completed = true
-        //   } catch (_) {}
-        // }
-
-        // Try the vcard-temp IQ request
+        // Try the vcard-temp IQ request [backward compatibility]
         if (!completed) {
           try {
             const response = await iqCaller.request(
@@ -158,17 +162,17 @@ if (jsEnv.isNode) {
 
             // Find the vCard URLs
             response.getChild('vCard', 'vcard-temp').getChildren('URL').forEach(url => {
-              vcard.url.push(url.children[0])
+              proofs.push(url.children[0])
             })
             // Find the vCard notes
             response.getChild('vCard', 'vcard-temp').getChildren('NOTE').forEach(note => {
-              vcard.note.push(note.children[0])
+              proofs.push(note.children[0])
             })
             response.getChild('vCard', 'vcard-temp').getChildren('DESC').forEach(note => {
-              vcard.note.push(note.children[0])
+              proofs.push(note.children[0])
             })
 
-            resolve(vcard)
+            resolve(proofs)
             completed = true
           } catch (error) {
             reject(error)

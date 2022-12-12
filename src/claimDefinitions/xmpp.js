@@ -49,12 +49,7 @@ const processURI = (uri) => {
       {
         format: E.ClaimFormat.URI,
         relation: E.ClaimRelation.CONTAINS,
-        path: ['url']
-      },
-      {
-        format: E.ClaimFormat.URI,
-        relation: E.ClaimRelation.CONTAINS,
-        path: ['note']
+        path: []
       }
     ]
   }
