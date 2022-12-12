@@ -18682,13 +18682,13 @@ exports.constants = {
 },{"browserify-cipher":68,"browserify-sign":76,"browserify-sign/algos":73,"create-ecdh":101,"create-hash":102,"create-hmac":104,"diffie-hellman":114,"pbkdf2":181,"public-encrypt":188,"randombytes":195,"randomfill":196}],107:[function(require,module,exports){
 'use strict';
 var token = '%[a-f0-9]{2}';
-var singleMatcher = new RegExp(token, 'gi');
+var singleMatcher = new RegExp('(' + token + ')|([^%]+?)', 'gi');
 var multiMatcher = new RegExp('(' + token + ')+', 'gi');
 
 function decodeComponents(components, split) {
 	try {
 		// Try to decode the entire string first
-		return decodeURIComponent(components.join(''));
+		return [decodeURIComponent(components.join(''))];
 	} catch (err) {
 		// Do nothing
 	}
@@ -18710,12 +18710,12 @@ function decode(input) {
 	try {
 		return decodeURIComponent(input);
 	} catch (err) {
-		var tokens = input.match(singleMatcher);
+		var tokens = input.match(singleMatcher) || [];
 
 		for (var i = 1; i < tokens.length; i++) {
 			input = decodeComponents(tokens, i).join('');
 
-			tokens = input.match(singleMatcher);
+			tokens = input.match(singleMatcher) || [];
 		}
 
 		return input;
@@ -38808,7 +38808,7 @@ module.exports.default = exports.default;
 },{"./util/assertString":323}],329:[function(require,module,exports){
 module.exports={
   "name": "doipjs",
-  "version": "0.18.0",
+  "version": "0.18.1",
   "description": "Decentralized Online Identity Proofs library in Node.js",
   "main": "./src/index.js",
   "dependencies": {
@@ -38824,7 +38824,6 @@ module.exports={
     "express-validator": "^6.10.0",
     "hash-wasm": "^4.9.0",
     "irc-upd": "^0.11.0",
-    "jsdom": "^20.0.0",
     "merge-options": "^3.0.3",
     "openpgp": "^5.5.0",
     "query-string": "^6.14.1",
@@ -38849,7 +38848,7 @@ module.exports={
   },
   "scripts": {
     "release": "yarn run test && yarn run release:bundle && yarn run release:minify",
-    "release:bundle": "./node_modules/.bin/browserify ./src/index.js --standalone doip -x openpgp -x jsdom -x @xmpp/client -x @xmpp/debug -x irc-upd -o ./dist/doip.js",
+    "release:bundle": "./node_modules/.bin/browserify ./src/index.js --standalone doip -x openpgp -x @xmpp/client -x @xmpp/debug -x irc-upd -o ./dist/doip.js",
     "release:minify": "./node_modules/.bin/minify ./dist/doip.js > ./dist/doip.min.js",
     "license:check": "./node_modules/.bin/license-check-and-add check",
     "license:add": "./node_modules/.bin/license-check-and-add add",
@@ -40791,18 +40790,19 @@ const processURI = (uri) => {
       request: {
         fetcher: E.Fetcher.XMPP,
         access: E.ProofAccess.SERVER,
-        format: E.ProofFormat.TEXT,
+        format: E.ProofFormat.JSON,
         data: {
-          id: `${match[1]}@${match[2]}`,
-          field: 'note'
+          id: `${match[1]}@${match[2]}`
         }
       }
     },
-    claim: [{
-      format: E.ClaimFormat.URI,
-      relation: E.ClaimRelation.CONTAINS,
-      path: []
-    }]
+    claim: [
+      {
+        format: E.ClaimFormat.URI,
+        relation: E.ClaimRelation.CONTAINS,
+        path: []
+      }
+    ]
   }
 }
 
@@ -41116,7 +41116,8 @@ module.exports.fn = async (data, opts) => {
       const headers = {
         host,
         date: now.toUTCString(),
-        accept: 'application/activity+json'
+        accept: 'application/activity+json',
+        'User-Agent': `doipjs/${require('../../package.json').version}`
       }
 
       if (isConfigured && jsEnv.isNode) {
@@ -41151,7 +41152,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"axios":17,"browser-or-node":49,"crypto":106,"validator":228}],354:[function(require,module,exports){
+},{"../../package.json":329,"axios":17,"browser-or-node":49,"crypto":106,"validator":228}],354:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -41506,7 +41507,10 @@ module.exports.fn = async (data, opts) => {
     const url = `https://${opts.claims.matrix.instance}/_matrix/client/r0/rooms/${data.roomId}/event/${data.eventId}?access_token=${opts.claims.matrix.accessToken}`
     axios.get(url,
       {
-        headers: { Accept: 'application/json' }
+        headers: {
+          Accept: 'application/json',
+          'User-Agent': `doipjs/${require('../../package.json').version}`
+        }
       })
       .then(res => {
         return res.data
@@ -41525,7 +41529,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"axios":17,"validator":228}],359:[function(require,module,exports){
+},{"../../package.json":329,"axios":17,"validator":228}],359:[function(require,module,exports){
 /*
 Copyright 2022 Maximilian Siling
 
@@ -41699,6 +41703,7 @@ module.exports.fn = async (data, opts) => {
       {
         headers: {
           Accept: 'application/json',
+          'User-Agent': `doipjs/${require('../../package.json').version}`,
           Authorization: `Bearer ${opts.claims.twitter.bearerToken}`
         }
       }
@@ -41720,7 +41725,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"axios":17,"validator":228}],361:[function(require,module,exports){
+},{"../../package.json":329,"axios":17,"validator":228}],361:[function(require,module,exports){
 (function (process){(function (){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -41750,7 +41755,6 @@ const jsEnv = require('browser-or-node')
 module.exports.timeout = 5000
 
 if (jsEnv.isNode) {
-  const jsdom = require('jsdom')
   const { client, xml } = require('@xmpp/client')
   const debug = require('@xmpp/debug')
   const validator = require('validator')
@@ -41770,10 +41774,10 @@ if (jsEnv.isNode) {
       }
       const { iqCaller } = xmpp
       xmpp.start()
-      xmpp.on('online', (address) => {
+      xmpp.on('online', _ => {
         resolve({ xmpp: xmpp, iqCaller: iqCaller })
       })
-      xmpp.on('error', (error) => {
+      xmpp.on('error', error => {
         reject(error)
       })
     })
@@ -41785,7 +41789,6 @@ if (jsEnv.isNode) {
    * @async
    * @param {object} data                       - Data used in the request
    * @param {string} data.id                    - The identifier of the targeted account
-   * @param {string} data.field                 - The vCard field to return (should be "note")
    * @param {object} opts                       - Options used to enable the request
    * @param {string} opts.claims.xmpp.service   - The server hostname on which the library can log in
    * @param {string} opts.claims.xmpp.username  - The username used to log in
@@ -41811,14 +41814,6 @@ if (jsEnv.isNode) {
       iqCaller = xmppStartRes.iqCaller
     }
 
-    const response = await iqCaller.request(
-      xml('iq', { type: 'get', to: data.id }, xml('vCard', 'vcard-temp')),
-      30 * 1000
-    )
-
-    const vcardRow = response.getChild('vCard', 'vcard-temp').toString()
-    const dom = new jsdom.JSDOM(vcardRow)
-
     let timeoutHandle
     const timeoutPromise = new Promise((resolve, reject) => {
       timeoutHandle = setTimeout(
@@ -41828,35 +41823,93 @@ if (jsEnv.isNode) {
     })
 
     const fetchPromise = new Promise((resolve, reject) => {
-      try {
-        let vcard
+      (async () => {
+        let completed = false
+        const proofs = []
 
-        switch (data.field.toLowerCase()) {
-          case 'desc':
-          case 'note':
-            vcard = dom.window.document.querySelector('note text')
-            if (!vcard) {
-              vcard = dom.window.document.querySelector('note')
-            }
-            if (!vcard) {
-              vcard = dom.window.document.querySelector('DESC')
-            }
-            if (vcard) {
-              vcard = vcard.textContent
-            } else {
-              throw new Error('No DESC or NOTE field found in vCard')
-            }
-            break
+        // Try the ariadne-id pubsub request
+        if (!completed) {
+          try {
+            const response = await iqCaller.request(
+              xml('iq', { type: 'get', to: data.id }, xml('pubsub', 'http://jabber.org/protocol/pubsub', xml('items', { node: 'http://ariadne.id/protocol/proof' }))),
+              30 * 1000
+            )
 
-          default:
-            vcard = dom.window.document.querySelector(data).textContent
-            break
+            // Traverse the XML response
+            response.getChild('pubsub').getChildren('items').forEach(items => {
+              if (items.attrs.node === 'http://ariadne.id/protocol/proof') {
+                items.getChildren('item').forEach(item => {
+                  proofs.push(item.getChildText('value'))
+                })
+              }
+            })
+
+            resolve(proofs)
+            completed = true
+          } catch (_) {}
         }
+
+        // Try the vcard4 pubsub request [backward compatibility]
+        if (!completed) {
+          try {
+            const response = await iqCaller.request(
+              xml('iq', { type: 'get', to: data.id }, xml('pubsub', 'http://jabber.org/protocol/pubsub', xml('items', { node: 'urn:xmpp:vcard4', max_items: '1' }))),
+              30 * 1000
+            )
+
+            // Traverse the XML response
+            response.getChild('pubsub').getChildren('items').forEach(items => {
+              if (items.attrs.node === 'urn:xmpp:vcard4') {
+                items.getChildren('item').forEach(item => {
+                  if (item.attrs.id === 'current') {
+                    const itemVcard = item.getChild('vcard', 'urn:ietf:params:xml:ns:vcard-4.0')
+                    // Find the vCard URLs
+                    itemVcard.getChildren('url').forEach(url => {
+                      proofs.push(url.getChildText('uri'))
+                    })
+                    // Find the vCard notes
+                    itemVcard.getChildren('note').forEach(note => {
+                      proofs.push(note.getChildText('text'))
+                    })
+                  }
+                })
+              }
+            })
+
+            resolve(proofs)
+            completed = true
+          } catch (_) {}
+        }
+
+        // Try the vcard-temp IQ request [backward compatibility]
+        if (!completed) {
+          try {
+            const response = await iqCaller.request(
+              xml('iq', { type: 'get', to: data.id }, xml('vCard', 'vcard-temp')),
+              30 * 1000
+            )
+
+            // Find the vCard URLs
+            response.getChild('vCard', 'vcard-temp').getChildren('URL').forEach(url => {
+              proofs.push(url.children[0])
+            })
+            // Find the vCard notes
+            response.getChild('vCard', 'vcard-temp').getChildren('NOTE').forEach(note => {
+              proofs.push(note.children[0])
+            })
+            response.getChild('vCard', 'vcard-temp').getChildren('DESC').forEach(note => {
+              proofs.push(note.children[0])
+            })
+
+            resolve(proofs)
+            completed = true
+          } catch (error) {
+            reject(error)
+          }
+        }
+
         xmpp.stop()
-        resolve(vcard)
-      } catch (error) {
-        reject(error)
-      }
+      })()
     })
 
     return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
@@ -41869,7 +41922,7 @@ if (jsEnv.isNode) {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"@xmpp/client":"@xmpp/client","@xmpp/debug":"@xmpp/debug","_process":187,"browser-or-node":49,"jsdom":"jsdom","validator":228}],362:[function(require,module,exports){
+},{"@xmpp/client":"@xmpp/client","@xmpp/debug":"@xmpp/debug","_process":187,"browser-or-node":49,"validator":228}],362:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
