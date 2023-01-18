@@ -27,6 +27,7 @@ const data = {
   hackernews: require('./hackernews'),
   lobsters: require('./lobsters'),
   devto: require('./devto'),
+  forgejo: require('./forgejo'),
   gitea: require('./gitea'),
   gitlab: require('./gitlab'),
   github: require('./github'),
