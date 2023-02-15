@@ -37,8 +37,6 @@ const E = require('./enums')
  * @property {string|null} claims.matrix.accessToken  - The access token required to identify the library ({@link https://www.matrix.org/docs/guides/client-server-api|Matrix docs})
  * @property {object} claims.telegram                 - Options related to the verification of Telegram claims
  * @property {string|null} claims.telegram.token      - The Telegram API's token ({@link https://core.telegram.org/bots/api#authorizing-your-bot|Telegram docs})
- * @property {object} claims.twitter                  - Options related to the verification of Twitter claims
- * @property {string|null} claims.twitter.bearerToken - The Twitter API's bearer token ({@link https://developer.twitter.com/en/docs/authentication/oauth-2-0/bearer-tokens|Twitter docs})
  * @property {object} claims.xmpp                     - Options related to the verification of XMPP claims
  * @property {string|null} claims.xmpp.service        - The server hostname on which the library can log in
  * @property {string|null} claims.xmpp.username       - The username used to log in
@@ -63,9 +61,6 @@ const opts = {
     },
     telegram: {
       token: null
-    },
-    twitter: {
-      bearerToken: null
     },
     xmpp: {
       service: null,

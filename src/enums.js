@@ -51,8 +51,6 @@ const Fetcher = {
   MATRIX: 'matrix',
   /** HTTP request to Telegram API */
   TELEGRAM: 'telegram',
-  /** HTTP request to Twitter API */
-  TWITTER: 'twitter',
   /** XMPP module from Node.js */
   XMPP: 'xmpp'
 }

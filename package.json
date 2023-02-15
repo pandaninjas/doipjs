@@ -3,6 +3,7 @@
   "version": "0.18.1",
   "description": "Decentralized Online Identity Proofs library in Node.js",
   "main": "./src/index.js",
+  "packageManager": "yarn@1.22.19",
   "dependencies": {
     "@openpgp/hkp-client": "^0.0.2",
     "@openpgp/wkd-client": "^0.0.3",

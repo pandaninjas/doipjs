@@ -37,18 +37,20 @@ const processURI = (uri) => {
     proof: {
       uri: uri,
       request: {
-        fetcher: E.Fetcher.TWITTER,
-        access: E.ProofAccess.GRANTED,
-        format: E.ProofFormat.TEXT,
+        fetcher: E.Fetcher.HTTP,
+        access: E.ProofAccess.NOCORS,
+        format: E.ProofFormat.JSON,
         data: {
-          tweetId: match[2]
+          // Returns an oembed json object with the tweet content in html form
+          url: `https://publish.twitter.com/oembed?${new URLSearchParams({ url: match[0], omit_script: 1 })}`,
+          format: E.ProofFormat.JSON
         }
       }
     },
     claim: [{
       format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.CONTAINS,
-      path: []
+      path: ['html']
     }]
   }
 }
