@@ -38811,6 +38811,7 @@ module.exports={
   "version": "0.18.1",
   "description": "Decentralized Online Identity Proofs library in Node.js",
   "main": "./src/index.js",
+  "packageManager": "yarn@1.22.19",
   "dependencies": {
     "@openpgp/hkp-client": "^0.0.2",
     "@openpgp/wkd-client": "^0.0.3",
@@ -39217,7 +39218,7 @@ class Claim {
 
 module.exports = Claim
 
-},{"./claimDefinitions":339,"./defaults":351,"./enums":352,"./proofs":364,"./verifications":367,"merge-options":172,"valid-url":227,"validator":228}],331:[function(require,module,exports){
+},{"./claimDefinitions":340,"./defaults":352,"./enums":353,"./proofs":364,"./verifications":367,"merge-options":172,"valid-url":227,"validator":228}],331:[function(require,module,exports){
 /*
 Copyright 2022 Yarmo Mackenbach
 
@@ -39330,7 +39331,7 @@ exports.processURI = processURI
 exports.functions = functions
 exports.tests = tests
 
-},{"../enums":352}],332:[function(require,module,exports){
+},{"../enums":353}],332:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -39406,7 +39407,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":352}],333:[function(require,module,exports){
+},{"../enums":353}],333:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -39482,7 +39483,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":352}],334:[function(require,module,exports){
+},{"../enums":353}],334:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -39557,7 +39558,87 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":352}],335:[function(require,module,exports){
+},{"../enums":353}],335:[function(require,module,exports){
+/*
+Copyright 2023 Yarmo Mackenbach
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+const E = require('../enums')
+
+const reURI = /^https:\/\/(.*)\/(.*)\/(.*)\/?/
+
+const processURI = (uri) => {
+  const match = uri.match(reURI)
+
+  return {
+    serviceprovider: {
+      type: 'web',
+      name: 'forgejo'
+    },
+    match: {
+      regularExpression: reURI,
+      isAmbiguous: true
+    },
+    profile: {
+      display: `${match[2]}@${match[1]}`,
+      uri: `https://${match[1]}/${match[2]}`,
+      qr: null
+    },
+    proof: {
+      uri: uri,
+      request: {
+        fetcher: E.Fetcher.HTTP,
+        access: E.ProofAccess.NOCORS,
+        format: E.ProofFormat.JSON,
+        data: {
+          url: `https://${match[1]}/api/v1/repos/${match[2]}/${match[3]}`,
+          format: E.ProofFormat.JSON
+        }
+      }
+    },
+    claim: [{
+      format: E.ClaimFormat.URI,
+      relation: E.ClaimRelation.EQUALS,
+      path: ['description']
+    }]
+  }
+}
+
+const tests = [
+  {
+    uri: 'https://domain.org/alice/forgejo_proof',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://domain.org/alice/forgejo_proof/',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://domain.org/alice/other_proof',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://domain.org/alice',
+    shouldMatch: false
+  }
+]
+
+exports.reURI = reURI
+exports.processURI = processURI
+exports.tests = tests
+
+},{"../enums":353}],336:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -39575,7 +39656,7 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^https:\/\/(.*)\/(.*)\/gitea_proof\/?/
+const reURI = /^https:\/\/(.*)\/(.*)\/(.*)\/?/
 
 const processURI = (uri) => {
   const match = uri.match(reURI)
@@ -39601,7 +39682,7 @@ const processURI = (uri) => {
         access: E.ProofAccess.NOCORS,
         format: E.ProofFormat.JSON,
         data: {
-          url: `https://${match[1]}/api/v1/repos/${match[2]}/gitea_proof`,
+          url: `https://${match[1]}/api/v1/repos/${match[2]}/${match[3]}`,
           format: E.ProofFormat.JSON
         }
       }
@@ -39625,6 +39706,10 @@ const tests = [
   },
   {
     uri: 'https://domain.org/alice/other_proof',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://domain.org/alice',
     shouldMatch: false
   }
 ]
@@ -39633,7 +39718,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":352}],336:[function(require,module,exports){
+},{"../enums":353}],337:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -39709,7 +39794,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":352}],337:[function(require,module,exports){
+},{"../enums":353}],338:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -39785,7 +39870,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":352}],338:[function(require,module,exports){
+},{"../enums":353}],339:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -39861,7 +39946,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":352}],339:[function(require,module,exports){
+},{"../enums":353}],340:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -39891,6 +39976,7 @@ const data = {
   hackernews: require('./hackernews'),
   lobsters: require('./lobsters'),
   devto: require('./devto'),
+  forgejo: require('./forgejo'),
   gitea: require('./gitea'),
   gitlab: require('./gitlab'),
   github: require('./github'),
@@ -39903,7 +39989,7 @@ const data = {
 exports.list = Object.keys(data)
 exports.data = data
 
-},{"./activitypub":331,"./devto":332,"./discourse":333,"./dns":334,"./gitea":335,"./github":336,"./gitlab":337,"./hackernews":338,"./irc":340,"./liberapay":341,"./lichess":342,"./lobsters":343,"./matrix":344,"./owncast":345,"./reddit":346,"./stackexchange":347,"./telegram":348,"./twitter":349,"./xmpp":350}],340:[function(require,module,exports){
+},{"./activitypub":331,"./devto":332,"./discourse":333,"./dns":334,"./forgejo":335,"./gitea":336,"./github":337,"./gitlab":338,"./hackernews":339,"./irc":341,"./liberapay":342,"./lichess":343,"./lobsters":344,"./matrix":345,"./owncast":346,"./reddit":347,"./stackexchange":348,"./telegram":349,"./twitter":350,"./xmpp":351}],341:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -39983,7 +40069,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":352}],341:[function(require,module,exports){
+},{"../enums":353}],342:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -40059,7 +40145,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":352}],342:[function(require,module,exports){
+},{"../enums":353}],343:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -40135,7 +40221,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":352}],343:[function(require,module,exports){
+},{"../enums":353}],344:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -40211,7 +40297,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":352}],344:[function(require,module,exports){
+},{"../enums":353}],345:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -40306,7 +40392,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":352,"query-string":194}],345:[function(require,module,exports){
+},{"../enums":353,"query-string":194}],346:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -40386,7 +40472,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":352}],346:[function(require,module,exports){
+},{"../enums":353}],347:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -40470,7 +40556,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":352}],347:[function(require,module,exports){
+},{"../enums":353}],348:[function(require,module,exports){
 /*
 Copyright 2022 Yarmo Mackenbach
 
@@ -40589,7 +40675,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":352}],348:[function(require,module,exports){
+},{"../enums":353}],349:[function(require,module,exports){
 /*
 Copyright 2022 Maximilian Siling
 
@@ -40673,7 +40759,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":352}],349:[function(require,module,exports){
+},{"../enums":353}],350:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -40713,18 +40799,20 @@ const processURI = (uri) => {
     proof: {
       uri: uri,
       request: {
-        fetcher: E.Fetcher.TWITTER,
-        access: E.ProofAccess.GRANTED,
-        format: E.ProofFormat.TEXT,
+        fetcher: E.Fetcher.HTTP,
+        access: E.ProofAccess.GENERIC,
+        format: E.ProofFormat.JSON,
         data: {
-          tweetId: match[2]
+          // Returns an oembed json object with the tweet content in html form
+          url: `https://publish.twitter.com/oembed?${new URLSearchParams({ url: match[0], omit_script: 1 })}`,
+          format: E.ProofFormat.JSON
         }
       }
     },
     claim: [{
       format: E.ClaimFormat.URI,
       relation: E.ClaimRelation.CONTAINS,
-      path: []
+      path: ['html']
     }]
   }
 }
@@ -40748,7 +40836,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":352}],350:[function(require,module,exports){
+},{"../enums":353}],351:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -40825,7 +40913,7 @@ exports.reURI = reURI
 exports.processURI = processURI
 exports.tests = tests
 
-},{"../enums":352}],351:[function(require,module,exports){
+},{"../enums":353}],352:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -40865,8 +40953,6 @@ const E = require('./enums')
  * @property {string|null} claims.matrix.accessToken  - The access token required to identify the library ({@link https://www.matrix.org/docs/guides/client-server-api|Matrix docs})
  * @property {object} claims.telegram                 - Options related to the verification of Telegram claims
  * @property {string|null} claims.telegram.token      - The Telegram API's token ({@link https://core.telegram.org/bots/api#authorizing-your-bot|Telegram docs})
- * @property {object} claims.twitter                  - Options related to the verification of Twitter claims
- * @property {string|null} claims.twitter.bearerToken - The Twitter API's bearer token ({@link https://developer.twitter.com/en/docs/authentication/oauth-2-0/bearer-tokens|Twitter docs})
  * @property {object} claims.xmpp                     - Options related to the verification of XMPP claims
  * @property {string|null} claims.xmpp.service        - The server hostname on which the library can log in
  * @property {string|null} claims.xmpp.username       - The username used to log in
@@ -40892,9 +40978,6 @@ const opts = {
     telegram: {
       token: null
     },
-    twitter: {
-      bearerToken: null
-    },
     xmpp: {
       service: null,
       username: null,
@@ -40905,7 +40988,7 @@ const opts = {
 
 exports.opts = opts
 
-},{"./enums":352}],352:[function(require,module,exports){
+},{"./enums":353}],353:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -40959,8 +41042,6 @@ const Fetcher = {
   MATRIX: 'matrix',
   /** HTTP request to Telegram API */
   TELEGRAM: 'telegram',
-  /** HTTP request to Twitter API */
-  TWITTER: 'twitter',
   /** XMPP module from Node.js */
   XMPP: 'xmpp'
 }
@@ -41047,7 +41128,7 @@ exports.ClaimFormat = ClaimFormat
 exports.ClaimRelation = ClaimRelation
 exports.ClaimStatus = ClaimStatus
 
-},{}],353:[function(require,module,exports){
+},{}],354:[function(require,module,exports){
 /*
 Copyright 2022 Yarmo Mackenbach
 
@@ -41152,7 +41233,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"../../package.json":329,"axios":17,"browser-or-node":49,"crypto":106,"validator":228}],354:[function(require,module,exports){
+},{"../../package.json":329,"axios":17,"browser-or-node":49,"crypto":106,"validator":228}],355:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -41225,7 +41306,7 @@ if (jsEnv.isNode) {
   module.exports.fn = null
 }
 
-},{"browser-or-node":49,"dns":96}],355:[function(require,module,exports){
+},{"browser-or-node":49,"dns":96}],356:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -41322,7 +41403,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"../../package.json":329,"../enums":352,"axios":17}],356:[function(require,module,exports){
+},{"../../package.json":329,"../enums":353,"axios":17}],357:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -41345,10 +41426,9 @@ exports.http = require('./http')
 exports.irc = require('./irc')
 exports.matrix = require('./matrix')
 exports.telegram = require('./telegram')
-exports.twitter = require('./twitter')
 exports.xmpp = require('./xmpp')
 
-},{"./activitypub":353,"./dns":354,"./http":355,"./irc":357,"./matrix":358,"./telegram":359,"./twitter":360,"./xmpp":361}],357:[function(require,module,exports){
+},{"./activitypub":354,"./dns":355,"./http":356,"./irc":358,"./matrix":359,"./telegram":360,"./xmpp":361}],358:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -41446,7 +41526,7 @@ if (jsEnv.isNode) {
   module.exports.fn = null
 }
 
-},{"browser-or-node":49,"irc-upd":"irc-upd","validator":228}],358:[function(require,module,exports){
+},{"browser-or-node":49,"irc-upd":"irc-upd","validator":228}],359:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -41529,7 +41609,7 @@ module.exports.fn = async (data, opts) => {
   })
 }
 
-},{"../../package.json":329,"axios":17,"validator":228}],359:[function(require,module,exports){
+},{"../../package.json":329,"axios":17,"validator":228}],360:[function(require,module,exports){
 /*
 Copyright 2022 Maximilian Siling
 
@@ -41633,90 +41713,6 @@ module.exports.fn = async (data, opts) => {
         text: chat.result.description
       }
     })
-  })
-
-  return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
-    clearTimeout(timeoutHandle)
-    return result
-  })
-}
-
-},{"../../package.json":329,"axios":17,"validator":228}],360:[function(require,module,exports){
-/*
-Copyright 2021 Yarmo Mackenbach
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-const axios = require('axios')
-const validator = require('validator')
-
-/**
- * @module fetcher/twitter
- */
-
-/**
- * The request's timeout value in milliseconds
- * @constant {number} timeout
- */
-module.exports.timeout = 5000
-
-/**
- * Execute a fetch request
- * @function
- * @async
- * @param {object} data                             - Data used in the request
- * @param {number|string} data.tweetId              - Identifier of the tweet
- * @param {object} opts                             - Options used to enable the request
- * @param {string} opts.claims.twitter.bearerToken  - The Twitter API's bearer token
- * @returns {object}
- */
-module.exports.fn = async (data, opts) => {
-  let timeoutHandle
-  const timeoutPromise = new Promise((resolve, reject) => {
-    timeoutHandle = setTimeout(
-      () => reject(new Error('Request was timed out')),
-      data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
-    )
-  })
-
-  const fetchPromise = new Promise((resolve, reject) => {
-    try {
-      validator.isAscii(opts.claims.twitter.bearerToken)
-    } catch (err) {
-      throw new Error(
-        `Twitter fetcher was not set up properly (${err.message})`
-      )
-    }
-
-    axios.get(
-      `https://api.twitter.com/1.1/statuses/show.json?id=${data.tweetId}&tweet_mode=extended`,
-      {
-        headers: {
-          Accept: 'application/json',
-          'User-Agent': `doipjs/${require('../../package.json').version}`,
-          Authorization: `Bearer ${opts.claims.twitter.bearerToken}`
-        }
-      }
-    )
-      .then(data => {
-        return data.data
-      })
-      .then((data) => {
-        resolve(data.full_text)
-      })
-      .catch((error) => {
-        reject(error)
-      })
   })
 
   return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
@@ -41960,7 +41956,7 @@ exports.utils = utils
 exports.verifications = verifications
 exports.fetcher = fetcher
 
-},{"./claim":330,"./claimDefinitions":339,"./defaults":351,"./enums":352,"./fetcher":356,"./keys":363,"./proofs":364,"./signatures":365,"./utils":366,"./verifications":367}],363:[function(require,module,exports){
+},{"./claim":330,"./claimDefinitions":340,"./defaults":352,"./enums":353,"./fetcher":357,"./keys":363,"./proofs":364,"./signatures":365,"./utils":366,"./verifications":367}],363:[function(require,module,exports){
 (function (global){(function (){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -42464,7 +42460,7 @@ const createFallbackRequestPromise = (data, opts) => {
 
 exports.fetch = fetch
 
-},{"./enums":352,"./fetcher":356,"./utils":366,"browser-or-node":49}],365:[function(require,module,exports){
+},{"./enums":353,"./fetcher":357,"./utils":366,"browser-or-node":49}],365:[function(require,module,exports){
 (function (global){(function (){
 /*
 Copyright 2021 Yarmo Mackenbach
@@ -42729,7 +42725,7 @@ exports.generateProxyURL = generateProxyURL
 exports.generateClaim = generateClaim
 exports.getUriFromString = getUriFromString
 
-},{"./enums":352,"validator":228}],367:[function(require,module,exports){
+},{"./enums":353,"validator":228}],367:[function(require,module,exports){
 /*
 Copyright 2021 Yarmo Mackenbach
 
@@ -42977,5 +42973,5 @@ const run = async (proofData, claimData, fingerprint) => {
 
 exports.run = run
 
-},{"./enums":352,"./utils":366,"hash-wasm":154}]},{},[362])(362)
+},{"./enums":353,"./utils":366,"hash-wasm":154}]},{},[362])(362)
 });
