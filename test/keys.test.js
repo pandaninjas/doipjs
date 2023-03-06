@@ -139,26 +139,26 @@ describe('keys.fetchHKP', () => {
     expect(await doipjs.keys.fetchHKP(pubKeyFingerprint)).to.be.instanceOf(
       openpgp.PublicKey
     )
-  })
+  }).timeout('12s')
   it('should return a Key object when provided a valid email address', async () => {
     expect(await doipjs.keys.fetchHKP(pubKeyEmail)).to.be.instanceOf(
       openpgp.PublicKey
     )
-  })
+  }).timeout('12s')
   it('should reject when provided an invalid fingerprint', async () => {
     return expect(
       doipjs.keys.fetchHKP('4637202523e7c1309ab79e99ef2dc5827b445f4b')
     ).to.eventually.be.rejectedWith(
       'Key does not exist or could not be fetched'
     )
-  })
+  }).timeout('12s')
   it('should reject when provided an invalid email address', async () => {
     return expect(
       doipjs.keys.fetchHKP('invalid@doip.rocks')
     ).to.eventually.be.rejectedWith(
       'Key does not exist or could not be fetched'
     )
-  })
+  }).timeout('12s')
 })
 
 describe('keys.fetchPlaintext', () => {
@@ -170,7 +170,7 @@ describe('keys.fetchPlaintext', () => {
     expect(await doipjs.keys.fetchPlaintext(pubKeyPlaintext)).to.be.instanceOf(
       openpgp.PublicKey
     )
-  })
+  }).timeout('12s')
 })
 
 describe('keys.process', () => {
