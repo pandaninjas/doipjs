@@ -251,7 +251,7 @@ class Claim {
 
         // Post process the data
         const def = claimDefinitions.data[claimData.serviceprovider.name]
-        if (def.functions && def.functions.postprocess) {
+        if (def.functions?.postprocess) {
           try {
             ({ claimData, proofData } = def.functions.postprocess(claimData, proofData))
           } catch (_) {}

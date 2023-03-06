@@ -54,7 +54,7 @@ module.exports.fn = async (data, opts) => {
       throw new Error(`Telegram fetcher was not set up properly (${err.message})`)
     }
 
-    if (!data.chat || !data.user) {
+    if (!(data.chat && data.user)) {
       reject(new Error('Both chat name and user name must be provided'))
       return
     }

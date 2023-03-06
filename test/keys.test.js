@@ -21,8 +21,8 @@ const path = require('path')
 const openpgp = require('openpgp')
 const doipjs = require('../src')
 
-const pubKeyFingerprint = `3637202523e7c1309ab79e99ef2dc5827b445f4b`
-const pubKeyEmail = `test@doip.rocks`
+const pubKeyFingerprint = "3637202523e7c1309ab79e99ef2dc5827b445f4b"
+const pubKeyEmail = "test@doip.rocks"
 
 const pubKeyPlaintext = `-----BEGIN PGP PUBLIC KEY BLOCK-----
 

@@ -93,7 +93,6 @@ const containsProof = async (data, fingerprint, claimFormat) => {
           break
 
         default:
-          continue
       }
     }
   }

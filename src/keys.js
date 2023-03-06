@@ -260,7 +260,7 @@ const fetch = async (identifier) => {
  * });
  */
 const process = async (publicKey) => {
-  if (!publicKey || !(publicKey instanceof openpgp.PublicKey)) {
+  if (!(publicKey && (publicKey instanceof openpgp.PublicKey))) {
     throw new Error('Invalid public key')
   }
 
