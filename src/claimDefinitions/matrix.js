@@ -26,13 +26,15 @@ const processURI = (uri) => {
   }
 
   const params = queryString.parse(match[2])
+  const paramRoomId = `${params['org.keyoxide.r'][0] !== '!' ? '!' : ''}${params['org.keyoxide.r']}`
+  const paramEventId = `${params['org.keyoxide.e'][0] !== '$' ? '$' : ''}${params['org.keyoxide.e']}`
 
   if (!('org.keyoxide.e' in params && 'org.keyoxide.r' in params)) {
     return null
   }
 
   const profileUrl = `https://matrix.to/#/@${match[1]}`
-  const eventUrl = `https://matrix.to/#/${params['org.keyoxide.r']}/${params['org.keyoxide.e']}`
+  const eventUrl = `https://matrix.to/#/${paramRoomId}/${paramEventId}`
 
   return {
     serviceprovider: {
@@ -55,8 +57,8 @@ const processURI = (uri) => {
         access: E.ProofAccess.GRANTED,
         format: E.ProofFormat.JSON,
         data: {
-          eventId: params['org.keyoxide.e'],
-          roomId: params['org.keyoxide.r']
+          eventId: paramEventId,
+          roomId: paramRoomId
         }
       }
     },
@@ -71,7 +73,7 @@ const processURI = (uri) => {
 const tests = [
   {
     uri:
-      'matrix:u/alice:matrix.domain.org?org.keyoxide.r=!123:domain.org&org.keyoxide.e=$123',
+      'matrix:u/alice:matrix.domain.org?org.keyoxide.r=123:domain.org&org.keyoxide.e=123',
     shouldMatch: true
   },
   {
