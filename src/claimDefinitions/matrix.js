@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 const E = require('../enums')
-const queryString = require('query-string')
 
 const reURI = /^matrix:u\/(?:@)?([^@:]*:[^?]*)(\?.*)?/
 
@@ -25,13 +24,14 @@ const processURI = (uri) => {
     return null
   }
 
-  const params = queryString.parse(match[2])
-  const paramRoomId = `${params['org.keyoxide.r'][0] !== '!' ? '!' : ''}${params['org.keyoxide.r']}`
-  const paramEventId = `${params['org.keyoxide.e'][0] !== '$' ? '$' : ''}${params['org.keyoxide.e']}`
+  const params = new URLSearchParams(match[2])
 
-  if (!('org.keyoxide.e' in params && 'org.keyoxide.r' in params)) {
+  if (!(params.has('org.keyoxide.e') && params.has('org.keyoxide.r'))) {
     return null
   }
+
+  const paramRoomId = `${params.get('org.keyoxide.r')[0] !== '!' ? '!' : ''}${params.get('org.keyoxide.r')}`
+  const paramEventId = `${params.get('org.keyoxide.e')[0] !== '$' ? '$' : ''}${params.get('org.keyoxide.e')}`
 
   const profileUrl = `https://matrix.to/#/@${match[1]}`
   const eventUrl = `https://matrix.to/#/${paramRoomId}/${paramEventId}`
