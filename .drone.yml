@@ -30,7 +30,7 @@ steps:
     image: plugins/npm
     settings:
       username: yarmo_eu
-      password:
+      token:
         from_secret: npm_token
       email:
         from_secret: npm_email
