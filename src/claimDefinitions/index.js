@@ -34,7 +34,8 @@ const data = {
   activitypub: require('./activitypub'),
   discourse: require('./discourse'),
   owncast: require('./owncast'),
-  stackexchange: require('./stackexchange')
+  stackexchange: require('./stackexchange'),
+  keybase: require('./keybase')
 }
 
 exports.list = Object.keys(data)
