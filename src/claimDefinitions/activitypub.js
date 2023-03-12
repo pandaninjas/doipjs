@@ -46,16 +46,19 @@ const processURI = (uri) => {
     claim: [
       {
         format: E.ClaimFormat.FINGERPRINT,
+        encoding: E.EntityEncodingFormat.PLAIN,
         relation: E.ClaimRelation.CONTAINS,
         path: ['summary']
       },
       {
         format: E.ClaimFormat.FINGERPRINT,
+        encoding: E.EntityEncodingFormat.PLAIN,
         relation: E.ClaimRelation.CONTAINS,
         path: ['attachment', 'value']
       },
       {
         format: E.ClaimFormat.FINGERPRINT,
+        encoding: E.EntityEncodingFormat.PLAIN,
         relation: E.ClaimRelation.CONTAINS,
         path: ['content']
       }

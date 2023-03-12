@@ -48,6 +48,7 @@ const processURI = (uri) => {
     },
     claim: [{
       format: E.ClaimFormat.URI,
+      encoding: E.EntityEncodingFormat.PLAIN,
       relation: E.ClaimRelation.CONTAINS,
       path: ['files', 'openpgp.md', 'content']
     }]

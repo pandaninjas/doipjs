@@ -48,6 +48,7 @@ const processURI = (uri) => {
     },
     claim: [{
       format: E.ClaimFormat.URI,
+      encoding: E.EntityEncodingFormat.HTML,
       relation: E.ClaimRelation.CONTAINS,
       path: ['about']
     }]

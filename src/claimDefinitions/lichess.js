@@ -48,6 +48,7 @@ const processURI = (uri) => {
     },
     claim: [{
       format: E.ClaimFormat.FINGERPRINT,
+      encoding: E.EntityEncodingFormat.PLAIN,
       relation: E.ClaimRelation.CONTAINS,
       path: ['profile', 'links']
     }]
