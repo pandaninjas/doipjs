@@ -26,7 +26,7 @@ const data = {
   lichess: require('./lichess'),
   hackernews: require('./hackernews'),
   lobsters: require('./lobsters'),
-  devto: require('./devto'),
+  forem: require('./forem'),
   // forgejo: require('./forgejo'),
   gitea: require('./gitea'),
   gitlab: require('./gitlab'),

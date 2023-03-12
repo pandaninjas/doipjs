@@ -15,7 +15,7 @@ limitations under the License.
 */
 const E = require('../enums')
 
-const reURI = /^https:\/\/dev\.to\/(.*)\/(.*)\/?/
+const reURI = /^https:\/\/(.*)\/(.*)\/(.*)\/?/
 
 const processURI = (uri) => {
   const match = uri.match(reURI)
@@ -23,15 +23,15 @@ const processURI = (uri) => {
   return {
     serviceprovider: {
       type: 'web',
-      name: 'devto'
+      name: 'forem'
     },
     match: {
       regularExpression: reURI,
       isAmbiguous: false
     },
     profile: {
-      display: match[1],
-      uri: `https://dev.to/${match[1]}`,
+      display: `${match[2]}@${match[1]}`,
+      uri: `https://${match[1]}/${match[2]}`,
       qr: null
     },
     proof: {
@@ -41,7 +41,7 @@ const processURI = (uri) => {
         access: E.ProofAccess.NOCORS,
         format: E.ProofFormat.JSON,
         data: {
-          url: `https://dev.to/api/articles/${match[1]}/${match[2]}`,
+          url: `https://${match[1]}/api/articles/${match[2]}/${match[3]}`,
           format: E.ProofFormat.JSON
         }
       }
@@ -56,15 +56,15 @@ const processURI = (uri) => {
 
 const tests = [
   {
-    uri: 'https://dev.to/alice/post',
-    shouldMatch: true
-  },
-  {
-    uri: 'https://dev.to/alice/post/',
-    shouldMatch: true
-  },
-  {
     uri: 'https://domain.org/alice/post',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://domain.org/alice/post/',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://domain.org/alice',
     shouldMatch: false
   }
 ]
