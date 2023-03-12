@@ -57,6 +57,21 @@ const Fetcher = {
 Object.freeze(Fetcher)
 
 /**
+ * Entity encoding format
+ * @readonly
+ * @enum {string}
+ */
+const EntityEncodingFormat = {
+  /** No special formatting */
+  PLAIN: 'plain',
+  /** HTML encoded entities */
+  HTML: 'html',
+  /** XML encoded entities */
+  XML: 'xml'
+}
+Object.freeze(EntityEncodingFormat)
+
+/**
  * Levels of access restriction for proof fetching
  * @readonly
  * @enum {string}
@@ -131,6 +146,7 @@ Object.freeze(ClaimStatus)
 
 exports.ProxyPolicy = ProxyPolicy
 exports.Fetcher = Fetcher
+exports.EntityEncodingFormat = EntityEncodingFormat
 exports.ProofAccess = ProofAccess
 exports.ProofFormat = ProofFormat
 exports.ClaimFormat = ClaimFormat

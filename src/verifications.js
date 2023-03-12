@@ -16,16 +16,33 @@ limitations under the License.
 const utils = require('./utils')
 const E = require('./enums')
 const { bcryptVerify, argon2Verify } = require('hash-wasm')
+const entities = require('entities')
 
 /**
  * @module verifications
  * @ignore
  */
 
-const containsProof = async (data, fingerprint, claimFormat) => {
-  const fingerprintFormatted = utils.generateClaim(fingerprint, claimFormat)
-  const fingerprintURI = utils.generateClaim(fingerprint, E.ClaimFormat.URI)
+const containsProof = async (data, params) => {
+  const fingerprintFormatted = utils.generateClaim(params.target, params.claimFormat)
+  const fingerprintURI = utils.generateClaim(params.target, E.ClaimFormat.URI)
   let result = false
+
+  // Decode eventual special entities
+  switch (params.proofEncodingFormat) {
+    case E.EntityEncodingFormat.HTML:
+      data = entities.decodeHTML(data)
+      break
+
+    case E.EntityEncodingFormat.XML:
+      data = entities.decodeXML(data)
+      break
+
+    case E.EntityEncodingFormat.PLAIN:
+    default:
+      break
+  }
+  data = entities.decodeHTML(data)
 
   // Check for plaintext proof
   result = data.replace(/\r?\n|\r/g, '')
@@ -138,7 +155,7 @@ const containsProof = async (data, fingerprint, claimFormat) => {
   return result
 }
 
-const runJSON = async (proofData, checkPath, checkClaim, checkClaimFormat, checkRelation) => {
+const runJSON = async (proofData, checkPath, params) => {
   if (!proofData) {
     return false
   }
@@ -153,21 +170,21 @@ const runJSON = async (proofData, checkPath, checkClaim, checkClaimFormat, check
         continue
       }
 
-      result = await runJSON(item, checkPath, checkClaim, checkClaimFormat, checkRelation)
+      result = await runJSON(item, checkPath, params)
     }
 
     return result
   }
 
   if (checkPath.length === 0) {
-    switch (checkRelation) {
+    switch (params.claimRelation) {
       case E.ClaimRelation.ONEOF:
-        return await containsProof(proofData.join('|'), checkClaim, checkClaimFormat)
+        return await containsProof(proofData.join('|'), params)
 
       case E.ClaimRelation.CONTAINS:
       case E.ClaimRelation.EQUALS:
       default:
-        return await containsProof(proofData, checkClaim, checkClaimFormat)
+        return await containsProof(proofData, params)
     }
   }
 
@@ -178,9 +195,7 @@ const runJSON = async (proofData, checkPath, checkClaim, checkClaimFormat, check
   return await runJSON(
     proofData[checkPath[0]],
     checkPath.slice(1),
-    checkClaim,
-    checkClaimFormat,
-    checkRelation
+    params
   )
 }
 
@@ -207,9 +222,12 @@ const run = async (proofData, claimData, fingerprint) => {
           res.result = res.result || await runJSON(
             proofData,
             claimMethod.path,
-            fingerprint,
-            claimMethod.format,
-            claimMethod.relation
+            {
+              target: fingerprint,
+              claimFormat: claimMethod.format,
+              proofEncodingFormat: claimMethod.encoding,
+              claimRelation: claimMethod.relation
+            }
           )
         } catch (error) {
           res.errors.push(error.message ? error.message : error)
@@ -223,8 +241,12 @@ const run = async (proofData, claimData, fingerprint) => {
         try {
           res.result = res.result || await containsProof(
             proofData,
-            fingerprint,
-            claimMethod.format
+            {
+              target: fingerprint,
+              claimFormat: claimMethod.format,
+              proofEncodingFormat: claimMethod.encoding,
+              claimRelation: claimMethod.relation
+            }
           )
         } catch (error) {
           res.errors.push('err_unknown_text_verification')
