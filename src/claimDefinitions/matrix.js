@@ -81,6 +81,11 @@ const tests = [
     shouldMatch: true
   },
   {
+    uri:
+      'matrix:u/@alice:matrix.domain.org?org.keyoxide.r=!123:domain.org&org.keyoxide.e=$123',
+    shouldMatch: true
+  },
+  {
     uri: 'xmpp:alice@domain.org',
     shouldMatch: false
   },
