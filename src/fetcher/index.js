@@ -16,6 +16,7 @@ limitations under the License.
 
 exports.activitypub = require('./activitypub')
 exports.dns = require('./dns')
+exports.graphql = require('./graphql')
 exports.http = require('./http')
 exports.irc = require('./irc')
 exports.matrix = require('./matrix')

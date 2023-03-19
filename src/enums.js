@@ -43,6 +43,8 @@ const Fetcher = {
   ACTIVITYPUB: 'activitypub',
   /** DNS module from Node.js */
   DNS: 'dns',
+  /** GraphQL over HTTP requests */
+  GRAPHQL: 'graphql',
   /** Basic HTTP requests */
   HTTP: 'http',
   /** IRC module from Node.js */
