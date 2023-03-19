@@ -35,7 +35,8 @@ const data = {
   discourse: require('./discourse'),
   owncast: require('./owncast'),
   stackexchange: require('./stackexchange'),
-  keybase: require('./keybase')
+  keybase: require('./keybase'),
+  opencollective: require('./opencollective')
 }
 
 exports.list = Object.keys(data)
