@@ -27,7 +27,7 @@ const processURI = (uri) => {
     },
     match: {
       regularExpression: reURI,
-      isAmbiguous: false
+      isAmbiguous: true
     },
     profile: {
       display: `${match[2]}@${match[1]}`,
