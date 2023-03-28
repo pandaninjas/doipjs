@@ -1,0 +1,7 @@
+pipeline:
+  test:
+    image: node
+    commands:
+      - yarn --pure-lockfile
+      - yarn run prepare
+      - yarn run test

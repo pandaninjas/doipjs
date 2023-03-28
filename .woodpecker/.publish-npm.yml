@@ -1,0 +1,24 @@
+pipeline:
+  prepare:
+    when:
+      event: tag
+    image: node
+    commands:
+      - yarn --pure-lockfile
+      - yarn run prepare
+
+  publish-npm:
+    when:
+      event: tag
+    image: plugins/npm
+    settings:
+      username: yarmo_eu
+      token:
+        from_secret: npm_token
+      email:
+        from_secret: npm_email
+
+branches: main
+
+depends_on:
+  - test
