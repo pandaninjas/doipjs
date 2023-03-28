@@ -1,6 +1,7 @@
 pipeline:
   prepare:
     when:
+      branch: main
       event: tag
     image: node
     commands:
@@ -9,6 +10,7 @@ pipeline:
 
   publish-npm:
     when:
+      branch: main
       event: tag
     image: plugins/npm
     settings:
@@ -17,8 +19,6 @@ pipeline:
         from_secret: npm_token
       email:
         from_secret: npm_email
-
-branches: main
 
 depends_on:
   - test
