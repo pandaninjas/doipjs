@@ -34,6 +34,7 @@ const processURI = (uri) => {
       uri: uri,
       qr: null
     },
+    markers: [],
     proof: {
       uri: `https://hacker-news.firebaseio.com/v0/user/${match[1]}.json`,
       request: {

@@ -36,6 +36,7 @@ const processURI = (uri) => {
       uri: uri,
       qr: null
     },
+    markers: [],
     proof: {
       uri: `https://${domain}.com/users/${id}?tab=profile`,
       request: {

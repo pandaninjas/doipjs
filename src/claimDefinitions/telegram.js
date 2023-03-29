@@ -34,6 +34,7 @@ const processURI = (uri) => {
       uri: `https://t.me/${match[1]}`,
       qr: `https://t.me/${match[1]}`
     },
+    markers: [],
     proof: {
       uri: `https://t.me/${match[2]}`,
       request: {

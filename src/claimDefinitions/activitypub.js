@@ -32,6 +32,7 @@ const processURI = (uri) => {
       uri: uri,
       qr: null
     },
+    markers: [],
     proof: {
       uri: uri,
       request: {

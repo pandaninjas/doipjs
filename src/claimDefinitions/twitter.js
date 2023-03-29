@@ -34,6 +34,7 @@ const processURI = (uri) => {
       uri: `https://twitter.com/${match[1]}`,
       qr: null
     },
+    markers: [],
     proof: {
       uri: uri,
       request: {

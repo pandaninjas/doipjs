@@ -34,6 +34,7 @@ const processURI = (uri) => {
       uri: uri,
       qr: null
     },
+    markers: [],
     proof: {
       uri: `https://lobste.rs/u/${match[1]}.json`,
       request: {

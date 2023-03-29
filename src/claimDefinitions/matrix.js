@@ -50,6 +50,7 @@ const processURI = (uri) => {
       uri: profileUrl,
       qr: null
     },
+    markers: [],
     proof: {
       uri: eventUrl,
       request: {

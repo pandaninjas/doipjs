@@ -34,6 +34,7 @@ const processURI = (uri) => {
       uri: `https://github.com/${match[1]}`,
       qr: null
     },
+    markers: [],
     proof: {
       uri: uri,
       request: {

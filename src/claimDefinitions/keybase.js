@@ -34,6 +34,7 @@ const processURI = (uri) => {
       uri: uri,
       qr: null
     },
+    markers: [],
     proof: {
       uri: `https://keybase.io/_/api/1.0/user/lookup.json?username=${match[1]}`,
       request: {

@@ -34,6 +34,23 @@ const processURI = (uri) => {
       uri: `https://${match[1]}/${match[2]}`,
       qr: null
     },
+    markers: [
+      {
+        request: {
+          fetcher: E.Fetcher.HTTP,
+          access: E.ProofAccess.NOCORS,
+          format: E.ProofFormat.JSON,
+          data: {
+            url: `https://${match[1]}/api/v1/version`,
+            format: E.ProofFormat.JSON
+          }
+        },
+        test: {
+          type: E.MarkerTestType.HTTP_ENDPOINT_MUST_EXIST,
+          inverse: false
+        }
+      }
+    ],
     proof: {
       uri: uri,
       request: {
