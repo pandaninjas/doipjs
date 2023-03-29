@@ -38,6 +38,7 @@ const pattern = {
       return _.isString(x) || _.isNull(x)
     },
   },
+  markers: _.isArray,
   proof: {
     uri: (x) => {
       return _.isString(x) || _.isNull(x)

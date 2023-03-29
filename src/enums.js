@@ -146,6 +146,20 @@ const ClaimStatus = {
 }
 Object.freeze(ClaimStatus)
 
+/**
+ * How to test a marker
+ * @readonly
+ * @enum {string}
+ */
+const MarkerTestType = {
+  /** HTTP endpoint must exist */
+  HTTP_ENDPOINT_MUST_EXIST: 'httpEndpointMustExist'
+  // TODO Implement JSON_CONTAINS
+  // /** JSON data must contain a certain string */
+  // JSON_CONTAINS: 'jsonContains'
+}
+Object.freeze(MarkerTestType)
+
 exports.ProxyPolicy = ProxyPolicy
 exports.Fetcher = Fetcher
 exports.EntityEncodingFormat = EntityEncodingFormat
@@ -154,3 +168,4 @@ exports.ProofFormat = ProofFormat
 exports.ClaimFormat = ClaimFormat
 exports.ClaimRelation = ClaimRelation
 exports.ClaimStatus = ClaimStatus
+exports.MarkerTestType = MarkerTestType

@@ -16,7 +16,7 @@ limitations under the License.
 const validator = require('validator')
 const validUrl = require('valid-url')
 const mergeOptions = require('merge-options')
-const proofs = require('./proofs')
+const request = require('./request')
 const verifications = require('./verifications')
 const claimDefinitions = require('./claimDefinitions')
 const defaults = require('./defaults')
@@ -229,10 +229,44 @@ class Claim {
 
       let verificationResult = null
       let proofData = null
+      let markersData = null
       let proofFetchError
 
+      // Handle markers
       try {
-        proofData = await proofs.fetch(claimData, opts)
+        markersData = await request.fetchMarkers(claimData, opts)
+      } catch (err) {
+        proofFetchError = err
+      }
+      if (markersData) {
+        let shouldSkipMatch = false
+        markersData.forEach(marker => {
+          // Skip marker if another was already proven false
+          if (shouldSkipMatch) return
+
+          // Ignore markers that were rejected
+          if (marker.status !== 'fulfilled') return
+
+          let endpointExists
+          switch (marker.value.data.test.type) {
+            case E.MarkerTestType.HTTP_ENDPOINT_MUST_EXIST:
+              endpointExists = marker.value.result && !marker.value.error
+              if ((endpointExists && marker.value.data.test.inverse) || (!(endpointExists || marker.value.data.test.inverse))) {
+                shouldSkipMatch = true
+              }
+              break
+
+            default:
+              break
+          }
+        })
+
+        if (shouldSkipMatch) continue
+      }
+
+      // Handle proof
+      try {
+        proofData = await request.fetchProof(claimData, opts)
       } catch (err) {
         proofFetchError = err
       }

@@ -19,7 +19,7 @@ const utils = require('./utils')
 const E = require('./enums')
 
 /**
- * @module proofs
+ * @module request
  */
 
 /**
@@ -33,7 +33,7 @@ const E = require('./enums')
  * @param {object} opts - Options to enable the request
  * @returns {Promise<object|string>}
  */
-const fetch = (data, opts) => {
+const fetchProof = (data, opts) => {
   switch (data.proof.request.fetcher) {
     case E.Fetcher.HTTP:
       data.proof.request.data.format = data.proof.request.format
@@ -44,22 +44,49 @@ const fetch = (data, opts) => {
   }
 
   if (jsEnv.isNode) {
-    return handleNodeRequests(data, opts)
+    return handleNodeRequests(data.proof, opts, false)
   }
 
-  return handleBrowserRequests(data, opts)
+  return handleBrowserRequests(data.proof, opts, false)
 }
 
-const handleBrowserRequests = (data, opts) => {
+/**
+ * Delegate the marker requests to the correct fetcher.
+ * This method uses the current environment (browser/node), certain values from
+ * the `data` parameter and the proxy policy set in the `opts` parameter to
+ * choose the right approach to fetch the proof. An error will be thrown if no
+ * approach is possible.
+ * @async
+ * @param {object} data - Data from a claim definition
+ * @param {object} opts - Options to enable the request
+ * @returns {Promise<Array<object>>}
+ */
+const fetchMarkers = async (data, opts) => {
+  const promises = []
+
+  if (!(data.markers && data.markers.length > 0)) throw new Error('No markers found')
+
+  data.markers.forEach(marker => {
+    if (jsEnv.isNode) {
+      promises.push(handleNodeRequests(marker, opts, true))
+    } else {
+      promises.push(handleBrowserRequests(marker, opts, true))
+    }
+  })
+
+  return Promise.allSettled(promises)
+}
+
+const handleBrowserRequests = (data, opts, alwaysResolve) => {
   switch (opts.proxy.policy) {
     case E.ProxyPolicy.ALWAYS:
-      return createProxyRequestPromise(data, opts)
+      return createProxyRequestPromise(data, opts, alwaysResolve)
 
     case E.ProxyPolicy.NEVER:
-      switch (data.proof.request.access) {
+      switch (data.request.access) {
         case E.ProofAccess.GENERIC:
         case E.ProofAccess.GRANTED:
-          return createDefaultRequestPromise(data, opts)
+          return createDefaultRequestPromise(data, opts, alwaysResolve)
         case E.ProofAccess.NOCORS:
         case E.ProofAccess.SERVER:
           throw new Error(
@@ -70,15 +97,13 @@ const handleBrowserRequests = (data, opts) => {
       }
 
     case E.ProxyPolicy.ADAPTIVE:
-      switch (data.proof.request.access) {
+      switch (data.request.access) {
         case E.ProofAccess.GENERIC:
-          return createFallbackRequestPromise(data, opts)
-        case E.ProofAccess.NOCORS:
-          return createProxyRequestPromise(data, opts)
         case E.ProofAccess.GRANTED:
-          return createFallbackRequestPromise(data, opts)
+          return createFallbackRequestPromise(data, opts, alwaysResolve)
+        case E.ProofAccess.NOCORS:
         case E.ProofAccess.SERVER:
-          return createProxyRequestPromise(data, opts)
+          return createProxyRequestPromise(data, opts, alwaysResolve)
         default:
           throw new Error('Invalid proof access value')
       }
@@ -88,47 +113,56 @@ const handleBrowserRequests = (data, opts) => {
   }
 }
 
-const handleNodeRequests = (data, opts) => {
+const handleNodeRequests = (data, opts, alwaysResolve) => {
   switch (opts.proxy.policy) {
     case E.ProxyPolicy.ALWAYS:
-      return createProxyRequestPromise(data, opts)
+      return createProxyRequestPromise(data, opts, alwaysResolve)
 
     case E.ProxyPolicy.NEVER:
-      return createDefaultRequestPromise(data, opts)
+      return createDefaultRequestPromise(data, opts, alwaysResolve)
 
     case E.ProxyPolicy.ADAPTIVE:
-      return createFallbackRequestPromise(data, opts)
+      return createFallbackRequestPromise(data, opts, alwaysResolve)
 
     default:
       throw new Error('Invalid proxy policy')
   }
 }
 
-const createDefaultRequestPromise = (data, opts) => {
+const createDefaultRequestPromise = (data, opts, alwaysResolve) => {
   return new Promise((resolve, reject) => {
-    fetcher[data.proof.request.fetcher]
-      .fn(data.proof.request.data, opts)
+    fetcher[data.request.fetcher]
+      .fn(data.request.data, opts)
       .then((res) => {
         return resolve({
-          fetcher: data.proof.request.fetcher,
+          fetcher: data.request.fetcher,
           data: data,
           viaProxy: false,
           result: res
         })
       })
       .catch((err) => {
-        return reject(err)
+        if (alwaysResolve) {
+          return resolve({
+            fetcher: 'http',
+            data: data,
+            viaProxy: true,
+            error: err
+          })
+        } else {
+          return reject(err)
+        }
       })
   })
 }
 
-const createProxyRequestPromise = (data, opts) => {
+const createProxyRequestPromise = (data, opts, alwaysResolve) => {
   return new Promise((resolve, reject) => {
     let proxyUrl
     try {
       proxyUrl = utils.generateProxyURL(
-        data.proof.request.fetcher,
-        data.proof.request.data,
+        data.request.fetcher,
+        data.request.data,
         opts
       )
     } catch (err) {
@@ -137,8 +171,8 @@ const createProxyRequestPromise = (data, opts) => {
 
     const requestData = {
       url: proxyUrl,
-      format: data.proof.request.format,
-      fetcherTimeout: fetcher[data.proof.request.fetcher].timeout
+      format: data.request.format,
+      fetcherTimeout: fetcher[data.request.fetcher].timeout
     }
     fetcher.http
       .fn(requestData, opts)
@@ -151,19 +185,28 @@ const createProxyRequestPromise = (data, opts) => {
         })
       })
       .catch((err) => {
-        return reject(err)
+        if (alwaysResolve) {
+          return resolve({
+            fetcher: 'http',
+            data: data,
+            viaProxy: true,
+            error: err
+          })
+        } else {
+          return reject(err)
+        }
       })
   })
 }
 
-const createFallbackRequestPromise = (data, opts) => {
+const createFallbackRequestPromise = (data, opts, alwaysResolve) => {
   return new Promise((resolve, reject) => {
-    createDefaultRequestPromise(data, opts)
+    createDefaultRequestPromise(data, opts, alwaysResolve)
       .then((res) => {
         return resolve(res)
       })
       .catch((err1) => {
-        createProxyRequestPromise(data, opts)
+        createProxyRequestPromise(data, opts, alwaysResolve)
           .then((res) => {
             return resolve(res)
           })
@@ -174,4 +217,5 @@ const createFallbackRequestPromise = (data, opts) => {
   })
 }
 
-exports.fetch = fetch
+exports.fetchProof = fetchProof
+exports.fetchMarkers = fetchMarkers
