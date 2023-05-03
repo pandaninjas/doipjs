@@ -151,7 +151,7 @@ const containsProof = async (data, params) => {
         method: 'HEAD'
       })
         .catch(e => {
-          return false
+          return undefined
         })
 
       if (!response) continue

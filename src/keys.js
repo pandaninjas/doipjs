@@ -283,7 +283,7 @@ const process = async (publicKey) => {
     }
 
     if ('selfCertifications' in user && user.selfCertifications.length > 0) {
-      const selfCertification = user.selfCertifications.sort((e1, e2) => e2.created - e1.created)[0]
+      const selfCertification = user.selfCertifications.sort((e1, e2) => e2.created.getTime() - e1.created.getTime())[0]
 
       const notations = selfCertification.rawNotations
       usersOutput[i].claims = notations
