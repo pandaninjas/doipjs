@@ -27,7 +27,7 @@ module.exports.timeout = 20000
 
 if (jsEnv.isNode) {
   const irc = require('irc-upd')
-  const validator = require('validator')
+  const validator = require('validator').default
 
   /**
    * Execute a fetch request

@@ -28,7 +28,7 @@ module.exports.timeout = 5000
 if (jsEnv.isNode) {
   const { client, xml } = require('@xmpp/client')
   const debug = require('@xmpp/debug')
-  const validator = require('validator')
+  const validator = require('validator').default
 
   let xmpp = null
   let iqCaller = null
