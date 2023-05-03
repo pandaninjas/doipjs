@@ -71,9 +71,11 @@ if (jsEnv.isNode) {
         const reEnd = /End\sof\s.*\staxonomy./
         const keys = []
 
+        // @ts-ignore
         client.addListener('registered', (message) => {
           client.send(`PRIVMSG NickServ TAXONOMY ${data.nick}`)
         })
+        // @ts-ignore
         client.addListener('notice', (nick, to, text, message) => {
           if (reKey.test(text)) {
             const match = text.match(reKey)

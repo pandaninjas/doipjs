@@ -66,6 +66,7 @@ module.exports.fn = async (data, opts) => {
     axios.get(url, {
       headers: {
         Accept: 'application/json',
+        // @ts-ignore
         'User-Agent': `doipjs/${require('../../package.json').version}`
       },
       validateStatus: (status) => status === 200

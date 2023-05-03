@@ -55,9 +55,12 @@ const process = async (signature) => {
     throw new Error(`Signature could not be read (${e.message})`)
   }
 
+  // @ts-ignore
   const issuerKeyID = sigData.signature.packets[0].issuerKeyID.toHex()
+  // @ts-ignore
   const signersUserID = sigData.signature.packets[0].signersUserID
   const preferredKeyServer =
+  // @ts-ignore
     sigData.signature.packets[0].preferredKeyServer ||
     'https://keys.openpgp.org/'
   const text = sigData.getText()
@@ -112,6 +115,7 @@ const process = async (signature) => {
 
   // Verify the signature
   const verificationResult = await openpgp.verify({
+    // @ts-ignore
     message: sigData,
     verificationKeys: result.key.data
   })

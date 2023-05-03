@@ -40,6 +40,7 @@ const fetchHKP = async (identifier, keyserverDomain) => {
     ? `https://${keyserverDomain}`
     : 'https://keys.openpgp.org'
 
+  // @ts-ignore
   const hkp = new HKP(keyserverBaseUrl)
   const lookupOpts = {
     query: identifier
@@ -72,6 +73,7 @@ const fetchHKP = async (identifier, keyserverDomain) => {
  * const key = doip.keys.fetchWKD('alice@domain.tld');
  */
 const fetchWKD = async (identifier) => {
+  // @ts-ignore
   const wkd = new WKD()
   const lookupOpts = {
     email: identifier

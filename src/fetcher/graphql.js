@@ -60,6 +60,7 @@ module.exports.fn = async (data, opts) => {
     axios.post(data.url, jsonData, {
       headers: {
         'Content-Type': 'application/json',
+        // @ts-ignore
         'User-Agent': `doipjs/${require('../../package.json').version}`
       },
       validateStatus: function (status) {

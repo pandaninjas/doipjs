@@ -70,6 +70,7 @@ module.exports.fn = async (data, opts) => {
         host,
         date: now.toUTCString(),
         accept: 'application/activity+json',
+        // @ts-ignore
         'User-Agent': `doipjs/${require('../../package.json').version}`
       }
 
