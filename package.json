@@ -55,7 +55,7 @@
     "lint": "eslint ./src",
     "lint:fix": "eslint ./src --fix",
     "mocha": "./node_modules/.bin/mocha",
-    "test": "yarn run standard:check && yarn rome check ./src/* && yarn run license:check && yarn run mocha",
+    "test": "yarn lint && yarn rome check ./src/* && yarn run license:check && yarn run mocha",
     "prepare": "husky install"
   },
   "repository": {
