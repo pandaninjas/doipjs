@@ -36,9 +36,12 @@ if (jsEnv.isNode) {
    * @param {object} data                 - Data used in the request
    * @param {string} data.nick            - The nick of the targeted account
    * @param {string} data.domain          - The domain on which the targeted account is registered
+   * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
    * @param {object} opts                 - Options used to enable the request
+   * @param {object} opts.claims
+   * @param {object} opts.claims.irc
    * @param {string} opts.claims.irc.nick - The nick to be used by the library to log in
-   * @returns {object}
+   * @returns {Promise<object>}
    */
   module.exports.fn = async (data, opts) => {
     let timeoutHandle

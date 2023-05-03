@@ -30,7 +30,7 @@ const Claim = require('./claim')
  * @function
  * @param {string} identifier                         - Fingerprint or email address
  * @param {string} [keyserverDomain=keys.openpgp.org] - Domain of the keyserver
- * @returns {openpgp.PublicKey}
+ * @returns {Promise<openpgp.PublicKey>}
  * @example
  * const key1 = doip.keys.fetchHKP('alice@domain.tld');
  * const key2 = doip.keys.fetchHKP('123abc123abc');
@@ -67,7 +67,7 @@ const fetchHKP = async (identifier, keyserverDomain) => {
  * Fetch a public key using Web Key Directory
  * @function
  * @param {string} identifier - Identifier of format 'username@domain.tld`
- * @returns {openpgp.PublicKey}
+ * @returns {Promise<openpgp.PublicKey>}
  * @example
  * const key = doip.keys.fetchWKD('alice@domain.tld');
  */
@@ -79,7 +79,7 @@ const fetchWKD = async (identifier) => {
 
   const publicKey = await wkd
     .lookup(lookupOpts)
-    .catch((error) => {
+    .catch((/** @type {Error} */ error) => {
       throw new Error(`Key does not exist or could not be fetched (${error})`)
     })
 
@@ -100,7 +100,7 @@ const fetchWKD = async (identifier) => {
  * @function
  * @param {string} username     - Keybase username
  * @param {string} fingerprint  - Fingerprint of key
- * @returns {openpgp.PublicKey}
+ * @returns {Promise<openpgp.PublicKey>}
  * @example
  * const key = doip.keys.fetchKeybase('alice', '123abc123abc');
  */
@@ -114,12 +114,12 @@ const fetchKeybase = async (username, fingerprint) => {
         responseType: 'text'
       }
     )
-      .then((response) => {
+      .then((/** @type {import('axios').AxiosResponse} */ response) => {
         if (response.status === 200) {
           return response
         }
       })
-      .then((response) => response.data)
+      .then((/** @type {import('axios').AxiosResponse} */ response) => response.data)
   } catch (e) {
     throw new Error(`Error fetching Keybase key: ${e.message}`)
   }
@@ -136,7 +136,7 @@ const fetchKeybase = async (username, fingerprint) => {
  * Get a public key from plaintext data
  * @function
  * @param {string} rawKeyContent - Plaintext ASCII-formatted public key data
- * @returns {openpgp.PublicKey}
+ * @returns {Promise<openpgp.PublicKey>}
  * @example
  * const plainkey = `-----BEGIN PGP PUBLIC KEY BLOCK-----
  *
@@ -161,7 +161,7 @@ const fetchPlaintext = async (rawKeyContent) => {
  * Fetch a public key using an URI
  * @function
  * @param {string} uri - URI that defines the location of the key
- * @returns {openpgp.PublicKey}
+ * @returns {Promise<openpgp.PublicKey>}
  * @example
  * const key1 = doip.keys.fetchURI('hkp:alice@domain.tld');
  * const key2 = doip.keys.fetchURI('hkp:123abc123abc');
@@ -207,7 +207,7 @@ const fetchURI = async (uri) => {
  * This function will also try and parse the input as a plaintext key
  * @function
  * @param {string} identifier - URI that defines the location of the key
- * @returns {openpgp.PublicKey}
+ * @returns {Promise<openpgp.PublicKey>}
  * @example
  * const key1 = doip.keys.fetch('alice@domain.tld');
  * const key2 = doip.keys.fetch('123abc123abc');
@@ -251,7 +251,7 @@ const fetch = async (identifier) => {
  * Process a public key to get user data and claims
  * @function
  * @param {openpgp.PublicKey} publicKey - The public key to process
- * @returns {object}
+ * @returns {Promise<object>}
  * @example
  * const key = doip.keys.fetchURI('hkp:alice@domain.tld');
  * const data = doip.keys.process(key);

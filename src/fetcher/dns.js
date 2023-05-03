@@ -34,7 +34,8 @@ if (jsEnv.isNode) {
    * @async
    * @param {object} data         - Data used in the request
    * @param {string} data.domain  - The targeted domain
-   * @returns {object}
+   * @param {number} [data.fetcherTimeout]  - Optional timeout for the fetcher
+   * @returns {Promise<object>}
    */
   module.exports.fn = async (data, opts) => {
     let timeoutHandle

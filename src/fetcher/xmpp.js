@@ -60,11 +60,14 @@ if (jsEnv.isNode) {
    * @async
    * @param {object} data                       - Data used in the request
    * @param {string} data.id                    - The identifier of the targeted account
+   * @param {number} [data.fetcherTimeout]      - Optional timeout for the fetcher
    * @param {object} opts                       - Options used to enable the request
+   * @param {object} opts.claims
+   * @param {object} opts.claims.xmpp
    * @param {string} opts.claims.xmpp.service   - The server hostname on which the library can log in
    * @param {string} opts.claims.xmpp.username  - The username used to log in
    * @param {string} opts.claims.xmpp.password  - The password used to log in
-   * @returns {object}
+   * @returns {Promise<object>}
    */
   module.exports.fn = async (data, opts) => {
     try {

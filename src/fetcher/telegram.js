@@ -34,9 +34,12 @@ module.exports.timeout = 5000
  * @param {object} data                          - Data used in the request
  * @param {string} data.chat                     - Telegram public chat username
  * @param {string} data.user                     - Telegram user username
+ * @param {number} [data.fetcherTimeout]         - Optional timeout for the fetcher
  * @param {object} opts                          - Options used to enable the request
+ * @param {object} opts.claims
+ * @param {object} opts.claims.telegram
  * @param {string} opts.claims.telegram.token    - The Telegram Bot API token
- * @returns {object|string}
+ * @returns {Promise<object|string>}
  */
 module.exports.fn = async (data, opts) => {
   let timeoutHandle
@@ -47,7 +50,7 @@ module.exports.fn = async (data, opts) => {
     )
   })
 
-  const apiPromise = (method) => new Promise((resolve, reject) => {
+  const apiPromise = (/** @type {string} */ method) => new Promise((resolve, reject) => {
     try {
       validator.isAscii(opts.claims.telegram.token)
     } catch (err) {

@@ -28,6 +28,7 @@ const keys = require('./keys')
  * @returns {Promise<object>}
  */
 const process = async (signature) => {
+  /** @type {openpgp.CleartextMessage} */
   let sigData
   const result = {
     fingerprint: null,
@@ -131,7 +132,7 @@ const process = async (signature) => {
   let userData
 
   if (signersUserID) {
-    result.key.data.users.forEach((user) => {
+    result.key.data.users.forEach((/** @type {{ userID: { email: string; }; }} */ user) => {
       if (user.userID.email === signersUserID) {
         userData = user
       }

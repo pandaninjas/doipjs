@@ -33,10 +33,13 @@ module.exports.timeout = 5000
  * @async
  * @param {object} data                           - Data used in the request
  * @param {string} data.url                       - The URL of the account to verify
+ * @param {number} [data.fetcherTimeout]          - Optional timeout for the fetcher
  * @param {object} opts                           - Options used to enable the request
+ * @param {object} opts.claims
+ * @param {object} opts.claims.activitypub
  * @param {string} opts.claims.activitypub.url    - The URL of the verifier account
  * @param {string} opts.claims.activitypub.privateKey   - The private key to sign the request
- * @returns {object}
+ * @returns {Promise<object>}
  */
 module.exports.fn = async (data, opts) => {
   let crypto

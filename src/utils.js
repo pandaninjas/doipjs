@@ -25,6 +25,7 @@ const E = require('./enums')
  * @param {string} type                 - The name of the fetcher the proxy must use
  * @param {object} data                 - The data the proxy must provide to the fetcher
  * @param {object} opts                 - Options to enable the request
+ * @param {object} opts.proxy           - Proxy related options
  * @param {object} opts.proxy.hostname  - The hostname of the proxy server
  * @returns {string}
  */
@@ -49,7 +50,7 @@ const generateProxyURL = (type, data, opts) => {
 /**
  * Generate the string that must be found in the proof to verify a claim
  * @param {string} fingerprint  - The fingerprint of the claim
- * @param {number} format       - The claim's format (see {@link module:enums~ClaimFormat|enums.ClaimFormat})
+ * @param {string} format       - The claim's format (see {@link module:enums~ClaimFormat|enums.ClaimFormat})
  * @returns {string}
  */
 const generateClaim = (fingerprint, format) => {
@@ -66,7 +67,7 @@ const generateClaim = (fingerprint, format) => {
 /**
  * Get the URIs from a string and return them as an array
  * @param {string} text         - The text that may contain URIs
- * @returns {Array.string}
+ * @returns {Array<string>}
  */
 const getUriFromString = (text) => {
   const re = /((([A-Za-z0-9]+:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www\.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w\-_]*)?\??(?:[-+=&;%@.\w_]*)#?(?:[.!/\\\w]*))?)/gi

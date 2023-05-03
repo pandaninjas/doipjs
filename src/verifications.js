@@ -23,6 +23,16 @@ const entities = require('entities')
  * @ignore
  */
 
+/**
+ * @function
+ * @param {string} data
+ * @param {object} params
+ * @param {string} params.target
+ * @param {string} params.claimFormat
+ * @param {string} params.proofEncodingFormat
+ * @param {string} [params.claimRelation]
+ * @returns {Promise<boolean>}
+ */
 const containsProof = async (data, params) => {
   const fingerprintFormatted = utils.generateClaim(params.target, params.claimFormat)
   const fingerprintURI = utils.generateClaim(params.target, E.ClaimFormat.URI)
@@ -122,6 +132,7 @@ const containsProof = async (data, params) => {
       if (result) continue
 
       const candidate = uris[index]
+      /** @type {URL} */
       let candidateURL
 
       try {
@@ -135,7 +146,8 @@ const containsProof = async (data, params) => {
       }
 
       // Using fetch -> axios doesn't find the ariadne-identity-proof header
-      const response = await fetch(candidate, { // eslint-disable-line
+      /** @type {Response} */
+      const response = await fetch(candidate, {
         method: 'HEAD'
       })
         .catch(e => {
@@ -155,6 +167,17 @@ const containsProof = async (data, params) => {
   return result
 }
 
+/**
+ * @function
+ * @param {any} proofData
+ * @param {string} checkPath
+ * @param {object} params
+ * @param {string} params.target
+ * @param {string} params.claimFormat
+ * @param {string} params.proofEncodingFormat
+ * @param {string} [params.claimRelation]
+ * @returns {Promise<boolean>}
+ */
 const runJSON = async (proofData, checkPath, params) => {
   if (!proofData) {
     return false
@@ -205,7 +228,7 @@ const runJSON = async (proofData, checkPath, params) => {
  * @param {object} proofData    - The proof data
  * @param {object} claimData    - The claim data
  * @param {string} fingerprint  - The fingerprint
- * @returns {object}
+ * @returns {Promise<object>}
  */
 const run = async (proofData, claimData, fingerprint) => {
   const res = {

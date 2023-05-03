@@ -33,10 +33,13 @@ module.exports.timeout = 5000
  * @param {object} data                           - Data used in the request
  * @param {string} data.eventId                   - The identifier of the targeted post
  * @param {string} data.roomId                    - The identifier of the room containing the targeted post
+ * @param {number} [data.fetcherTimeout]          - Optional timeout for the fetcher
  * @param {object} opts                           - Options used to enable the request
+ * @param {object} opts.claims
+ * @param {object} opts.claims.matrix
  * @param {string} opts.claims.matrix.instance    - The server hostname on which the library can log in
  * @param {string} opts.claims.matrix.accessToken - The access token required to identify the library ({@link https://www.matrix.org/docs/guides/client-server-api|Matrix docs})
- * @returns {object}
+ * @returns {Promise<object>}
  */
 module.exports.fn = async (data, opts) => {
   let timeoutHandle

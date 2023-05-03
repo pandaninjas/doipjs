@@ -32,7 +32,8 @@ module.exports.timeout = 5000
  * @param {object} data         - Data used in the request
  * @param {string} data.url     - The URL pointing at the GraphQL HTTP endpoint
  * @param {string} data.query   - The GraphQL query to fetch the data containing the proof
- * @returns {object|string}
+ * @param {number} [data.fetcherTimeout]  - Optional timeout for the fetcher
+ * @returns {Promise<object|string>}
  */
 module.exports.fn = async (data, opts) => {
   let timeoutHandle
