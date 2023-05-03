@@ -5,8 +5,8 @@
   "main": "./src/index.js",
   "packageManager": "yarn@1.22.19",
   "dependencies": {
-    "@openpgp/hkp-client": "^0.0.2",
-    "@openpgp/wkd-client": "^0.0.3",
+    "@openpgp/hkp-client": "^0.0.3",
+    "@openpgp/wkd-client": "^0.0.4",
     "@xmpp/client": "^0.13.1",
     "@xmpp/debug": "^0.13.0",
     "axios": "^0.25.0",
@@ -22,7 +22,7 @@
     "openpgp": "^5.5.0",
     "rome": "^11.0.0",
     "valid-url": "^1.0.9",
-    "validator": "^13.5.2"
+    "validator": "^13.9.0"
   },
   "devDependencies": {
     "browserify": "^17.0.0",

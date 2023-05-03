@@ -385,17 +385,17 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@openpgp/hkp-client@^0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@openpgp/hkp-client/-/hkp-client-0.0.2.tgz#d8737358efcf6412c8273f89385e020766613e88"
-  integrity sha512-hA71RhqfLfNltZsy/USTQehE2QAVB3eK4xx8p76XtFJy5Zg6gK2XbZvOC/x/yG8i2Ipbyul1DMTMxH9v8rfPKw==
+"@openpgp/hkp-client@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@openpgp/hkp-client/-/hkp-client-0.0.3.tgz#8e8edb328e4220a56d9c232876c5d7f1a7f6441c"
+  integrity sha512-Sqv4wc3z1GeO6Fz0aNdtJge+8N7UF1jb8xTjus3NKO6LL/z50baAYlQHgyq7KIp6gBRpM1FH9lk+C1oQCLIwdg==
   dependencies:
     node-fetch "^2.6.1"
 
-"@openpgp/wkd-client@^0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@openpgp/wkd-client/-/wkd-client-0.0.3.tgz#e9f137ed21ee8631451782e22a2740fd781a2534"
-  integrity sha512-qe+uWtCJetuG78KhfiQyEA+ZciC/qeECXRj+LCm4m0s98qR2wPwYHRI1u8aFbtkN6G4ZMyKN+opY++fJS5l3vg==
+"@openpgp/wkd-client@^0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@openpgp/wkd-client/-/wkd-client-0.0.4.tgz#a8a2925a6bc044548c92091e7a45bac0bb504850"
+  integrity sha512-JBd8w39YlD4QguLf9RN+LGLBBr5xoJnKMeXdJauOJEx/NssibZT7/f6Hqo1gCwjf5b2nybq+1hCTM0arHLLOWQ==
   dependencies:
     "@peculiar/webcrypto" "^1.1.6"
     node-fetch "^2.6.1"
@@ -5142,7 +5142,7 @@ valid-url@^1.0.9:
   resolved "https://registry.yarnpkg.com/valid-url/-/valid-url-1.0.9.tgz#1c14479b40f1397a75782f115e4086447433a200"
   integrity sha512-QQDsV8OnSf5Uc30CKSwG9lnhMPe6exHtTXLRYX8uMwKENy640pU+2BgBL0LRbDh/eYRahNCS7aewCx0wf3NYVA==
 
-validator@^13.5.2, validator@^13.9.0:
+validator@^13.9.0:
   version "13.9.0"
   resolved "https://registry.yarnpkg.com/validator/-/validator-13.9.0.tgz#33e7b85b604f3bbce9bb1a05d5c3e22e1c2ff855"
   integrity sha512-B+dGG8U3fdtM0/aNK4/X8CXq/EcxU2WPrPEkJGslb47qyHsxmbggTWK0yEA4qnYVNF+nxNlN88o14hIcPmSIEA==
