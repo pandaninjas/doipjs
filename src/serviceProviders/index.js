@@ -37,6 +37,7 @@ import * as owncast from './owncast.js'
 import * as stackexchange from './stackexchange.js'
 import * as keybase from './keybase.js'
 import * as opencollective from './opencollective.js'
+import * as orcid from './orcid.js'
 
 const _data = {
   aspe,
@@ -62,7 +63,8 @@ const _data = {
   owncast,
   stackexchange,
   keybase,
-  opencollective
+  opencollective,
+  orcid
 }
 
 export const list = Object.keys(_data)
