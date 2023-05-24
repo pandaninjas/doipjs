@@ -56,6 +56,11 @@ export function processURI (uri) {
       target: [{
         format: E.ClaimFormat.URI,
         encoding: E.EntityEncodingFormat.PLAIN,
+        relation: E.ClaimRelation.CONTAINS,
+        path: ['person', 'biography', 'content']
+      }, {
+        format: E.ClaimFormat.URI,
+        encoding: E.EntityEncodingFormat.PLAIN,
         relation: E.ClaimRelation.EQUALS,
         path: ['person', 'researcher-urls', 'researcher-url', 'url', 'value']
       }, {
