@@ -55,6 +55,7 @@ describe('utils.generateProxyURL', () => {
     const opts = {
       proxy: {
         hostname: 'localhost',
+        scheme: 'https'
       },
     }
     expect(
