@@ -42,7 +42,9 @@ const generateProxyURL = (type, data, opts) => {
     queryStrings.push(`${key}=${encodeURIComponent(data[key])}`)
   })
 
-  return `${opts.proxy.scheme}://${opts.proxy.hostname}/api/2/get/${type}?${queryStrings.join(
+  const scheme = opts.proxy.scheme ? opts.proxy.scheme : 'https'
+
+  return `${scheme}://${opts.proxy.hostname}/api/2/get/${type}?${queryStrings.join(
     '&'
   )}`
 }
