@@ -51,7 +51,7 @@ describe('utils.generateProxyURL', () => {
     expect(doipjs.utils.generateProxyURL).to.be.a('function')
     expect(doipjs.utils.generateProxyURL).to.have.length(3)
   })
-  it('should generate correct proxy URLs', () => {
+  it('should generate correct proxy URLs for explicit https scheme', () => {
     const opts = {
       proxy: {
         hostname: 'localhost',
@@ -65,6 +65,35 @@ describe('utils.generateProxyURL', () => {
       doipjs.utils.generateProxyURL('dns', { domain: 'domain.org' }, opts)
     ).to.equal('https://localhost/api/2/get/dns?domain=domain.org')
   })
+  it('should generate correct proxy URLs for explicit http scheme', () => {
+    const opts = {
+      proxy: {
+        hostname: 'localhost',
+        scheme: 'http'
+      },
+    }
+    expect(
+      doipjs.utils.generateProxyURL('http', { domain: 'domain.org' }, opts)
+    ).to.equal('http://localhost/api/2/get/http?domain=domain.org')
+    expect(
+      doipjs.utils.generateProxyURL('dns', { domain: 'domain.org' }, opts)
+    ).to.equal('http://localhost/api/2/get/dns?domain=domain.org')
+  })
+  it('should generate correct proxy URLs for default scheme', () => {
+    const opts = {
+      proxy: {
+        hostname: 'localhost'
+      },
+    }
+    expect(
+      doipjs.utils.generateProxyURL('http', { domain: 'domain.org' }, opts)
+    ).to.equal('https://localhost/api/2/get/http?domain=domain.org')
+    expect(
+      doipjs.utils.generateProxyURL('dns', { domain: 'domain.org' }, opts)
+    ).to.equal('https://localhost/api/2/get/dns?domain=domain.org')
+  })
+
+
 })
 
 describe('utils.getUriFromString', () => {
