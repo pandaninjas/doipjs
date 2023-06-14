@@ -23,6 +23,9 @@ const fingerprint = '3637202523e7c1309ab79e99ef2dc5827b445f4b'
 const plaintextCorrectProofData = [
   'openpgp4fpr:3637202523e7c1309ab79e99ef2dc5827b445f4b'
 ]
+const plaintextCorrectProofDataWithWhitespace = [
+  'openpgp4fpr: 3637 2025 23e7 c130 9ab7  9e99 ef2d c582 7b44 5f4b'
+]
 const plaintextIncorrectProofData = [
   'openpgp4pr:b4f544b7285cd2fe99e97ba9031c7e3252027363'
 ]
@@ -46,6 +49,11 @@ const claimData = doipjs.claimDefinitions.data.irc.processURI('irc://domain.tld/
 describe('verifications.run', () => {
   it('should verify a plaintext proof', async () => {
     const result = await doipjs.verifications.run(plaintextCorrectProofData, claimData, fingerprint)
+    expect(result.result).to.be.true
+  })
+  // issue #22
+  it('should handle a plaintext proof with whitespace', async () => {
+    const result = await doipjs.verifications.run(plaintextCorrectProofDataWithWhitespace, claimData, fingerprint)
     expect(result.result).to.be.true
   })
   it('should reject a wrong plaintext proof', async () => {
