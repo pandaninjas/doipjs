@@ -55,8 +55,14 @@ const containsProof = async (data, params) => {
   data = entities.decodeHTML(data)
 
   // Check for plaintext proof
-  result = data.replace(/\r?\n|\r/g, '')
+  result = data
+    // remove newlines and carriage returns
+    .replace(/\r?\n|\r/g, '')
+    // remove spaces
+    .replace(/\s/g, '')
+    // normalize
     .toLowerCase()
+    // search for fingerprint
     .indexOf(fingerprintFormatted.toLowerCase()) !== -1
 
   // Check for hashed proof
