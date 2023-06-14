@@ -68,7 +68,7 @@ const processURI = (uri) => {
 
 const functions = {
   postprocess: (claimData, proofData) => {
-    claimData.profile.display = `${proofData.result.preferredUsername}@${new URL(proofData.result.url).hostname}`
+    claimData.profile.display = `@${proofData.result.preferredUsername}@${new URL(proofData.result.url).hostname}`
     return { claimData, proofData }
   }
 }
