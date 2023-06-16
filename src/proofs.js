@@ -111,7 +111,7 @@ const createDefaultRequestPromise = (data, opts) => {
       .then((res) => {
         return resolve({
           fetcher: data.proof.request.fetcher,
-          data: data,
+          data,
           viaProxy: false,
           result: res
         })
@@ -145,7 +145,7 @@ const createProxyRequestPromise = (data, opts) => {
       .then((res) => {
         return resolve({
           fetcher: 'http',
-          data: data,
+          data,
           viaProxy: true,
           result: res
         })

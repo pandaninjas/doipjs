@@ -35,7 +35,7 @@ const processURI = (uri) => {
       qr: null
     },
     proof: {
-      uri: uri,
+      uri,
       request: {
         fetcher: E.Fetcher.HTTP,
         access: E.ProofAccess.NOCORS,

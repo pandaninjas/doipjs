@@ -31,7 +31,7 @@ const processURI = (uri) => {
     },
     profile: {
       display: match[1],
-      uri: uri,
+      uri,
       qr: null
     },
     proof: {

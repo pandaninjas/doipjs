@@ -33,7 +33,7 @@ const processURI = (uri) => {
     },
     profile: {
       display: `${id}@${site}`,
-      uri: uri,
+      uri,
       qr: null
     },
     proof: {

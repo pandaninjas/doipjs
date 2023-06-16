@@ -36,9 +36,9 @@ if (jsEnv.isNode) {
   const xmppStart = async (service, username, password) => {
     return new Promise((resolve, reject) => {
       const xmpp = client({
-        service: service,
-        username: username,
-        password: password
+        service,
+        username,
+        password
       })
       if (process.env.NODE_ENV !== 'production') {
         debug(xmpp, true)
@@ -46,7 +46,7 @@ if (jsEnv.isNode) {
       const { iqCaller } = xmpp
       xmpp.start()
       xmpp.on('online', _ => {
-        resolve({ xmpp: xmpp, iqCaller: iqCaller })
+        resolve({ xmpp, iqCaller })
       })
       xmpp.on('error', error => {
         reject(error)

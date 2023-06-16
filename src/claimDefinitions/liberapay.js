@@ -31,11 +31,11 @@ const processURI = (uri) => {
     },
     profile: {
       display: match[1],
-      uri: uri,
+      uri,
       qr: null
     },
     proof: {
-      uri: uri,
+      uri,
       request: {
         fetcher: E.Fetcher.HTTP,
         access: E.ProofAccess.GENERIC,

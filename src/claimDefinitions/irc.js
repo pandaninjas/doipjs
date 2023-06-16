@@ -31,7 +31,7 @@ const processURI = (uri) => {
     },
     profile: {
       display: `irc://${match[1]}/${match[2]}`,
-      uri: uri,
+      uri,
       qr: null
     },
     proof: {

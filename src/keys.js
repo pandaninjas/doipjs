@@ -303,7 +303,7 @@ const process = async (publicKey) => {
   })
 
   return {
-    fingerprint: fingerprint,
+    fingerprint,
     users: usersOutput,
     primaryUserIndex: primaryUser.index,
     key: {
