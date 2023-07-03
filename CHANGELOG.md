@@ -5,8 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Support for ASPE protocol
+### Changed
+- Made HTTP scheme for proxy calls configurable
+- Replaced standard with eslint
 ### Fixed
 - Sort OpenPGP certifications by chronological order
+- Allowing white space in fingerprint
+- Use correct format for displaying ActivityPub claims
+- Missing JSDOC types
 
 ## [0.18.3] - 2023-03-27
 ### Added
