@@ -58,6 +58,9 @@ const generateProxyURL = (type, data, opts) => {
 const generateClaim = (fingerprint, format) => {
   switch (format) {
     case E.ClaimFormat.URI:
+      if (fingerprint.match(/^(openpgp4fpr|aspe):/)) {
+        return fingerprint
+      }
       return `openpgp4fpr:${fingerprint}`
     case E.ClaimFormat.FINGERPRINT:
       return fingerprint

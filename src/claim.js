@@ -280,7 +280,7 @@ class Claim {
     }
 
     // Fail safe verification result
-    this._verification = this._verification
+    this._verification = Object.keys(this._verification).length > 0
       ? this._verification
       : {
           result: false,
