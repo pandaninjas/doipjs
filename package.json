@@ -18,8 +18,10 @@
     "express-validator": "^6.10.0",
     "hash-wasm": "^4.9.0",
     "irc-upd": "^0.11.0",
+    "jose": "^4.14.4",
     "merge-options": "^3.0.3",
     "openpgp": "^5.5.0",
+    "rfc4648": "^1.5.2",
     "rome": "^11.0.0",
     "valid-url": "^1.0.9",
     "validator": "^13.9.0"
