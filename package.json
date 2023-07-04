@@ -38,6 +38,7 @@
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-n": "^15.7.0",
     "eslint-plugin-promise": "^6.1.1",
+    "esmify": "^2.1.1",
     "husky": "^7.0.0",
     "jsdoc": "^3.6.6",
     "license-check-and-add": "^4.0.3",
@@ -48,7 +49,7 @@
   },
   "scripts": {
     "release": "yarn run test && yarn run release:bundle && yarn run release:minify",
-    "release:bundle": "./node_modules/.bin/browserify ./src/index.js --standalone doip -x openpgp -x @xmpp/client -x @xmpp/debug -x irc-upd -o ./dist/doip.js",
+    "release:bundle": "./node_modules/.bin/browserify ./src/index.js --standalone doip -p esmify -x openpgp -x @xmpp/client -x @xmpp/debug -x irc-upd -o ./dist/doip.js",
     "release:minify": "./node_modules/.bin/minify ./dist/doip.js > ./dist/doip.min.js",
     "license:check": "./node_modules/.bin/license-check-and-add check",
     "license:add": "./node_modules/.bin/license-check-and-add add",
