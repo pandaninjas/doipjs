@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.19.0] - 2023-07-04
 ### Added
 - Support for ASPE protocol
 ### Changed
@@ -15,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allowing white space in fingerprint
 - Use correct format for displaying ActivityPub claims
 - Missing JSDOC types
+- JS bundling
 
 ## [0.18.3] - 2023-03-27
 ### Added
