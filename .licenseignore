@@ -16,6 +16,7 @@ examples
 
 package.json
 yarn.lock
+rollup.config.js
 \.editorconfig
 \.gitignore
 \.licenseignore

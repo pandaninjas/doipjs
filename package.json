@@ -4,6 +4,20 @@
   "description": "Decentralized Online Identity Proofs library in Node.js",
   "type": "module",
   "main": "./src/index.js",
+  "exports": {
+    ".": {
+      "node": "./src/index.js",
+      "default": "./dist/doip.core.js"
+    },
+    "./fetchers": {
+      "node": "./src/fetcher/index.js",
+      "default": "./dist/doip.fetchers.js"
+    },
+    "./fetchers-minimal": {
+      "node": "./src/fetcher/index.minimal.js",
+      "default": "./dist/doip.fetchers.minimal.js"
+    }
+  },
   "packageManager": "yarn@1.22.19",
   "dependencies": {
     "@openpgp/hkp-client": "^0.0.3",
@@ -13,7 +27,7 @@
     "axios": "^0.25.0",
     "browser-or-node": "^1.3.0",
     "cors": "^2.8.5",
-    "dotenv": "^8.2.0",
+    "dotenv": "^16.3.1",
     "entities": "^4.4.0",
     "express": "^4.17.1",
     "express-validator": "^6.10.0",
@@ -28,8 +42,9 @@
     "validator": "^13.9.0"
   },
   "devDependencies": {
-    "browserify": "^17.0.0",
-    "browserify-shim": "^3.8.14",
+    "@rollup/plugin-commonjs": "^25.0.2",
+    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-node-resolve": "^15.1.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-match-pattern": "^1.2.0",
@@ -39,26 +54,28 @@
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-n": "^15.7.0",
     "eslint-plugin-promise": "^6.1.1",
-    "esmify": "^2.1.1",
     "husky": "^7.0.0",
     "jsdoc": "^3.6.6",
     "license-check-and-add": "^4.0.3",
     "lint-staged": "^11.0.0",
     "minify": "^9.1",
     "mocha": "^9.2.0",
-    "nodemon": "^2.0.19"
+    "nodemon": "^2.0.19",
+    "rollup": "^3.26.2",
+    "rollup-plugin-polyfill-node": "^0.12.0",
+    "rollup-plugin-visualizer": "^5.9.2"
   },
   "scripts": {
-    "release": "yarn run test && yarn run release:bundle && yarn run release:minify",
-    "release:bundle": "./node_modules/.bin/browserify ./src/index.js --standalone doip -p esmify -x openpgp -x @xmpp/client -x @xmpp/debug -x irc-upd -o ./dist/doip.js",
-    "release:minify": "./node_modules/.bin/minify ./dist/doip.js > ./dist/doip.min.js",
-    "license:check": "./node_modules/.bin/license-check-and-add check",
-    "license:add": "./node_modules/.bin/license-check-and-add add",
-    "license:remove": "./node_modules/.bin/license-check-and-add remove",
-    "docs:lib": "./node_modules/.bin/jsdoc -c jsdoc-lib.json -r -d ./docs -P package.json",
+    "release": "yarn run test && yarn run build",
+    "build": "rm -rf ./dist/ && yarn run build:bundle && yarn run build:minify",
+    "build:bundle": "rollup -c",
+    "build:minify": "minify ./dist/doip.core.js > ./dist/doip.core.min.js && minify ./dist/doip.fetchers.js > ./dist/doip.fetchers.min.js && minify ./dist/doip.fetchers.minimal.js > ./dist/doip.fetchers.minimal.min.js",
+    "license:check": "license-check-and-add check",
+    "license:add": "license-check-and-add add",
+    "license:remove": "license-check-and-add remove",
+    "docs:lib": "jsdoc -c jsdoc-lib.json -r -d ./docs -P package.json",
     "lint": "eslint ./src",
     "lint:fix": "eslint ./src --fix",
-    "mocha": "./node_modules/.bin/mocha",
     "test": "yarn lint && yarn rome check ./src/* && yarn run license:check && yarn run mocha",
     "prepare": "husky install"
   },
@@ -76,13 +93,5 @@
     "identity"
   ],
   "author": "Yarmo Mackenbach <yarmo@yarmo.eu> (https://yarmo.eu)",
-  "license": "Apache-2.0",
-  "browserify": {
-    "transform": [
-      "browserify-shim"
-    ]
-  },
-  "browserify-shim": {
-    "openpgp": "global:openpgp"
-  }
+  "license": "Apache-2.0"
 }
