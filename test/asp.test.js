@@ -13,12 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const chai = require('chai')
-const expect = chai.expect
-chai.use(require('chai-as-promised'))
+import { expect, use } from 'chai'
+import chaiAsPromised from 'chai-as-promised'
+use(chaiAsPromised)
 
-const doipjs = require('../src')
-const { log } = require('console')
+import { asp, Profile } from '../src/index.js'
 
 const asp25519Uri = "aspe:domain.tld:QPRGVPJNWDXH4ESK2RYDTZJLTE"
 const asp25519ProfileName = "test"
@@ -33,20 +32,21 @@ const asp25519ProfileJwk = {
 
 describe('asp.fetchASPE', () => {
   it('should be a function (1 argument)', () => {
-    expect(doipjs.asp.fetchASPE).to.be.a('function')
-    expect(doipjs.asp.fetchASPE).to.have.length(1)
+    expect(asp.fetchASPE).to.be.a('function')
+    expect(asp.fetchASPE).to.have.length(1)
   })
 })
 
 describe('asp.parseProfileJws', () => {
   it('should be a function (2 arguments)', () => {
-    expect(doipjs.asp.parseProfileJws).to.be.a('function')
-    expect(doipjs.asp.parseProfileJws).to.have.length(2)
+    expect(asp.parseProfileJws).to.be.a('function')
+    expect(asp.parseProfileJws).to.have.length(2)
   })
   it('should return a valid Profile object when provided a valid JWS', async () => {
-    let profile = await doipjs.asp.parseProfileJws(asp25519ProfileJws, asp25519Uri)
+    let profile = await asp.parseProfileJws(asp25519ProfileJws, asp25519Uri)
+    console.log(profile);
 
-    expect(profile).to.be.instanceOf(doipjs.Profile)
+    expect(profile).to.be.instanceOf(Profile)
     expect(profile.personas).to.be.length(1)
     expect(profile.personas[0].name).to.be.equal(asp25519ProfileName)
     expect(profile.personas[0].claims).to.be.length(2)

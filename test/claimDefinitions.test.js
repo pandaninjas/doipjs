@@ -13,14 +13,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const chai = require('chai')
-const expect = chai.expect
-const chaiMatchPattern = require('chai-match-pattern')
-chai.use(chaiMatchPattern)
-chai.use(require('chai-as-promised'))
+import { expect, use } from 'chai'
+import chaiAsPromised from 'chai-as-promised'
+import chaiMatchPattern from 'chai-match-pattern'
+use(chaiAsPromised)
+use(chaiMatchPattern)
 
 const _ = chaiMatchPattern.getLodashModule()
-const doipjs = require('../src')
+
+import { claimDefinitions } from '../src/index.js'
 
 const pattern = {
   serviceprovider: {
@@ -52,12 +53,12 @@ const pattern = {
   claim: _.isArray
 }
 
-doipjs.claimDefinitions.list.forEach((claimDefName, i) => {
-  const claimDef = doipjs.claimDefinitions.data[claimDefName]
+claimDefinitions.list.forEach((claimDefName, i) => {
+  const claimDef = claimDefinitions.data[claimDefName]
 
   describe(`claimDefinitions.${claimDefName}`, () => {
     it('should be an object', () => {
-      expect(claimDef).to.be.a('object')
+      expect(typeof claimDef).to.equal('object')
     })
     it('should have a RegExp instance named "reURI"', () => {
       expect(claimDef.reURI).to.be.instanceof(RegExp)

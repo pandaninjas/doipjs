@@ -13,89 +13,75 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const jsEnv = require('browser-or-node')
+import irc from 'irc-upd'
+import isAscii from 'validator/lib/isAscii.js'
+
+export const timeout = 20000
 
 /**
- * @module fetcher/irc
+ * Execute a fetch request
+ * @function
+ * @async
+ * @param {object} data                 - Data used in the request
+ * @param {string} data.nick            - The nick of the targeted account
+ * @param {string} data.domain          - The domain on which the targeted account is registered
+ * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
+ * @param {object} opts                 - Options used to enable the request
+ * @param {object} opts.claims
+ * @param {object} opts.claims.irc
+ * @param {string} opts.claims.irc.nick - The nick to be used by the library to log in
+ * @returns {Promise<object>}
  */
+export async function fn (data, opts) {
+  let timeoutHandle
+  const timeoutPromise = new Promise((resolve, reject) => {
+    timeoutHandle = setTimeout(
+      () => reject(new Error('Request was timed out')),
+      data.fetcherTimeout ? data.fetcherTimeout : timeout
+    )
+  })
 
-/**
- * The request's timeout value in milliseconds
- * @constant {number} timeout
- */
-module.exports.timeout = 20000
+  const fetchPromise = new Promise((resolve, reject) => {
+    try {
+      isAscii(opts.claims.irc.nick)
+    } catch (err) {
+      throw new Error(`IRC fetcher was not set up properly (${err.message})`)
+    }
 
-if (jsEnv.isNode) {
-  const irc = require('irc-upd')
-  const validator = require('validator').default
+    try {
+      const client = new irc.Client(data.domain, opts.claims.irc.nick, {
+        port: 6697,
+        secure: true,
+        channels: [],
+        showErrors: false,
+        debug: false
+      })
+      const reKey = /[a-zA-Z0-9\-_]+\s+:\s(openpgp4fpr:.*)/
+      const reEnd = /End\sof\s.*\staxonomy./
+      const keys = []
 
-  /**
-   * Execute a fetch request
-   * @function
-   * @async
-   * @param {object} data                 - Data used in the request
-   * @param {string} data.nick            - The nick of the targeted account
-   * @param {string} data.domain          - The domain on which the targeted account is registered
-   * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
-   * @param {object} opts                 - Options used to enable the request
-   * @param {object} opts.claims
-   * @param {object} opts.claims.irc
-   * @param {string} opts.claims.irc.nick - The nick to be used by the library to log in
-   * @returns {Promise<object>}
-   */
-  module.exports.fn = async (data, opts) => {
-    let timeoutHandle
-    const timeoutPromise = new Promise((resolve, reject) => {
-      timeoutHandle = setTimeout(
-        () => reject(new Error('Request was timed out')),
-        data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
-      )
-    })
+      // @ts-ignore
+      client.addListener('registered', (message) => {
+        client.send(`PRIVMSG NickServ TAXONOMY ${data.nick}`)
+      })
+      // @ts-ignore
+      client.addListener('notice', (nick, to, text, message) => {
+        if (reKey.test(text)) {
+          const match = text.match(reKey)
+          keys.push(match[1])
+        }
+        if (reEnd.test(text)) {
+          client.disconnect()
+          resolve(keys)
+        }
+      })
+    } catch (error) {
+      reject(error)
+    }
+  })
 
-    const fetchPromise = new Promise((resolve, reject) => {
-      try {
-        validator.isAscii(opts.claims.irc.nick)
-      } catch (err) {
-        throw new Error(`IRC fetcher was not set up properly (${err.message})`)
-      }
-
-      try {
-        const client = new irc.Client(data.domain, opts.claims.irc.nick, {
-          port: 6697,
-          secure: true,
-          channels: [],
-          showErrors: false,
-          debug: false
-        })
-        const reKey = /[a-zA-Z0-9\-_]+\s+:\s(openpgp4fpr:.*)/
-        const reEnd = /End\sof\s.*\staxonomy./
-        const keys = []
-
-        // @ts-ignore
-        client.addListener('registered', (message) => {
-          client.send(`PRIVMSG NickServ TAXONOMY ${data.nick}`)
-        })
-        // @ts-ignore
-        client.addListener('notice', (nick, to, text, message) => {
-          if (reKey.test(text)) {
-            const match = text.match(reKey)
-            keys.push(match[1])
-          }
-          if (reEnd.test(text)) {
-            client.disconnect()
-            resolve(keys)
-          }
-        })
-      } catch (error) {
-        reject(error)
-      }
-    })
-
-    return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
-      clearTimeout(timeoutHandle)
-      return result
-    })
-  }
-} else {
-  module.exports.fn = null
+  return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+    clearTimeout(timeoutHandle)
+    return result
+  })
 }

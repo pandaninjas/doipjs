@@ -13,11 +13,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const E = require('../enums')
+import * as E from '../enums.js'
 
-const reURI = /^https:\/\/(.*)\/?/
+export const reURI = /^https:\/\/(.*)\/?/
 
-const processURI = (uri) => {
+/**
+ * @function
+ * @param {string} uri
+ */
+export function processURI (uri) {
   return {
     serviceprovider: {
       type: 'web',
@@ -66,14 +70,14 @@ const processURI = (uri) => {
   }
 }
 
-const functions = {
+export const functions = {
   postprocess: (claimData, proofData) => {
     claimData.profile.display = `@${proofData.result.preferredUsername}@${new URL(proofData.result.url).hostname}`
     return { claimData, proofData }
   }
 }
 
-const tests = [
+export const tests = [
   {
     uri: 'https://domain.org',
     shouldMatch: true
@@ -107,8 +111,3 @@ const tests = [
     shouldMatch: false
   }
 ]
-
-exports.reURI = reURI
-exports.processURI = processURI
-exports.functions = functions
-exports.tests = tests

@@ -13,60 +13,51 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const jsEnv = require('browser-or-node')
+import { isBrowser } from 'browser-or-node'
+import dns from 'dns'
+
+export const timeout = 5000
 
 /**
- * @module fetcher/dns
+ * Execute a fetch request
+ * @function
+ * @async
+ * @param {object} data         - Data used in the request
+ * @param {string} data.domain  - The targeted domain
+ * @param {number} [data.fetcherTimeout]  - Optional timeout for the fetcher
+ * @returns {Promise<object>}
  */
+export async function fn (data, opts) {
+  if (isBrowser) {
+    return null
+  }
 
-/**
- * The request's timeout value in milliseconds
- * @constant {number} timeout
- */
-module.exports.timeout = 5000
+  let timeoutHandle
+  const timeoutPromise = new Promise((resolve, reject) => {
+    timeoutHandle = setTimeout(
+      () => reject(new Error('Request was timed out')),
+      data.fetcherTimeout ? data.fetcherTimeout : timeout
+    )
+  })
 
-if (jsEnv.isNode) {
-  const dns = require('dns')
+  const fetchPromise = new Promise((resolve, reject) => {
+    dns.resolveTxt(data.domain, (err, records) => {
+      if (err) {
+        reject(err)
+        return
+      }
 
-  /**
-   * Execute a fetch request
-   * @function
-   * @async
-   * @param {object} data         - Data used in the request
-   * @param {string} data.domain  - The targeted domain
-   * @param {number} [data.fetcherTimeout]  - Optional timeout for the fetcher
-   * @returns {Promise<object>}
-   */
-  module.exports.fn = async (data, opts) => {
-    let timeoutHandle
-    const timeoutPromise = new Promise((resolve, reject) => {
-      timeoutHandle = setTimeout(
-        () => reject(new Error('Request was timed out')),
-        data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
-      )
-    })
-
-    const fetchPromise = new Promise((resolve, reject) => {
-      dns.resolveTxt(data.domain, (err, records) => {
-        if (err) {
-          reject(err)
-          return
+      resolve({
+        domain: data.domain,
+        records: {
+          txt: records
         }
-
-        resolve({
-          domain: data.domain,
-          records: {
-            txt: records
-          }
-        })
       })
     })
+  })
 
-    return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
-      clearTimeout(timeoutHandle)
-      return result
-    })
-  }
-} else {
-  module.exports.fn = null
+  return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+    clearTimeout(timeoutHandle)
+    return result
+  })
 }

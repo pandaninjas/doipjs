@@ -13,31 +13,53 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+import * as dns from './dns.js'
+import * as irc from './irc.js'
+import * as xmpp from './xmpp.js'
+import * as matrix from './matrix.js'
+import * as telegram from './telegram.js'
+import * as twitter from './twitter.js'
+import * as reddit from './reddit.js'
+import * as liberapay from './liberapay.js'
+import * as lichess from './lichess.js'
+import * as hackernews from './hackernews.js'
+import * as lobsters from './lobsters.js'
+import * as forem from './forem.js'
+// import * as forgejo from './forgejo.js'
+import * as gitea from './gitea.js'
+import * as gitlab from './gitlab.js'
+import * as github from './github.js'
+import * as activitypub from './activitypub.js'
+import * as discourse from './discourse.js'
+import * as owncast from './owncast.js'
+import * as stackexchange from './stackexchange.js'
+import * as keybase from './keybase.js'
+import * as opencollective from './opencollective.js'
 
-const data = {
-  dns: require('./dns'),
-  irc: require('./irc'),
-  xmpp: require('./xmpp'),
-  matrix: require('./matrix'),
-  telegram: require('./telegram'),
-  twitter: require('./twitter'),
-  reddit: require('./reddit'),
-  liberapay: require('./liberapay'),
-  lichess: require('./lichess'),
-  hackernews: require('./hackernews'),
-  lobsters: require('./lobsters'),
-  forem: require('./forem'),
-  // forgejo: require('./forgejo'),
-  gitea: require('./gitea'),
-  gitlab: require('./gitlab'),
-  github: require('./github'),
-  activitypub: require('./activitypub'),
-  discourse: require('./discourse'),
-  owncast: require('./owncast'),
-  stackexchange: require('./stackexchange'),
-  keybase: require('./keybase'),
-  opencollective: require('./opencollective')
+const _data = {
+  dns,
+  irc,
+  xmpp,
+  matrix,
+  telegram,
+  twitter,
+  reddit,
+  liberapay,
+  lichess,
+  hackernews,
+  lobsters,
+  forem,
+  // forgejo,
+  gitea,
+  gitlab,
+  github,
+  activitypub,
+  discourse,
+  owncast,
+  stackexchange,
+  keybase,
+  opencollective
 }
 
-exports.list = Object.keys(data)
-exports.data = data
+export const list = Object.keys(_data)
+export { _data as data }

@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const E = require('./enums')
+import { ProxyPolicy } from './enums.js'
 
 /**
  * Contains default values
@@ -42,10 +42,10 @@ const E = require('./enums')
  * @property {string|null} claims.xmpp.username       - The username used to log in
  * @property {string|null} claims.xmpp.password       - The password used to log in
  */
-const opts = {
+export const opts = {
   proxy: {
     hostname: null,
-    policy: E.ProxyPolicy.NEVER
+    policy: ProxyPolicy.NEVER
   },
   claims: {
     activitypub: {
@@ -69,5 +69,3 @@ const opts = {
     }
   }
 }
-
-exports.opts = opts

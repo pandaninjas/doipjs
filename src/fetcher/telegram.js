@@ -13,19 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const axios = require('axios').default
-const validator = require('validator').default
+import axios from 'axios'
+import isAscii from 'validator/lib/isAscii.js'
+import { version } from '../constants.js'
 
-/**
- * @module fetcher/telegram
- */
-
-/**
- * The single request's timeout value in milliseconds
- * This fetcher makes two requests in total
- * @constant {number} timeout
- */
-module.exports.timeout = 5000
+export const timeout = 5000
 
 /**
  * Execute a fetch request
@@ -41,18 +33,18 @@ module.exports.timeout = 5000
  * @param {string} opts.claims.telegram.token    - The Telegram Bot API token
  * @returns {Promise<object|string>}
  */
-module.exports.fn = async (data, opts) => {
+export async function fn (data, opts) {
   let timeoutHandle
   const timeoutPromise = new Promise((resolve, reject) => {
     timeoutHandle = setTimeout(
       () => reject(new Error('Request was timed out')),
-      data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
+      data.fetcherTimeout ? data.fetcherTimeout : timeout
     )
   })
 
   const apiPromise = (/** @type {string} */ method) => new Promise((resolve, reject) => {
     try {
-      validator.isAscii(opts.claims.telegram.token)
+      isAscii(opts.claims.telegram.token)
     } catch (err) {
       throw new Error(`Telegram fetcher was not set up properly (${err.message})`)
     }
@@ -67,7 +59,7 @@ module.exports.fn = async (data, opts) => {
       headers: {
         Accept: 'application/json',
         // @ts-ignore
-        'User-Agent': `doipjs/${require('../../package.json').version}`
+        'User-Agent': `doipjs/${version}`
       },
       validateStatus: (status) => status === 200
     })

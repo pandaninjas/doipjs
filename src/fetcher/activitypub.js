@@ -13,19 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const axios = require('axios').default
-const validator = require('validator').default
-const jsEnv = require('browser-or-node')
+import axios from 'axios'
+import isURL from 'validator/lib/isURL.js'
+import { isNode } from 'browser-or-node'
+import crypto from 'crypto'
+import { version } from '../constants.js'
 
-/**
- * @module fetcher/activitypub
- */
-
-/**
- * The request's timeout value in milliseconds
- * @constant {number} timeout
- */
-module.exports.timeout = 5000
+export const timeout = 5000
 
 /**
  * Execute a fetch request
@@ -41,17 +35,12 @@ module.exports.timeout = 5000
  * @param {string} opts.claims.activitypub.privateKey   - The private key to sign the request
  * @returns {Promise<object>}
  */
-module.exports.fn = async (data, opts) => {
-  let crypto
-  if (jsEnv.isNode) {
-    crypto = require('crypto')
-  }
-
+export async function fn (data, opts) {
   let timeoutHandle
   const timeoutPromise = new Promise((resolve, reject) => {
     timeoutHandle = setTimeout(
       () => reject(new Error('Request was timed out')),
-      data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
+      data.fetcherTimeout ? data.fetcherTimeout : timeout
     )
   })
 
@@ -59,7 +48,7 @@ module.exports.fn = async (data, opts) => {
     (async () => {
       let isConfigured = false
       try {
-        validator.isURL(opts.claims.activitypub.url)
+        isURL(opts.claims.activitypub.url)
         isConfigured = true
       } catch (_) {}
 
@@ -71,10 +60,10 @@ module.exports.fn = async (data, opts) => {
         date: now.toUTCString(),
         accept: 'application/activity+json',
         // @ts-ignore
-        'User-Agent': `doipjs/${require('../../package.json').version}`
+        'User-Agent': `doipjs/${version}`
       }
 
-      if (isConfigured && jsEnv.isNode) {
+      if (isConfigured && isNode) {
         // Generate the signature
         const signedString = `(request-target): get ${pathname}${search}\nhost: ${host}\ndate: ${now.toUTCString()}`
         const sign = crypto.createSign('SHA256')

@@ -13,18 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const axios = require('axios').default
-const E = require('../enums')
+import axios from 'axios'
+import { ProofFormat } from '../enums.js'
+import { version } from '../constants.js'
 
-/**
- * @module fetcher/http
- */
-
-/**
- * The request's timeout value in milliseconds
- * @constant {number} timeout
- */
-module.exports.timeout = 5000
+export const timeout = 5000
 
 /**
  * Execute a fetch request
@@ -36,12 +29,12 @@ module.exports.timeout = 5000
  * @param {number} [data.fetcherTimeout]  - Optional timeout for the fetcher
  * @returns {Promise<object|string>}
  */
-module.exports.fn = async (data, opts) => {
+export async function fn (data, opts) {
   let timeoutHandle
   const timeoutPromise = new Promise((resolve, reject) => {
     timeoutHandle = setTimeout(
       () => reject(new Error('Request was timed out')),
-      data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
+      data.fetcherTimeout ? data.fetcherTimeout : timeout
     )
   })
 
@@ -52,12 +45,12 @@ module.exports.fn = async (data, opts) => {
     }
 
     switch (data.format) {
-      case E.ProofFormat.JSON:
+      case ProofFormat.JSON:
         axios.get(data.url, {
           headers: {
             Accept: 'application/json',
             // @ts-ignore
-            'User-Agent': `doipjs/${require('../../package.json').version}`
+            'User-Agent': `doipjs/${version}`
           },
           validateStatus: function (status) {
             return status >= 200 && status < 400
@@ -70,7 +63,7 @@ module.exports.fn = async (data, opts) => {
             reject(e)
           })
         break
-      case E.ProofFormat.TEXT:
+      case ProofFormat.TEXT:
         axios.get(data.url, {
           validateStatus: function (status) {
             return status >= 200 && status < 400

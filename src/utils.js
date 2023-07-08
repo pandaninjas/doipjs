@@ -13,8 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const validator = require('validator').default
-const E = require('./enums')
+import isFQDN from 'validator/lib/isFQDN.js'
+import { ClaimFormat } from './enums.js'
 
 /**
  * @module utils
@@ -26,12 +26,13 @@ const E = require('./enums')
  * @param {object} data                 - The data the proxy must provide to the fetcher
  * @param {object} opts                 - Options to enable the request
  * @param {object} opts.proxy           - Proxy related options
+ * @param {object} opts.proxy.scheme    - The scheme used by the proxy server
  * @param {object} opts.proxy.hostname  - The hostname of the proxy server
  * @returns {string}
  */
-const generateProxyURL = (type, data, opts) => {
+export function generateProxyURL (type, data, opts) {
   try {
-    validator.isFQDN(opts.proxy.hostname)
+    isFQDN(opts.proxy.hostname)
   } catch (err) {
     throw new Error('Invalid proxy hostname')
   }
@@ -55,14 +56,14 @@ const generateProxyURL = (type, data, opts) => {
  * @param {string} format       - The claim's format (see {@link module:enums~ClaimFormat|enums.ClaimFormat})
  * @returns {string}
  */
-const generateClaim = (fingerprint, format) => {
+export function generateClaim (fingerprint, format) {
   switch (format) {
-    case E.ClaimFormat.URI:
+    case ClaimFormat.URI:
       if (fingerprint.match(/^(openpgp4fpr|aspe):/)) {
         return fingerprint
       }
       return `openpgp4fpr:${fingerprint}`
-    case E.ClaimFormat.FINGERPRINT:
+    case ClaimFormat.FINGERPRINT:
       return fingerprint
     default:
       throw new Error('No valid claim format')
@@ -74,7 +75,7 @@ const generateClaim = (fingerprint, format) => {
  * @param {string} text         - The text that may contain URIs
  * @returns {Array<string>}
  */
-const getUriFromString = (text) => {
+export function getUriFromString (text) {
   const re = /((([A-Za-z0-9]+:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www\.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w\-_]*)?\??(?:[-+=&;%@.\w_]*)#?(?:[.!/\\\w]*))?)/gi
   const res = text.match(re)
 
@@ -102,7 +103,3 @@ const getUriFromString = (text) => {
 
   return urls
 }
-
-exports.generateProxyURL = generateProxyURL
-exports.generateClaim = generateClaim
-exports.getUriFromString = getUriFromString

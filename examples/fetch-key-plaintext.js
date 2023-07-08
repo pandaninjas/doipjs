@@ -1,4 +1,4 @@
-const doip = require('../src')
+import * as doip from '../src/index.js'
 
 const main = async () => {
     // Obtain the plaintext public key

@@ -1,4 +1,4 @@
-const doip = require('../src')
+import * as doip from '../src/index.js'
 
 const signature = `-----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA512

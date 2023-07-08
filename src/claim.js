@@ -13,14 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const validator = require('validator').default
-const validUrl = require('valid-url')
-const mergeOptions = require('merge-options')
-const proofs = require('./proofs')
-const verifications = require('./verifications')
-const claimDefinitions = require('./claimDefinitions')
-const defaults = require('./defaults')
-const E = require('./enums')
+import isAlphanumeric from 'validator/lib/isAlphanumeric.js'
+import { isUri } from 'valid-url'
+import mergeOptions from 'merge-options'
+import { fetch } from './proofs.js'
+import { run } from './verifications.js'
+import { list, data as _data } from './claimDefinitions/index.js'
+import { opts as _opts } from './defaults.js'
+import { ClaimStatus } from './enums.js'
 
 /**
  * @class
@@ -31,7 +31,7 @@ const E = require('./enums')
  * @property {Array<object>} matches  - The claim definitions matched against the URI
  * @property {object} verification    - The result of the verification process
  */
-class Claim {
+export class Claim {
   /**
    * Initialize a Claim object
    * @constructor
@@ -63,14 +63,15 @@ class Claim {
     }
 
     // Verify validity of URI
-    if (uri && !validUrl.isUri(uri)) {
+    if (uri && !isUri(uri)) {
       throw new Error('Invalid URI')
     }
 
     // Verify validity of fingerprint
     if (fingerprint) {
       try {
-        validator.isAlphanumeric(fingerprint)
+        // @ts-ignore
+        isAlphanumeric.default(fingerprint)
       } catch (err) {
         throw new Error('Invalid fingerprint')
       }
@@ -78,7 +79,7 @@ class Claim {
 
     this._uri = uri || ''
     this._fingerprint = fingerprint || ''
-    this._status = E.ClaimStatus.INIT
+    this._status = ClaimStatus.INIT
     this._matches = []
     this._verification = {}
   }
@@ -96,27 +97,27 @@ class Claim {
   }
 
   get matches () {
-    if (this._status === E.ClaimStatus.INIT) {
+    if (this._status === ClaimStatus.INIT) {
       throw new Error('This claim has not yet been matched')
     }
     return this._matches
   }
 
   get verification () {
-    if (this._status !== E.ClaimStatus.VERIFIED) {
+    if (this._status !== ClaimStatus.VERIFIED) {
       throw new Error('This claim has not yet been verified')
     }
     return this._verification
   }
 
   set uri (uri) {
-    if (this._status !== E.ClaimStatus.INIT) {
+    if (this._status !== ClaimStatus.INIT) {
       throw new Error(
         'Cannot change the URI, this claim has already been matched'
       )
     }
     // Verify validity of URI
-    if (uri.length > 0 && !validUrl.isUri(uri)) {
+    if (uri.length > 0 && !isUri(uri)) {
       throw new Error('The URI was invalid')
     }
     // Remove leading and trailing spaces
@@ -126,7 +127,7 @@ class Claim {
   }
 
   set fingerprint (fingerprint) {
-    if (this._status === E.ClaimStatus.VERIFIED) {
+    if (this._status === ClaimStatus.VERIFIED) {
       throw new Error(
         'Cannot change the fingerprint, this claim has already been verified'
       )
@@ -151,17 +152,17 @@ class Claim {
    * @function
    */
   match () {
-    if (this._status !== E.ClaimStatus.INIT) {
+    if (this._status !== ClaimStatus.INIT) {
       throw new Error('This claim was already matched')
     }
-    if (this._uri.length === 0 || !validUrl.isUri(this._uri)) {
+    if (this._uri.length === 0 || !isUri(this._uri)) {
       throw new Error('This claim has no URI')
     }
 
     this._matches = []
 
-    claimDefinitions.list.every((name, i) => {
-      const def = claimDefinitions.data[name]
+    list.every((name, i) => {
+      const def = _data[name]
 
       // If the candidate is invalid, continue matching
       if (!def.reURI.test(this._uri)) {
@@ -187,7 +188,7 @@ class Claim {
       return true
     })
 
-    this._status = E.ClaimStatus.MATCHED
+    this._status = ClaimStatus.MATCHED
   }
 
   /**
@@ -200,10 +201,10 @@ class Claim {
    * @param {object} [opts] - Options for proxy, fetchers
    */
   async verify (opts) {
-    if (this._status === E.ClaimStatus.INIT) {
+    if (this._status === ClaimStatus.INIT) {
       throw new Error('This claim has not yet been matched')
     }
-    if (this._status === E.ClaimStatus.VERIFIED) {
+    if (this._status === ClaimStatus.VERIFIED) {
       throw new Error('This claim has already been verified')
     }
     if (this._fingerprint.length === 0) {
@@ -211,7 +212,7 @@ class Claim {
     }
 
     // Handle options
-    opts = mergeOptions(defaults.opts, opts || {})
+    opts = mergeOptions(_opts, opts || {})
 
     // If there are no matches
     if (this._matches.length === 0) {
@@ -232,14 +233,14 @@ class Claim {
       let proofFetchError
 
       try {
-        proofData = await proofs.fetch(claimData, opts)
+        proofData = await fetch(claimData, opts)
       } catch (err) {
         proofFetchError = err
       }
 
       if (proofData) {
         // Run the verification process
-        verificationResult = await verifications.run(
+        verificationResult = await run(
           proofData.result,
           claimData,
           this._fingerprint
@@ -250,7 +251,7 @@ class Claim {
         }
 
         // Post process the data
-        const def = claimDefinitions.data[claimData.serviceprovider.name]
+        const def = _data[claimData.serviceprovider.name]
         if (def.functions?.postprocess) {
           try {
             ({ claimData, proofData } = def.functions.postprocess(claimData, proofData))
@@ -289,7 +290,7 @@ class Claim {
           errors: []
         }
 
-    this._status = E.ClaimStatus.VERIFIED
+    this._status = ClaimStatus.VERIFIED
   }
 
   /**
@@ -300,7 +301,7 @@ class Claim {
    * @returns {boolean}
    */
   isAmbiguous () {
-    if (this._status === E.ClaimStatus.INIT) {
+    if (this._status === ClaimStatus.INIT) {
       throw new Error('The claim has not been matched yet')
     }
     if (this._matches.length === 0) {
@@ -326,5 +327,3 @@ class Claim {
     }
   }
 }
-
-module.exports = Claim

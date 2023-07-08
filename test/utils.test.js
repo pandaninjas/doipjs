@@ -13,10 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const chai = require('chai')
-const expect = chai.expect
+import { expect } from 'chai'
 
-const doipjs = require('../src')
+import { utils, enums } from '../src/index.js'
 
 const textWithUrls = `This is text with URLs like https://domain.tld. Ow, a trailing dot.
 What about (https://between.parentheses)? What about [https://between.brackets]?
@@ -28,19 +27,19 @@ const urlsFromText = ["https://domain.tld", "https://between.parentheses",
 
 describe('utils.generateClaim', () => {
   it('should be a function (2 arguments)', () => {
-    expect(doipjs.utils.generateClaim).to.be.a('function')
-    expect(doipjs.utils.generateClaim).to.have.length(2)
+    expect(utils.generateClaim).to.be.a('function')
+    expect(utils.generateClaim).to.have.length(2)
   })
   it('should generate a correct "uri" claim', () => {
     expect(
-      doipjs.utils.generateClaim('123456789', doipjs.enums.ClaimFormat.URI)
+      utils.generateClaim('123456789', enums.ClaimFormat.URI)
     ).to.equal('openpgp4fpr:123456789')
   })
   it('should generate a correct "fingerprint" claim', () => {
     expect(
-      doipjs.utils.generateClaim(
+      utils.generateClaim(
         '123456789',
-        doipjs.enums.ClaimFormat.FINGERPRINT
+        enums.ClaimFormat.FINGERPRINT
       )
     ).to.equal('123456789')
   })
@@ -48,8 +47,8 @@ describe('utils.generateClaim', () => {
 
 describe('utils.generateProxyURL', () => {
   it('should be a function (3 arguments)', () => {
-    expect(doipjs.utils.generateProxyURL).to.be.a('function')
-    expect(doipjs.utils.generateProxyURL).to.have.length(3)
+    expect(utils.generateProxyURL).to.be.a('function')
+    expect(utils.generateProxyURL).to.have.length(3)
   })
   it('should generate correct proxy URLs for explicit https scheme', () => {
     const opts = {
@@ -59,10 +58,10 @@ describe('utils.generateProxyURL', () => {
       },
     }
     expect(
-      doipjs.utils.generateProxyURL('http', { domain: 'domain.org' }, opts)
+      utils.generateProxyURL('http', { domain: 'domain.org' }, opts)
     ).to.equal('https://localhost/api/2/get/http?domain=domain.org')
     expect(
-      doipjs.utils.generateProxyURL('dns', { domain: 'domain.org' }, opts)
+      utils.generateProxyURL('dns', { domain: 'domain.org' }, opts)
     ).to.equal('https://localhost/api/2/get/dns?domain=domain.org')
   })
   it('should generate correct proxy URLs for explicit http scheme', () => {
@@ -73,10 +72,10 @@ describe('utils.generateProxyURL', () => {
       },
     }
     expect(
-      doipjs.utils.generateProxyURL('http', { domain: 'domain.org' }, opts)
+      utils.generateProxyURL('http', { domain: 'domain.org' }, opts)
     ).to.equal('http://localhost/api/2/get/http?domain=domain.org')
     expect(
-      doipjs.utils.generateProxyURL('dns', { domain: 'domain.org' }, opts)
+      utils.generateProxyURL('dns', { domain: 'domain.org' }, opts)
     ).to.equal('http://localhost/api/2/get/dns?domain=domain.org')
   })
   it('should generate correct proxy URLs for default scheme', () => {
@@ -86,10 +85,10 @@ describe('utils.generateProxyURL', () => {
       },
     }
     expect(
-      doipjs.utils.generateProxyURL('http', { domain: 'domain.org' }, opts)
+      utils.generateProxyURL('http', { domain: 'domain.org' }, opts)
     ).to.equal('https://localhost/api/2/get/http?domain=domain.org')
     expect(
-      doipjs.utils.generateProxyURL('dns', { domain: 'domain.org' }, opts)
+      utils.generateProxyURL('dns', { domain: 'domain.org' }, opts)
     ).to.equal('https://localhost/api/2/get/dns?domain=domain.org')
   })
 
@@ -98,12 +97,12 @@ describe('utils.generateProxyURL', () => {
 
 describe('utils.getUriFromString', () => {
   it('should be a function (1 arguments)', () => {
-    expect(doipjs.utils.getUriFromString).to.be.a('function')
-    expect(doipjs.utils.getUriFromString).to.have.length(1)
+    expect(utils.getUriFromString).to.be.a('function')
+    expect(utils.getUriFromString).to.have.length(1)
   })
   it('should extract URLs from text', () => {
     expect(
-      doipjs.utils.getUriFromString(textWithUrls)
+      utils.getUriFromString(textWithUrls)
     ).to.have.length(urlsFromText.length)
   })
   // TODO Properly check each URL

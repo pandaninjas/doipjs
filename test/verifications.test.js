@@ -13,11 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const chai = require('chai')
-const expect = chai.expect
-chai.use(require('chai-as-promised'))
+import { expect, use } from 'chai'
+import chaiAsPromised from 'chai-as-promised'
+use(chaiAsPromised)
 
-const doipjs = require('../src')
+import { claimDefinitions, verifications } from '../src/index.js'
 
 const fingerprint = '3637202523e7c1309ab79e99ef2dc5827b445f4b'
 const plaintextCorrectProofData = [
@@ -44,40 +44,40 @@ const bcryptIncorrectProofData = [
 const bcryptCostlyProofData = [
   '$2y$16$4Knuu11ZyPXa1qxEbEsKQemKY6ZHM8Bk7WElYfL8q5kmzNjY1Ty8W'
 ]
-const claimData = doipjs.claimDefinitions.data.irc.processURI('irc://domain.tld/test')
+const claimData = claimDefinitions.data.irc.processURI('irc://domain.tld/test')
 
 describe('verifications.run', () => {
   it('should verify a plaintext proof', async () => {
-    const result = await doipjs.verifications.run(plaintextCorrectProofData, claimData, fingerprint)
+    const result = await verifications.run(plaintextCorrectProofData, claimData, fingerprint)
     expect(result.result).to.be.true
   })
   // issue #22
   it('should handle a plaintext proof with whitespace', async () => {
-    const result = await doipjs.verifications.run(plaintextCorrectProofDataWithWhitespace, claimData, fingerprint)
+    const result = await verifications.run(plaintextCorrectProofDataWithWhitespace, claimData, fingerprint)
     expect(result.result).to.be.true
   })
   it('should reject a wrong plaintext proof', async () => {
-    const result = await doipjs.verifications.run(plaintextIncorrectProofData, claimData, fingerprint)
+    const result = await verifications.run(plaintextIncorrectProofData, claimData, fingerprint)
     expect(result.result).to.be.false
   })
   it('should verify a argon2-hashed proof', async () => {
-    const result = await doipjs.verifications.run(argon2CorrectProofData, claimData, fingerprint)
+    const result = await verifications.run(argon2CorrectProofData, claimData, fingerprint)
     expect(result.result).to.be.true
   })
   it('should reject a wrong argon2-hashed proof', async () => {
-    const result = await doipjs.verifications.run(argon2IncorrectProofData, claimData, fingerprint)
+    const result = await verifications.run(argon2IncorrectProofData, claimData, fingerprint)
     expect(result.result).to.be.false
   })
   it('should verify a bcrypt-hashed proof', async () => {
-    const result = await doipjs.verifications.run(bcryptCorrectProofData, claimData, fingerprint)
+    const result = await verifications.run(bcryptCorrectProofData, claimData, fingerprint)
     expect(result.result).to.be.true
   })
   it('should reject a wrong bcrypt-hashed proof', async () => {
-    const result = await doipjs.verifications.run(bcryptIncorrectProofData, claimData, fingerprint)
+    const result = await verifications.run(bcryptIncorrectProofData, claimData, fingerprint)
     expect(result.result).to.be.false
   })
   it('should reject a too costly hashed proof', async () => {
-    const result = await doipjs.verifications.run(bcryptCostlyProofData, claimData, fingerprint)
+    const result = await verifications.run(bcryptCostlyProofData, claimData, fingerprint)
     expect(result.result).to.be.false
   })
 })

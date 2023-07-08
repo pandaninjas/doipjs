@@ -23,7 +23,7 @@ limitations under the License.
  * @readonly
  * @enum {string}
  */
-const ProxyPolicy = {
+export const ProxyPolicy = {
   /** Proxy usage decision depends on environment and service provider */
   ADAPTIVE: 'adaptive',
   /** Always use a proxy */
@@ -31,14 +31,13 @@ const ProxyPolicy = {
   /** Never use a proxy, skip a verification if a proxy is inevitable */
   NEVER: 'never'
 }
-Object.freeze(ProxyPolicy)
 
 /**
  * Methods for fetching proofs
  * @readonly
  * @enum {string}
  */
-const Fetcher = {
+export const Fetcher = {
   /** HTTP requests to ActivityPub */
   ACTIVITYPUB: 'activitypub',
   /** DNS module from Node.js */
@@ -56,14 +55,13 @@ const Fetcher = {
   /** XMPP module from Node.js */
   XMPP: 'xmpp'
 }
-Object.freeze(Fetcher)
 
 /**
  * Entity encoding format
  * @readonly
  * @enum {string}
  */
-const EntityEncodingFormat = {
+export const EntityEncodingFormat = {
   /** No special formatting */
   PLAIN: 'plain',
   /** HTML encoded entities */
@@ -71,14 +69,13 @@ const EntityEncodingFormat = {
   /** XML encoded entities */
   XML: 'xml'
 }
-Object.freeze(EntityEncodingFormat)
 
 /**
  * Levels of access restriction for proof fetching
  * @readonly
  * @enum {string}
  */
-const ProofAccess = {
+export const ProofAccess = {
   /** Any HTTP request will work */
   GENERIC: 'generic',
   /** CORS requests are denied */
@@ -88,40 +85,37 @@ const ProofAccess = {
   /** Not accessible by HTTP request, needs server software */
   SERVER: 'server'
 }
-Object.freeze(ProofAccess)
 
 /**
  * Format of proof
  * @readonly
  * @enum {string}
  */
-const ProofFormat = {
+export const ProofFormat = {
   /** JSON format */
   JSON: 'json',
   /** Plaintext format */
   TEXT: 'text'
 }
-Object.freeze(ProofFormat)
 
 /**
  * Format of claim
  * @readonly
  * @enum {string}
  */
-const ClaimFormat = {
+export const ClaimFormat = {
   /** `openpgp4fpr:123123123` */
   URI: 'uri',
   /** `123123123` */
   FINGERPRINT: 'fingerprint'
 }
-Object.freeze(ClaimFormat)
 
 /**
  * How to find the claim inside the proof's JSON data
  * @readonly
  * @enum {string}
  */
-const ClaimRelation = {
+export const ClaimRelation = {
   /** Claim is somewhere in the JSON field's textual content */
   CONTAINS: 'contains',
   /** Claim is equal to the JSON field's textual content */
@@ -129,14 +123,13 @@ const ClaimRelation = {
   /** Claim is equal to an element of the JSON field's array of strings */
   ONEOF: 'oneof'
 }
-Object.freeze(ClaimRelation)
 
 /**
  * Status of the Claim instance
  * @readonly
  * @enum {string}
  */
-const ClaimStatus = {
+export const ClaimStatus = {
   /** Claim has been initialized */
   INIT: 'init',
   /** Claim has matched its URI to candidate claim definitions */
@@ -144,13 +137,3 @@ const ClaimStatus = {
   /** Claim has verified one or multiple candidate claim definitions */
   VERIFIED: 'verified'
 }
-Object.freeze(ClaimStatus)
-
-exports.ProxyPolicy = ProxyPolicy
-exports.Fetcher = Fetcher
-exports.EntityEncodingFormat = EntityEncodingFormat
-exports.ProofAccess = ProofAccess
-exports.ProofFormat = ProofFormat
-exports.ClaimFormat = ClaimFormat
-exports.ClaimRelation = ClaimRelation
-exports.ClaimStatus = ClaimStatus

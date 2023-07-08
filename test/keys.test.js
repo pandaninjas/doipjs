@@ -13,13 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const chai = require('chai')
-const expect = chai.expect
-chai.use(require('chai-as-promised'))
+import { expect, use } from 'chai'
+import chaiAsPromised from 'chai-as-promised'
+use(chaiAsPromised)
 
-const path = require('path')
-const openpgp = require('openpgp')
-const doipjs = require('../src')
+import { PublicKey } from 'openpgp'
+import { keys } from '../src/index.js'
 
 const pubKeyFingerprint = "3637202523e7c1309ab79e99ef2dc5827b445f4b"
 const pubKeyEmail = "test@doip.rocks"
@@ -93,68 +92,68 @@ Q+AZdYCbM0hdBjP4xdKZcpqak8ksb+aQFXjGacDL/XN4VrP+tBGxkqIqreoDcgIb
 
 describe('keys.fetch', () => {
   it('should be a function (1 argument)', () => {
-    expect(doipjs.keys.fetch).to.be.a('function')
-    expect(doipjs.keys.fetch).to.have.length(1)
+    expect(keys.fetch).to.be.a('function')
+    expect(keys.fetch).to.have.length(1)
   })
   it('should return a Key object when provided a valid fingerprint', async () => {
     expect(
-      await doipjs.keys.fetch(pubKeyFingerprint)
-    ).to.be.instanceOf(openpgp.PublicKey)
+      await keys.fetch(pubKeyFingerprint)
+    ).to.be.instanceOf(PublicKey)
   }).timeout('12s')
   it('should return a Key object when provided a valid email address', async () => {
     expect(
-      await doipjs.keys.fetch(pubKeyEmail)
-    ).to.be.instanceOf(openpgp.PublicKey)
+      await keys.fetch(pubKeyEmail)
+    ).to.be.instanceOf(PublicKey)
   }).timeout('12s')
   it('should reject when provided an invalid email address', () => {
     return expect(
-      doipjs.keys.fetch('invalid@doip.rocks')
+      keys.fetch('invalid@doip.rocks')
     ).to.eventually.be.rejectedWith('Key does not exist or could not be fetched')
   }).timeout('12s')
 })
 
 describe('keys.fetchURI', () => {
   it('should be a function (1 argument)', () => {
-    expect(doipjs.keys.fetchURI).to.be.a('function')
-    expect(doipjs.keys.fetchURI).to.have.length(1)
+    expect(keys.fetchURI).to.be.a('function')
+    expect(keys.fetchURI).to.have.length(1)
   })
   it('should return a Key object when provided a hkp: uri', async () => {
     expect(
-      await doipjs.keys.fetchURI(`hkp:${pubKeyFingerprint}`)
-    ).to.be.instanceOf(openpgp.PublicKey)
+      await keys.fetchURI(`hkp:${pubKeyFingerprint}`)
+    ).to.be.instanceOf(PublicKey)
   }).timeout('12s')
   it('should reject when provided an invalid uri', () => {
     return expect(
-      doipjs.keys.fetchURI(`inv:${pubKeyFingerprint}`)
+      keys.fetchURI(`inv:${pubKeyFingerprint}`)
     ).to.eventually.be.rejectedWith('Invalid URI protocol')
   }).timeout('12s')
 })
 
 describe('keys.fetchHKP', () => {
   it('should be a function (2 arguments)', () => {
-    expect(doipjs.keys.fetchHKP).to.be.a('function')
-    expect(doipjs.keys.fetchHKP).to.have.length(2)
+    expect(keys.fetchHKP).to.be.a('function')
+    expect(keys.fetchHKP).to.have.length(2)
   })
   it('should return a Key object when provided a valid fingerprint', async () => {
-    expect(await doipjs.keys.fetchHKP(pubKeyFingerprint)).to.be.instanceOf(
-      openpgp.PublicKey
+    expect(await keys.fetchHKP(pubKeyFingerprint)).to.be.instanceOf(
+      PublicKey
     )
   }).timeout('12s')
   it('should return a Key object when provided a valid email address', async () => {
-    expect(await doipjs.keys.fetchHKP(pubKeyEmail)).to.be.instanceOf(
-      openpgp.PublicKey
+    expect(await keys.fetchHKP(pubKeyEmail)).to.be.instanceOf(
+      PublicKey
     )
   }).timeout('12s')
   it('should reject when provided an invalid fingerprint', async () => {
     return expect(
-      doipjs.keys.fetchHKP('4637202523e7c1309ab79e99ef2dc5827b445f4b')
+      keys.fetchHKP('4637202523e7c1309ab79e99ef2dc5827b445f4b')
     ).to.eventually.be.rejectedWith(
       'Key does not exist or could not be fetched'
     )
   }).timeout('12s')
   it('should reject when provided an invalid email address', async () => {
     return expect(
-      doipjs.keys.fetchHKP('invalid@doip.rocks')
+      keys.fetchHKP('invalid@doip.rocks')
     ).to.eventually.be.rejectedWith(
       'Key does not exist or could not be fetched'
     )
@@ -163,24 +162,24 @@ describe('keys.fetchHKP', () => {
 
 describe('keys.fetchPlaintext', () => {
   it('should be a function (1 argument)', () => {
-    expect(doipjs.keys.fetchPlaintext).to.be.a('function')
-    expect(doipjs.keys.fetchPlaintext).to.have.length(1)
+    expect(keys.fetchPlaintext).to.be.a('function')
+    expect(keys.fetchPlaintext).to.have.length(1)
   })
   it('should return a Key object', async () => {
-    expect(await doipjs.keys.fetchPlaintext(pubKeyPlaintext)).to.be.instanceOf(
-      openpgp.PublicKey
+    expect(await keys.fetchPlaintext(pubKeyPlaintext)).to.be.instanceOf(
+      PublicKey
     )
   }).timeout('12s')
 })
 
 describe('keys.process', () => {
   it('should be a function (1 argument)', () => {
-    expect(doipjs.keys.process).to.be.a('function')
-    expect(doipjs.keys.process).to.have.length(1)
+    expect(keys.process).to.be.a('function')
+    expect(keys.process).to.have.length(1)
   })
   it('should return an object with specific keys', async () => {
-    const pubKey = await doipjs.keys.fetchPlaintext(pubKeyPlaintext)
-    const obj = await doipjs.keys.process(pubKey)
+    const pubKey = await keys.fetchPlaintext(pubKeyPlaintext)
+    const obj = await keys.process(pubKey)
     expect(obj).to.have.keys([
       'users',
       'fingerprint',
@@ -189,15 +188,15 @@ describe('keys.process', () => {
     ])
   })
   it('should ignore non-proof notations', async () => {
-    const pubKey = await doipjs.keys.fetchPlaintext(pubKeyWithOtherNotations)
-    const obj = await doipjs.keys.process(pubKey)
+    const pubKey = await keys.fetchPlaintext(pubKeyWithOtherNotations)
+    const obj = await keys.process(pubKey)
     expect(obj.users).to.be.lengthOf(1)
     expect(obj.users[0].claims).to.be.lengthOf(1)
     expect(obj.users[0].claims[0].uri).to.be.equal('dns:yarmo.eu?type=TXT')
   })
   it('should properly handle revoked UIDs', async () => {
-    const pubKey = await doipjs.keys.fetchPlaintext(pubKeyWithRevokedUID)
-    const obj = await doipjs.keys.process(pubKey)
+    const pubKey = await keys.fetchPlaintext(pubKeyWithRevokedUID)
+    const obj = await keys.process(pubKey)
     expect(obj.users).to.be.lengthOf(2)
     expect(obj.users[0].userData.isRevoked).to.be.true
     expect(obj.users[1].userData.isRevoked).to.be.false

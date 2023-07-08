@@ -13,11 +13,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const E = require('../enums')
+import * as E from '../enums.js'
 
-const reURI = /^matrix:u\/(?:@)?([^@:]*:[^?]*)(\?.*)?/
+export const reURI = /^matrix:u\/(?:@)?([^@:]*:[^?]*)(\?.*)?/
 
-const processURI = (uri) => {
+/**
+ * @function
+ * @param {string} uri
+ */
+export function processURI (uri) {
   const match = uri.match(reURI)
 
   if (!match[2]) {
@@ -71,7 +75,7 @@ const processURI = (uri) => {
   }
 }
 
-const tests = [
+export const tests = [
   {
     uri:
       'matrix:u/alice:matrix.domain.org?org.keyoxide.r=123:domain.org&org.keyoxide.e=123',
@@ -95,7 +99,3 @@ const tests = [
     shouldMatch: false
   }
 ]
-
-exports.reURI = reURI
-exports.processURI = processURI
-exports.tests = tests

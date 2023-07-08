@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 // eslint-disable-next-line
-const Persona = require('./persona')
+import { Persona } from './persona.js'
 
 /**
  * A profile of personas with identity claims
@@ -26,7 +26,7 @@ const Persona = require('./persona')
  * const pers = Persona('Alice', 'About Alice', [claim]);
  * const profile = Profile([pers]);
  */
-class Profile {
+export class Profile {
   /**
      * Create a new profile
      * @function
@@ -48,5 +48,3 @@ class Profile {
     this.primaryPersona = -1
   }
 }
-
-module.exports = Profile

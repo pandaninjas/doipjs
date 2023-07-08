@@ -13,17 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const axios = require('axios').default
+import axios from 'axios'
+import { version } from '../constants.js'
 
-/**
- * @module fetcher/graphql
- */
-
-/**
- * The request's timeout value in milliseconds
- * @constant {number} timeout
- */
-module.exports.timeout = 5000
+export const timeout = 5000
 
 /**
  * Execute a GraphQL query via HTTP request
@@ -35,12 +28,12 @@ module.exports.timeout = 5000
  * @param {number} [data.fetcherTimeout]  - Optional timeout for the fetcher
  * @returns {Promise<object|string>}
  */
-module.exports.fn = async (data, opts) => {
+export async function fn (data, opts) {
   let timeoutHandle
   const timeoutPromise = new Promise((resolve, reject) => {
     timeoutHandle = setTimeout(
       () => reject(new Error('Request was timed out')),
-      data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
+      data.fetcherTimeout ? data.fetcherTimeout : timeout
     )
   })
 
@@ -61,7 +54,7 @@ module.exports.fn = async (data, opts) => {
       headers: {
         'Content-Type': 'application/json',
         // @ts-ignore
-        'User-Agent': `doipjs/${require('../../package.json').version}`
+        'User-Agent': `doipjs/${version}`
       },
       validateStatus: function (status) {
         return status >= 200 && status < 400

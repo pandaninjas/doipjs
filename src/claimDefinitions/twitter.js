@@ -13,12 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const E = require('../enums')
+import * as E from '../enums.js'
 
-const reURI = /^https:\/\/twitter\.com\/(.*)\/status\/([0-9]*)(?:\?.*)?/
+export const reURI = /^https:\/\/twitter\.com\/(.*)\/status\/([0-9]*)(?:\?.*)?/
 
-const processURI = (uri) => {
+/**
+ * @function
+ * @param {string} uri
+ */
+export function processURI (uri) {
   const match = uri.match(reURI)
+
+  const urlsp = new URLSearchParams()
+  urlsp.set('url', match[0])
+  urlsp.set('omit_script', '1')
 
   return {
     serviceprovider: {
@@ -42,7 +50,7 @@ const processURI = (uri) => {
         format: E.ProofFormat.JSON,
         data: {
           // Returns an oembed json object with the tweet content in html form
-          url: `https://publish.twitter.com/oembed?${new URLSearchParams({ url: match[0], omit_script: 1 })}`,
+          url: `https://publish.twitter.com/oembed?${urlsp}`,
           format: E.ProofFormat.JSON
         }
       }
@@ -56,7 +64,7 @@ const processURI = (uri) => {
   }
 }
 
-const tests = [
+export const tests = [
   {
     uri: 'https://twitter.com/alice/status/1234567890123456789',
     shouldMatch: true
@@ -70,7 +78,3 @@ const tests = [
     shouldMatch: false
   }
 ]
-
-exports.reURI = reURI
-exports.processURI = processURI
-exports.tests = tests

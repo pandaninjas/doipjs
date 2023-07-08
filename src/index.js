@@ -13,30 +13,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const Profile = require('./profile')
-const Persona = require('./persona')
-const Claim = require('./claim')
-const claimDefinitions = require('./claimDefinitions')
-const proofs = require('./proofs')
-const keys = require('./keys')
-const asp = require('./asp')
-const signatures = require('./signatures')
-const enums = require('./enums')
-const defaults = require('./defaults')
-const utils = require('./utils')
-const verifications = require('./verifications')
-const fetcher = require('./fetcher')
-
-exports.Profile = Profile
-exports.Persona = Persona
-exports.Claim = Claim
-exports.claimDefinitions = claimDefinitions
-exports.proofs = proofs
-exports.keys = keys
-exports.asp = asp
-exports.signatures = signatures
-exports.enums = enums
-exports.defaults = defaults
-exports.utils = utils
-exports.verifications = verifications
-exports.fetcher = fetcher
+export { Profile } from './profile.js'
+export { Persona } from './persona.js'
+export { Claim } from './claim.js'
+export * as claimDefinitions from './claimDefinitions/index.js'
+export * as proofs from './proofs.js'
+export * as keys from './keys.js'
+export * as asp from './asp.js'
+export * as signatures from './signatures.js'
+export * as enums from './enums.js'
+export * as defaults from './defaults.js'
+export * as utils from './utils.js'
+export * as verifications from './verifications.js'
+export * as fetcher from './fetcher/index.js'

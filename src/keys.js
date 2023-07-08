@@ -13,12 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const axios = require('axios').default
-const validUrl = require('valid-url')
-const openpgp = require('openpgp')
-const HKP = require('@openpgp/hkp-client')
-const WKD = require('@openpgp/wkd-client')
-const Claim = require('./claim')
+import axios from 'axios'
+import { isUri } from 'valid-url'
+import { readKey, PublicKey } from 'openpgp'
+import HKP from '@openpgp/hkp-client'
+import WKD from '@openpgp/wkd-client'
+import { Claim } from './claim.js'
 
 /**
  * Functions related to the fetching and handling of keys
@@ -30,12 +30,12 @@ const Claim = require('./claim')
  * @function
  * @param {string} identifier                         - Fingerprint or email address
  * @param {string} [keyserverDomain=keys.openpgp.org] - Domain of the keyserver
- * @returns {Promise<openpgp.PublicKey>}
+ * @returns {Promise<PublicKey>}
  * @example
  * const key1 = doip.keys.fetchHKP('alice@domain.tld');
  * const key2 = doip.keys.fetchHKP('123abc123abc');
  */
-const fetchHKP = async (identifier, keyserverDomain) => {
+export async function fetchHKP (identifier, keyserverDomain) {
   const keyserverBaseUrl = keyserverDomain
     ? `https://${keyserverDomain}`
     : 'https://keys.openpgp.org'
@@ -56,7 +56,7 @@ const fetchHKP = async (identifier, keyserverDomain) => {
     throw new Error('Key does not exist or could not be fetched')
   }
 
-  return await openpgp.readKey({
+  return await readKey({
     armoredKey: publicKey
   })
     .catch((error) => {
@@ -68,11 +68,11 @@ const fetchHKP = async (identifier, keyserverDomain) => {
  * Fetch a public key using Web Key Directory
  * @function
  * @param {string} identifier - Identifier of format 'username@domain.tld`
- * @returns {Promise<openpgp.PublicKey>}
+ * @returns {Promise<PublicKey>}
  * @example
  * const key = doip.keys.fetchWKD('alice@domain.tld');
  */
-const fetchWKD = async (identifier) => {
+export async function fetchWKD (identifier) {
   // @ts-ignore
   const wkd = new WKD()
   const lookupOpts = {
@@ -89,7 +89,7 @@ const fetchWKD = async (identifier) => {
     throw new Error('Key does not exist or could not be fetched')
   }
 
-  return await openpgp.readKey({
+  return await readKey({
     binaryKey: publicKey
   })
     .catch((error) => {
@@ -102,11 +102,11 @@ const fetchWKD = async (identifier) => {
  * @function
  * @param {string} username     - Keybase username
  * @param {string} fingerprint  - Fingerprint of key
- * @returns {Promise<openpgp.PublicKey>}
+ * @returns {Promise<PublicKey>}
  * @example
  * const key = doip.keys.fetchKeybase('alice', '123abc123abc');
  */
-const fetchKeybase = async (username, fingerprint) => {
+export async function fetchKeybase (username, fingerprint) {
   const keyLink = `https://keybase.io/${username}/pgp_keys.asc?fingerprint=${fingerprint}`
   let rawKeyContent
   try {
@@ -126,7 +126,7 @@ const fetchKeybase = async (username, fingerprint) => {
     throw new Error(`Error fetching Keybase key: ${e.message}`)
   }
 
-  return await openpgp.readKey({
+  return await readKey({
     armoredKey: rawKeyContent
   })
     .catch((error) => {
@@ -138,7 +138,7 @@ const fetchKeybase = async (username, fingerprint) => {
  * Get a public key from plaintext data
  * @function
  * @param {string} rawKeyContent - Plaintext ASCII-formatted public key data
- * @returns {Promise<openpgp.PublicKey>}
+ * @returns {Promise<PublicKey>}
  * @example
  * const plainkey = `-----BEGIN PGP PUBLIC KEY BLOCK-----
  *
@@ -148,8 +148,8 @@ const fetchKeybase = async (username, fingerprint) => {
  * -----END PGP PUBLIC KEY BLOCK-----`
  * const key = doip.keys.fetchPlaintext(plainkey);
  */
-const fetchPlaintext = async (rawKeyContent) => {
-  const publicKey = await openpgp.readKey({
+export async function fetchPlaintext (rawKeyContent) {
+  const publicKey = await readKey({
     armoredKey: rawKeyContent
   })
     .catch((error) => {
@@ -163,14 +163,14 @@ const fetchPlaintext = async (rawKeyContent) => {
  * Fetch a public key using an URI
  * @function
  * @param {string} uri - URI that defines the location of the key
- * @returns {Promise<openpgp.PublicKey>}
+ * @returns {Promise<PublicKey>}
  * @example
  * const key1 = doip.keys.fetchURI('hkp:alice@domain.tld');
  * const key2 = doip.keys.fetchURI('hkp:123abc123abc');
  * const key3 = doip.keys.fetchURI('wkd:alice@domain.tld');
  */
-const fetchURI = async (uri) => {
-  if (!validUrl.isUri(uri)) {
+export async function fetchURI (uri) {
+  if (!isUri(uri)) {
     throw new Error('Invalid URI')
   }
 
@@ -209,12 +209,12 @@ const fetchURI = async (uri) => {
  * This function will also try and parse the input as a plaintext key
  * @function
  * @param {string} identifier - URI that defines the location of the key
- * @returns {Promise<openpgp.PublicKey>}
+ * @returns {Promise<PublicKey>}
  * @example
  * const key1 = doip.keys.fetch('alice@domain.tld');
  * const key2 = doip.keys.fetch('123abc123abc');
  */
-const fetch = async (identifier) => {
+export async function fetch (identifier) {
   const re = /([a-zA-Z0-9@._=+-]*)(?::([a-zA-Z0-9@._=+-]*))?/
   const match = identifier.match(re)
 
@@ -252,7 +252,7 @@ const fetch = async (identifier) => {
 /**
  * Process a public key to get user data and claims
  * @function
- * @param {openpgp.PublicKey} publicKey - The public key to process
+ * @param {PublicKey} publicKey - The public key to process
  * @returns {Promise<object>}
  * @example
  * const key = doip.keys.fetchURI('hkp:alice@domain.tld');
@@ -261,8 +261,8 @@ const fetch = async (identifier) => {
  *   console.log(claim.uri);
  * });
  */
-const process = async (publicKey) => {
-  if (!(publicKey && (publicKey instanceof openpgp.PublicKey))) {
+export async function process (publicKey) {
+  if (!(publicKey && (publicKey instanceof PublicKey))) {
     throw new Error('Invalid public key')
   }
 
@@ -313,11 +313,3 @@ const process = async (publicKey) => {
     }
   }
 }
-
-exports.fetchHKP = fetchHKP
-exports.fetchWKD = fetchWKD
-exports.fetchKeybase = fetchKeybase
-exports.fetchPlaintext = fetchPlaintext
-exports.fetchURI = fetchURI
-exports.fetch = fetch
-exports.process = process

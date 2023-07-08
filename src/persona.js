@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 // eslint-disable-next-line
-const Claim = require('./claim')
+import { Claim } from './claim.js'
 
 /**
  * A persona with identity claims
@@ -25,7 +25,7 @@ const Claim = require('./claim')
  * const claim = Claim('https://alice.tld', '123');
  * const pers = Persona('Alice', 'About Alice', [claim]);
  */
-class Persona {
+export class Persona {
   /**
      * @param {string} name
      * @param {string} [description]
@@ -52,5 +52,3 @@ class Persona {
     this.claims = claims
   }
 }
-
-module.exports = Persona

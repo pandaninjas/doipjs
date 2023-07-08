@@ -13,14 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import dotenv from 'dotenv'
-dotenv.config()
-
 export * as activitypub from './activitypub.js'
-export * as dns from './dns.js'
 export * as graphql from './graphql.js'
 export * as http from './http.js'
-export * as irc from './irc.js'
 export * as matrix from './matrix.js'
 export * as telegram from './telegram.js'
-export * as xmpp from './xmpp.js'

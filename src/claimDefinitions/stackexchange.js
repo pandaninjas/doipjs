@@ -13,12 +13,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const E = require('../enums')
+import * as E from '../enums.js'
 
-const reURI = /^https:\/\/(.*(?:askubuntu|mathoverflow|serverfault|stackapps|stackoverflow|superuser)|.+\.stackexchange)\.com\/users\/(\d+)/
+export const reURI = /^https:\/\/(.*(?:askubuntu|mathoverflow|serverfault|stackapps|stackoverflow|superuser)|.+\.stackexchange)\.com\/users\/(\d+)/
 const reStackExchange = /\.stackexchange$/
 
-const processURI = (uri) => {
+/**
+ * @function
+ * @param {string} uri
+ */
+export function processURI (uri) {
   const [, domain, id] = uri.match(reURI)
   const site = domain.replace(reStackExchange, '')
 
@@ -57,7 +61,7 @@ const processURI = (uri) => {
   }
 }
 
-const tests = [
+export const tests = [
   {
     uri: 'https://stackoverflow.com/users/1234',
     shouldMatch: true
@@ -112,7 +116,3 @@ const tests = [
   }
 
 ]
-
-exports.reURI = reURI
-exports.processURI = processURI
-exports.tests = tests

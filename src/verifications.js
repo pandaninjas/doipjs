@@ -13,10 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const utils = require('./utils')
-const E = require('./enums')
-const { bcryptVerify, argon2Verify } = require('hash-wasm')
-const entities = require('entities')
+import { generateClaim, getUriFromString } from './utils.js'
+import { ClaimFormat, EntityEncodingFormat, ClaimRelation, ProofFormat } from './enums.js'
+import { bcryptVerify, argon2Verify } from 'hash-wasm'
+import { decodeHTML, decodeXML } from 'entities'
 
 /**
  * @module verifications
@@ -34,25 +34,25 @@ const entities = require('entities')
  * @returns {Promise<boolean>}
  */
 const containsProof = async (data, params) => {
-  const fingerprintFormatted = utils.generateClaim(params.target, params.claimFormat)
-  const fingerprintURI = utils.generateClaim(params.target, E.ClaimFormat.URI)
+  const fingerprintFormatted = generateClaim(params.target, params.claimFormat)
+  const fingerprintURI = generateClaim(params.target, ClaimFormat.URI)
   let result = false
 
   // Decode eventual special entities
   switch (params.proofEncodingFormat) {
-    case E.EntityEncodingFormat.HTML:
-      data = entities.decodeHTML(data)
+    case EntityEncodingFormat.HTML:
+      data = decodeHTML(data)
       break
 
-    case E.EntityEncodingFormat.XML:
-      data = entities.decodeXML(data)
+    case EntityEncodingFormat.XML:
+      data = decodeXML(data)
       break
 
-    case E.EntityEncodingFormat.PLAIN:
+    case EntityEncodingFormat.PLAIN:
     default:
       break
   }
-  data = entities.decodeHTML(data)
+  data = decodeHTML(data)
 
   // Check for plaintext proof
   result = data
@@ -132,7 +132,7 @@ const containsProof = async (data, params) => {
 
   // Check for HTTP proof
   if (!result) {
-    const uris = utils.getUriFromString(data)
+    const uris = getUriFromString(data)
 
     for (let index = 0; index < uris.length; index++) {
       if (result) continue
@@ -207,11 +207,11 @@ const runJSON = async (proofData, checkPath, params) => {
 
   if (checkPath.length === 0) {
     switch (params.claimRelation) {
-      case E.ClaimRelation.ONEOF:
+      case ClaimRelation.ONEOF:
         return await containsProof(proofData.join('|'), params)
 
-      case E.ClaimRelation.CONTAINS:
-      case E.ClaimRelation.EQUALS:
+      case ClaimRelation.CONTAINS:
+      case ClaimRelation.EQUALS:
       default:
         return await containsProof(proofData, params)
     }
@@ -236,7 +236,7 @@ const runJSON = async (proofData, checkPath, params) => {
  * @param {string} fingerprint  - The fingerprint
  * @returns {Promise<object>}
  */
-const run = async (proofData, claimData, fingerprint) => {
+export async function run (proofData, claimData, fingerprint) {
   const res = {
     result: false,
     completed: false,
@@ -244,7 +244,7 @@ const run = async (proofData, claimData, fingerprint) => {
   }
 
   switch (claimData.proof.request.format) {
-    case E.ProofFormat.JSON:
+    case ProofFormat.JSON:
       for (let index = 0; index < claimData.claim.length; index++) {
         const claimMethod = claimData.claim[index]
         try {
@@ -264,7 +264,7 @@ const run = async (proofData, claimData, fingerprint) => {
       }
       res.completed = true
       break
-    case E.ProofFormat.TEXT:
+    case ProofFormat.TEXT:
       for (let index = 0; index < claimData.claim.length; index++) {
         const claimMethod = claimData.claim[index]
         try {
@@ -292,5 +292,3 @@ const run = async (proofData, claimData, fingerprint) => {
 
   return res
 }
-
-exports.run = run

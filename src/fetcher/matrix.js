@@ -13,18 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const axios = require('axios').default
-const validator = require('validator').default
+import axios from 'axios'
+import isFQDN from 'validator/lib/isFQDN.js'
+import isAscii from 'validator/lib/isAscii.js'
+import { version } from '../constants.js'
 
-/**
- * @module fetcher/matrix
- */
-
-/**
- * The request's timeout value in milliseconds
- * @constant {number} timeout
- */
-module.exports.timeout = 5000
+export const timeout = 5000
 
 /**
  * Execute a fetch request
@@ -41,19 +35,19 @@ module.exports.timeout = 5000
  * @param {string} opts.claims.matrix.accessToken - The access token required to identify the library ({@link https://www.matrix.org/docs/guides/client-server-api|Matrix docs})
  * @returns {Promise<object>}
  */
-module.exports.fn = async (data, opts) => {
+export async function fn (data, opts) {
   let timeoutHandle
   const timeoutPromise = new Promise((resolve, reject) => {
     timeoutHandle = setTimeout(
       () => reject(new Error('Request was timed out')),
-      data.fetcherTimeout ? data.fetcherTimeout : module.exports.timeout
+      data.fetcherTimeout ? data.fetcherTimeout : timeout
     )
   })
 
   const fetchPromise = new Promise((resolve, reject) => {
     try {
-      validator.isFQDN(opts.claims.matrix.instance)
-      validator.isAscii(opts.claims.matrix.accessToken)
+      isFQDN(opts.claims.matrix.instance)
+      isAscii(opts.claims.matrix.accessToken)
     } catch (err) {
       throw new Error(`Matrix fetcher was not set up properly (${err.message})`)
     }
@@ -64,7 +58,7 @@ module.exports.fn = async (data, opts) => {
         headers: {
           Accept: 'application/json',
           // @ts-ignore
-          'User-Agent': `doipjs/${require('../../package.json').version}`
+          'User-Agent': `doipjs/${version}`
         }
       })
       .then(res => {

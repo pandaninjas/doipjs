@@ -13,10 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const jsEnv = require('browser-or-node')
-const fetcher = require('./fetcher')
-const utils = require('./utils')
-const E = require('./enums')
+import { isNode } from 'browser-or-node'
+import * as fetcher from './fetcher/index.js'
+import { generateProxyURL } from './utils.js'
+import { Fetcher, ProxyPolicy, ProofAccess } from './enums.js'
 
 /**
  * @module proofs
@@ -33,9 +33,9 @@ const E = require('./enums')
  * @param {object} opts - Options to enable the request
  * @returns {Promise<object|string>}
  */
-const fetch = (data, opts) => {
+export async function fetch (data, opts) {
   switch (data.proof.request.fetcher) {
-    case E.Fetcher.HTTP:
+    case Fetcher.HTTP:
       data.proof.request.data.format = data.proof.request.format
       break
 
@@ -43,7 +43,7 @@ const fetch = (data, opts) => {
       break
   }
 
-  if (jsEnv.isNode) {
+  if (isNode) {
     return handleNodeRequests(data, opts)
   }
 
@@ -52,16 +52,16 @@ const fetch = (data, opts) => {
 
 const handleBrowserRequests = (data, opts) => {
   switch (opts.proxy.policy) {
-    case E.ProxyPolicy.ALWAYS:
+    case ProxyPolicy.ALWAYS:
       return createProxyRequestPromise(data, opts)
 
-    case E.ProxyPolicy.NEVER:
+    case ProxyPolicy.NEVER:
       switch (data.proof.request.access) {
-        case E.ProofAccess.GENERIC:
-        case E.ProofAccess.GRANTED:
+        case ProofAccess.GENERIC:
+        case ProofAccess.GRANTED:
           return createDefaultRequestPromise(data, opts)
-        case E.ProofAccess.NOCORS:
-        case E.ProofAccess.SERVER:
+        case ProofAccess.NOCORS:
+        case ProofAccess.SERVER:
           throw new Error(
             'Impossible to fetch proof (bad combination of service access and proxy policy)'
           )
@@ -69,15 +69,15 @@ const handleBrowserRequests = (data, opts) => {
           throw new Error('Invalid proof access value')
       }
 
-    case E.ProxyPolicy.ADAPTIVE:
+    case ProxyPolicy.ADAPTIVE:
       switch (data.proof.request.access) {
-        case E.ProofAccess.GENERIC:
+        case ProofAccess.GENERIC:
           return createFallbackRequestPromise(data, opts)
-        case E.ProofAccess.NOCORS:
+        case ProofAccess.NOCORS:
           return createProxyRequestPromise(data, opts)
-        case E.ProofAccess.GRANTED:
+        case ProofAccess.GRANTED:
           return createFallbackRequestPromise(data, opts)
-        case E.ProofAccess.SERVER:
+        case ProofAccess.SERVER:
           return createProxyRequestPromise(data, opts)
         default:
           throw new Error('Invalid proof access value')
@@ -90,13 +90,13 @@ const handleBrowserRequests = (data, opts) => {
 
 const handleNodeRequests = (data, opts) => {
   switch (opts.proxy.policy) {
-    case E.ProxyPolicy.ALWAYS:
+    case ProxyPolicy.ALWAYS:
       return createProxyRequestPromise(data, opts)
 
-    case E.ProxyPolicy.NEVER:
+    case ProxyPolicy.NEVER:
       return createDefaultRequestPromise(data, opts)
 
-    case E.ProxyPolicy.ADAPTIVE:
+    case ProxyPolicy.ADAPTIVE:
       return createFallbackRequestPromise(data, opts)
 
     default:
@@ -126,7 +126,7 @@ const createProxyRequestPromise = (data, opts) => {
   return new Promise((resolve, reject) => {
     let proxyUrl
     try {
-      proxyUrl = utils.generateProxyURL(
+      proxyUrl = generateProxyURL(
         data.proof.request.fetcher,
         data.proof.request.data,
         opts
@@ -173,5 +173,3 @@ const createFallbackRequestPromise = (data, opts) => {
       })
   })
 }
-
-exports.fetch = fetch

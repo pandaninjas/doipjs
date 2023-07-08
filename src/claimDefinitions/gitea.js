@@ -13,11 +13,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const E = require('../enums')
+import * as E from '../enums.js'
 
-const reURI = /^https:\/\/(.*)\/(.*)\/(.*)\/?/
+export const reURI = /^https:\/\/(.*)\/(.*)\/(.*)\/?/
 
-const processURI = (uri) => {
+/**
+ * @function
+ * @param {string} uri
+ */
+export function processURI (uri) {
   const match = uri.match(reURI)
 
   return {
@@ -55,7 +59,7 @@ const processURI = (uri) => {
   }
 }
 
-const tests = [
+export const tests = [
   {
     uri: 'https://domain.org/alice/gitea_proof',
     shouldMatch: true
@@ -73,7 +77,3 @@ const tests = [
     shouldMatch: false
   }
 ]
-
-exports.reURI = reURI
-exports.processURI = processURI
-exports.tests = tests

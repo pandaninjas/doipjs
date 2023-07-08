@@ -13,9 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const openpgp = require('openpgp')
-const Claim = require('./claim')
-const keys = require('./keys')
+import { readCleartextMessage, verify } from 'openpgp'
+import { Claim } from './claim.js'
+import { fetchURI } from './keys.js'
 
 /**
  * @module signatures
@@ -27,8 +27,8 @@ const keys = require('./keys')
  * @param {string} signature - The plaintext signature to process
  * @returns {Promise<object>}
  */
-const process = async (signature) => {
-  /** @type {openpgp.CleartextMessage} */
+export async function process (signature) {
+  /** @type {import('openpgp').CleartextMessage} */
   let sigData
   const result = {
     fingerprint: null,
@@ -48,7 +48,7 @@ const process = async (signature) => {
 
   // Read the signature
   try {
-    sigData = await openpgp.readCleartextMessage({
+    sigData = await readCleartextMessage({
       cleartextMessage: signature
     })
   } catch (e) {
@@ -89,7 +89,7 @@ const process = async (signature) => {
   if (sigKeys.length > 0) {
     try {
       result.key.uri = sigKeys[0]
-      result.key.data = await keys.fetchURI(result.key.uri)
+      result.key.data = await fetchURI(result.key.uri)
       result.key.fetchMethod = result.key.uri.split(':')[0]
     } catch (e) {}
   }
@@ -97,7 +97,7 @@ const process = async (signature) => {
   if (!result.key.data && signersUserID) {
     try {
       result.key.uri = `wkd:${signersUserID}`
-      result.key.data = await keys.fetchURI(result.key.uri)
+      result.key.data = await fetchURI(result.key.uri)
       result.key.fetchMethod = 'wkd'
     } catch (e) {}
   }
@@ -106,7 +106,7 @@ const process = async (signature) => {
     try {
       const match = preferredKeyServer.match(/^(.*:\/\/)?([^/]*)(?:\/)?$/i)
       result.key.uri = `hkp:${match[2]}:${issuerKeyID || signersUserID}`
-      result.key.data = await keys.fetchURI(result.key.uri)
+      result.key.data = await fetchURI(result.key.uri)
       result.key.fetchMethod = 'hkp'
     } catch (e) {
       throw new Error('Public key not found')
@@ -114,7 +114,7 @@ const process = async (signature) => {
   }
 
   // Verify the signature
-  const verificationResult = await openpgp.verify({
+  const verificationResult = await verify({
     // @ts-ignore
     message: sigData,
     verificationKeys: result.key.data
@@ -158,5 +158,3 @@ const process = async (signature) => {
 
   return result
 }
-
-exports.process = process

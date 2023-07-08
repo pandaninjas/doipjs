@@ -13,10 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const chai = require('chai')
-const expect = chai.expect
+import { expect } from 'chai'
 
-const doipjs = require('../src')
+import { signatures } from '../src/index.js'
 
 const sigProfile = `-----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA512
@@ -83,11 +82,11 @@ YCKJPotiqe50nBijHHbuABtBianiMZOm2BbaPnsmdHIX5ynWhOI8LHR1CVmTI/0o
 
 describe('signatures.process', () => {
   it('should be a function (2 arguments)', () => {
-    expect(doipjs.signatures.process).to.be.a('function')
-    expect(doipjs.signatures.process).to.have.length(1)
+    expect(signatures.process).to.be.a('function')
+    expect(signatures.process).to.have.length(1)
   })
   it('should verify a valid signature', async () => {
-    const verification = await doipjs.signatures.process(sigProfile)
+    const verification = await signatures.process(sigProfile)
     expect(verification.fingerprint).to.be.equal(
       '3637202523e7c1309ab79e99ef2dc5827b445f4b'
     )
@@ -95,14 +94,14 @@ describe('signatures.process', () => {
   })
   it('should reject an invalid signature', async () => {
     return expect(
-      doipjs.signatures.process(invalidSigProfileMessage)
+      signatures.process(invalidSigProfileMessage)
     ).to.eventually.be.rejectedWith(
       'Signature could not be verified (Signed digest did not match)'
     )
   })
   it('should reject an invalid signature', async () => {
     return expect(
-      doipjs.signatures.process(invalidSigProfileHash)
+      signatures.process(invalidSigProfileHash)
     ).to.eventually.be.rejectedWith(
       'Signature could not be read (Ascii armor integrity check failed)'
     )

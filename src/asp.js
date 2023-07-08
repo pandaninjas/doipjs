@@ -13,12 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-const axios = require('axios').default
-const jose = require('jose')
-const { base32, base64url } = require('rfc4648')
-const Claim = require('./claim')
-const Persona = require('./persona')
-const Profile = require('./profile')
+import axios from 'axios'
+import { decodeProtectedHeader, importJWK, compactVerify, calculateJwkThumbprint } from 'jose'
+import { base32, base64url } from 'rfc4648'
+import { Claim } from './claim.js'
+import { Persona } from './persona.js'
+import { Profile } from './profile.js'
 
 const SupportedCryptoAlg = ['EdDSA', 'ES256', 'ES256K', 'ES384', 'ES512']
 
@@ -35,7 +35,7 @@ const SupportedCryptoAlg = ['EdDSA', 'ES256', 'ES256K', 'ES384', 'ES512']
  * @example
  * const key = doip.aspe.fetchASPE('aspe:domain.tld:1234567890');
  */
-const fetchASPE = async uri => {
+export async function fetchASPE (uri) {
   const re = /aspe:(.*):(.*)/
 
   if (!re.test(uri)) {
@@ -78,12 +78,12 @@ const fetchASPE = async uri => {
  * @example
  * const key = doip.aspe.parseProfileJws('...');
  */
-const parseProfileJws = async (profileJws, uri) => {
+export async function parseProfileJws (profileJws, uri) {
   const matches = uri.match(/aspe:(.*):(.*)/)
   const localPart = matches[2].toUpperCase()
 
   // Decode the headers
-  const protectedHeader = jose.decodeProtectedHeader(profileJws)
+  const protectedHeader = decodeProtectedHeader(profileJws)
 
   // Extract the JWK
   if (!SupportedCryptoAlg.includes(protectedHeader.alg)) {
@@ -95,7 +95,7 @@ const parseProfileJws = async (profileJws, uri) => {
   if (!protectedHeader.jwk) {
     throw new Error('Invalid profile JWS: missing key')
   }
-  const publicKey = await jose.importJWK(protectedHeader.jwk, protectedHeader.alg)
+  const publicKey = await importJWK(protectedHeader.jwk, protectedHeader.alg)
 
   // Compute and verify the fingerprint
   const fp = await computeJwkFingerprint(protectedHeader.jwk)
@@ -108,7 +108,7 @@ const parseProfileJws = async (profileJws, uri) => {
   }
 
   // Decode the payload
-  const { payload } = await jose.compactVerify(profileJws, publicKey)
+  const { payload } = await compactVerify(profileJws, publicKey)
   const payloadJson = JSON.parse(new TextDecoder().decode(payload))
 
   // Verify the payload
@@ -139,16 +139,13 @@ const parseProfileJws = async (profileJws, uri) => {
 /**
  * Compute the fingerprint for JWK keys
  * @function
- * @param {jose.JWK} key
+ * @param {import('jose').JWK} key
  * @returns {Promise<string>}
  */
-const computeJwkFingerprint = async key => {
-  const thumbprint = await jose.calculateJwkThumbprint(key, 'sha512')
+export async function computeJwkFingerprint (key) {
+  const thumbprint = await calculateJwkThumbprint(key, 'sha512')
   const fingerprintBytes = base64url.parse(thumbprint, { loose: true }).slice(0, 16)
   const fingerprint = base32.stringify(fingerprintBytes, { pad: false })
 
   return fingerprint
 }
-
-exports.fetchASPE = fetchASPE
-exports.parseProfileJws = parseProfileJws
