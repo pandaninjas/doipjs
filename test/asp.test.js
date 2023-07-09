@@ -44,7 +44,6 @@ describe('asp.parseProfileJws', () => {
   })
   it('should return a valid Profile object when provided a valid JWS', async () => {
     let profile = await asp.parseProfileJws(asp25519ProfileJws, asp25519Uri)
-    console.log(profile);
 
     expect(profile).to.be.instanceOf(Profile)
     expect(profile.personas).to.be.length(1)

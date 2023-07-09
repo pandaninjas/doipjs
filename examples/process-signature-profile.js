@@ -25,10 +25,10 @@ cXbjvHSGniZ7M3S9S8knAfIquPvTp7+L7wWgSSB5VObPp1r+96n87hyFZUp7PCvl
 
 const main = async () => {
     // Process the OpenPGP signature
-    const sigProfile = await doip.signatures.process(signature)
+    const profile = await doip.signatures.process(signature)
 
-    // Log the processed signature profile
-    console.log(sigProfile.users[0].claims)
+    // Log the claims of the first persona
+    console.log(profile.users[0].claims)
 }
 
 main()

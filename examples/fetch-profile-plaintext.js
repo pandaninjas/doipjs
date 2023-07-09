@@ -28,14 +28,11 @@ fCRSXrr7SZxIu7I8jfQrxc0k9XhpPI/gdlgRqoEG2lMyqFaWzyoI9dyoVwji78rg
 =Csr+
 -----END PGP PUBLIC KEY BLOCK-----`
 
-    // Fetch the key using WKD
-    const key = await doip.keys.fetchPlaintext(pubKeyPlaintext)
-
-    // Process it to extract the UIDs and their claims
-    const obj = await doip.keys.process(key)
+    // Use the plaintext key to get a profile
+    const profile = await doip.openpgp.fetchPlaintext(pubKeyPlaintext)
 
     // Log the claims of the first UID
-    console.log(obj.users[0].claims)
+    console.log(profile.personas[0].claims)
 }
 
 main()

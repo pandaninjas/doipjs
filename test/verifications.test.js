@@ -17,7 +17,7 @@ import { expect, use } from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 use(chaiAsPromised)
 
-import { claimDefinitions, verifications } from '../src/index.js'
+import { ServiceProviderDefinitions, verifications } from '../src/index.js'
 
 const fingerprint = '3637202523e7c1309ab79e99ef2dc5827b445f4b'
 const plaintextCorrectProofData = [
@@ -44,7 +44,7 @@ const bcryptIncorrectProofData = [
 const bcryptCostlyProofData = [
   '$2y$16$4Knuu11ZyPXa1qxEbEsKQemKY6ZHM8Bk7WElYfL8q5kmzNjY1Ty8W'
 ]
-const claimData = claimDefinitions.data.irc.processURI('irc://domain.tld/test')
+const claimData = ServiceProviderDefinitions.data.irc.processURI('irc://domain.tld/test')
 
 describe('verifications.run', () => {
   it('should verify a plaintext proof', async () => {
