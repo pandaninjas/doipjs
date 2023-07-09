@@ -16,7 +16,7 @@ limitations under the License.
 export { Profile } from './profile.js'
 export { Persona } from './persona.js'
 export { Claim } from './claim.js'
-export * as claimDefinitions from './claimDefinitions/index.js'
+export { ServiceProvider } from './serviceProvider.js'
 export * as proofs from './proofs.js'
 export * as keys from './keys.js'
 export * as asp from './asp.js'
