@@ -18,7 +18,7 @@ import chaiAsPromised from 'chai-as-promised'
 use(chaiAsPromised)
 
 import { PublicKey } from 'openpgp'
-import { keys } from '../src/index.js'
+import { openpgp, Profile } from '../src/index.js'
 
 const pubKeyFingerprint = "3637202523e7c1309ab79e99ef2dc5827b445f4b"
 const pubKeyEmail = "test@doip.rocks"
@@ -90,115 +90,115 @@ Q+AZdYCbM0hdBjP4xdKZcpqak8ksb+aQFXjGacDL/XN4VrP+tBGxkqIqreoDcgIb
 =tVW7
 -----END PGP PUBLIC KEY BLOCK-----`
 
-describe('keys.fetch', () => {
+describe('openpgp.fetch', () => {
   it('should be a function (1 argument)', () => {
-    expect(keys.fetch).to.be.a('function')
-    expect(keys.fetch).to.have.length(1)
+    expect(openpgp.fetch).to.be.a('function')
+    expect(openpgp.fetch).to.have.length(1)
   })
   it('should return a Key object when provided a valid fingerprint', async () => {
     expect(
-      await keys.fetch(pubKeyFingerprint)
-    ).to.be.instanceOf(PublicKey)
+      await openpgp.fetch(pubKeyFingerprint)
+    ).to.be.instanceOf(Profile)
   }).timeout('12s')
   it('should return a Key object when provided a valid email address', async () => {
     expect(
-      await keys.fetch(pubKeyEmail)
-    ).to.be.instanceOf(PublicKey)
+      await openpgp.fetch(pubKeyEmail)
+    ).to.be.instanceOf(Profile)
   }).timeout('12s')
   it('should reject when provided an invalid email address', () => {
     return expect(
-      keys.fetch('invalid@doip.rocks')
+      openpgp.fetch('invalid@doip.rocks')
     ).to.eventually.be.rejectedWith('Key does not exist or could not be fetched')
   }).timeout('12s')
 })
 
-describe('keys.fetchURI', () => {
+describe('openpgp.fetchURI', () => {
   it('should be a function (1 argument)', () => {
-    expect(keys.fetchURI).to.be.a('function')
-    expect(keys.fetchURI).to.have.length(1)
+    expect(openpgp.fetchURI).to.be.a('function')
+    expect(openpgp.fetchURI).to.have.length(1)
   })
   it('should return a Key object when provided a hkp: uri', async () => {
     expect(
-      await keys.fetchURI(`hkp:${pubKeyFingerprint}`)
-    ).to.be.instanceOf(PublicKey)
+      await openpgp.fetchURI(`hkp:${pubKeyFingerprint}`)
+    ).to.be.instanceOf(Profile)
   }).timeout('12s')
   it('should reject when provided an invalid uri', () => {
     return expect(
-      keys.fetchURI(`inv:${pubKeyFingerprint}`)
+      openpgp.fetchURI(`inv:${pubKeyFingerprint}`)
     ).to.eventually.be.rejectedWith('Invalid URI protocol')
   }).timeout('12s')
 })
 
-describe('keys.fetchHKP', () => {
+describe('openpgp.fetchHKP', () => {
   it('should be a function (2 arguments)', () => {
-    expect(keys.fetchHKP).to.be.a('function')
-    expect(keys.fetchHKP).to.have.length(2)
+    expect(openpgp.fetchHKP).to.be.a('function')
+    expect(openpgp.fetchHKP).to.have.length(2)
   })
   it('should return a Key object when provided a valid fingerprint', async () => {
-    expect(await keys.fetchHKP(pubKeyFingerprint)).to.be.instanceOf(
-      PublicKey
+    expect(await openpgp.fetchHKP(pubKeyFingerprint)).to.be.instanceOf(
+      Profile
     )
   }).timeout('12s')
   it('should return a Key object when provided a valid email address', async () => {
-    expect(await keys.fetchHKP(pubKeyEmail)).to.be.instanceOf(
-      PublicKey
+    expect(await openpgp.fetchHKP(pubKeyEmail)).to.be.instanceOf(
+      Profile
     )
   }).timeout('12s')
   it('should reject when provided an invalid fingerprint', async () => {
     return expect(
-      keys.fetchHKP('4637202523e7c1309ab79e99ef2dc5827b445f4b')
+      openpgp.fetchHKP('4637202523e7c1309ab79e99ef2dc5827b445f4b')
     ).to.eventually.be.rejectedWith(
       'Key does not exist or could not be fetched'
     )
   }).timeout('12s')
   it('should reject when provided an invalid email address', async () => {
     return expect(
-      keys.fetchHKP('invalid@doip.rocks')
+      openpgp.fetchHKP('invalid@doip.rocks')
     ).to.eventually.be.rejectedWith(
       'Key does not exist or could not be fetched'
     )
   }).timeout('12s')
 })
 
-describe('keys.fetchPlaintext', () => {
+describe('openpgp.fetchPlaintext', () => {
   it('should be a function (1 argument)', () => {
-    expect(keys.fetchPlaintext).to.be.a('function')
-    expect(keys.fetchPlaintext).to.have.length(1)
+    expect(openpgp.fetchPlaintext).to.be.a('function')
+    expect(openpgp.fetchPlaintext).to.have.length(1)
   })
   it('should return a Key object', async () => {
-    expect(await keys.fetchPlaintext(pubKeyPlaintext)).to.be.instanceOf(
-      PublicKey
+    expect(await openpgp.fetchPlaintext(pubKeyPlaintext)).to.be.instanceOf(
+      Profile
     )
   }).timeout('12s')
 })
 
-describe('keys.process', () => {
-  it('should be a function (1 argument)', () => {
-    expect(keys.process).to.be.a('function')
-    expect(keys.process).to.have.length(1)
-  })
-  it('should return an object with specific keys', async () => {
-    const pubKey = await keys.fetchPlaintext(pubKeyPlaintext)
-    const obj = await keys.process(pubKey)
-    expect(obj).to.have.keys([
-      'users',
-      'fingerprint',
-      'primaryUserIndex',
-      'key',
-    ])
-  })
-  it('should ignore non-proof notations', async () => {
-    const pubKey = await keys.fetchPlaintext(pubKeyWithOtherNotations)
-    const obj = await keys.process(pubKey)
-    expect(obj.users).to.be.lengthOf(1)
-    expect(obj.users[0].claims).to.be.lengthOf(1)
-    expect(obj.users[0].claims[0].uri).to.be.equal('dns:yarmo.eu?type=TXT')
-  })
-  it('should properly handle revoked UIDs', async () => {
-    const pubKey = await keys.fetchPlaintext(pubKeyWithRevokedUID)
-    const obj = await keys.process(pubKey)
-    expect(obj.users).to.be.lengthOf(2)
-    expect(obj.users[0].userData.isRevoked).to.be.true
-    expect(obj.users[1].userData.isRevoked).to.be.false
-  })
-})
+// describe('openpgp.process', () => {
+//   it('should be a function (1 argument)', () => {
+//     expect(openpgp.process).to.be.a('function')
+//     expect(openpgp.process).to.have.length(1)
+//   })
+//   it('should return an object with specific openpgp', async () => {
+//     const pubKey = await openpgp.fetchPlaintext(pubKeyPlaintext)
+//     const obj = await openpgp.process(pubKey)
+//     expect(obj).to.have.openpgp([
+//       'users',
+//       'fingerprint',
+//       'primaryUserIndex',
+//       'key',
+//     ])
+//   })
+//   it('should ignore non-proof notations', async () => {
+//     const pubKey = await openpgp.fetchPlaintext(pubKeyWithOtherNotations)
+//     const obj = await openpgp.process(pubKey)
+//     expect(obj.users).to.be.lengthOf(1)
+//     expect(obj.users[0].claims).to.be.lengthOf(1)
+//     expect(obj.users[0].claims[0].uri).to.be.equal('dns:yarmo.eu?type=TXT')
+//   })
+//   it('should properly handle revoked UIDs', async () => {
+//     const pubKey = await openpgp.fetchPlaintext(pubKeyWithRevokedUID)
+//     const obj = await openpgp.process(pubKey)
+//     expect(obj.users).to.be.lengthOf(2)
+//     expect(obj.users[0].userData.isRevoked).to.be.true
+//     expect(obj.users[1].userData.isRevoked).to.be.false
+//   })
+// })

@@ -19,10 +19,13 @@ import { readKey, PublicKey } from 'openpgp'
 import HKP from '@openpgp/hkp-client'
 import WKD from '@openpgp/wkd-client'
 import { Claim } from './claim.js'
+import { ProfileType, PublicKeyEncoding, PublicKeyFetchMethod, PublicKeyType } from './enums.js'
+import { Profile } from './profile.js'
+import { Persona } from './persona.js'
 
 /**
- * Functions related to the fetching and handling of keys
- * @module keys
+ * Functions related to OpenPGP Profiles
+ * @module openpgp
  */
 
 /**
@@ -30,7 +33,7 @@ import { Claim } from './claim.js'
  * @function
  * @param {string} identifier                         - Fingerprint or email address
  * @param {string} [keyserverDomain=keys.openpgp.org] - Domain of the keyserver
- * @returns {Promise<PublicKey>}
+ * @returns {Promise<Profile>}
  * @example
  * const key1 = doip.keys.fetchHKP('alice@domain.tld');
  * const key2 = doip.keys.fetchHKP('123abc123abc');
@@ -40,61 +43,79 @@ export async function fetchHKP (identifier, keyserverDomain) {
     ? `https://${keyserverDomain}`
     : 'https://keys.openpgp.org'
 
-  // @ts-ignore
   const hkp = new HKP(keyserverBaseUrl)
   const lookupOpts = {
     query: identifier
   }
 
-  const publicKey = await hkp
+  const publicKeyArmored = await hkp
     .lookup(lookupOpts)
     .catch((error) => {
       throw new Error(`Key does not exist or could not be fetched (${error})`)
     })
 
-  if (!publicKey) {
+  if (!publicKeyArmored) {
     throw new Error('Key does not exist or could not be fetched')
   }
 
-  return await readKey({
-    armoredKey: publicKey
+  const publicKey = await readKey({
+    armoredKey: publicKeyArmored
   })
     .catch((error) => {
       throw new Error(`Key could not be read (${error})`)
     })
+
+  const profile = await parsePublicKey(publicKey)
+  profile.publicKey.keyType = PublicKeyType.OPENPGP
+  profile.publicKey.encoding = PublicKeyEncoding.ARMORED_PGP
+  profile.publicKey.encodedKey = publicKey.armor()
+  profile.publicKey.key = publicKey
+  profile.publicKey.fetch.method = PublicKeyFetchMethod.HKP
+  profile.publicKey.fetch.query = identifier
+
+  return profile
 }
 
 /**
  * Fetch a public key using Web Key Directory
  * @function
  * @param {string} identifier - Identifier of format 'username@domain.tld`
- * @returns {Promise<PublicKey>}
+ * @returns {Promise<Profile>}
  * @example
  * const key = doip.keys.fetchWKD('alice@domain.tld');
  */
 export async function fetchWKD (identifier) {
-  // @ts-ignore
   const wkd = new WKD()
   const lookupOpts = {
     email: identifier
   }
 
-  const publicKey = await wkd
+  const publicKeyBinary = await wkd
     .lookup(lookupOpts)
     .catch((/** @type {Error} */ error) => {
       throw new Error(`Key does not exist or could not be fetched (${error})`)
     })
 
-  if (!publicKey) {
+  if (!publicKeyBinary) {
     throw new Error('Key does not exist or could not be fetched')
   }
 
-  return await readKey({
-    binaryKey: publicKey
+  const publicKey = await readKey({
+    binaryKey: publicKeyBinary
   })
     .catch((error) => {
       throw new Error(`Key could not be read (${error})`)
     })
+
+  const profile = await parsePublicKey(publicKey)
+  profile.publicKey.keyType = PublicKeyType.OPENPGP
+  profile.publicKey.encoding = PublicKeyEncoding.ARMORED_PGP
+  profile.publicKey.encodedKey = publicKey.armor()
+  profile.publicKey.key = publicKey
+  profile.publicKey.fetch.method = PublicKeyFetchMethod.WKD
+  profile.publicKey.fetch.query = identifier
+
+  return profile
 }
 
 /**
@@ -102,7 +123,7 @@ export async function fetchWKD (identifier) {
  * @function
  * @param {string} username     - Keybase username
  * @param {string} fingerprint  - Fingerprint of key
- * @returns {Promise<PublicKey>}
+ * @returns {Promise<Profile>}
  * @example
  * const key = doip.keys.fetchKeybase('alice', '123abc123abc');
  */
@@ -126,19 +147,30 @@ export async function fetchKeybase (username, fingerprint) {
     throw new Error(`Error fetching Keybase key: ${e.message}`)
   }
 
-  return await readKey({
+  const publicKey = await readKey({
     armoredKey: rawKeyContent
   })
     .catch((error) => {
       throw new Error(`Key does not exist or could not be fetched (${error})`)
     })
+
+  const profile = await parsePublicKey(publicKey)
+  profile.publicKey.keyType = PublicKeyType.OPENPGP
+  profile.publicKey.encoding = PublicKeyEncoding.ARMORED_PGP
+  profile.publicKey.encodedKey = publicKey.armor()
+  profile.publicKey.key = publicKey
+  profile.publicKey.fetch.method = PublicKeyFetchMethod.HTTP
+  profile.publicKey.fetch.query = null
+  profile.publicKey.fetch.resolvedUrl = keyLink
+
+  return profile
 }
 
 /**
  * Get a public key from plaintext data
  * @function
  * @param {string} rawKeyContent - Plaintext ASCII-formatted public key data
- * @returns {Promise<PublicKey>}
+ * @returns {Promise<Profile>}
  * @example
  * const plainkey = `-----BEGIN PGP PUBLIC KEY BLOCK-----
  *
@@ -156,14 +188,20 @@ export async function fetchPlaintext (rawKeyContent) {
       throw new Error(`Key could not be read (${error})`)
     })
 
-  return publicKey
+  const profile = await parsePublicKey(publicKey)
+  profile.publicKey.keyType = PublicKeyType.OPENPGP
+  profile.publicKey.encoding = PublicKeyEncoding.ARMORED_PGP
+  profile.publicKey.encodedKey = publicKey.armor()
+  profile.publicKey.key = publicKey
+
+  return profile
 }
 
 /**
  * Fetch a public key using an URI
  * @function
  * @param {string} uri - URI that defines the location of the key
- * @returns {Promise<PublicKey>}
+ * @returns {Promise<Profile>}
  * @example
  * const key1 = doip.keys.fetchURI('hkp:alice@domain.tld');
  * const key2 = doip.keys.fetchURI('hkp:123abc123abc');
@@ -209,7 +247,7 @@ export async function fetchURI (uri) {
  * This function will also try and parse the input as a plaintext key
  * @function
  * @param {string} identifier - URI that defines the location of the key
- * @returns {Promise<PublicKey>}
+ * @returns {Promise<Profile>}
  * @example
  * const key1 = doip.keys.fetch('alice@domain.tld');
  * const key2 = doip.keys.fetch('123abc123abc');
@@ -218,42 +256,40 @@ export async function fetch (identifier) {
   const re = /([a-zA-Z0-9@._=+-]*)(?::([a-zA-Z0-9@._=+-]*))?/
   const match = identifier.match(re)
 
-  let pubKey = null
+  let profile = null
 
   // Attempt plaintext
-  if (!pubKey) {
-    try {
-      pubKey = await fetchPlaintext(identifier)
-    } catch (e) {}
-  }
+  try {
+    profile = await fetchPlaintext(identifier)
+  } catch (e) {}
 
   // Attempt WKD
-  if (!pubKey && identifier.includes('@')) {
+  if (!profile && identifier.includes('@')) {
     try {
-      pubKey = await fetchWKD(match[1])
+      profile = await fetchWKD(match[1])
     } catch (e) {}
   }
 
   // Attempt HKP
-  if (!pubKey) {
-    pubKey = await fetchHKP(
+  if (!profile) {
+    profile = await fetchHKP(
       match[2] ? match[2] : match[1],
       match[2] ? match[1] : null
     )
   }
 
-  if (!pubKey) {
+  if (!profile) {
     throw new Error('Key does not exist or could not be fetched')
   }
 
-  return pubKey
+  return profile
 }
 
 /**
  * Process a public key to get user data and claims
  * @function
  * @param {PublicKey} publicKey - The public key to process
- * @returns {Promise<object>}
+ * @returns {Promise<Profile>}
  * @example
  * const key = doip.keys.fetchURI('hkp:alice@domain.tld');
  * const data = doip.keys.process(key);
@@ -261,7 +297,7 @@ export async function fetch (identifier) {
  *   console.log(claim.uri);
  * });
  */
-export async function process (publicKey) {
+async function parsePublicKey (publicKey) {
   if (!(publicKey && (publicKey instanceof PublicKey))) {
     throw new Error('Invalid public key')
   }
@@ -269,47 +305,37 @@ export async function process (publicKey) {
   const fingerprint = publicKey.getFingerprint()
   const primaryUser = await publicKey.getPrimaryUser()
   const users = publicKey.users
-  const usersOutput = []
+  const personas = []
 
   users.forEach((user, i) => {
-    usersOutput[i] = {
-      userData: {
-        id: user.userID ? user.userID.userID : null,
-        name: user.userID ? user.userID.name : null,
-        email: user.userID ? user.userID.email : null,
-        comment: user.userID ? user.userID.comment : null,
-        isPrimary: primaryUser.index === i,
-        isRevoked: false
-      },
-      claims: []
-    }
+    const pe = new Persona(user.userID.name, [])
+    pe.setIdentifier(user.userID.userID)
+    pe.setDescription(user.userID.comment)
+    pe.setEmailAddress(user.userID.email)
 
     if ('selfCertifications' in user && user.selfCertifications.length > 0) {
       const selfCertification = user.selfCertifications.sort((e1, e2) => e2.created.getTime() - e1.created.getTime())[0]
 
+      if (selfCertification.revoked) {
+        pe.revoke()
+      }
       const notations = selfCertification.rawNotations
-      usersOutput[i].claims = notations
+      pe.claims = notations
         .filter(
           ({ name, humanReadable }) =>
             humanReadable && (name === 'proof@ariadne.id' || name === 'proof@metacode.biz')
         )
         .map(
           ({ value }) =>
-            new Claim(new TextDecoder().decode(value), fingerprint)
+            new Claim(new TextDecoder().decode(value), `openpgp4fpr:${fingerprint}`)
         )
-
-      usersOutput[i].userData.isRevoked = selfCertification.revoked
     }
+
+    personas.push(pe)
   })
 
-  return {
-    fingerprint,
-    users: usersOutput,
-    primaryUserIndex: primaryUser.index,
-    key: {
-      data: publicKey,
-      fetchMethod: null,
-      uri: null
-    }
-  }
+  const pr = new Profile(ProfileType.OPENPGP, `openpgp4fpr:${fingerprint}`, personas)
+  pr.primaryPersonaIndex = primaryUser.index
+
+  return pr
 }
