@@ -19,6 +19,7 @@ import { base32, base64url } from 'rfc4648'
 import { Claim } from './claim.js'
 import { Persona } from './persona.js'
 import { Profile } from './profile.js'
+import { ProfileType } from './enums.js'
 
 const SupportedCryptoAlg = ['EdDSA', 'ES256', 'ES256K', 'ES384', 'ES512']
 
@@ -129,9 +130,12 @@ export async function parseProfileJws (profileJws, uri) {
 
   const profileClaimsParsed = profileClaims.map(x => new Claim(x, uri))
 
-  const pe = new Persona(profileName, profileDescription || '', profileClaimsParsed)
-  const pr = new Profile([pe])
-  pr.primaryPersona = 0
+  const pe = new Persona(profileName, profileClaimsParsed)
+  if (profileDescription) {
+    pe.setDescription(profileDescription)
+  }
+
+  const pr = new Profile(ProfileType.ASP, uri, [pe])
 
   return pr
 }

@@ -176,7 +176,7 @@ const containsProof = async (data, params) => {
 /**
  * @function
  * @param {any} proofData
- * @param {string} checkPath
+ * @param {string[]} checkPath
  * @param {object} params
  * @param {string} params.target
  * @param {string} params.claimFormat
@@ -231,9 +231,9 @@ const runJSON = async (proofData, checkPath, params) => {
 /**
  * Run the verification by finding the formatted fingerprint in the proof
  * @async
- * @param {object} proofData    - The proof data
- * @param {object} claimData    - The claim data
- * @param {string} fingerprint  - The fingerprint
+ * @param {object} proofData                                                - The proof data
+ * @param {import('./serviceProvider.js').ServiceProvider} claimData   - The claim data
+ * @param {string} fingerprint                                              - The fingerprint
  * @returns {Promise<object>}
  */
 export async function run (proofData, claimData, fingerprint) {
@@ -243,10 +243,10 @@ export async function run (proofData, claimData, fingerprint) {
     errors: []
   }
 
-  switch (claimData.proof.request.format) {
+  switch (claimData.proof.response.format) {
     case ProofFormat.JSON:
-      for (let index = 0; index < claimData.claim.length; index++) {
-        const claimMethod = claimData.claim[index]
+      for (let index = 0; index < claimData.proof.target.length; index++) {
+        const claimMethod = claimData.proof.target[index]
         try {
           res.result = res.result || await runJSON(
             proofData,
@@ -265,8 +265,8 @@ export async function run (proofData, claimData, fingerprint) {
       res.completed = true
       break
     case ProofFormat.TEXT:
-      for (let index = 0; index < claimData.claim.length; index++) {
-        const claimMethod = claimData.claim[index]
+      for (let index = 0; index < claimData.proof.target.length; index++) {
+        const claimMethod = claimData.proof.target[index]
         try {
           res.result = res.result || await containsProof(
             proofData,

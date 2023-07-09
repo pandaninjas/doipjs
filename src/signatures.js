@@ -15,7 +15,7 @@ limitations under the License.
 */
 import { readCleartextMessage, verify } from 'openpgp'
 import { Claim } from './claim.js'
-import { fetchURI } from './keys.js'
+import { fetchURI } from './openpgp.js'
 
 /**
  * @module signatures
@@ -89,7 +89,7 @@ export async function process (signature) {
   if (sigKeys.length > 0) {
     try {
       result.key.uri = sigKeys[0]
-      result.key.data = await fetchURI(result.key.uri)
+      result.key.data = (await fetchURI(result.key.uri)).publicKey.key
       result.key.fetchMethod = result.key.uri.split(':')[0]
     } catch (e) {}
   }
@@ -97,7 +97,7 @@ export async function process (signature) {
   if (!result.key.data && signersUserID) {
     try {
       result.key.uri = `wkd:${signersUserID}`
-      result.key.data = await fetchURI(result.key.uri)
+      result.key.data = (await fetchURI(result.key.uri)).publicKey.key
       result.key.fetchMethod = 'wkd'
     } catch (e) {}
   }
@@ -106,7 +106,7 @@ export async function process (signature) {
     try {
       const match = preferredKeyServer.match(/^(.*:\/\/)?([^/]*)(?:\/)?$/i)
       result.key.uri = `hkp:${match[2]}:${issuerKeyID || signersUserID}`
-      result.key.data = await fetchURI(result.key.uri)
+      result.key.data = (await fetchURI(result.key.uri)).publicKey.key
       result.key.fetchMethod = 'hkp'
     } catch (e) {
       throw new Error('Public key not found')

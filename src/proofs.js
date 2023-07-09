@@ -16,7 +16,7 @@ limitations under the License.
 import { isNode } from 'browser-or-node'
 import * as fetcher from './fetcher/index.js'
 import { generateProxyURL } from './utils.js'
-import { Fetcher, ProxyPolicy, ProofAccess } from './enums.js'
+import { ProxyPolicy, ProofAccessRestriction } from './enums.js'
 
 /**
  * @module proofs
@@ -29,20 +29,11 @@ import { Fetcher, ProxyPolicy, ProofAccess } from './enums.js'
  * choose the right approach to fetch the proof. An error will be thrown if no
  * approach is possible.
  * @async
- * @param {object} data - Data from a claim definition
+ * @param {import('./serviceProvider.js').ServiceProvider} data - Data from a claim definition
  * @param {object} opts - Options to enable the request
  * @returns {Promise<object|string>}
  */
 export async function fetch (data, opts) {
-  switch (data.proof.request.fetcher) {
-    case Fetcher.HTTP:
-      data.proof.request.data.format = data.proof.request.format
-      break
-
-    default:
-      break
-  }
-
   if (isNode) {
     return handleNodeRequests(data, opts)
   }
@@ -50,6 +41,11 @@ export async function fetch (data, opts) {
   return handleBrowserRequests(data, opts)
 }
 
+/**
+ * @param {import('./serviceProvider.js').ServiceProvider} data - Data from a claim definition
+ * @param {object} opts - Options to enable the request
+ * @returns {Promise<object|string>}
+ */
 const handleBrowserRequests = (data, opts) => {
   switch (opts.proxy.policy) {
     case ProxyPolicy.ALWAYS:
@@ -57,11 +53,11 @@ const handleBrowserRequests = (data, opts) => {
 
     case ProxyPolicy.NEVER:
       switch (data.proof.request.access) {
-        case ProofAccess.GENERIC:
-        case ProofAccess.GRANTED:
+        case ProofAccessRestriction.NONE:
+        case ProofAccessRestriction.GRANTED:
           return createDefaultRequestPromise(data, opts)
-        case ProofAccess.NOCORS:
-        case ProofAccess.SERVER:
+        case ProofAccessRestriction.NOCORS:
+        case ProofAccessRestriction.SERVER:
           throw new Error(
             'Impossible to fetch proof (bad combination of service access and proxy policy)'
           )
@@ -71,13 +67,13 @@ const handleBrowserRequests = (data, opts) => {
 
     case ProxyPolicy.ADAPTIVE:
       switch (data.proof.request.access) {
-        case ProofAccess.GENERIC:
+        case ProofAccessRestriction.NONE:
           return createFallbackRequestPromise(data, opts)
-        case ProofAccess.NOCORS:
+        case ProofAccessRestriction.NOCORS:
           return createProxyRequestPromise(data, opts)
-        case ProofAccess.GRANTED:
+        case ProofAccessRestriction.GRANTED:
           return createFallbackRequestPromise(data, opts)
-        case ProofAccess.SERVER:
+        case ProofAccessRestriction.SERVER:
           return createProxyRequestPromise(data, opts)
         default:
           throw new Error('Invalid proof access value')
@@ -88,6 +84,11 @@ const handleBrowserRequests = (data, opts) => {
   }
 }
 
+/**
+ * @param {import('./serviceProvider.js').ServiceProvider} data - Data from a claim definition
+ * @param {object} opts - Options to enable the request
+ * @returns {Promise<object|string>}
+ */
 const handleNodeRequests = (data, opts) => {
   switch (opts.proxy.policy) {
     case ProxyPolicy.ALWAYS:
@@ -104,13 +105,21 @@ const handleNodeRequests = (data, opts) => {
   }
 }
 
+/**
+ * @param {import('./serviceProvider.js').ServiceProvider} data - Data from a claim definition
+ * @param {object} opts - Options to enable the request
+ * @returns {Promise<object|string>}
+ */
 const createDefaultRequestPromise = (data, opts) => {
   return new Promise((resolve, reject) => {
-    fetcher[data.proof.request.fetcher]
+    if (!(data.proof.request.protocol in fetcher)) {
+      reject(new Error(`fetcher for ${data.proof.request.protocol} not found`))
+    }
+    fetcher[data.proof.request.protocol]
       .fn(data.proof.request.data, opts)
       .then((res) => {
         return resolve({
-          fetcher: data.proof.request.fetcher,
+          protocol: data.proof.request.protocol,
           data,
           viaProxy: false,
           result: res
@@ -122,12 +131,17 @@ const createDefaultRequestPromise = (data, opts) => {
   })
 }
 
+/**
+ * @param {import('./serviceProvider.js').ServiceProvider} data - Data from a claim definition
+ * @param {object} opts - Options to enable the request
+ * @returns {Promise<object|string>}
+ */
 const createProxyRequestPromise = (data, opts) => {
   return new Promise((resolve, reject) => {
     let proxyUrl
     try {
       proxyUrl = generateProxyURL(
-        data.proof.request.fetcher,
+        data.proof.request.protocol,
         data.proof.request.data,
         opts
       )
@@ -138,13 +152,13 @@ const createProxyRequestPromise = (data, opts) => {
     const requestData = {
       url: proxyUrl,
       format: data.proof.request.format,
-      fetcherTimeout: fetcher[data.proof.request.fetcher].timeout
+      fetcherTimeout: fetcher[data.proof.request.protocol].timeout
     }
     fetcher.http
       .fn(requestData, opts)
       .then((res) => {
         return resolve({
-          fetcher: 'http',
+          protocol: 'http',
           data,
           viaProxy: true,
           result: res
@@ -156,6 +170,11 @@ const createProxyRequestPromise = (data, opts) => {
   })
 }
 
+/**
+ * @param {import('./serviceProvider.js').ServiceProvider} data - Data from a claim definition
+ * @param {object} opts - Options to enable the request
+ * @returns {Promise<object|string>}
+ */
 const createFallbackRequestPromise = (data, opts) => {
   return new Promise((resolve, reject) => {
     createDefaultRequestPromise(data, opts)

@@ -75,9 +75,9 @@ export const EntityEncodingFormat = {
  * @readonly
  * @enum {string}
  */
-export const ProofAccess = {
+export const ProofAccessRestriction = {
   /** Any HTTP request will work */
-  GENERIC: 'generic',
+  NONE: 'none',
   /** CORS requests are denied */
   NOCORS: 'nocors',
   /** HTTP requests must contain API or access tokens */
@@ -127,13 +127,72 @@ export const ClaimRelation = {
 /**
  * Status of the Claim instance
  * @readonly
- * @enum {string}
+ * @enum {number}
  */
 export const ClaimStatus = {
   /** Claim has been initialized */
-  INIT: 'init',
+  INIT: 100,
   /** Claim has matched its URI to candidate claim definitions */
-  MATCHED: 'matched',
-  /** Claim has verified one or multiple candidate claim definitions */
-  VERIFIED: 'verified'
+  MATCHED: 101,
+  /** Claim was successfully verified */
+  VERIFIED: 200,
+  /** Claim was successfully verified using proxied data */
+  VERIFIED_VIA_PROXY: 201,
+  /** Unknown matching error */
+  MATCHING_ERROR: 300,
+  /** No matched service providers */
+  NO_MATCHES: 301,
+  /** Unknown matching error */
+  VERIFICATION_ERROR: 400,
+  /** No proof found in data returned by service providers */
+  NO_PROOF_FOUND: 401
+}
+
+/**
+ * Profile type
+ * @readonly
+ * @enum {string}
+ */
+export const ProfileType = {
+  /** ASP profile */
+  ASP: 'asp',
+  /** OpenPGP profile */
+  OPENPGP: 'openpgp'
+}
+
+/**
+ * Public key type
+ * @readonly
+ * @enum {string}
+ */
+export const PublicKeyType = {
+  EDDSA: 'eddsa',
+  ES256: 'es256',
+  OPENPGP: 'openpgp',
+  NONE: 'none'
+}
+
+/**
+ * Public key format
+ * @readonly
+ * @enum {string}
+ */
+export const PublicKeyEncoding = {
+  PEM: 'pem',
+  JWK: 'jwk',
+  ARMORED_PGP: 'armored_pgp',
+  NONE: 'none'
+}
+
+/**
+ * Method to fetch the public key
+ * @readonly
+ * @enum {string}
+ */
+export const PublicKeyFetchMethod = {
+  ASPE: 'aspe',
+  HKP: 'hkp',
+  WKD: 'wkd',
+  HTTP: 'http',
+  NONE: 'none'
 }
