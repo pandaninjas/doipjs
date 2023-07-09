@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as E from '../enums.js'
+import { ServiceProvider } from '../serviceProvider.js'
 
 export const reURI = /^https:\/\/keybase.io\/(.*)\/?/
 
@@ -24,39 +25,41 @@ export const reURI = /^https:\/\/keybase.io\/(.*)\/?/
 export function processURI (uri) {
   const match = uri.match(reURI)
 
-  return {
-    serviceprovider: {
-      type: 'web',
+  return new ServiceProvider({
+    about: {
+      id: 'web',
       name: 'keybase'
-    },
-    match: {
-      regularExpression: reURI,
-      isAmbiguous: false
     },
     profile: {
       display: match[1],
       uri,
       qr: null
     },
+    claim: {
+      uriRegularExpression: reURI.toString(),
+      uriIsAmbiguous: false
+    },
     proof: {
-      uri: `https://keybase.io/_/api/1.0/user/lookup.json?username=${match[1]}`,
       request: {
-        fetcher: E.Fetcher.HTTP,
-        access: E.ProofAccess.NOCORS,
-        format: E.ProofFormat.JSON,
+        uri: `https://keybase.io/_/api/1.0/user/lookup.json?username=${match[1]}`,
+        protocol: E.Fetcher.HTTP,
+        accessRestriction: E.ProofAccessRestriction.NOCORS,
         data: {
           url: `https://keybase.io/_/api/1.0/user/lookup.json?username=${match[1]}`,
           format: E.ProofFormat.JSON
         }
-      }
-    },
-    claim: [{
-      format: E.ClaimFormat.FINGERPRINT,
-      encoding: E.EntityEncodingFormat.PLAIN,
-      relation: E.ClaimRelation.CONTAINS,
-      path: ['them', 'public_keys', 'primary', 'key_fingerprint']
-    }]
-  }
+      },
+      response: {
+        format: E.ProofFormat.JSON
+      },
+      target: [{
+        format: E.ClaimFormat.FINGERPRINT,
+        encoding: E.EntityEncodingFormat.PLAIN,
+        relation: E.ClaimRelation.CONTAINS,
+        path: ['them', 'public_keys', 'primary', 'key_fingerprint']
+      }]
+    }
+  })
 }
 
 export const tests = [

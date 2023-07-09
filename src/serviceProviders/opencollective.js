@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as E from '../enums.js'
+import { ServiceProvider } from '../serviceProvider.js'
 
 export const reURI = /^https:\/\/opencollective\.com\/(.*)\/?/
 
@@ -24,39 +25,42 @@ export const reURI = /^https:\/\/opencollective\.com\/(.*)\/?/
 export function processURI (uri) {
   const match = uri.match(reURI)
 
-  return {
-    serviceprovider: {
-      type: 'web',
-      name: 'opencollective'
-    },
-    match: {
-      regularExpression: reURI,
-      isAmbiguous: false
+  return new ServiceProvider({
+    about: {
+      id: 'opencollective',
+      name: 'Open Collective',
+      homepage: 'https://opencollective.com'
     },
     profile: {
       display: match[1],
       uri,
       qr: null
     },
+    claim: {
+      uriRegularExpression: reURI.toString(),
+      uriIsAmbiguous: false
+    },
     proof: {
-      uri,
       request: {
-        fetcher: E.Fetcher.GRAPHQL,
-        access: E.ProofAccess.NOCORS,
-        format: E.ProofFormat.JSON,
+        uri,
+        protocol: E.Fetcher.GRAPHQL,
+        accessRestriction: E.ProofAccessRestriction.NOCORS,
         data: {
           url: 'https://api.opencollective.com/graphql/v2',
           query: `{ "query": "query { collective(slug: \\"${match[1]}\\") { longDescription } }" }`
         }
-      }
-    },
-    claim: [{
-      format: E.ClaimFormat.URI,
-      encoding: E.EntityEncodingFormat.PLAIN,
-      relation: E.ClaimRelation.CONTAINS,
-      path: ['data', 'collective', 'longDescription']
-    }]
-  }
+      },
+      response: {
+        format: E.ProofFormat.JSON
+      },
+      target: [{
+        format: E.ClaimFormat.URI,
+        encoding: E.EntityEncodingFormat.PLAIN,
+        relation: E.ClaimRelation.CONTAINS,
+        path: ['data', 'collective', 'longDescription']
+      }]
+    }
+  })
 }
 
 export const tests = [

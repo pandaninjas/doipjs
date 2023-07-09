@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as E from '../enums.js'
+import { ServiceProvider } from '../serviceProvider.js'
 
 export const reURI = /^matrix:u\/(?:@)?([^@:]*:[^?]*)(\?.*)?/
 
@@ -40,39 +41,42 @@ export function processURI (uri) {
   const profileUrl = `https://matrix.to/#/@${match[1]}`
   const eventUrl = `https://matrix.to/#/${paramRoomId}/${paramEventId}`
 
-  return {
-    serviceprovider: {
-      type: 'communication',
-      name: 'matrix'
-    },
-    match: {
-      regularExpression: reURI,
-      isAmbiguous: false
+  return new ServiceProvider({
+    about: {
+      id: 'matrix',
+      name: 'Matrix',
+      homepage: 'https://matrix.org'
     },
     profile: {
       display: `@${match[1]}`,
       uri: profileUrl,
       qr: null
     },
+    claim: {
+      uriRegularExpression: reURI.toString(),
+      uriIsAmbiguous: false
+    },
     proof: {
-      uri: eventUrl,
       request: {
-        fetcher: E.Fetcher.MATRIX,
-        access: E.ProofAccess.GRANTED,
-        format: E.ProofFormat.JSON,
+        uri: eventUrl,
+        protocol: E.Fetcher.MATRIX,
+        accessRestriction: E.ProofAccessRestriction.GRANTED,
         data: {
           eventId: paramEventId,
           roomId: paramRoomId
         }
-      }
-    },
-    claim: [{
-      format: E.ClaimFormat.URI,
-      encoding: E.EntityEncodingFormat.PLAIN,
-      relation: E.ClaimRelation.CONTAINS,
-      path: ['content', 'body']
-    }]
-  }
+      },
+      response: {
+        format: E.ProofFormat.JSON
+      },
+      target: [{
+        format: E.ClaimFormat.URI,
+        encoding: E.EntityEncodingFormat.PLAIN,
+        relation: E.ClaimRelation.CONTAINS,
+        path: ['content', 'body']
+      }]
+    }
+  })
 }
 
 export const tests = [

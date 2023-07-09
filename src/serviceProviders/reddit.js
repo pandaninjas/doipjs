@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as E from '../enums.js'
+import { ServiceProvider } from '../serviceProvider.js'
 
 export const reURI = /^https:\/\/(?:www\.)?reddit\.com\/user\/(.*)\/comments\/(.*)\/(.*)\/?/
 
@@ -24,39 +25,42 @@ export const reURI = /^https:\/\/(?:www\.)?reddit\.com\/user\/(.*)\/comments\/(.
 export function processURI (uri) {
   const match = uri.match(reURI)
 
-  return {
-    serviceprovider: {
-      type: 'web',
-      name: 'reddit'
-    },
-    match: {
-      regularExpression: reURI,
-      isAmbiguous: false
+  return new ServiceProvider({
+    about: {
+      id: 'reddit',
+      name: 'Reddit',
+      homepage: 'https://reddit.com'
     },
     profile: {
       display: match[1],
       uri: `https://www.reddit.com/user/${match[1]}`,
       qr: null
     },
+    claim: {
+      uriRegularExpression: reURI.toString(),
+      uriIsAmbiguous: false
+    },
     proof: {
-      uri,
       request: {
-        fetcher: E.Fetcher.HTTP,
-        access: E.ProofAccess.NOCORS,
-        format: E.ProofFormat.JSON,
+        uri,
+        protocol: E.Fetcher.HTTP,
+        accessRestriction: E.ProofAccessRestriction.NOCORS,
         data: {
           url: `https://www.reddit.com/user/${match[1]}/comments/${match[2]}.json`,
           format: E.ProofFormat.JSON
         }
-      }
-    },
-    claim: [{
-      format: E.ClaimFormat.URI,
-      encoding: E.EntityEncodingFormat.PLAIN,
-      relation: E.ClaimRelation.CONTAINS,
-      path: ['data', 'children', 'data', 'selftext']
-    }]
-  }
+      },
+      response: {
+        format: E.ProofFormat.JSON
+      },
+      target: [{
+        format: E.ClaimFormat.URI,
+        encoding: E.EntityEncodingFormat.PLAIN,
+        relation: E.ClaimRelation.CONTAINS,
+        path: ['data', 'children', 'data', 'selftext']
+      }]
+    }
+  })
 }
 
 export const tests = [

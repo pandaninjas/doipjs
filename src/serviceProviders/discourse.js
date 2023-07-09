@@ -14,62 +14,67 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as E from '../enums.js'
+import { ServiceProvider } from '../serviceProvider.js'
 
-export const reURI = /^https:\/\/lobste\.rs\/u\/(.*)\/?/
+export const reURI = /^https:\/\/(.*)\/u\/(.*)\/?/
 
 /**
  * @function
  * @param {string} uri
+ * @returns {ServiceProvider}
  */
 export function processURI (uri) {
   const match = uri.match(reURI)
 
-  return {
-    serviceprovider: {
-      type: 'web',
-      name: 'lobsters'
-    },
-    match: {
-      regularExpression: reURI,
-      isAmbiguous: false
+  return new ServiceProvider({
+    about: {
+      id: 'discourse',
+      name: 'Discourse',
+      homepage: 'https://www.discourse.org'
     },
     profile: {
-      display: match[1],
+      display: `${match[2]}@${match[1]}`,
       uri,
       qr: null
     },
+    claim: {
+      uriRegularExpression: reURI.toString().toString(),
+      uriIsAmbiguous: true
+    },
     proof: {
-      uri: `https://lobste.rs/u/${match[1]}.json`,
       request: {
-        fetcher: E.Fetcher.HTTP,
-        access: E.ProofAccess.NOCORS,
-        format: E.ProofFormat.JSON,
+        uri,
+        protocol: E.Fetcher.HTTP,
+        accessRestriction: E.ProofAccessRestriction.NOCORS,
         data: {
-          url: `https://lobste.rs/u/${match[1]}.json`,
+          url: `https://${match[1]}/u/${match[2]}.json`,
           format: E.ProofFormat.JSON
         }
-      }
-    },
-    claim: [{
-      format: E.ClaimFormat.URI,
-      encoding: E.EntityEncodingFormat.PLAIN,
-      relation: E.ClaimRelation.CONTAINS,
-      path: ['about']
-    }]
-  }
+      },
+      response: {
+        format: E.ProofFormat.JSON
+      },
+      target: [{
+        format: E.ClaimFormat.URI,
+        encoding: E.EntityEncodingFormat.PLAIN,
+        relation: E.ClaimRelation.CONTAINS,
+        path: ['user', 'bio_raw']
+      }]
+    }
+  })
 }
 
 export const tests = [
   {
-    uri: 'https://lobste.rs/u/Alice',
+    uri: 'https://domain.org/u/alice',
     shouldMatch: true
   },
   {
-    uri: 'https://lobste.rs/u/Alice/',
+    uri: 'https://domain.org/u/alice/',
     shouldMatch: true
   },
   {
-    uri: 'https://domain.org/u/Alice',
+    uri: 'https://domain.org/alice',
     shouldMatch: false
   }
 ]

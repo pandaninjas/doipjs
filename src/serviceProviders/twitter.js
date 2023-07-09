@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as E from '../enums.js'
+import { ServiceProvider } from '../serviceProvider.js'
 
 export const reURI = /^https:\/\/twitter\.com\/(.*)\/status\/([0-9]*)(?:\?.*)?/
 
@@ -28,40 +29,43 @@ export function processURI (uri) {
   urlsp.set('url', match[0])
   urlsp.set('omit_script', '1')
 
-  return {
-    serviceprovider: {
-      type: 'web',
-      name: 'twitter'
-    },
-    match: {
-      regularExpression: reURI,
-      isAmbiguous: false
+  return new ServiceProvider({
+    about: {
+      id: 'twitter',
+      name: 'Twitter',
+      homepage: 'https://twitter.com'
     },
     profile: {
       display: `@${match[1]}`,
       uri: `https://twitter.com/${match[1]}`,
       qr: null
     },
+    claim: {
+      uriRegularExpression: reURI.toString(),
+      uriIsAmbiguous: false
+    },
     proof: {
-      uri,
       request: {
-        fetcher: E.Fetcher.HTTP,
-        access: E.ProofAccess.NOCORS,
-        format: E.ProofFormat.JSON,
+        uri,
+        protocol: E.Fetcher.HTTP,
+        accessRestriction: E.ProofAccessRestriction.NOCORS,
         data: {
           // Returns an oembed json object with the tweet content in html form
           url: `https://publish.twitter.com/oembed?${urlsp}`,
           format: E.ProofFormat.JSON
         }
-      }
-    },
-    claim: [{
-      format: E.ClaimFormat.URI,
-      encoding: E.EntityEncodingFormat.PLAIN,
-      relation: E.ClaimRelation.CONTAINS,
-      path: ['html']
-    }]
-  }
+      },
+      response: {
+        format: E.ProofFormat.JSON
+      },
+      target: [{
+        format: E.ClaimFormat.URI,
+        encoding: E.EntityEncodingFormat.PLAIN,
+        relation: E.ClaimRelation.CONTAINS,
+        path: ['html']
+      }]
+    }
+  })
 }
 
 export const tests = [

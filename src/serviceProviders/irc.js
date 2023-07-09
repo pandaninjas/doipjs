@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as E from '../enums.js'
+import { ServiceProvider } from '../serviceProvider.js'
 
 export const reURI = /^irc:\/\/(.*)\/([a-zA-Z0-9\-[\]\\`_^{|}]*)/
 
@@ -24,39 +25,41 @@ export const reURI = /^irc:\/\/(.*)\/([a-zA-Z0-9\-[\]\\`_^{|}]*)/
 export function processURI (uri) {
   const match = uri.match(reURI)
 
-  return {
-    serviceprovider: {
-      type: 'communication',
-      name: 'irc'
-    },
-    match: {
-      regularExpression: reURI,
-      isAmbiguous: false
+  return new ServiceProvider({
+    about: {
+      id: 'irc',
+      name: 'IRC'
     },
     profile: {
       display: `irc://${match[1]}/${match[2]}`,
       uri,
       qr: null
     },
+    claim: {
+      uriRegularExpression: reURI.toString(),
+      uriIsAmbiguous: false
+    },
     proof: {
-      uri: null,
       request: {
-        fetcher: E.Fetcher.IRC,
-        access: E.ProofAccess.SERVER,
-        format: E.ProofFormat.JSON,
+        uri: null,
+        protocol: E.Fetcher.IRC,
+        accessRestriction: E.ProofAccessRestriction.SERVER,
         data: {
           domain: match[1],
           nick: match[2]
         }
-      }
-    },
-    claim: [{
-      format: E.ClaimFormat.URI,
-      encoding: E.EntityEncodingFormat.PLAIN,
-      relation: E.ClaimRelation.CONTAINS,
-      path: []
-    }]
-  }
+      },
+      response: {
+        format: E.ProofFormat.JSON
+      },
+      target: [{
+        format: E.ClaimFormat.URI,
+        encoding: E.EntityEncodingFormat.PLAIN,
+        relation: E.ClaimRelation.CONTAINS,
+        path: []
+      }]
+    }
+  })
 }
 
 export const tests = [

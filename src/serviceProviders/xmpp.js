@@ -14,8 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as E from '../enums.js'
+import { ServiceProvider } from '../serviceProvider.js'
 
-export const reURI = /^dns:([a-zA-Z0-9.\-_]*)(?:\?(.*))?/
+export const reURI = /^xmpp:([a-zA-Z0-9.\-_]*)@([a-zA-Z0-9.\-_]*)(?:\?(.*))?/
 
 /**
  * @function
@@ -24,47 +25,50 @@ export const reURI = /^dns:([a-zA-Z0-9.\-_]*)(?:\?(.*))?/
 export function processURI (uri) {
   const match = uri.match(reURI)
 
-  return {
-    serviceprovider: {
-      type: 'web',
-      name: 'dns'
-    },
-    match: {
-      regularExpression: reURI,
-      isAmbiguous: false
+  return new ServiceProvider({
+    about: {
+      id: 'xmpp',
+      name: 'XMPP',
+      homepage: 'https://xmpp.org'
     },
     profile: {
-      display: match[1],
-      uri: `https://${match[1]}`,
-      qr: null
+      display: `${match[1]}@${match[2]}`,
+      uri,
+      qr: uri
+    },
+    claim: {
+      uriRegularExpression: reURI.toString(),
+      uriIsAmbiguous: false
     },
     proof: {
-      uri: null,
       request: {
-        fetcher: E.Fetcher.DNS,
-        access: E.ProofAccess.SERVER,
-        format: E.ProofFormat.JSON,
+        uri: null,
+        protocol: E.Fetcher.XMPP,
+        accessRestriction: E.ProofAccessRestriction.SERVER,
         data: {
-          domain: match[1]
+          id: `${match[1]}@${match[2]}`
         }
-      }
-    },
-    claim: [{
-      format: E.ClaimFormat.URI,
-      encoding: E.EntityEncodingFormat.PLAIN,
-      relation: E.ClaimRelation.CONTAINS,
-      path: ['records', 'txt']
-    }]
-  }
+      },
+      response: {
+        format: E.ProofFormat.JSON
+      },
+      target: [{
+        format: E.ClaimFormat.URI,
+        encoding: E.EntityEncodingFormat.PLAIN,
+        relation: E.ClaimRelation.CONTAINS,
+        path: []
+      }]
+    }
+  })
 }
 
 export const tests = [
   {
-    uri: 'dns:domain.org',
+    uri: 'xmpp:alice@domain.org',
     shouldMatch: true
   },
   {
-    uri: 'dns:domain.org?type=TXT',
+    uri: 'xmpp:alice@domain.org?omemo-sid-123456789=A1B2C3D4E5F6G7H8I9',
     shouldMatch: true
   },
   {

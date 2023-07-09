@@ -14,8 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as E from '../enums.js'
+import { ServiceProvider } from '../serviceProvider.js'
 
-export const reURI = /^https:\/\/news\.ycombinator\.com\/user\?id=(.*)\/?/
+export const reURI = /^https:\/\/gist\.github\.com\/(.*)\/(.*)\/?/
 
 /**
  * @function
@@ -24,52 +25,55 @@ export const reURI = /^https:\/\/news\.ycombinator\.com\/user\?id=(.*)\/?/
 export function processURI (uri) {
   const match = uri.match(reURI)
 
-  return {
-    serviceprovider: {
-      type: 'web',
-      name: 'hackernews'
-    },
-    match: {
-      regularExpression: reURI,
-      isAmbiguous: false
+  return new ServiceProvider({
+    about: {
+      id: 'github',
+      name: 'GitHub',
+      homepage: 'https://github.com'
     },
     profile: {
       display: match[1],
-      uri,
+      uri: `https://github.com/${match[1]}`,
       qr: null
     },
+    claim: {
+      uriRegularExpression: reURI.toString(),
+      uriIsAmbiguous: false
+    },
     proof: {
-      uri: `https://hacker-news.firebaseio.com/v0/user/${match[1]}.json`,
       request: {
-        fetcher: E.Fetcher.HTTP,
-        access: E.ProofAccess.NOCORS,
-        format: E.ProofFormat.JSON,
+        uri,
+        protocol: E.Fetcher.HTTP,
+        accessRestriction: E.ProofAccessRestriction.NONE,
         data: {
-          url: `https://hacker-news.firebaseio.com/v0/user/${match[1]}.json`,
+          url: `https://api.github.com/gists/${match[2]}`,
           format: E.ProofFormat.JSON
         }
-      }
-    },
-    claim: [{
-      format: E.ClaimFormat.URI,
-      encoding: E.EntityEncodingFormat.HTML,
-      relation: E.ClaimRelation.CONTAINS,
-      path: ['about']
-    }]
-  }
+      },
+      response: {
+        format: E.ProofFormat.JSON
+      },
+      target: [{
+        format: E.ClaimFormat.URI,
+        encoding: E.EntityEncodingFormat.PLAIN,
+        relation: E.ClaimRelation.CONTAINS,
+        path: ['files', 'openpgp.md', 'content']
+      }]
+    }
+  })
 }
 
 export const tests = [
   {
-    uri: 'https://news.ycombinator.com/user?id=Alice',
+    uri: 'https://gist.github.com/Alice/123456789',
     shouldMatch: true
   },
   {
-    uri: 'https://news.ycombinator.com/user?id=Alice/',
+    uri: 'https://gist.github.com/Alice/123456789/',
     shouldMatch: true
   },
   {
-    uri: 'https://domain.org/user?id=Alice',
+    uri: 'https://domain.org/Alice/123456789',
     shouldMatch: false
   }
 ]

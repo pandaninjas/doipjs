@@ -14,8 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as E from '../enums.js'
+import { ServiceProvider } from '../serviceProvider.js'
 
-export const reURI = /^https:\/\/liberapay\.com\/(.*)\/?/
+export const reURI = /^https:\/\/(.*)\/(.*)\/(.*)\/?/
 
 /**
  * @function
@@ -24,48 +25,51 @@ export const reURI = /^https:\/\/liberapay\.com\/(.*)\/?/
 export function processURI (uri) {
   const match = uri.match(reURI)
 
-  return {
-    serviceprovider: {
-      type: 'web',
-      name: 'liberapay'
-    },
-    match: {
-      regularExpression: reURI,
-      isAmbiguous: false
+  return new ServiceProvider({
+    about: {
+      id: 'forem',
+      name: 'Forem',
+      homepage: 'https://www.forem.com'
     },
     profile: {
-      display: match[1],
-      uri,
+      display: `${match[2]}@${match[1]}`,
+      uri: `https://${match[1]}/${match[2]}`,
       qr: null
     },
+    claim: {
+      uriRegularExpression: reURI.toString().toString(),
+      uriIsAmbiguous: true
+    },
     proof: {
-      uri,
       request: {
-        fetcher: E.Fetcher.HTTP,
-        access: E.ProofAccess.GENERIC,
-        format: E.ProofFormat.JSON,
+        uri,
+        protocol: E.Fetcher.HTTP,
+        accessRestriction: E.ProofAccessRestriction.NOCORS,
         data: {
-          url: `https://liberapay.com/${match[1]}/public.json`,
+          url: `https://${match[1]}/api/articles/${match[2]}/${match[3]}`,
           format: E.ProofFormat.JSON
         }
-      }
-    },
-    claim: [{
-      format: E.ClaimFormat.URI,
-      encoding: E.EntityEncodingFormat.PLAIN,
-      relation: E.ClaimRelation.CONTAINS,
-      path: ['statements', 'content']
-    }]
-  }
+      },
+      response: {
+        format: E.ProofFormat.JSON
+      },
+      target: [{
+        format: E.ClaimFormat.URI,
+        encoding: E.EntityEncodingFormat.PLAIN,
+        relation: E.ClaimRelation.CONTAINS,
+        path: ['body_markdown']
+      }]
+    }
+  })
 }
 
 export const tests = [
   {
-    uri: 'https://liberapay.com/alice',
+    uri: 'https://domain.org/alice/post',
     shouldMatch: true
   },
   {
-    uri: 'https://liberapay.com/alice/',
+    uri: 'https://domain.org/alice/post/',
     shouldMatch: true
   },
   {

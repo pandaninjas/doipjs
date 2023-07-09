@@ -14,8 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as E from '../enums.js'
+import { ServiceProvider } from '../serviceProvider.js'
 
-export const reURI = /^https:\/\/gist\.github\.com\/(.*)\/(.*)\/?/
+export const reURI = /^https:\/\/lobste\.rs\/u\/(.*)\/?/
 
 /**
  * @function
@@ -24,52 +25,55 @@ export const reURI = /^https:\/\/gist\.github\.com\/(.*)\/(.*)\/?/
 export function processURI (uri) {
   const match = uri.match(reURI)
 
-  return {
-    serviceprovider: {
-      type: 'web',
-      name: 'github'
-    },
-    match: {
-      regularExpression: reURI,
-      isAmbiguous: false
+  return new ServiceProvider({
+    about: {
+      id: 'lobsters',
+      name: 'Lobsters',
+      homepage: 'https://lobste.rs'
     },
     profile: {
       display: match[1],
-      uri: `https://github.com/${match[1]}`,
+      uri,
       qr: null
     },
+    claim: {
+      uriRegularExpression: reURI.toString(),
+      uriIsAmbiguous: false
+    },
     proof: {
-      uri,
       request: {
-        fetcher: E.Fetcher.HTTP,
-        access: E.ProofAccess.GENERIC,
-        format: E.ProofFormat.JSON,
+        uri: `https://lobste.rs/u/${match[1]}.json`,
+        protocol: E.Fetcher.HTTP,
+        accessRestriction: E.ProofAccessRestriction.NOCORS,
         data: {
-          url: `https://api.github.com/gists/${match[2]}`,
+          url: `https://lobste.rs/u/${match[1]}.json`,
           format: E.ProofFormat.JSON
         }
-      }
-    },
-    claim: [{
-      format: E.ClaimFormat.URI,
-      encoding: E.EntityEncodingFormat.PLAIN,
-      relation: E.ClaimRelation.CONTAINS,
-      path: ['files', 'openpgp.md', 'content']
-    }]
-  }
+      },
+      response: {
+        format: E.ProofFormat.JSON
+      },
+      target: [{
+        format: E.ClaimFormat.URI,
+        encoding: E.EntityEncodingFormat.PLAIN,
+        relation: E.ClaimRelation.CONTAINS,
+        path: ['about']
+      }]
+    }
+  })
 }
 
 export const tests = [
   {
-    uri: 'https://gist.github.com/Alice/123456789',
+    uri: 'https://lobste.rs/u/Alice',
     shouldMatch: true
   },
   {
-    uri: 'https://gist.github.com/Alice/123456789/',
+    uri: 'https://lobste.rs/u/Alice/',
     shouldMatch: true
   },
   {
-    uri: 'https://domain.org/Alice/123456789',
+    uri: 'https://domain.org/u/Alice',
     shouldMatch: false
   }
 ]

@@ -1,5 +1,5 @@
 /*
-Copyright 2023 Yarmo Mackenbach
+Copyright 2021 Yarmo Mackenbach
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,8 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as E from '../enums.js'
+import { ServiceProvider } from '../serviceProvider.js'
 
-export const reURI = /^https:\/\/(.*)\/(.*)\/(.*)\/?/
+export const reURI = /^https:\/\/liberapay\.com\/(.*)\/?/
 
 /**
  * @function
@@ -24,52 +25,51 @@ export const reURI = /^https:\/\/(.*)\/(.*)\/(.*)\/?/
 export function processURI (uri) {
   const match = uri.match(reURI)
 
-  return {
-    serviceprovider: {
-      type: 'web',
-      name: 'forgejo'
-    },
-    match: {
-      regularExpression: reURI,
-      isAmbiguous: true
+  return new ServiceProvider({
+    about: {
+      id: 'liberapay',
+      name: 'Liberapay',
+      homepage: 'https://liberapay.com'
     },
     profile: {
-      display: `${match[2]}@${match[1]}`,
-      uri: `https://${match[1]}/${match[2]}`,
+      display: match[1],
+      uri,
       qr: null
     },
+    claim: {
+      uriRegularExpression: reURI.toString(),
+      uriIsAmbiguous: false
+    },
     proof: {
-      uri,
       request: {
-        fetcher: E.Fetcher.HTTP,
-        access: E.ProofAccess.NOCORS,
-        format: E.ProofFormat.JSON,
+        uri,
+        protocol: E.Fetcher.HTTP,
+        accessRestriction: E.ProofAccessRestriction.NONE,
         data: {
-          url: `https://${match[1]}/api/v1/repos/${match[2]}/${match[3]}`,
+          url: `https://liberapay.com/${match[1]}/public.json`,
           format: E.ProofFormat.JSON
         }
-      }
-    },
-    claim: [{
-      format: E.ClaimFormat.URI,
-      encoding: E.EntityEncodingFormat.PLAIN,
-      relation: E.ClaimRelation.EQUALS,
-      path: ['description']
-    }]
-  }
+      },
+      response: {
+        format: E.ProofFormat.JSON
+      },
+      target: [{
+        format: E.ClaimFormat.URI,
+        encoding: E.EntityEncodingFormat.PLAIN,
+        relation: E.ClaimRelation.CONTAINS,
+        path: ['statements', 'content']
+      }]
+    }
+  })
 }
 
 export const tests = [
   {
-    uri: 'https://domain.org/alice/forgejo_proof',
+    uri: 'https://liberapay.com/alice',
     shouldMatch: true
   },
   {
-    uri: 'https://domain.org/alice/forgejo_proof/',
-    shouldMatch: true
-  },
-  {
-    uri: 'https://domain.org/alice/other_proof',
+    uri: 'https://liberapay.com/alice/',
     shouldMatch: true
   },
   {

@@ -14,60 +14,65 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as E from '../enums.js'
+import { ServiceProvider } from '../serviceProvider.js'
 
 export const reURI = /^https:\/\/(.*)\/?/
 
 /**
  * @function
  * @param {string} uri
+ * @returns {ServiceProvider}
  */
 export function processURI (uri) {
-  return {
-    serviceprovider: {
-      type: 'web',
-      name: 'activitypub'
-    },
-    match: {
-      regularExpression: reURI,
-      isAmbiguous: true
+  return new ServiceProvider({
+    about: {
+      id: 'activitypub',
+      name: 'ActivityPub',
+      homepage: 'https://activitypub.rocks'
     },
     profile: {
       display: uri,
       uri,
       qr: null
     },
+    claim: {
+      uriRegularExpression: reURI.toString().toString(),
+      uriIsAmbiguous: true
+    },
     proof: {
-      uri,
       request: {
-        fetcher: E.Fetcher.ACTIVITYPUB,
-        access: E.ProofAccess.GENERIC,
-        format: E.ProofFormat.JSON,
+        uri,
+        protocol: E.Fetcher.ACTIVITYPUB,
+        accessRestriction: E.ProofAccessRestriction.NONE,
         data: {
           url: uri
         }
-      }
-    },
-    claim: [
-      {
-        format: E.ClaimFormat.FINGERPRINT,
-        encoding: E.EntityEncodingFormat.PLAIN,
-        relation: E.ClaimRelation.CONTAINS,
-        path: ['summary']
       },
-      {
-        format: E.ClaimFormat.FINGERPRINT,
-        encoding: E.EntityEncodingFormat.PLAIN,
-        relation: E.ClaimRelation.CONTAINS,
-        path: ['attachment', 'value']
+      response: {
+        format: E.ProofFormat.JSON
       },
-      {
-        format: E.ClaimFormat.FINGERPRINT,
-        encoding: E.EntityEncodingFormat.PLAIN,
-        relation: E.ClaimRelation.CONTAINS,
-        path: ['content']
-      }
-    ]
-  }
+      target: [
+        {
+          format: E.ClaimFormat.URI,
+          encoding: E.EntityEncodingFormat.PLAIN,
+          relation: E.ClaimRelation.CONTAINS,
+          path: ['summary']
+        },
+        {
+          format: E.ClaimFormat.URI,
+          encoding: E.EntityEncodingFormat.PLAIN,
+          relation: E.ClaimRelation.CONTAINS,
+          path: ['attachment', 'value']
+        },
+        {
+          format: E.ClaimFormat.URI,
+          encoding: E.EntityEncodingFormat.PLAIN,
+          relation: E.ClaimRelation.CONTAINS,
+          path: ['content']
+        }
+      ]
+    }
+  })
 }
 
 export const functions = {

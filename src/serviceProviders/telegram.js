@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as E from '../enums.js'
+import { ServiceProvider } from '../serviceProvider.js'
 
 export const reURI = /https:\/\/t.me\/([A-Za-z0-9_]{5,32})\?proof=([A-Za-z0-9_]{5,32})/
 
@@ -24,39 +25,42 @@ export const reURI = /https:\/\/t.me\/([A-Za-z0-9_]{5,32})\?proof=([A-Za-z0-9_]{
 export function processURI (uri) {
   const match = uri.match(reURI)
 
-  return {
-    serviceprovider: {
-      type: 'communication',
-      name: 'telegram'
-    },
-    match: {
-      regularExpression: reURI,
-      isAmbiguous: false
+  return new ServiceProvider({
+    about: {
+      id: 'telegram',
+      name: 'Telegram',
+      homepage: 'https://telegram.org'
     },
     profile: {
       display: `@${match[1]}`,
       uri: `https://t.me/${match[1]}`,
       qr: `https://t.me/${match[1]}`
     },
+    claim: {
+      uriRegularExpression: reURI.toString(),
+      uriIsAmbiguous: false
+    },
     proof: {
-      uri: `https://t.me/${match[2]}`,
       request: {
-        fetcher: E.Fetcher.TELEGRAM,
-        access: E.ProofAccess.GRANTED,
-        format: E.ProofFormat.JSON,
+        uri: `https://t.me/${match[2]}`,
+        protocol: E.Fetcher.TELEGRAM,
+        accessRestriction: E.ProofAccessRestriction.GRANTED,
         data: {
           user: match[1],
           chat: match[2]
         }
-      }
-    },
-    claim: [{
-      format: E.ClaimFormat.URI,
-      encoding: E.EntityEncodingFormat.PLAIN,
-      relation: E.ClaimRelation.EQUALS,
-      path: ['text']
-    }]
-  }
+      },
+      response: {
+        format: E.ProofFormat.JSON
+      },
+      target: [{
+        format: E.ClaimFormat.URI,
+        encoding: E.EntityEncodingFormat.PLAIN,
+        relation: E.ClaimRelation.EQUALS,
+        path: ['text']
+      }]
+    }
+  })
 }
 
 export const tests = [

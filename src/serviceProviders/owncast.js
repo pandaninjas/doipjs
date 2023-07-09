@@ -14,8 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as E from '../enums.js'
+import { ServiceProvider } from '../serviceProvider.js'
 
-export const reURI = /^https:\/\/lichess\.org\/@\/(.*)\/?/
+export const reURI = /^https:\/\/(.*)/
 
 /**
  * @function
@@ -24,52 +25,59 @@ export const reURI = /^https:\/\/lichess\.org\/@\/(.*)\/?/
 export function processURI (uri) {
   const match = uri.match(reURI)
 
-  return {
-    serviceprovider: {
-      type: 'web',
-      name: 'lichess'
-    },
-    match: {
-      regularExpression: reURI,
-      isAmbiguous: false
+  return new ServiceProvider({
+    about: {
+      id: 'owncast',
+      name: 'Owncast',
+      homepage: 'https://owncast.online'
     },
     profile: {
       display: match[1],
       uri,
       qr: null
     },
+    claim: {
+      uriRegularExpression: reURI.toString(),
+      uriIsAmbiguous: true
+    },
     proof: {
-      uri: `https://lichess.org/api/user/${match[1]}`,
       request: {
-        fetcher: E.Fetcher.HTTP,
-        access: E.ProofAccess.GENERIC,
-        format: E.ProofFormat.JSON,
+        uri: `${uri}/api/config`,
+        protocol: E.Fetcher.HTTP,
+        accessRestriction: E.ProofAccessRestriction.NONE,
         data: {
-          url: `https://lichess.org/api/user/${match[1]}`,
+          url: `${uri}/api/config`,
           format: E.ProofFormat.JSON
         }
-      }
-    },
-    claim: [{
-      format: E.ClaimFormat.FINGERPRINT,
-      encoding: E.EntityEncodingFormat.PLAIN,
-      relation: E.ClaimRelation.CONTAINS,
-      path: ['profile', 'links']
-    }]
-  }
+      },
+      response: {
+        format: E.ProofFormat.JSON
+      },
+      target: [{
+        format: E.ClaimFormat.FINGERPRINT,
+        encoding: E.EntityEncodingFormat.PLAIN,
+        relation: E.ClaimRelation.CONTAINS,
+        path: ['socialHandles', 'url']
+      }]
+    }
+  })
 }
 
 export const tests = [
   {
-    uri: 'https://lichess.org/@/Alice',
+    uri: 'https://live.domain.org',
     shouldMatch: true
   },
   {
-    uri: 'https://lichess.org/@/Alice/',
+    uri: 'https://live.domain.org/',
     shouldMatch: true
   },
   {
-    uri: 'https://domain.org/@/Alice',
-    shouldMatch: false
+    uri: 'https://domain.org/live',
+    shouldMatch: true
+  },
+  {
+    uri: 'https://domain.org/live/',
+    shouldMatch: true
   }
 ]

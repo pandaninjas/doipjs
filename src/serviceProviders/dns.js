@@ -14,8 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as E from '../enums.js'
+import { ServiceProvider } from '../serviceProvider.js'
 
-export const reURI = /^https:\/\/(.*)\/u\/(.*)\/?/
+export const reURI = /^dns:([a-zA-Z0-9.\-_]*)(?:\?(.*))?/
 
 /**
  * @function
@@ -24,52 +25,53 @@ export const reURI = /^https:\/\/(.*)\/u\/(.*)\/?/
 export function processURI (uri) {
   const match = uri.match(reURI)
 
-  return {
-    serviceprovider: {
-      type: 'web',
-      name: 'discourse'
-    },
-    match: {
-      regularExpression: reURI,
-      isAmbiguous: true
+  return new ServiceProvider({
+    about: {
+      id: 'dns',
+      name: 'DNS'
     },
     profile: {
-      display: `${match[2]}@${match[1]}`,
-      uri,
+      display: match[1],
+      uri: `https://${match[1]}`,
       qr: null
     },
-    proof: {
-      uri,
-      request: {
-        fetcher: E.Fetcher.HTTP,
-        access: E.ProofAccess.NOCORS,
-        format: E.ProofFormat.JSON,
-        data: {
-          url: `https://${match[1]}/u/${match[2]}.json`,
-          format: E.ProofFormat.JSON
-        }
-      }
+    claim: {
+      uriRegularExpression: reURI.toString(),
+      uriIsAmbiguous: false
     },
-    claim: [{
-      format: E.ClaimFormat.URI,
-      encoding: E.EntityEncodingFormat.PLAIN,
-      relation: E.ClaimRelation.CONTAINS,
-      path: ['user', 'bio_raw']
-    }]
-  }
+    proof: {
+      request: {
+        uri: null,
+        protocol: E.Fetcher.DNS,
+        accessRestriction: E.ProofAccessRestriction.SERVER,
+        data: {
+          domain: match[1]
+        }
+      },
+      response: {
+        format: E.ProofFormat.JSON
+      },
+      target: [{
+        format: E.ClaimFormat.URI,
+        encoding: E.EntityEncodingFormat.PLAIN,
+        relation: E.ClaimRelation.CONTAINS,
+        path: ['records', 'txt']
+      }]
+    }
+  })
 }
 
 export const tests = [
   {
-    uri: 'https://domain.org/u/alice',
+    uri: 'dns:domain.org',
     shouldMatch: true
   },
   {
-    uri: 'https://domain.org/u/alice/',
+    uri: 'dns:domain.org?type=TXT',
     shouldMatch: true
   },
   {
-    uri: 'https://domain.org/alice',
+    uri: 'https://domain.org',
     shouldMatch: false
   }
 ]
