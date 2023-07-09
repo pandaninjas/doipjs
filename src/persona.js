@@ -13,9 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-// eslint-disable-next-line
-import { Claim } from './claim.js'
-
 /**
  * A persona with identity claims
  * @class
@@ -27,28 +24,115 @@ import { Claim } from './claim.js'
  */
 export class Persona {
   /**
-     * @param {string} name
-     * @param {string} [description]
-     * @param {Claim[]} [claims]
-     */
-  constructor (name, description, claims) {
+   * @param {string} name
+   * @param {import('./claim.js').Claim[]} claims
+   */
+  constructor (name, claims) {
     /**
-         * Name to be displayed on the profile page
-         * @type {string}
-         * @public
-         */
+     * Identifier of the persona
+     * @type {string | null}
+     * @public
+     */
+    this.identifier = null
+    /**
+     * Name to be displayed on the profile page
+     * @type {string}
+     * @public
+     */
     this.name = name
     /**
-         * Description to be displayed on the profile page
-         * @type {string}
-         * @public
-         */
-    this.description = description
+     * Email address of the persona
+     * @type {string | null}
+     * @public
+     */
+    this.email = null
     /**
-         * List of identity claims
-         * @type {Array<Claim>}
-         * @public
-         */
+     * Description to be displayed on the profile page
+     * @type {string | null}
+     * @public
+     */
+    this.description = null
+    /**
+     * URL to an avatar image
+     * @type {string | null}
+     * @public
+     */
+    this.avatarUrl = null
+    /**
+     * List of identity claims
+     * @type {import('./claim.js').Claim[]}
+     * @public
+     */
     this.claims = claims
+    /**
+     * Has the persona been revoked
+     * @type {boolean}
+     * @public
+     */
+    this.isRevoked = false
+  }
+
+  /**
+   * @function
+   * @param {string} identifier
+   */
+  setIdentifier (identifier) {
+    this.identifier = identifier
+  }
+
+  /**
+   * @function
+   * @param {string} description
+   */
+  setDescription (description) {
+    this.description = description
+  }
+
+  /**
+   * @function
+   * @param {string} email
+   */
+  setEmailAddress (email) {
+    this.email = email
+  }
+
+  /**
+   * @function
+   * @param {string} avatarUrl
+   */
+  setAvatarUrl (avatarUrl) {
+    this.avatarUrl = avatarUrl
+  }
+
+  /**
+   * @function
+   * @param {import('./claim.js').Claim} claim
+   */
+  addClaim (claim) {
+    this.claims.push(claim)
+  }
+
+  /**
+   * @function
+   */
+  revoke () {
+    this.isRevoked = true
+  }
+
+  /**
+   * Get a JSON representation of the Profile object
+   * @function
+   * @returns {object}
+   */
+  toJSON () {
+    return {
+      identifier: this.identifier,
+      name: this.name,
+      email: this.email,
+      description: this.description,
+      avatarUrl: this.avatarUrl,
+      isRevoked: this.isRevoked,
+      claims: this.claims.map(x => x.toJSON())
+    }
   }
 }

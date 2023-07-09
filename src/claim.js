@@ -18,50 +18,30 @@ import { isUri } from 'valid-url'
 import mergeOptions from 'merge-options'
 import { fetch } from './proofs.js'
 import { run } from './verifications.js'
-import { list, data as _data } from './claimDefinitions/index.js'
+import { list, data as _data } from './serviceProviders/index.js'
 import { opts as _opts } from './defaults.js'
 import { ClaimStatus } from './enums.js'
 
 /**
  * @class
- * @classdesc OpenPGP-based identity claim
+ * @classdesc Identity claim
  * @property {string} uri             - The claim's URI
  * @property {string} fingerprint     - The fingerprint to verify the claim against
- * @property {string} status          - The current status of the claim
+ * @property {number} status          - The current status code of the claim
  * @property {Array<object>} matches  - The claim definitions matched against the URI
- * @property {object} verification    - The result of the verification process
  */
 export class Claim {
   /**
    * Initialize a Claim object
    * @constructor
-   * @param {string|object} [uri]   - The URI of the identity claim or a JSONified Claim instance
+   * @param {string} [uri]          - The URI of the identity claim
    * @param {string} [fingerprint]  - The fingerprint of the OpenPGP key
    * @example
    * const claim = doip.Claim();
    * const claim = doip.Claim('dns:domain.tld?type=TXT');
    * const claim = doip.Claim('dns:domain.tld?type=TXT', '123abc123abc');
-   * const claimAlt = doip.Claim(JSON.stringify(claim));
    */
   constructor (uri, fingerprint) {
-    // Import JSON
-    if (typeof uri === 'object' && 'claimVersion' in uri) {
-      const data = uri
-      switch (data.claimVersion) {
-        case 1:
-          this._uri = data.uri
-          this._fingerprint = data.fingerprint
-          this._status = data.status
-          this._matches = data.matches
-          this._verification = data.verification
-          break
-
-        default:
-          throw new Error('Invalid claim version')
-      }
-      return
-    }
-
     // Verify validity of URI
     if (uri && !isUri(uri)) {
       throw new Error('Invalid URI')
@@ -77,11 +57,59 @@ export class Claim {
       }
     }
 
+    /**
+     * @type {string}
+     */
     this._uri = uri || ''
+    /**
+     * @type {string}
+     */
     this._fingerprint = fingerprint || ''
+    /**
+     * @type {number}
+     */
     this._status = ClaimStatus.INIT
+    /**
+     * @type {import('./serviceProvider.js').ServiceProvider[]}
+     */
     this._matches = []
-    this._verification = {}
+  }
+
+  /**
+   * @function
+   * @param {object} claimObject
+   * @example
+   * const claimAlt = doip.Claim(JSON.stringify(claim));
+   */
+  static fromJson (claimObject) {
+    /** @type {Claim} */
+    let claim
+    let result
+
+    if (typeof claimObject === 'object' && 'claimVersion' in claimObject) {
+      switch (claimObject.claimVersion) {
+        case 1:
+          result = importJsonClaimVersion1(claimObject)
+          if (result instanceof Error) {
+            throw result
+          }
+          claim = result
+          break
+
+        case 2:
+          result = importJsonClaimVersion2(claimObject)
+          if (result instanceof Error) {
+            throw result
+          }
+          claim = result
+          break
+
+        default:
+          throw new Error('Invalid claim version')
+      }
+    }
+
+    return claim
   }
 
   get uri () {
@@ -101,13 +129,6 @@ export class Claim {
       throw new Error('This claim has not yet been matched')
     }
     return this._matches
-  }
-
-  get verification () {
-    if (this._status !== ClaimStatus.VERIFIED) {
-      throw new Error('This claim has not yet been verified')
-    }
-    return this._verification
   }
 
   set uri (uri) {
@@ -143,10 +164,6 @@ export class Claim {
     throw new Error("Cannot change a claim's matches")
   }
 
-  set verification (anything) {
-    throw new Error("Cannot change a claim's verification result")
-  }
-
   /**
    * Match the claim's URI to candidate definitions
    * @function
@@ -175,7 +192,7 @@ export class Claim {
         return true
       }
 
-      if (candidate.match.isAmbiguous) {
+      if (candidate.claim.uriIsAmbiguous) {
         // Add to the possible candidates
         this._matches.push(candidate)
       } else {
@@ -188,7 +205,7 @@ export class Claim {
       return true
     })
 
-    this._status = ClaimStatus.MATCHED
+    this._status = this._matches.length === 0 ? ClaimStatus.NO_MATCHES : ClaimStatus.MATCHED
   }
 
   /**
@@ -204,7 +221,7 @@ export class Claim {
     if (this._status === ClaimStatus.INIT) {
       throw new Error('This claim has not yet been matched')
     }
-    if (this._status === ClaimStatus.VERIFIED) {
+    if (this._status >= 200) {
       throw new Error('This claim has already been verified')
     }
     if (this._fingerprint.length === 0) {
@@ -216,16 +233,14 @@ export class Claim {
 
     // If there are no matches
     if (this._matches.length === 0) {
-      this._verification = {
-        result: false,
-        completed: true,
-        proof: {},
-        errors: ['No matches for claim']
-      }
+      this.status = ClaimStatus.NO_MATCHES
     }
 
     // For each match
     for (let index = 0; index < this._matches.length; index++) {
+      // Continue if a result was already obtained
+      if (this._status >= 200) { continue }
+
       let claimData = this._matches[index]
 
       let verificationResult = null
@@ -246,12 +261,12 @@ export class Claim {
           this._fingerprint
         )
         verificationResult.proof = {
-          fetcher: proofData.fetcher,
+          protocol: proofData.fetcher,
           viaProxy: proofData.viaProxy
         }
 
         // Post process the data
-        const def = _data[claimData.serviceprovider.name]
+        const def = _data[claimData.about.id]
         if (def.functions?.postprocess) {
           try {
             ({ claimData, proofData } = def.functions.postprocess(claimData, proofData))
@@ -272,25 +287,13 @@ export class Claim {
         continue
       }
 
-      if (verificationResult.completed) {
-        // Store the result, keep a single match and stop verifying
-        this._verification = verificationResult
+      if (verificationResult.result) {
+        this._status = verificationResult.proof.viaProxy ? ClaimStatus.VERIFIED_VIA_PROXY : ClaimStatus.VERIFIED
         this._matches = [claimData]
-        index = this._matches.length
       }
     }
 
-    // Fail safe verification result
-    this._verification = Object.keys(this._verification).length > 0
-      ? this._verification
-      : {
-          result: false,
-          completed: true,
-          proof: {},
-          errors: []
-        }
-
-    this._status = ClaimStatus.VERIFIED
+    this._status = this._status >= 200 ? this._status : ClaimStatus.NO_PROOF_FOUND
   }
 
   /**
@@ -307,7 +310,7 @@ export class Claim {
     if (this._matches.length === 0) {
       throw new Error('The claim has no matches')
     }
-    return this._matches.length > 1 || this._matches[0].match.isAmbiguous
+    return this._matches.length > 1 || this._matches[0].claim.uriIsAmbiguous
   }
 
   /**
@@ -317,13 +320,87 @@ export class Claim {
    * @returns {object}
    */
   toJSON () {
+    let displayName = this._uri
+    let displayUrl = ''
+    let displayServiceProviderName = ''
+
+    if (this._status >= 200 && this._status < 300) {
+      displayName = this._matches[0].profile.display
+      displayUrl = this._matches[0].profile.uri
+      displayServiceProviderName = this._matches[0].about.id
+    }
+
     return {
-      claimVersion: 1,
+      claimVersion: 2,
       uri: this._uri,
-      fingerprint: this._fingerprint,
-      status: this._status,
+      proofs: [this._fingerprint],
       matches: this._matches,
-      verification: this._verification
+      status: this._status,
+      display: {
+        name: displayName,
+        url: displayUrl,
+        serviceProviderName: displayServiceProviderName
+      }
     }
   }
+}
+
+/**
+ * @param {object} claimObject
+ * @returns {Claim | Error}
+ */
+function importJsonClaimVersion1 (claimObject) {
+  if (!('claimVersion' in claimObject && claimObject.claimVersion === 1)) {
+    return new Error('Invalid claim')
+  }
+
+  const claim = new Claim()
+
+  claim._uri = claimObject.uri
+  claim._fingerprint = claimObject.fingerprint
+  claim._matches = claimObject.matches
+
+  if (claimObject.status === 'init') {
+    claim._status = 100
+  }
+  if (claimObject.status === 'matched') {
+    if (claimObject.matches.length === 0) {
+      claim._status = 301
+    }
+    claim._status = 101
+  }
+
+  if (!('result' in claimObject.verification && 'errors' in claimObject.verification)) {
+    claim._status = 400
+  }
+  if (claimObject.verification.errors.length > 0) {
+    claim._status = 400
+  }
+  if (claimObject.verification.result && claimObject.verification.proof.viaProxy) {
+    claim._status = 201
+  }
+  if (claimObject.verification.result && !claimObject.verification.proof.viaProxy) {
+    claim._status = 200
+  }
+
+  return claim
+}
+
+/**
+ * @param {object} claimObject
+ * @returns {Claim | Error}
+ */
+function importJsonClaimVersion2 (claimObject) {
+  if (!('claimVersion' in claimObject && claimObject.claimVersion === 2)) {
+    return new Error('Invalid claim')
+  }
+
+  const claim = new Claim()
+
+  claim._uri = claimObject.uri
+  claim._fingerprint = claimObject.proofs[0]
+  claim._matches = claimObject.matches
+  claim._status = claimObject.status
+
+  return claim
 }

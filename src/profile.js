@@ -13,13 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-// eslint-disable-next-line
-import { Persona } from './persona.js'
+import { PublicKeyFetchMethod, PublicKeyEncoding, PublicKeyType } from './enums.js'
 
 /**
  * A profile of personas with identity claims
  * @function
- * @param {Array<Persona>} personas
+ * @param {Array<import('./persona.js').Persona>} personas
  * @public
  * @example
  * const claim = Claim('https://alice.tld', '123');
@@ -28,23 +27,152 @@ import { Persona } from './persona.js'
  */
 export class Profile {
   /**
-     * Create a new profile
-     * @function
-     * @param {Array<Persona>} personas
+   * Create a new profile
+   * @function
+   * @param {import('./enums.js').ProfileType} profileType
+   * @param {string} identifier
+   * @param {Array<import('./persona.js').Persona>} personas
+   * @public
+   */
+  constructor (profileType, identifier, personas) {
+    /**
+     * Profile version
+     * @type {number}
      * @public
      */
-  constructor (personas) {
+    this.profileVersion = 2
     /**
-         * List of personas
-         * @type {Array<Persona>}
-         * @public
-         */
+     * Profile version
+     * @type {import('./enums.js').ProfileType}
+     * @public
+     */
+    this.profileType = profileType
+    /**
+     * Identifier of the profile (fingerprint, email address, uri...)
+     * @type {string}
+     * @public
+     */
+    this.identifier = identifier
+    /**
+     * List of personas
+     * @type {Array<import('./persona.js').Persona>}
+     * @public
+     */
     this.personas = personas || []
     /**
-         * Index of primary persona (to be displayed first or prominently)
-         * @type {Number}
+     * Index of primary persona (to be displayed first or prominently)
+     * @type {number}
+     * @public
+     */
+    this.primaryPersonaIndex = personas.length > 0 ? 0 : -1
+    /**
+     * The cryptographic key associated with the profile
+     * @property {object}
+     * @public
+     */
+    this.publicKey = {
+      /**
+       * The type of cryptographic key
+       * @type {PublicKeyType}
+       * @public
+       */
+      keyType: PublicKeyType.NONE,
+      /**
+       * The encoding of the cryptographic key
+       * @type {PublicKeyEncoding}
+       * @public
+       */
+      encoding: PublicKeyEncoding.NONE,
+      /**
+       * The raw cryptographic key
+       * @type {string | null}
+       * @public
+       */
+      encodedKey: null,
+      /**
+       * The raw cryptographic key as object (to be removed during toJSON())
+       * @type {import('openpgp').PublicKey | import('jose').KeyLike | null}
+       * @public
+       */
+      key: null,
+      /**
+       * Details on how to fetch the public key
+       * @property {object}
+       * @public
+       */
+      fetch: {
+        /**
+         * The method to fetch the key
+         * @type {PublicKeyFetchMethod}
          * @public
          */
-    this.primaryPersona = -1
+        method: PublicKeyFetchMethod.NONE,
+        /**
+         * The query to fetch the key
+         * @type {string | null}
+         * @public
+         */
+        query: null,
+        /**
+         * The URL the method eventually resolved to
+         * @type {string | null}
+         * @public
+         */
+        resolvedUrl: null
+      }
+    }
+    /**
+     * List of verifier URLs
+     * @type {{name: string, url: string}[]}
+     * @public
+     */
+    this.verifiers = []
+  }
+
+  /**
+   * @function
+   * @param {string} name
+   * @param {string} url
+   */
+  addVerifier (name, url) {
+    this.verifiers.push({ name, url })
+  }
+
+  /**
+   * @function
+   * @param {import('openpgp').PublicKey} publicKey
+   */
+  setOpenPgpPublicKey (publicKey) {}
+
+  /**
+   * @function
+   * @param {import('jose').KeyLike} publicKey
+   */
+  setJwkPublicKey (publicKey) {}
+
+  /**
+   * Get a JSON representation of the Profile object
+   * @function
+   * @returns {object}
+   */
+  toJSON () {
+    return {
+      profileVersion: this.profileVersion,
+      profileType: this.profileType,
+      identifier: this.identifier,
+      personas: this.personas.map(x => x.toJSON()),
+      primaryPersonaIndex: this.primaryPersonaIndex,
+      publicKey: {
+        keyType: this.publicKey.keyType,
+        format: this.publicKey.format,
+        keyData: this.publicKey.keyData,
+        fetch: {
+          method: this.publicKey.fetch.method,
+          query: this.publicKey.fetch.query,
+          resolvedUrl: this.publicKey.fetch.resolvedUrl
+        }
+      },
+      verifiers: this.verifiers
+    }
   }
 }
