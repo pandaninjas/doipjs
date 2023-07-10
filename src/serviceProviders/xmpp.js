@@ -43,7 +43,7 @@ export function processURI (uri) {
     proof: {
       request: {
         uri: null,
-        protocol: E.Fetcher.XMPP,
+        fetcher: E.Fetcher.XMPP,
         accessRestriction: E.ProofAccessRestriction.SERVER,
         data: {
           id: `${match[1]}@${match[2]}`

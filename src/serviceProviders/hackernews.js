@@ -43,7 +43,7 @@ export function processURI (uri) {
     proof: {
       request: {
         uri: `https://hacker-news.firebaseio.com/v0/user/${match[1]}.json`,
-        protocol: E.Fetcher.HTTP,
+        fetcher: E.Fetcher.HTTP,
         accessRestriction: E.ProofAccessRestriction.NOCORS,
         data: {
           url: `https://hacker-news.firebaseio.com/v0/user/${match[1]}.json`,

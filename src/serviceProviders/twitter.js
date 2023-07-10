@@ -47,7 +47,7 @@ export function processURI (uri) {
     proof: {
       request: {
         uri,
-        protocol: E.Fetcher.HTTP,
+        fetcher: E.Fetcher.HTTP,
         accessRestriction: E.ProofAccessRestriction.NOCORS,
         data: {
           // Returns an oembed json object with the tweet content in html form

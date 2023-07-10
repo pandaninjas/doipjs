@@ -42,7 +42,7 @@ export function processURI (uri) {
     proof: {
       request: {
         uri: null,
-        protocol: E.Fetcher.DNS,
+        fetcher: E.Fetcher.DNS,
         accessRestriction: E.ProofAccessRestriction.SERVER,
         data: {
           domain: match[1]

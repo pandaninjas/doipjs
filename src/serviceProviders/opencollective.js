@@ -43,7 +43,7 @@ export function processURI (uri) {
     proof: {
       request: {
         uri,
-        protocol: E.Fetcher.GRAPHQL,
+        fetcher: E.Fetcher.GRAPHQL,
         accessRestriction: E.ProofAccessRestriction.NOCORS,
         data: {
           url: 'https://api.opencollective.com/graphql/v2',

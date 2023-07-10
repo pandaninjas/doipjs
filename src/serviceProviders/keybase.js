@@ -42,7 +42,7 @@ export function processURI (uri) {
     proof: {
       request: {
         uri: `https://keybase.io/_/api/1.0/user/lookup.json?username=${match[1]}`,
-        protocol: E.Fetcher.HTTP,
+        fetcher: E.Fetcher.HTTP,
         accessRestriction: E.ProofAccessRestriction.NOCORS,
         data: {
           url: `https://keybase.io/_/api/1.0/user/lookup.json?username=${match[1]}`,

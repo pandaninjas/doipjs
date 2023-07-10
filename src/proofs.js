@@ -112,14 +112,14 @@ const handleNodeRequests = (data, opts) => {
  */
 const createDefaultRequestPromise = (data, opts) => {
   return new Promise((resolve, reject) => {
-    if (!(data.proof.request.protocol in fetcher)) {
-      reject(new Error(`fetcher for ${data.proof.request.protocol} not found`))
+    if (!(data.proof.request.fetcher in fetcher)) {
+      reject(new Error(`fetcher for ${data.proof.request.fetcher} not found`))
     }
-    fetcher[data.proof.request.protocol]
+    fetcher[data.proof.request.fetcher]
       .fn(data.proof.request.data, opts)
       .then((res) => {
         return resolve({
-          protocol: data.proof.request.protocol,
+          fetcher: data.proof.request.fetcher,
           data,
           viaProxy: false,
           result: res
@@ -141,7 +141,7 @@ const createProxyRequestPromise = (data, opts) => {
     let proxyUrl
     try {
       proxyUrl = generateProxyURL(
-        data.proof.request.protocol,
+        data.proof.request.fetcher,
         data.proof.request.data,
         opts
       )
@@ -152,13 +152,13 @@ const createProxyRequestPromise = (data, opts) => {
     const requestData = {
       url: proxyUrl,
       format: data.proof.request.format,
-      fetcherTimeout: fetcher[data.proof.request.protocol].timeout
+      fetcherTimeout: fetcher[data.proof.request.fetcher].timeout
     }
     fetcher.http
       .fn(requestData, opts)
       .then((res) => {
         return resolve({
-          protocol: 'http',
+          fetcher: 'http',
           data,
           viaProxy: true,
           result: res

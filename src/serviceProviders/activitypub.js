@@ -42,7 +42,7 @@ export function processURI (uri) {
     proof: {
       request: {
         uri,
-        protocol: E.Fetcher.ACTIVITYPUB,
+        fetcher: E.Fetcher.ACTIVITYPUB,
         accessRestriction: E.ProofAccessRestriction.NONE,
         data: {
           url: uri

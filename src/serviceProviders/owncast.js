@@ -43,7 +43,7 @@ export function processURI (uri) {
     proof: {
       request: {
         uri: `${uri}/api/config`,
-        protocol: E.Fetcher.HTTP,
+        fetcher: E.Fetcher.HTTP,
         accessRestriction: E.ProofAccessRestriction.NONE,
         data: {
           url: `${uri}/api/config`,

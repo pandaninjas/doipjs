@@ -42,7 +42,7 @@ export function processURI (uri) {
     proof: {
       request: {
         uri: `https://lichess.org/api/user/${match[1]}`,
-        protocol: E.Fetcher.HTTP,
+        fetcher: E.Fetcher.HTTP,
         accessRestriction: E.ProofAccessRestriction.NONE,
         data: {
           url: `https://lichess.org/api/user/${match[1]}`,

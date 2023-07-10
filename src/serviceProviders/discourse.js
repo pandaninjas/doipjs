@@ -44,7 +44,7 @@ export function processURI (uri) {
     proof: {
       request: {
         uri,
-        protocol: E.Fetcher.HTTP,
+        fetcher: E.Fetcher.HTTP,
         accessRestriction: E.ProofAccessRestriction.NOCORS,
         data: {
           url: `https://${match[1]}/u/${match[2]}.json`,

@@ -43,7 +43,7 @@ export function processURI (uri) {
     proof: {
       request: {
         uri: `https://lobste.rs/u/${match[1]}.json`,
-        protocol: E.Fetcher.HTTP,
+        fetcher: E.Fetcher.HTTP,
         accessRestriction: E.ProofAccessRestriction.NOCORS,
         data: {
           url: `https://lobste.rs/u/${match[1]}.json`,

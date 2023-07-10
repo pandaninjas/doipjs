@@ -43,7 +43,7 @@ export function processURI (uri) {
     proof: {
       uri,
       request: {
-        protocol: E.Fetcher.HTTP,
+        fetcher: E.Fetcher.HTTP,
         accessRestriction: E.ProofAccessRestriction.NONE,
         data: {
           url: `https://${match[1]}/api/v4/projects/${match[2]}%2Fgitlab_proof`,

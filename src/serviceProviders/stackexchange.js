@@ -45,7 +45,7 @@ export function processURI (uri) {
     proof: {
       request: {
         uri: `https://${domain}.com/users/${id}?tab=profile`,
-        protocol: E.Fetcher.HTTP,
+        fetcher: E.Fetcher.HTTP,
         accessRestriction: E.ProofAccessRestriction.NONE,
         data: {
           url: `https://api.stackexchange.com/2.3/users/${id}?site=${site}&filter=!AH)b5JqVyImf`,

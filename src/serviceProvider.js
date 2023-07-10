@@ -98,10 +98,10 @@ export class ServiceProvider {
          */
         uri: spObj.proof.request.uri,
         /**
-         * Protocol to be used to request the proof
+         * Fetcher to be used to request the proof
          * @type {string}
          */
-        protocol: spObj.proof.request.protocol,
+        fetcher: spObj.proof.request.fetcher,
         /**
          * Type of access restriction
          * @type {import('./enums.js').ProofAccessRestriction}

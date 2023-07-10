@@ -43,7 +43,7 @@ export function processURI (uri) {
     proof: {
       request: {
         uri: `https://t.me/${match[2]}`,
-        protocol: E.Fetcher.TELEGRAM,
+        fetcher: E.Fetcher.TELEGRAM,
         accessRestriction: E.ProofAccessRestriction.GRANTED,
         data: {
           user: match[1],

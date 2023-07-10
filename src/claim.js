@@ -261,7 +261,7 @@ export class Claim {
           this._fingerprint
         )
         verificationResult.proof = {
-          protocol: proofData.fetcher,
+          fetcher: proofData.fetcher,
           viaProxy: proofData.viaProxy
         }
 

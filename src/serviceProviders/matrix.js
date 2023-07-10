@@ -59,7 +59,7 @@ export function processURI (uri) {
     proof: {
       request: {
         uri: eventUrl,
-        protocol: E.Fetcher.MATRIX,
+        fetcher: E.Fetcher.MATRIX,
         accessRestriction: E.ProofAccessRestriction.GRANTED,
         data: {
           eventId: paramEventId,
