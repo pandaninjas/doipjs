@@ -328,7 +328,7 @@ export class Claim {
       displayName = this._matches[0].profile.display
       displayUrl = this._matches[0].profile.uri
       displayServiceProviderName = this._matches[0].about.name
-    } else if (this._status == ClaimStatus.MATCHED && !this.isAmbiguous()) {
+    } else if (this._status === ClaimStatus.MATCHED && !this.isAmbiguous()) {
       displayName = this._matches[0].profile.display
       displayUrl = this._matches[0].profile.uri
       displayServiceProviderName = this._matches[0].about.name
