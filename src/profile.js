@@ -84,7 +84,7 @@ export class Profile {
        */
       encoding: PublicKeyEncoding.NONE,
       /**
-       * The raw cryptographic key
+       * The encoded cryptographic key
        * @type {string | null}
        * @public
        */
@@ -164,8 +164,8 @@ export class Profile {
       primaryPersonaIndex: this.primaryPersonaIndex,
       publicKey: {
         keyType: this.publicKey.keyType,
-        format: this.publicKey.format,
-        keyData: this.publicKey.keyData,
+        encoding: this.publicKey.encoding,
+        encodedKey: this.publicKey.encodedKey,
         fetch: {
           method: this.publicKey.fetch.method,
           query: this.publicKey.fetch.query,

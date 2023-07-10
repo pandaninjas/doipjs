@@ -321,20 +321,24 @@ export class Claim {
    */
   toJSON () {
     let displayName = this._uri
-    let displayUrl = ''
-    let displayServiceProviderName = ''
+    let displayUrl = null
+    let displayServiceProviderName = null
 
     if (this._status >= 200 && this._status < 300) {
       displayName = this._matches[0].profile.display
       displayUrl = this._matches[0].profile.uri
-      displayServiceProviderName = this._matches[0].about.id
+      displayServiceProviderName = this._matches[0].about.name
+    } else if (this._status == ClaimStatus.MATCHED && !this.isAmbiguous()) {
+      displayName = this._matches[0].profile.display
+      displayUrl = this._matches[0].profile.uri
+      displayServiceProviderName = this._matches[0].about.name
     }
 
     return {
       claimVersion: 2,
       uri: this._uri,
       proofs: [this._fingerprint],
-      matches: this._matches,
+      matches: this._matches.map(x => x.toJSON()),
       status: this._status,
       display: {
         name: displayName,

@@ -94,7 +94,7 @@ export class ServiceProvider {
       request: {
         /**
          * Location of the proof
-         * @type {string}
+         * @type {string | null}
          */
         uri: spObj.proof.request.uri,
         /**
@@ -129,6 +129,20 @@ export class ServiceProvider {
        * @type {{format: import('./enums.js').ClaimFormat, encoding: import('./enums.js').EntityEncodingFormat, relation: import('./enums.js').ClaimRelation, path: string[]}[]}
        */
       target: spObj.proof.target
+    }
+  }
+
+  /**
+   * Get a JSON representation of the ServiceProvider object
+   * @function
+   * @returns {object}
+   */
+  toJSON () {
+    return {
+      about: this.about,
+      profile: this.profile,
+      claim: this.claim,
+      proof: this.proof
     }
   }
 }
