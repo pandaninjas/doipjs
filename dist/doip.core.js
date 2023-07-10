@@ -320,7 +320,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
          */
         encoding: PublicKeyEncoding.NONE,
         /**
-         * The raw cryptographic key
+         * The encoded cryptographic key
          * @type {string | null}
          * @public
          */
@@ -400,8 +400,8 @@ var doip = (function (exports, fetcher, openpgp$1) {
         primaryPersonaIndex: this.primaryPersonaIndex,
         publicKey: {
           keyType: this.publicKey.keyType,
-          format: this.publicKey.format,
-          keyData: this.publicKey.keyData,
+          encoding: this.publicKey.encoding,
+          encodedKey: this.publicKey.encodedKey,
           fetch: {
             method: this.publicKey.fetch.method,
             query: this.publicKey.fetch.query,
@@ -1756,11 +1756,14 @@ var doip = (function (exports, fetcher, openpgp$1) {
    */
   const createDefaultRequestPromise = (data, opts) => {
     return new Promise((resolve, reject) => {
-      fetcher__namespace[data.proof.request.protocol]
+      if (!(data.proof.request.fetcher in fetcher__namespace)) {
+        reject(new Error(`fetcher for ${data.proof.request.fetcher} not found`));
+      }
+      fetcher__namespace[data.proof.request.fetcher]
         .fn(data.proof.request.data, opts)
         .then((res) => {
           return resolve({
-            protocol: data.proof.request.protocol,
+            fetcher: data.proof.request.fetcher,
             data,
             viaProxy: false,
             result: res
@@ -1782,7 +1785,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       let proxyUrl;
       try {
         proxyUrl = generateProxyURL(
-          data.proof.request.protocol,
+          data.proof.request.fetcher,
           data.proof.request.data,
           opts
         );
@@ -1793,13 +1796,13 @@ var doip = (function (exports, fetcher, openpgp$1) {
       const requestData = {
         url: proxyUrl,
         format: data.proof.request.format,
-        fetcherTimeout: fetcher__namespace[data.proof.request.protocol].timeout
+        fetcherTimeout: fetcher__namespace[data.proof.request.fetcher].timeout
       };
       fetcher__namespace.http
         .fn(requestData, opts)
         .then((res) => {
           return resolve({
-            protocol: 'http',
+            fetcher: 'http',
             data,
             viaProxy: true,
             result: res
@@ -3207,14 +3210,14 @@ var doip = (function (exports, fetcher, openpgp$1) {
         request: {
           /**
            * Location of the proof
-           * @type {string}
+           * @type {string | null}
            */
           uri: spObj.proof.request.uri,
           /**
-           * Protocol to be used to request the proof
+           * Fetcher to be used to request the proof
            * @type {string}
            */
-          protocol: spObj.proof.request.protocol,
+          fetcher: spObj.proof.request.fetcher,
           /**
            * Type of access restriction
            * @type {import('./enums.js').ProofAccessRestriction}
@@ -3243,6 +3246,20 @@ var doip = (function (exports, fetcher, openpgp$1) {
          */
         target: spObj.proof.target
       };
+    }
+
+    /**
+     * Get a JSON representation of the ServiceProvider object
+     * @function
+     * @returns {object}
+     */
+    toJSON () {
+      return {
+        about: this.about,
+        profile: this.profile,
+        claim: this.claim,
+        proof: this.proof
+      }
     }
   }
 
@@ -3288,7 +3305,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       proof: {
         request: {
           uri: null,
-          protocol: Fetcher.DNS,
+          fetcher: Fetcher.DNS,
           accessRestriction: ProofAccessRestriction.SERVER,
           data: {
             domain: match[1]
@@ -3371,7 +3388,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       proof: {
         request: {
           uri: null,
-          protocol: Fetcher.IRC,
+          fetcher: Fetcher.IRC,
           accessRestriction: ProofAccessRestriction.SERVER,
           data: {
             domain: match[1],
@@ -3460,7 +3477,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       proof: {
         request: {
           uri: null,
-          protocol: Fetcher.XMPP,
+          fetcher: Fetcher.XMPP,
           accessRestriction: ProofAccessRestriction.SERVER,
           data: {
             id: `${match[1]}@${match[2]}`
@@ -3560,7 +3577,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       proof: {
         request: {
           uri: eventUrl,
-          protocol: Fetcher.MATRIX,
+          fetcher: Fetcher.MATRIX,
           accessRestriction: ProofAccessRestriction.GRANTED,
           data: {
             eventId: paramEventId,
@@ -3655,7 +3672,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       proof: {
         request: {
           uri: `https://t.me/${match[2]}`,
-          protocol: Fetcher.TELEGRAM,
+          fetcher: Fetcher.TELEGRAM,
           accessRestriction: ProofAccessRestriction.GRANTED,
           data: {
             user: match[1],
@@ -3752,7 +3769,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       proof: {
         request: {
           uri,
-          protocol: Fetcher.HTTP,
+          fetcher: Fetcher.HTTP,
           accessRestriction: ProofAccessRestriction.NOCORS,
           data: {
             // Returns an oembed json object with the tweet content in html form
@@ -3838,7 +3855,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       proof: {
         request: {
           uri,
-          protocol: Fetcher.HTTP,
+          fetcher: Fetcher.HTTP,
           accessRestriction: ProofAccessRestriction.NOCORS,
           data: {
             url: `https://www.reddit.com/user/${match[1]}/comments/${match[2]}.json`,
@@ -3931,7 +3948,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       proof: {
         request: {
           uri,
-          protocol: Fetcher.HTTP,
+          fetcher: Fetcher.HTTP,
           accessRestriction: ProofAccessRestriction.NONE,
           data: {
             url: `https://liberapay.com/${match[1]}/public.json`,
@@ -4015,7 +4032,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       proof: {
         request: {
           uri: `https://lichess.org/api/user/${match[1]}`,
-          protocol: Fetcher.HTTP,
+          fetcher: Fetcher.HTTP,
           accessRestriction: ProofAccessRestriction.NONE,
           data: {
             url: `https://lichess.org/api/user/${match[1]}`,
@@ -4100,7 +4117,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       proof: {
         request: {
           uri: `https://hacker-news.firebaseio.com/v0/user/${match[1]}.json`,
-          protocol: Fetcher.HTTP,
+          fetcher: Fetcher.HTTP,
           accessRestriction: ProofAccessRestriction.NOCORS,
           data: {
             url: `https://hacker-news.firebaseio.com/v0/user/${match[1]}.json`,
@@ -4185,7 +4202,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       proof: {
         request: {
           uri: `https://lobste.rs/u/${match[1]}.json`,
-          protocol: Fetcher.HTTP,
+          fetcher: Fetcher.HTTP,
           accessRestriction: ProofAccessRestriction.NOCORS,
           data: {
             url: `https://lobste.rs/u/${match[1]}.json`,
@@ -4270,7 +4287,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       proof: {
         request: {
           uri,
-          protocol: Fetcher.HTTP,
+          fetcher: Fetcher.HTTP,
           accessRestriction: ProofAccessRestriction.NOCORS,
           data: {
             url: `https://${match[1]}/api/articles/${match[2]}/${match[3]}`,
@@ -4355,7 +4372,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       proof: {
         request: {
           uri,
-          protocol: Fetcher.HTTP,
+          fetcher: Fetcher.HTTP,
           accessRestriction: ProofAccessRestriction.NOCORS,
           data: {
             url: `https://${match[1]}/api/v1/repos/${match[2]}/${match[3]}`,
@@ -4444,7 +4461,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       proof: {
         uri,
         request: {
-          protocol: Fetcher.HTTP,
+          fetcher: Fetcher.HTTP,
           accessRestriction: ProofAccessRestriction.NONE,
           data: {
             url: `https://${match[1]}/api/v4/projects/${match[2]}%2Fgitlab_proof`,
@@ -4529,7 +4546,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       proof: {
         request: {
           uri,
-          protocol: Fetcher.HTTP,
+          fetcher: Fetcher.HTTP,
           accessRestriction: ProofAccessRestriction.NONE,
           data: {
             url: `https://api.github.com/gists/${match[2]}`,
@@ -4613,7 +4630,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       proof: {
         request: {
           uri,
-          protocol: Fetcher.ACTIVITYPUB,
+          fetcher: Fetcher.ACTIVITYPUB,
           accessRestriction: ProofAccessRestriction.NONE,
           data: {
             url: uri
@@ -4740,7 +4757,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       proof: {
         request: {
           uri,
-          protocol: Fetcher.HTTP,
+          fetcher: Fetcher.HTTP,
           accessRestriction: ProofAccessRestriction.NOCORS,
           data: {
             url: `https://${match[1]}/u/${match[2]}.json`,
@@ -4825,7 +4842,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       proof: {
         request: {
           uri: `${uri}/api/config`,
-          protocol: Fetcher.HTTP,
+          fetcher: Fetcher.HTTP,
           accessRestriction: ProofAccessRestriction.NONE,
           data: {
             url: `${uri}/api/config`,
@@ -4916,7 +4933,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       proof: {
         request: {
           uri: `https://${domain}.com/users/${id}?tab=profile`,
-          protocol: Fetcher.HTTP,
+          fetcher: Fetcher.HTTP,
           accessRestriction: ProofAccessRestriction.NONE,
           data: {
             url: `https://api.stackexchange.com/2.3/users/${id}?site=${site}&filter=!AH)b5JqVyImf`,
@@ -5041,7 +5058,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       proof: {
         request: {
           uri: `https://keybase.io/_/api/1.0/user/lookup.json?username=${match[1]}`,
-          protocol: Fetcher.HTTP,
+          fetcher: Fetcher.HTTP,
           accessRestriction: ProofAccessRestriction.NOCORS,
           data: {
             url: `https://keybase.io/_/api/1.0/user/lookup.json?username=${match[1]}`,
@@ -5126,7 +5143,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       proof: {
         request: {
           uri,
-          protocol: Fetcher.GRAPHQL,
+          fetcher: Fetcher.GRAPHQL,
           accessRestriction: ProofAccessRestriction.NOCORS,
           data: {
             url: 'https://api.opencollective.com/graphql/v2',
@@ -5548,7 +5565,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
             this._fingerprint
           );
           verificationResult.proof = {
-            protocol: proofData.fetcher,
+            fetcher: proofData.fetcher,
             viaProxy: proofData.viaProxy
           };
 
@@ -5608,20 +5625,24 @@ var doip = (function (exports, fetcher, openpgp$1) {
      */
     toJSON () {
       let displayName = this._uri;
-      let displayUrl = '';
-      let displayServiceProviderName = '';
+      let displayUrl = null;
+      let displayServiceProviderName = null;
 
       if (this._status >= 200 && this._status < 300) {
         displayName = this._matches[0].profile.display;
         displayUrl = this._matches[0].profile.uri;
-        displayServiceProviderName = this._matches[0].about.id;
+        displayServiceProviderName = this._matches[0].about.name;
+      } else if (this._status === ClaimStatus.MATCHED && !this.isAmbiguous()) {
+        displayName = this._matches[0].profile.display;
+        displayUrl = this._matches[0].profile.uri;
+        displayServiceProviderName = this._matches[0].about.name;
       }
 
       return {
         claimVersion: 2,
         uri: this._uri,
         proofs: [this._fingerprint],
-        matches: this._matches,
+        matches: this._matches.map(x => x.toJSON()),
         status: this._status,
         display: {
           name: displayName,
