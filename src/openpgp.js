@@ -66,10 +66,6 @@ export async function fetchHKP (identifier, keyserverDomain) {
     })
 
   const profile = await parsePublicKey(publicKey)
-  profile.publicKey.keyType = PublicKeyType.OPENPGP
-  profile.publicKey.encoding = PublicKeyEncoding.ARMORED_PGP
-  profile.publicKey.encodedKey = publicKey.armor()
-  profile.publicKey.key = publicKey
   profile.publicKey.fetch.method = PublicKeyFetchMethod.HKP
   profile.publicKey.fetch.query = identifier
 
@@ -108,10 +104,6 @@ export async function fetchWKD (identifier) {
     })
 
   const profile = await parsePublicKey(publicKey)
-  profile.publicKey.keyType = PublicKeyType.OPENPGP
-  profile.publicKey.encoding = PublicKeyEncoding.ARMORED_PGP
-  profile.publicKey.encodedKey = publicKey.armor()
-  profile.publicKey.key = publicKey
   profile.publicKey.fetch.method = PublicKeyFetchMethod.WKD
   profile.publicKey.fetch.query = identifier
 
@@ -155,10 +147,6 @@ export async function fetchKeybase (username, fingerprint) {
     })
 
   const profile = await parsePublicKey(publicKey)
-  profile.publicKey.keyType = PublicKeyType.OPENPGP
-  profile.publicKey.encoding = PublicKeyEncoding.ARMORED_PGP
-  profile.publicKey.encodedKey = publicKey.armor()
-  profile.publicKey.key = publicKey
   profile.publicKey.fetch.method = PublicKeyFetchMethod.HTTP
   profile.publicKey.fetch.query = null
   profile.publicKey.fetch.resolvedUrl = keyLink
@@ -189,10 +177,6 @@ export async function fetchPlaintext (rawKeyContent) {
     })
 
   const profile = await parsePublicKey(publicKey)
-  profile.publicKey.keyType = PublicKeyType.OPENPGP
-  profile.publicKey.encoding = PublicKeyEncoding.ARMORED_PGP
-  profile.publicKey.encodedKey = publicKey.armor()
-  profile.publicKey.key = publicKey
 
   return profile
 }
@@ -286,18 +270,18 @@ export async function fetch (identifier) {
 }
 
 /**
- * Process a public key to get user data and claims
+ * Process a public key to get a profile
  * @function
- * @param {PublicKey} publicKey - The public key to process
+ * @param {PublicKey} publicKey - The public key to parse
  * @returns {Promise<Profile>}
  * @example
  * const key = doip.keys.fetchURI('hkp:alice@domain.tld');
- * const data = doip.keys.process(key);
- * data.users[0].claims.forEach(claim => {
+ * const profile = doip.keys.parsePublicKey(key);
+ * profile.personas[0].claims.forEach(claim => {
  *   console.log(claim.uri);
  * });
  */
-async function parsePublicKey (publicKey) {
+export async function parsePublicKey (publicKey) {
   if (!(publicKey && (publicKey instanceof PublicKey))) {
     throw new Error('Invalid public key')
   }
@@ -334,8 +318,14 @@ async function parsePublicKey (publicKey) {
     personas.push(pe)
   })
 
-  const pr = new Profile(ProfileType.OPENPGP, `openpgp4fpr:${fingerprint}`, personas)
-  pr.primaryPersonaIndex = primaryUser.index
+  const profile = new Profile(ProfileType.OPENPGP, `openpgp4fpr:${fingerprint}`, personas)
+  profile.primaryPersonaIndex = primaryUser.index
 
-  return pr
+  profile.publicKey.keyType = PublicKeyType.OPENPGP
+  profile.publicKey.fingerprint = fingerprint
+  profile.publicKey.encoding = PublicKeyEncoding.ARMORED_PGP
+  profile.publicKey.encodedKey = publicKey.armor()
+  profile.publicKey.key = publicKey
+
+  return profile
 }

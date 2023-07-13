@@ -19,7 +19,7 @@ import { base32, base64url } from 'rfc4648'
 import { Claim } from './claim.js'
 import { Persona } from './persona.js'
 import { Profile } from './profile.js'
-import { ProfileType } from './enums.js'
+import { ProfileType, PublicKeyEncoding, PublicKeyFetchMethod, PublicKeyType } from './enums.js'
 
 const SupportedCryptoAlg = ['EdDSA', 'ES256', 'ES256K', 'ES384', 'ES512']
 
@@ -67,7 +67,12 @@ export async function fetchASPE (uri) {
     throw new Error(`Error fetching Keybase key: ${e.message}`)
   }
 
-  return await parseProfileJws(profileJws, uri)
+  const profile = await parseProfileJws(profileJws, uri)
+  profile.publicKey.fetch.method = PublicKeyFetchMethod.ASPE
+  profile.publicKey.fetch.query = uri
+  profile.publicKey.fetch.resolvedUrl = profileUrl
+
+  return profile
 }
 
 /**
@@ -135,9 +140,27 @@ export async function parseProfileJws (profileJws, uri) {
     pe.setDescription(profileDescription)
   }
 
-  const pr = new Profile(ProfileType.ASP, uri, [pe])
+  const profile = new Profile(ProfileType.ASP, uri, [pe])
+  profile.publicKey.fingerprint = fp
+  profile.publicKey.encoding = PublicKeyEncoding.JWK
+  profile.publicKey.encodedKey = JSON.stringify(protectedHeader.jwk)
+  profile.publicKey.key = protectedHeader.jwk
 
-  return pr
+  switch (protectedHeader.alg) {
+    case 'ES256':
+      profile.publicKey.keyType = PublicKeyType.ES256
+      break
+
+    case 'EdDSA':
+      profile.publicKey.keyType = PublicKeyType.EDDSA
+      break
+
+    default:
+      profile.publicKey.keyType = PublicKeyType.UNKNOWN
+      break
+  }
+
+  return profile
 }
 
 /**
