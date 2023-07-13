@@ -191,6 +191,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
     EDDSA: 'eddsa',
     ES256: 'es256',
     OPENPGP: 'openpgp',
+    UNKNOWN: 'unknown',
     NONE: 'none'
   };
 
@@ -314,6 +315,12 @@ var doip = (function (exports, fetcher, openpgp$1) {
          */
         keyType: PublicKeyType.NONE,
         /**
+         * The fingerprint of the cryptographic key
+         * @type {string | null}
+         * @public
+         */
+        fingerprint: null,
+        /**
          * The encoding of the cryptographic key
          * @type {PublicKeyEncoding}
          * @public
@@ -327,7 +334,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
         encodedKey: null,
         /**
          * The raw cryptographic key as object (to be removed during toJSON())
-         * @type {import('openpgp').PublicKey | import('jose').KeyLike | null}
+         * @type {import('openpgp').PublicKey | import('jose').JWK | null}
          * @public
          */
         key: null,
@@ -375,18 +382,6 @@ var doip = (function (exports, fetcher, openpgp$1) {
     }
 
     /**
-     * @function
-     * @param {import('openpgp').PublicKey} publicKey
-     */
-    setOpenPgpPublicKey (publicKey) {}
-
-    /**
-     * @function
-     * @param {import('jose').KeyLike} publicKey
-     */
-    setJwkPublicKey (publicKey) {}
-
-    /**
      * Get a JSON representation of the Profile object
      * @function
      * @returns {object}
@@ -400,6 +395,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
         primaryPersonaIndex: this.primaryPersonaIndex,
         publicKey: {
           keyType: this.publicKey.keyType,
+          fingerprint: this.publicKey.fingerprint,
           encoding: this.publicKey.encoding,
           encodedKey: this.publicKey.encodedKey,
           fetch: {
@@ -1580,7 +1576,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
 
     const scheme = opts.proxy.scheme ? opts.proxy.scheme : 'https';
 
-    return `${scheme}://${opts.proxy.hostname}/api/2/get/${type}?${queryStrings.join(
+    return `${scheme}://${opts.proxy.hostname}/api/3/get/${type}?${queryStrings.join(
     '&'
   )}`
   }
@@ -1696,7 +1692,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
         return createProxyRequestPromise(data, opts)
 
       case ProxyPolicy.NEVER:
-        switch (data.proof.request.access) {
+        switch (data.proof.request.accessRestriction) {
           case ProofAccessRestriction.NONE:
           case ProofAccessRestriction.GRANTED:
             return createDefaultRequestPromise(data, opts)
@@ -1710,7 +1706,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
         }
 
       case ProxyPolicy.ADAPTIVE:
-        switch (data.proof.request.access) {
+        switch (data.proof.request.accessRestriction) {
           case ProofAccessRestriction.NONE:
             return createFallbackRequestPromise(data, opts)
           case ProofAccessRestriction.NOCORS:
@@ -1795,8 +1791,8 @@ var doip = (function (exports, fetcher, openpgp$1) {
 
       const requestData = {
         url: proxyUrl,
-        format: data.proof.request.format,
-        fetcherTimeout: fetcher__namespace[data.proof.request.fetcher].timeout
+        format: data.proof.response.format,
+        fetcherTimeout: data.proof.request.fetcher in fetcher__namespace ? fetcher__namespace[data.proof.request.fetcher].timeout : 30000
       };
       fetcher__namespace.http
         .fn(requestData, opts)
@@ -5666,7 +5662,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
 
     claim._uri = claimObject.uri;
     claim._fingerprint = claimObject.fingerprint;
-    claim._matches = claimObject.matches;
+    claim._matches = claimObject.matches.map(x => new ServiceProvider(x));
 
     if (claimObject.status === 'init') {
       claim._status = 100;
@@ -5707,7 +5703,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
 
     claim._uri = claimObject.uri;
     claim._fingerprint = claimObject.proofs[0];
-    claim._matches = claimObject.matches;
+    claim._matches = claimObject.matches.map(x => new ServiceProvider(x));
     claim._status = claimObject.status;
 
     return claim
@@ -7958,10 +7954,6 @@ var doip = (function (exports, fetcher, openpgp$1) {
       });
 
     const profile = await parsePublicKey(publicKey);
-    profile.publicKey.keyType = PublicKeyType.OPENPGP;
-    profile.publicKey.encoding = PublicKeyEncoding.ARMORED_PGP;
-    profile.publicKey.encodedKey = publicKey.armor();
-    profile.publicKey.key = publicKey;
     profile.publicKey.fetch.method = PublicKeyFetchMethod.HKP;
     profile.publicKey.fetch.query = identifier;
 
@@ -8000,10 +7992,6 @@ var doip = (function (exports, fetcher, openpgp$1) {
       });
 
     const profile = await parsePublicKey(publicKey);
-    profile.publicKey.keyType = PublicKeyType.OPENPGP;
-    profile.publicKey.encoding = PublicKeyEncoding.ARMORED_PGP;
-    profile.publicKey.encodedKey = publicKey.armor();
-    profile.publicKey.key = publicKey;
     profile.publicKey.fetch.method = PublicKeyFetchMethod.WKD;
     profile.publicKey.fetch.query = identifier;
 
@@ -8047,10 +8035,6 @@ var doip = (function (exports, fetcher, openpgp$1) {
       });
 
     const profile = await parsePublicKey(publicKey);
-    profile.publicKey.keyType = PublicKeyType.OPENPGP;
-    profile.publicKey.encoding = PublicKeyEncoding.ARMORED_PGP;
-    profile.publicKey.encodedKey = publicKey.armor();
-    profile.publicKey.key = publicKey;
     profile.publicKey.fetch.method = PublicKeyFetchMethod.HTTP;
     profile.publicKey.fetch.query = null;
     profile.publicKey.fetch.resolvedUrl = keyLink;
@@ -8081,10 +8065,6 @@ var doip = (function (exports, fetcher, openpgp$1) {
       });
 
     const profile = await parsePublicKey(publicKey);
-    profile.publicKey.keyType = PublicKeyType.OPENPGP;
-    profile.publicKey.encoding = PublicKeyEncoding.ARMORED_PGP;
-    profile.publicKey.encodedKey = publicKey.armor();
-    profile.publicKey.key = publicKey;
 
     return profile
   }
@@ -8178,14 +8158,14 @@ var doip = (function (exports, fetcher, openpgp$1) {
   }
 
   /**
-   * Process a public key to get user data and claims
+   * Process a public key to get a profile
    * @function
-   * @param {PublicKey} publicKey - The public key to process
+   * @param {PublicKey} publicKey - The public key to parse
    * @returns {Promise<Profile>}
    * @example
    * const key = doip.keys.fetchURI('hkp:alice@domain.tld');
-   * const data = doip.keys.process(key);
-   * data.users[0].claims.forEach(claim => {
+   * const profile = doip.keys.parsePublicKey(key);
+   * profile.personas[0].claims.forEach(claim => {
    *   console.log(claim.uri);
    * });
    */
@@ -8226,10 +8206,16 @@ var doip = (function (exports, fetcher, openpgp$1) {
       personas.push(pe);
     });
 
-    const pr = new Profile(ProfileType.OPENPGP, `openpgp4fpr:${fingerprint}`, personas);
-    pr.primaryPersonaIndex = primaryUser.index;
+    const profile = new Profile(ProfileType.OPENPGP, `openpgp4fpr:${fingerprint}`, personas);
+    profile.primaryPersonaIndex = primaryUser.index;
 
-    return pr
+    profile.publicKey.keyType = PublicKeyType.OPENPGP;
+    profile.publicKey.fingerprint = fingerprint;
+    profile.publicKey.encoding = PublicKeyEncoding.ARMORED_PGP;
+    profile.publicKey.encodedKey = publicKey.armor();
+    profile.publicKey.key = publicKey;
+
+    return profile
   }
 
   var openpgp = /*#__PURE__*/Object.freeze({
@@ -8239,7 +8225,8 @@ var doip = (function (exports, fetcher, openpgp$1) {
     fetchKeybase: fetchKeybase,
     fetchPlaintext: fetchPlaintext,
     fetchURI: fetchURI,
-    fetchWKD: fetchWKD
+    fetchWKD: fetchWKD,
+    parsePublicKey: parsePublicKey
   });
 
   var crypto$1 = crypto;
@@ -8658,7 +8645,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       }
       return { algorithm, keyUsages };
   }
-  const parse$1 = async (jwk) => {
+  const parse$2 = async (jwk) => {
       var _a, _b;
       if (!jwk.alg) {
           throw new TypeError('"alg" argument is required when "jwk.alg" is not present');
@@ -8677,7 +8664,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       delete keyData.use;
       return crypto$1.subtle.importKey('jwk', keyData, ...rest);
   };
-  var asKeyObject = parse$1;
+  var asKeyObject = parse$2;
 
   async function importJWK(jwk, alg, octAsKeyObject) {
       var _a;
@@ -9043,7 +9030,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
   Object.defineProperty(lib, '__esModule', { value: true });
 
   /* eslint-disable @typescript-eslint/strict-boolean-expressions */
-  function parse(string, encoding, opts) {
+  function parse$1(string, encoding, opts) {
     var _opts$out;
 
     if (opts === void 0) {
@@ -9171,51 +9158,51 @@ var doip = (function (exports, fetcher, openpgp$1) {
     bits: 6
   };
   var base16 = {
-    parse: function parse$1(string, opts) {
-      return parse(string.toUpperCase(), base16Encoding, opts);
+    parse: function parse$1$1(string, opts) {
+      return parse$1(string.toUpperCase(), base16Encoding, opts);
     },
     stringify: function stringify$1(data, opts) {
       return stringify(data, base16Encoding, opts);
     }
   };
   var base32$1 = {
-    parse: function parse$1(string, opts) {
+    parse: function parse$1$1(string, opts) {
       if (opts === void 0) {
         opts = {};
       }
 
-      return parse(opts.loose ? string.toUpperCase().replace(/0/g, 'O').replace(/1/g, 'L').replace(/8/g, 'B') : string, base32Encoding, opts);
+      return parse$1(opts.loose ? string.toUpperCase().replace(/0/g, 'O').replace(/1/g, 'L').replace(/8/g, 'B') : string, base32Encoding, opts);
     },
     stringify: function stringify$1(data, opts) {
       return stringify(data, base32Encoding, opts);
     }
   };
   var base32hex = {
-    parse: function parse$1(string, opts) {
-      return parse(string, base32HexEncoding, opts);
+    parse: function parse$1$1(string, opts) {
+      return parse$1(string, base32HexEncoding, opts);
     },
     stringify: function stringify$1(data, opts) {
       return stringify(data, base32HexEncoding, opts);
     }
   };
   var base64 = {
-    parse: function parse$1(string, opts) {
-      return parse(string, base64Encoding, opts);
+    parse: function parse$1$1(string, opts) {
+      return parse$1(string, base64Encoding, opts);
     },
     stringify: function stringify$1(data, opts) {
       return stringify(data, base64Encoding, opts);
     }
   };
   var base64url$1 = {
-    parse: function parse$1(string, opts) {
-      return parse(string, base64UrlEncoding, opts);
+    parse: function parse$1$1(string, opts) {
+      return parse$1(string, base64UrlEncoding, opts);
     },
     stringify: function stringify$1(data, opts) {
       return stringify(data, base64UrlEncoding, opts);
     }
   };
   var codec = {
-    parse: parse,
+    parse: parse$1,
     stringify: stringify
   };
 
@@ -9298,7 +9285,12 @@ var doip = (function (exports, fetcher, openpgp$1) {
       throw new Error(`Error fetching Keybase key: ${e.message}`)
     }
 
-    return await parseProfileJws(profileJws, uri)
+    const profile = await parseProfileJws(profileJws, uri);
+    profile.publicKey.fetch.method = PublicKeyFetchMethod.ASPE;
+    profile.publicKey.fetch.query = uri;
+    profile.publicKey.fetch.resolvedUrl = profileUrl;
+
+    return profile
   }
 
   /**
@@ -9366,9 +9358,27 @@ var doip = (function (exports, fetcher, openpgp$1) {
       pe.setDescription(profileDescription);
     }
 
-    const pr = new Profile(ProfileType.ASP, uri, [pe]);
+    const profile = new Profile(ProfileType.ASP, uri, [pe]);
+    profile.publicKey.fingerprint = fp;
+    profile.publicKey.encoding = PublicKeyEncoding.JWK;
+    profile.publicKey.encodedKey = JSON.stringify(protectedHeader.jwk);
+    profile.publicKey.key = protectedHeader.jwk;
 
-    return pr
+    switch (protectedHeader.alg) {
+      case 'ES256':
+        profile.publicKey.keyType = PublicKeyType.ES256;
+        break
+
+      case 'EdDSA':
+        profile.publicKey.keyType = PublicKeyType.EDDSA;
+        break
+
+      default:
+        profile.publicKey.keyType = PublicKeyType.UNKNOWN;
+        break
+    }
+
+    return profile
   }
 
   /**
@@ -9413,29 +9423,14 @@ var doip = (function (exports, fetcher, openpgp$1) {
    */
 
   /**
-   * Extract data from a signature and fetch the associated key
+   * Extract the profile from a signature and fetch the associated key
    * @async
-   * @param {string} signature - The plaintext signature to process
-   * @returns {Promise<object>}
+   * @param {string} signature - The plaintext signature to parse
+   * @returns {Promise<import('./profile.js').Profile>}
    */
-  async function process (signature) {
+  async function parse (signature) {
     /** @type {import('openpgp').CleartextMessage} */
     let sigData;
-    const result = {
-      fingerprint: null,
-      users: [
-        {
-          userData: {},
-          claims: []
-        }
-      ],
-      primaryUserIndex: null,
-      key: {
-        data: null,
-        fetchMethod: null,
-        uri: null
-      }
-    };
 
     // Read the signature
     try {
@@ -9456,6 +9451,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
       'https://keys.openpgp.org/';
     const text = sigData.getText();
     const sigKeys = [];
+    const claims = [];
 
     text.split('\n').forEach((line, i) => {
       const match = line.match(/^([a-zA-Z0-9]*)=(.*)$/i);
@@ -9468,44 +9464,54 @@ var doip = (function (exports, fetcher, openpgp$1) {
           break
 
         case 'proof':
-          result.users[0].claims.push(new Claim(match[2]));
+          claims.push(new Claim(match[2]));
           break
       }
     });
 
-    // Try overruling key
+    const obtainedKey = {
+      query: null,
+      data: null,
+      method: null
+    };
+
+    // Try key identifier found in the signature
     if (sigKeys.length > 0) {
       try {
-        result.key.uri = sigKeys[0];
-        result.key.data = (await fetchURI(result.key.uri)).publicKey.key;
-        result.key.fetchMethod = result.key.uri.split(':')[0];
+        obtainedKey.query = sigKeys[0];
+        /** @type {import('openpgp').PublicKey} */
+        obtainedKey.data = (await fetchURI(obtainedKey.query)).publicKey.key;
+        obtainedKey.method = obtainedKey.query.split(':')[0];
       } catch (e) {}
     }
     // Try WKD
-    if (!result.key.data && signersUserID) {
+    if (!obtainedKey.data && signersUserID) {
       try {
-        result.key.uri = `wkd:${signersUserID}`;
-        result.key.data = (await fetchURI(result.key.uri)).publicKey.key;
-        result.key.fetchMethod = 'wkd';
+        obtainedKey.query = signersUserID;
+        obtainedKey.data = (await fetchURI(`wkd:${signersUserID}`)).publicKey.key;
+        obtainedKey.method = 'wkd';
       } catch (e) {}
     }
     // Try HKP
-    if (!result.key.data) {
+    if (!obtainedKey.data) {
       try {
         const match = preferredKeyServer.match(/^(.*:\/\/)?([^/]*)(?:\/)?$/i);
-        result.key.uri = `hkp:${match[2]}:${issuerKeyID || signersUserID}`;
-        result.key.data = (await fetchURI(result.key.uri)).publicKey.key;
-        result.key.fetchMethod = 'hkp';
+        obtainedKey.query = issuerKeyID || signersUserID;
+        obtainedKey.data = (await fetchURI(`hkp:${match[2]}:${obtainedKey.query}`)).publicKey.key;
+        obtainedKey.method = 'hkp';
       } catch (e) {
         throw new Error('Public key not found')
       }
     }
 
+    const primaryUserData = await obtainedKey.data.getPrimaryUser();
+    const fingerprint = obtainedKey.data.getFingerprint();
+
     // Verify the signature
     const verificationResult = await openpgp$1.verify({
       // @ts-ignore
       message: sigData,
-      verificationKeys: result.key.data
+      verificationKeys: obtainedKey.data
     });
     const { verified } = verificationResult.signatures[0];
     try {
@@ -9514,42 +9520,32 @@ var doip = (function (exports, fetcher, openpgp$1) {
       throw new Error(`Signature could not be verified (${e.message})`)
     }
 
-    result.fingerprint = result.key.data.keyPacket.getFingerprint();
+    // Build the persona
+    const persona = new Persona(primaryUserData.user.userID.name, []);
+    persona.setIdentifier(primaryUserData.user.userID.userID);
+    persona.setDescription(primaryUserData.user.userID.comment || null);
+    persona.setEmailAddress(primaryUserData.user.userID.email || null);
+    persona.claims = claims
+      .map(
+        ({ value }) =>
+          new Claim(new TextDecoder().decode(value), `openpgp4fpr:${fingerprint}`)
+      );
 
-    result.users[0].claims.forEach((claim) => {
-      claim.fingerprint = result.fingerprint;
-    });
+    const profile = new Profile(ProfileType.OPENPGP, `openpgp4fpr:${fingerprint}`, [persona]);
 
-    const primaryUserData = await result.key.data.getPrimaryUser();
-    let userData;
+    profile.publicKey.keyType = PublicKeyType.OPENPGP;
+    profile.publicKey.encoding = PublicKeyEncoding.ARMORED_PGP;
+    profile.publicKey.encodedKey = obtainedKey.data.armor();
+    profile.publicKey.key = obtainedKey.data;
+    profile.publicKey.fetch.method = obtainedKey.method;
+    profile.publicKey.fetch.query = obtainedKey.query;
 
-    if (signersUserID) {
-      result.key.data.users.forEach((/** @type {{ userID: { email: string; }; }} */ user) => {
-        if (user.userID.email === signersUserID) {
-          userData = user;
-        }
-      });
-    }
-    if (!userData) {
-      userData = primaryUserData.user;
-    }
-
-    result.users[0].userData = {
-      id: userData.userID ? userData.userID.userID : null,
-      name: userData.userID ? userData.userID.name : null,
-      email: userData.userID ? userData.userID.email : null,
-      comment: userData.userID ? userData.userID.comment : null,
-      isPrimary: primaryUserData.user.userID.userID === userData.userID.userID
-    };
-
-    result.primaryUserIndex = result.users[0].userData.isPrimary ? 0 : null;
-
-    return result
+    return profile
   }
 
   var signatures = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    process: process
+    parse: parse
   });
 
   exports.fetcher = fetcher__namespace;
