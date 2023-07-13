@@ -52,7 +52,7 @@ const handleBrowserRequests = (data, opts) => {
       return createProxyRequestPromise(data, opts)
 
     case ProxyPolicy.NEVER:
-      switch (data.proof.request.access) {
+      switch (data.proof.request.accessRestriction) {
         case ProofAccessRestriction.NONE:
         case ProofAccessRestriction.GRANTED:
           return createDefaultRequestPromise(data, opts)
@@ -66,7 +66,7 @@ const handleBrowserRequests = (data, opts) => {
       }
 
     case ProxyPolicy.ADAPTIVE:
-      switch (data.proof.request.access) {
+      switch (data.proof.request.accessRestriction) {
         case ProofAccessRestriction.NONE:
           return createFallbackRequestPromise(data, opts)
         case ProofAccessRestriction.NOCORS:
@@ -151,8 +151,8 @@ const createProxyRequestPromise = (data, opts) => {
 
     const requestData = {
       url: proxyUrl,
-      format: data.proof.request.format,
-      fetcherTimeout: fetcher[data.proof.request.fetcher].timeout
+      format: data.proof.response.format,
+      fetcherTimeout: data.proof.request.fetcher in fetcher ? fetcher[data.proof.request.fetcher].timeout : 30000
     }
     fetcher.http
       .fn(requestData, opts)
