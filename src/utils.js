@@ -45,7 +45,7 @@ export function generateProxyURL (type, data, opts) {
 
   const scheme = opts.proxy.scheme ? opts.proxy.scheme : 'https'
 
-  return `${scheme}://${opts.proxy.hostname}/api/2/get/${type}?${queryStrings.join(
+  return `${scheme}://${opts.proxy.hostname}/api/3/get/${type}?${queryStrings.join(
     '&'
   )}`
 }

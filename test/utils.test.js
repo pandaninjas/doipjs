@@ -59,10 +59,10 @@ describe('utils.generateProxyURL', () => {
     }
     expect(
       utils.generateProxyURL('http', { domain: 'domain.org' }, opts)
-    ).to.equal('https://localhost/api/2/get/http?domain=domain.org')
+    ).to.equal('https://localhost/api/3/get/http?domain=domain.org')
     expect(
       utils.generateProxyURL('dns', { domain: 'domain.org' }, opts)
-    ).to.equal('https://localhost/api/2/get/dns?domain=domain.org')
+    ).to.equal('https://localhost/api/3/get/dns?domain=domain.org')
   })
   it('should generate correct proxy URLs for explicit http scheme', () => {
     const opts = {
@@ -73,10 +73,10 @@ describe('utils.generateProxyURL', () => {
     }
     expect(
       utils.generateProxyURL('http', { domain: 'domain.org' }, opts)
-    ).to.equal('http://localhost/api/2/get/http?domain=domain.org')
+    ).to.equal('http://localhost/api/3/get/http?domain=domain.org')
     expect(
       utils.generateProxyURL('dns', { domain: 'domain.org' }, opts)
-    ).to.equal('http://localhost/api/2/get/dns?domain=domain.org')
+    ).to.equal('http://localhost/api/3/get/dns?domain=domain.org')
   })
   it('should generate correct proxy URLs for default scheme', () => {
     const opts = {
@@ -86,10 +86,10 @@ describe('utils.generateProxyURL', () => {
     }
     expect(
       utils.generateProxyURL('http', { domain: 'domain.org' }, opts)
-    ).to.equal('https://localhost/api/2/get/http?domain=domain.org')
+    ).to.equal('https://localhost/api/3/get/http?domain=domain.org')
     expect(
       utils.generateProxyURL('dns', { domain: 'domain.org' }, opts)
-    ).to.equal('https://localhost/api/2/get/dns?domain=domain.org')
+    ).to.equal('https://localhost/api/3/get/dns?domain=domain.org')
   })
 
 
