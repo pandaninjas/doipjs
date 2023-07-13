@@ -16,35 +16,23 @@ limitations under the License.
 import { readCleartextMessage, verify } from 'openpgp'
 import { Claim } from './claim.js'
 import { fetchURI } from './openpgp.js'
+import { Profile } from './profile.js'
+import { ProfileType, PublicKeyEncoding, PublicKeyType } from './enums.js'
+import { Persona } from './persona.js'
 
 /**
  * @module signatures
  */
 
 /**
- * Extract data from a signature and fetch the associated key
+ * Extract the profile from a signature and fetch the associated key
  * @async
- * @param {string} signature - The plaintext signature to process
- * @returns {Promise<object>}
+ * @param {string} signature - The plaintext signature to parse
+ * @returns {Promise<import('./profile.js').Profile>}
  */
-export async function process (signature) {
+export async function parse (signature) {
   /** @type {import('openpgp').CleartextMessage} */
   let sigData
-  const result = {
-    fingerprint: null,
-    users: [
-      {
-        userData: {},
-        claims: []
-      }
-    ],
-    primaryUserIndex: null,
-    key: {
-      data: null,
-      fetchMethod: null,
-      uri: null
-    }
-  }
 
   // Read the signature
   try {
@@ -65,6 +53,7 @@ export async function process (signature) {
     'https://keys.openpgp.org/'
   const text = sigData.getText()
   const sigKeys = []
+  const claims = []
 
   text.split('\n').forEach((line, i) => {
     const match = line.match(/^([a-zA-Z0-9]*)=(.*)$/i)
@@ -77,7 +66,7 @@ export async function process (signature) {
         break
 
       case 'proof':
-        result.users[0].claims.push(new Claim(match[2]))
+        claims.push(new Claim(match[2]))
         break
 
       default:
@@ -85,39 +74,49 @@ export async function process (signature) {
     }
   })
 
-  // Try overruling key
+  const obtainedKey = {
+    query: null,
+    data: null,
+    method: null
+  }
+
+  // Try key identifier found in the signature
   if (sigKeys.length > 0) {
     try {
-      result.key.uri = sigKeys[0]
-      result.key.data = (await fetchURI(result.key.uri)).publicKey.key
-      result.key.fetchMethod = result.key.uri.split(':')[0]
+      obtainedKey.query = sigKeys[0]
+      /** @type {import('openpgp').PublicKey} */
+      obtainedKey.data = (await fetchURI(obtainedKey.query)).publicKey.key
+      obtainedKey.method = obtainedKey.query.split(':')[0]
     } catch (e) {}
   }
   // Try WKD
-  if (!result.key.data && signersUserID) {
+  if (!obtainedKey.data && signersUserID) {
     try {
-      result.key.uri = `wkd:${signersUserID}`
-      result.key.data = (await fetchURI(result.key.uri)).publicKey.key
-      result.key.fetchMethod = 'wkd'
+      obtainedKey.query = signersUserID
+      obtainedKey.data = (await fetchURI(`wkd:${signersUserID}`)).publicKey.key
+      obtainedKey.method = 'wkd'
     } catch (e) {}
   }
   // Try HKP
-  if (!result.key.data) {
+  if (!obtainedKey.data) {
     try {
       const match = preferredKeyServer.match(/^(.*:\/\/)?([^/]*)(?:\/)?$/i)
-      result.key.uri = `hkp:${match[2]}:${issuerKeyID || signersUserID}`
-      result.key.data = (await fetchURI(result.key.uri)).publicKey.key
-      result.key.fetchMethod = 'hkp'
+      obtainedKey.query = issuerKeyID || signersUserID
+      obtainedKey.data = (await fetchURI(`hkp:${match[2]}:${obtainedKey.query}`)).publicKey.key
+      obtainedKey.method = 'hkp'
     } catch (e) {
       throw new Error('Public key not found')
     }
   }
 
+  const primaryUserData = await obtainedKey.data.getPrimaryUser()
+  const fingerprint = obtainedKey.data.getFingerprint()
+
   // Verify the signature
   const verificationResult = await verify({
     // @ts-ignore
     message: sigData,
-    verificationKeys: result.key.data
+    verificationKeys: obtainedKey.data
   })
   const { verified } = verificationResult.signatures[0]
   try {
@@ -126,35 +125,25 @@ export async function process (signature) {
     throw new Error(`Signature could not be verified (${e.message})`)
   }
 
-  result.fingerprint = result.key.data.keyPacket.getFingerprint()
+  // Build the persona
+  const persona = new Persona(primaryUserData.user.userID.name, [])
+  persona.setIdentifier(primaryUserData.user.userID.userID)
+  persona.setDescription(primaryUserData.user.userID.comment || null)
+  persona.setEmailAddress(primaryUserData.user.userID.email || null)
+  persona.claims = claims
+    .map(
+      ({ value }) =>
+        new Claim(new TextDecoder().decode(value), `openpgp4fpr:${fingerprint}`)
+    )
 
-  result.users[0].claims.forEach((claim) => {
-    claim.fingerprint = result.fingerprint
-  })
+  const profile = new Profile(ProfileType.OPENPGP, `openpgp4fpr:${fingerprint}`, [persona])
 
-  const primaryUserData = await result.key.data.getPrimaryUser()
-  let userData
+  profile.publicKey.keyType = PublicKeyType.OPENPGP
+  profile.publicKey.encoding = PublicKeyEncoding.ARMORED_PGP
+  profile.publicKey.encodedKey = obtainedKey.data.armor()
+  profile.publicKey.key = obtainedKey.data
+  profile.publicKey.fetch.method = obtainedKey.method
+  profile.publicKey.fetch.query = obtainedKey.query
 
-  if (signersUserID) {
-    result.key.data.users.forEach((/** @type {{ userID: { email: string; }; }} */ user) => {
-      if (user.userID.email === signersUserID) {
-        userData = user
-      }
-    })
-  }
-  if (!userData) {
-    userData = primaryUserData.user
-  }
-
-  result.users[0].userData = {
-    id: userData.userID ? userData.userID.userID : null,
-    name: userData.userID ? userData.userID.name : null,
-    email: userData.userID ? userData.userID.email : null,
-    comment: userData.userID ? userData.userID.comment : null,
-    isPrimary: primaryUserData.user.userID.userID === userData.userID.userID
-  }
-
-  result.primaryUserIndex = result.users[0].userData.isPrimary ? 0 : null
-
-  return result
+  return profile
 }
