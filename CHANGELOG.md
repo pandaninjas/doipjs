@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2023-07-13
+### Changed
+- Moved from CommonJS to ESM
+- All profiles now use the Profile class
+- Functions that used to return OpenPGP keys now return Profile objects
+- Compliance with https://spec.keyoxide.org/spec/2/
+
 ## [0.19.0] - 2023-07-04
 ### Added
 - Support for ASPE protocol
