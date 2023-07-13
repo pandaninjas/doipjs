@@ -13,9 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import { expect } from 'chai'
+import { expect, use } from 'chai'
+import chaiAsPromised from 'chai-as-promised'
+use(chaiAsPromised)
 
-import { signatures } from '../src/index.js'
+import { Profile, signatures } from '../src/index.js'
 
 const sigProfile = `-----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA512
@@ -80,28 +82,29 @@ YCKJPotiqe50nBijHHbuABtBianiMZOm2BbaPnsmdHIX5ynWhOI8LHR1CVmTI/0o
 =2vuM
 -----END PGP SIGNATURE-----`
 
-describe('signatures.process', () => {
+describe('signatures.parse', () => {
   it('should be a function (2 arguments)', () => {
-    expect(signatures.process).to.be.a('function')
-    expect(signatures.process).to.have.length(1)
+    expect(signatures.parse).to.be.a('function')
+    expect(signatures.parse).to.have.length(1)
   })
   it('should verify a valid signature', async () => {
-    const verification = await signatures.process(sigProfile)
-    expect(verification.fingerprint).to.be.equal(
-      '3637202523e7c1309ab79e99ef2dc5827b445f4b'
+    const profile = await signatures.parse(sigProfile)
+    expect(profile).to.be.instanceOf(Profile)
+    expect(profile.identifier).to.be.equal(
+      'openpgp4fpr:3637202523e7c1309ab79e99ef2dc5827b445f4b'
     )
-    expect(verification.users[0].claims).to.be.length(1)
+    expect(profile.personas[0].claims).to.be.length(1)
   })
   it('should reject an invalid signature', async () => {
     return expect(
-      signatures.process(invalidSigProfileMessage)
+      signatures.parse(invalidSigProfileMessage)
     ).to.eventually.be.rejectedWith(
       'Signature could not be verified (Signed digest did not match)'
     )
   })
   it('should reject an invalid signature', async () => {
     return expect(
-      signatures.process(invalidSigProfileHash)
+      signatures.parse(invalidSigProfileHash)
     ).to.eventually.be.rejectedWith(
       'Signature could not be read (Ascii armor integrity check failed)'
     )

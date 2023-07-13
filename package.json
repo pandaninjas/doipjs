@@ -1,21 +1,18 @@
 {
   "name": "doipjs",
-  "version": "0.19.1-alpha.0",
+  "version": "1.0.0-rc.14",
   "description": "Decentralized Online Identity Proofs library in Node.js",
   "type": "module",
   "main": "./src/index.js",
   "exports": {
     ".": {
-      "node": "./src/index.js",
-      "default": "./dist/doip.core.js"
+      "default": "./src/index.js"
     },
     "./fetchers": {
-      "node": "./src/fetcher/index.js",
-      "default": "./dist/doip.fetchers.js"
+      "default": "./src/fetcher/index.js"
     },
     "./fetchers-minimal": {
-      "node": "./src/fetcher/index.minimal.js",
-      "default": "./dist/doip.fetchers.minimal.js"
+      "default": "./src/fetcher/index.minimal.js"
     }
   },
   "packageManager": "yarn@1.22.19",

@@ -17,7 +17,6 @@ import { expect, use } from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 use(chaiAsPromised)
 
-import { PublicKey } from 'openpgp'
 import { openpgp, Profile } from '../src/index.js'
 
 const pubKeyFingerprint = "3637202523e7c1309ab79e99ef2dc5827b445f4b"
@@ -172,33 +171,28 @@ describe('openpgp.fetchPlaintext', () => {
   }).timeout('12s')
 })
 
-// describe('openpgp.process', () => {
-//   it('should be a function (1 argument)', () => {
-//     expect(openpgp.process).to.be.a('function')
-//     expect(openpgp.process).to.have.length(1)
-//   })
-//   it('should return an object with specific openpgp', async () => {
-//     const pubKey = await openpgp.fetchPlaintext(pubKeyPlaintext)
-//     const obj = await openpgp.process(pubKey)
-//     expect(obj).to.have.openpgp([
-//       'users',
-//       'fingerprint',
-//       'primaryUserIndex',
-//       'key',
-//     ])
-//   })
-//   it('should ignore non-proof notations', async () => {
-//     const pubKey = await openpgp.fetchPlaintext(pubKeyWithOtherNotations)
-//     const obj = await openpgp.process(pubKey)
-//     expect(obj.users).to.be.lengthOf(1)
-//     expect(obj.users[0].claims).to.be.lengthOf(1)
-//     expect(obj.users[0].claims[0].uri).to.be.equal('dns:yarmo.eu?type=TXT')
-//   })
-//   it('should properly handle revoked UIDs', async () => {
-//     const pubKey = await openpgp.fetchPlaintext(pubKeyWithRevokedUID)
-//     const obj = await openpgp.process(pubKey)
-//     expect(obj.users).to.be.lengthOf(2)
-//     expect(obj.users[0].userData.isRevoked).to.be.true
-//     expect(obj.users[1].userData.isRevoked).to.be.false
-//   })
-// })
+describe('openpgp.parsePublicKey', () => {
+  it('should be a function (1 argument)', () => {
+    expect(openpgp.parsePublicKey).to.be.a('function')
+    expect(openpgp.parsePublicKey).to.have.length(1)
+  })
+  it('should return an object with specific openpgp', async () => {
+    const pubKey = await openpgp.fetchPlaintext(pubKeyPlaintext)
+    const profile = await openpgp.parsePublicKey(pubKey.publicKey.key)
+    expect(profile).to.be.instanceOf(Profile)
+  })
+  it('should ignore non-proof notations', async () => {
+    const pubKey = await openpgp.fetchPlaintext(pubKeyWithOtherNotations)
+    const profile = await openpgp.parsePublicKey(pubKey.publicKey.key)
+    expect(profile.personas).to.be.lengthOf(1)
+    expect(profile.personas[0].claims).to.be.lengthOf(1)
+    expect(profile.personas[0].claims[0].uri).to.be.equal('dns:yarmo.eu?type=TXT')
+  })
+  it('should properly handle revoked UIDs', async () => {
+    const pubKey = await openpgp.fetchPlaintext(pubKeyWithRevokedUID)
+    const profile = await openpgp.parsePublicKey(pubKey.publicKey.key)
+    expect(profile.personas).to.be.lengthOf(2)
+    expect(profile.personas[0].isRevoked).to.be.true
+    expect(profile.personas[1].isRevoked).to.be.false
+  })
+})

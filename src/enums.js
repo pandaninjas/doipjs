@@ -169,6 +169,7 @@ export const PublicKeyType = {
   EDDSA: 'eddsa',
   ES256: 'es256',
   OPENPGP: 'openpgp',
+  UNKNOWN: 'unknown',
   NONE: 'none'
 }
 

@@ -78,6 +78,12 @@ export class Profile {
        */
       keyType: PublicKeyType.NONE,
       /**
+       * The fingerprint of the cryptographic key
+       * @type {string | null}
+       * @public
+       */
+      fingerprint: null,
+      /**
        * The encoding of the cryptographic key
        * @type {PublicKeyEncoding}
        * @public
@@ -91,7 +97,7 @@ export class Profile {
       encodedKey: null,
       /**
        * The raw cryptographic key as object (to be removed during toJSON())
-       * @type {import('openpgp').PublicKey | import('jose').KeyLike | null}
+       * @type {import('openpgp').PublicKey | import('jose').JWK | null}
        * @public
        */
       key: null,
@@ -139,18 +145,6 @@ export class Profile {
   }
 
   /**
-   * @function
-   * @param {import('openpgp').PublicKey} publicKey
-   */
-  setOpenPgpPublicKey (publicKey) {}
-
-  /**
-   * @function
-   * @param {import('jose').KeyLike} publicKey
-   */
-  setJwkPublicKey (publicKey) {}
-
-  /**
    * Get a JSON representation of the Profile object
    * @function
    * @returns {object}
@@ -164,6 +158,7 @@ export class Profile {
       primaryPersonaIndex: this.primaryPersonaIndex,
       publicKey: {
         keyType: this.publicKey.keyType,
+        fingerprint: this.publicKey.fingerprint,
         encoding: this.publicKey.encoding,
         encodedKey: this.publicKey.encodedKey,
         fetch: {

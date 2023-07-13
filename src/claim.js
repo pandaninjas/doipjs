@@ -21,6 +21,7 @@ import { run } from './verifications.js'
 import { list, data as _data } from './serviceProviders/index.js'
 import { opts as _opts } from './defaults.js'
 import { ClaimStatus } from './enums.js'
+import { ServiceProvider } from './serviceProvider.js'
 
 /**
  * @class
@@ -362,7 +363,7 @@ function importJsonClaimVersion1 (claimObject) {
 
   claim._uri = claimObject.uri
   claim._fingerprint = claimObject.fingerprint
-  claim._matches = claimObject.matches
+  claim._matches = claimObject.matches.map(x => new ServiceProvider(x))
 
   if (claimObject.status === 'init') {
     claim._status = 100
@@ -403,7 +404,7 @@ function importJsonClaimVersion2 (claimObject) {
 
   claim._uri = claimObject.uri
   claim._fingerprint = claimObject.proofs[0]
-  claim._matches = claimObject.matches
+  claim._matches = claimObject.matches.map(x => new ServiceProvider(x))
   claim._status = claimObject.status
 
   return claim
