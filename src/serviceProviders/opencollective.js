@@ -47,7 +47,7 @@ export function processURI (uri) {
         accessRestriction: E.ProofAccessRestriction.NOCORS,
         data: {
           url: 'https://api.opencollective.com/graphql/v2',
-          query: `{ "query": "query { collective(slug: \\"${match[1]}\\") { longDescription } }" }`
+          query: `{ "query": "query { account(slug: \\"${match[1]}\\") { longDescription } }" }`
         }
       },
       response: {
@@ -57,7 +57,7 @@ export function processURI (uri) {
         format: E.ClaimFormat.URI,
         encoding: E.EntityEncodingFormat.PLAIN,
         relation: E.ClaimRelation.CONTAINS,
-        path: ['data', 'collective', 'longDescription']
+        path: ['data', 'account', 'longDescription']
       }]
     }
   })
