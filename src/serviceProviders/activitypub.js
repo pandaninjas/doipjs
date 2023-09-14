@@ -94,7 +94,131 @@ export const functions = {
         break
     }
 
+    // Attempt to fetch and process the instance's NodeInfo data
+    const nodeinfo = await _processNodeinfo(new URL(proofData.result.url).hostname)
+    if (nodeinfo) {
+      claimData.about.name = nodeinfo.software.name
+      claimData.about.id = nodeinfo.software.name
+      claimData.about.homepage = nodeinfo.software.homepage
+    }
+
     return { claimData, proofData }
+  }
+}
+
+const _processNodeinfo = async (/** @type {string} */ domain) => {
+  const nodeinfoRef = await fetch(`http://${domain}/.well-known/nodeinfo`)
+    .then(res => {
+      if (res.status !== 200) {
+        throw new Error('HTTP Status was not 200')
+      }
+      return res.json()
+    })
+    .catch(_ => {
+      return null
+    })
+
+  if (!nodeinfoRef) return null
+
+  // NodeInfo version 2.1
+  {
+    const nodeinfo = nodeinfoRef.links.find(x => { return x.rel === 'http://nodeinfo.diaspora.software/ns/schema/2.1' })
+    if (nodeinfo) {
+      return await fetch(nodeinfo.href)
+        .then(res => {
+          if (res.status !== 200) {
+            throw new Error('HTTP Status was not 200')
+          }
+          return res.json()
+        })
+        .then(res => {
+          return {
+            software: {
+              name: res.software.name,
+              version: res.software.version,
+              homepage: res.software.homepage || 'https://activitypub.rocks'
+            }
+          }
+        })
+        .catch(_ => {
+          return null
+        })
+    }
+  }
+  // NodeInfo version 2.0
+  {
+    const nodeinfo = nodeinfoRef.links.find(x => { return x.rel === 'http://nodeinfo.diaspora.software/ns/schema/2.0' })
+    if (nodeinfo) {
+      return await fetch(nodeinfo.href)
+        .then(res => {
+          if (res.status !== 200) {
+            throw new Error('HTTP Status was not 200')
+          }
+          return res.json()
+        })
+        .then(res => {
+          return {
+            software: {
+              name: res.software.name,
+              version: res.software.version,
+              homepage: 'https://activitypub.rocks'
+            }
+          }
+        })
+        .catch(_ => {
+          return null
+        })
+    }
+  }
+  // NodeInfo version 1.1
+  {
+    const nodeinfo = nodeinfoRef.links.find(x => { return x.rel === 'http://nodeinfo.diaspora.software/ns/schema/1.1' })
+    if (nodeinfo) {
+      return await fetch(nodeinfo.href)
+        .then(res => {
+          if (res.status !== 200) {
+            throw new Error('HTTP Status was not 200')
+          }
+          return res.json()
+        })
+        .then(res => {
+          return {
+            software: {
+              name: res.software.name,
+              version: res.software.version,
+              homepage: 'https://activitypub.rocks'
+            }
+          }
+        })
+        .catch(_ => {
+          return null
+        })
+    }
+  }
+  // NodeInfo version 1.0
+  {
+    const nodeinfo = nodeinfoRef.links.find(x => { return x.rel === 'http://nodeinfo.diaspora.software/ns/schema/1.0' })
+    if (nodeinfo) {
+      return await fetch(nodeinfo.href)
+        .then(res => {
+          if (res.status !== 200) {
+            throw new Error('HTTP Status was not 200')
+          }
+          return res.json()
+        })
+        .then(res => {
+          return {
+            software: {
+              name: res.software.name,
+              version: res.software.version,
+              homepage: 'https://activitypub.rocks'
+            }
+          }
+        })
+        .catch(_ => {
+          return null
+        })
+    }
   }
 }
 
