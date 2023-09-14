@@ -270,7 +270,7 @@ export class Claim {
         const def = _data[claimData.about.id]
         if (def.functions?.postprocess) {
           try {
-            ({ claimData, proofData } = def.functions.postprocess(claimData, proofData))
+            ({ claimData, proofData } = await def.functions.postprocess(claimData, proofData, opts))
           } catch (_) {}
         }
       } else {
