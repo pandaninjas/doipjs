@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as E from '../enums.js'
+import { activitypub } from '../fetcher/index.js'
 import { ServiceProvider } from '../serviceProvider.js'
 
 export const reURI = /^https:\/\/(.*)\/?/
@@ -76,8 +77,23 @@ export function processURI (uri) {
 }
 
 export const functions = {
-  postprocess: (claimData, proofData) => {
-    claimData.profile.display = `@${proofData.result.preferredUsername}@${new URL(proofData.result.url).hostname}`
+  postprocess: async (/** @type {ServiceProvider} */ claimData, proofData, opts) => {
+    switch (proofData.result.type) {
+      case 'Note': {
+        claimData.profile.uri = proofData.result.attributedTo
+        const personData = await activitypub.fn({ url: proofData.result.attributedTo }, opts)
+        claimData.profile.display = `@${personData.preferredUsername}@${new URL(proofData.result.url).hostname}`
+        break
+      }
+
+      case 'Person':
+        claimData.profile.display = `@${proofData.result.preferredUsername}@${new URL(proofData.result.url).hostname}`
+        break
+
+      default:
+        break
+    }
+
     return { claimData, proofData }
   }
 }
