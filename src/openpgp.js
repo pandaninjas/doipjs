@@ -292,6 +292,8 @@ export async function parsePublicKey (publicKey) {
   const personas = []
 
   users.forEach((user, i) => {
+    if (!user.userID) return
+
     const pe = new Persona(user.userID.name, [])
     pe.setIdentifier(user.userID.userID)
     pe.setDescription(user.userID.comment)
