@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as E from '../enums.js'
-import { activitypub } from '../fetcher/index.js'
+import { fetcher } from '../index.js'
 import { ServiceProvider } from '../serviceProvider.js'
 
 export const reURI = /^https:\/\/(.*)\/?/
@@ -81,7 +81,7 @@ export const functions = {
     switch (proofData.result.type) {
       case 'Note': {
         claimData.profile.uri = proofData.result.attributedTo
-        const personData = await activitypub.fn({ url: proofData.result.attributedTo }, opts)
+        const personData = await fetcher.activitypub.fn({ url: proofData.result.attributedTo }, opts)
         claimData.profile.display = `@${personData.preferredUsername}@${new URL(proofData.result.url).hostname}`
         break
       }

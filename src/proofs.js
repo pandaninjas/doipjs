@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import { isNode } from 'browser-or-node'
-import * as fetcher from './fetcher/index.js'
+import { fetcher } from './index.js'
 import { generateProxyURL } from './utils.js'
 import { ProxyPolicy, ProofAccessRestriction } from './enums.js'
 
