@@ -1,4 +1,4 @@
-var doip = (function (exports, fetcher, openpgp$1) {
+var doip = (function (exports, openpgp$1, fetcher) {
   'use strict';
 
   function _interopNamespaceDefault(e) {
@@ -4660,9 +4660,145 @@ var doip = (function (exports, fetcher, openpgp$1) {
   }
 
   const functions = {
-    postprocess: (claimData, proofData) => {
-      claimData.profile.display = `@${proofData.result.preferredUsername}@${new URL(proofData.result.url).hostname}`;
+    postprocess: async (/** @type {ServiceProvider} */ claimData, proofData, opts) => {
+      switch (proofData.result.type) {
+        case 'Note': {
+          claimData.profile.uri = proofData.result.attributedTo;
+          const personData = await fetcher__namespace.activitypub.fn({ url: proofData.result.attributedTo }, opts);
+          claimData.profile.display = `@${personData.preferredUsername}@${new URL(proofData.result.url).hostname}`;
+          break
+        }
+
+        case 'Person':
+          claimData.profile.display = `@${proofData.result.preferredUsername}@${new URL(proofData.result.url).hostname}`;
+          break
+      }
+
+      // Attempt to fetch and process the instance's NodeInfo data
+      const nodeinfo = await _processNodeinfo(new URL(proofData.result.url).hostname);
+      if (nodeinfo) {
+        claimData.about.name = nodeinfo.software.name;
+        claimData.about.id = nodeinfo.software.name;
+        claimData.about.homepage = nodeinfo.software.homepage;
+      }
+
       return { claimData, proofData }
+    }
+  };
+
+  const _processNodeinfo = async (/** @type {string} */ domain) => {
+    const nodeinfoRef = await fetch(`http://${domain}/.well-known/nodeinfo`)
+      .then(res => {
+        if (res.status !== 200) {
+          throw new Error('HTTP Status was not 200')
+        }
+        return res.json()
+      })
+      .catch(_ => {
+        return null
+      });
+
+    if (!nodeinfoRef) return null
+
+    // NodeInfo version 2.1
+    {
+      const nodeinfo = nodeinfoRef.links.find(x => { return x.rel === 'http://nodeinfo.diaspora.software/ns/schema/2.1' });
+      if (nodeinfo) {
+        return await fetch(nodeinfo.href)
+          .then(res => {
+            if (res.status !== 200) {
+              throw new Error('HTTP Status was not 200')
+            }
+            return res.json()
+          })
+          .then(res => {
+            return {
+              software: {
+                name: res.software.name,
+                version: res.software.version,
+                homepage: res.software.homepage || 'https://activitypub.rocks'
+              }
+            }
+          })
+          .catch(_ => {
+            return null
+          })
+      }
+    }
+    // NodeInfo version 2.0
+    {
+      const nodeinfo = nodeinfoRef.links.find(x => { return x.rel === 'http://nodeinfo.diaspora.software/ns/schema/2.0' });
+      if (nodeinfo) {
+        return await fetch(nodeinfo.href)
+          .then(res => {
+            if (res.status !== 200) {
+              throw new Error('HTTP Status was not 200')
+            }
+            return res.json()
+          })
+          .then(res => {
+            return {
+              software: {
+                name: res.software.name,
+                version: res.software.version,
+                homepage: 'https://activitypub.rocks'
+              }
+            }
+          })
+          .catch(_ => {
+            return null
+          })
+      }
+    }
+    // NodeInfo version 1.1
+    {
+      const nodeinfo = nodeinfoRef.links.find(x => { return x.rel === 'http://nodeinfo.diaspora.software/ns/schema/1.1' });
+      if (nodeinfo) {
+        return await fetch(nodeinfo.href)
+          .then(res => {
+            if (res.status !== 200) {
+              throw new Error('HTTP Status was not 200')
+            }
+            return res.json()
+          })
+          .then(res => {
+            return {
+              software: {
+                name: res.software.name,
+                version: res.software.version,
+                homepage: 'https://activitypub.rocks'
+              }
+            }
+          })
+          .catch(_ => {
+            return null
+          })
+      }
+    }
+    // NodeInfo version 1.0
+    {
+      const nodeinfo = nodeinfoRef.links.find(x => { return x.rel === 'http://nodeinfo.diaspora.software/ns/schema/1.0' });
+      if (nodeinfo) {
+        return await fetch(nodeinfo.href)
+          .then(res => {
+            if (res.status !== 200) {
+              throw new Error('HTTP Status was not 200')
+            }
+            return res.json()
+          })
+          .then(res => {
+            return {
+              software: {
+                name: res.software.name,
+                version: res.software.version,
+                homepage: 'https://activitypub.rocks'
+              }
+            }
+          })
+          .catch(_ => {
+            return null
+          })
+      }
     }
   };
 
@@ -5143,7 +5279,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
           accessRestriction: ProofAccessRestriction.NOCORS,
           data: {
             url: 'https://api.opencollective.com/graphql/v2',
-            query: `{ "query": "query { collective(slug: \\"${match[1]}\\") { longDescription } }" }`
+            query: `{ "query": "query { account(slug: \\"${match[1]}\\") { longDescription } }" }`
           }
         },
         response: {
@@ -5153,7 +5289,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
           format: ClaimFormat.URI,
           encoding: EntityEncodingFormat.PLAIN,
           relation: ClaimRelation.CONTAINS,
-          path: ['data', 'collective', 'longDescription']
+          path: ['data', 'account', 'longDescription']
         }]
       }
     })
@@ -5569,7 +5705,7 @@ var doip = (function (exports, fetcher, openpgp$1) {
           const def = _data[claimData.about.id];
           if (def.functions?.postprocess) {
             try {
-              ({ claimData, proofData } = def.functions.postprocess(claimData, proofData));
+              ({ claimData, proofData } = await def.functions.postprocess(claimData, proofData, opts$1));
             } catch (_) {}
           }
         } else {
@@ -8180,6 +8316,8 @@ var doip = (function (exports, fetcher, openpgp$1) {
     const personas = [];
 
     users.forEach((user, i) => {
+      if (!user.userID) return
+
       const pe = new Persona(user.userID.name, []);
       pe.setIdentifier(user.userID.userID);
       pe.setDescription(user.userID.comment);
@@ -9565,4 +9703,4 @@ var doip = (function (exports, fetcher, openpgp$1) {
 
   return exports;
 
-})({}, doipFetchers, openpgp);
+})({}, openpgp, doipFetchers);

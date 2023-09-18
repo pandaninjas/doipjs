@@ -2728,7 +2728,7 @@ var doipFetchers = (function (exports) {
 	 * doip.js library version
 	 * @constant {string}
 	 */
-	const version = '0.20.0';
+	const version = '1.0.1';
 
 	/*
 	Copyright 2022 Yarmo Mackenbach
