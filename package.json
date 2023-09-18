@@ -60,7 +60,7 @@
     "rollup-plugin-visualizer": "^5.9.2"
   },
   "scripts": {
-    "release": "yarn run test && yarn run build",
+    "release": "node ./prerelease.js && yarn run test && yarn run build",
     "build": "rm -rf ./dist/ && yarn run build:bundle && yarn run build:minify",
     "build:bundle": "rollup -c",
     "build:minify": "minify ./dist/doip.core.js > ./dist/doip.core.min.js && minify ./dist/doip.fetchers.js > ./dist/doip.fetchers.min.js && minify ./dist/doip.fetchers.minimal.js > ./dist/doip.fetchers.minimal.min.js",
