@@ -107,7 +107,7 @@ export const functions = {
 }
 
 const _processNodeinfo = async (/** @type {string} */ domain) => {
-  const nodeinfoRef = await fetch(`http://${domain}/.well-known/nodeinfo`)
+  const nodeinfoRef = await fetch(`https://${domain}/.well-known/nodeinfo`)
     .then(res => {
       if (res.status !== 200) {
         throw new Error('HTTP Status was not 200')
