@@ -81,8 +81,12 @@ export const functions = {
     switch (proofData.result.type) {
       case 'Note': {
         claimData.profile.uri = proofData.result.attributedTo
+        claimData.profile.display = proofData.result.attributedTo
         const personData = await fetcher.activitypub.fn({ url: proofData.result.attributedTo }, opts)
-        claimData.profile.display = `@${personData.preferredUsername}@${new URL(claimData.proof.request.uri).hostname}`
+          .catch(_ => null)
+        if (personData) {
+          claimData.profile.display = `@${personData.preferredUsername}@${new URL(claimData.proof.request.uri).hostname}`
+        }
         break
       }
 
