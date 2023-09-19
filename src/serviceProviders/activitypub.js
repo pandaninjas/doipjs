@@ -82,12 +82,12 @@ export const functions = {
       case 'Note': {
         claimData.profile.uri = proofData.result.attributedTo
         const personData = await fetcher.activitypub.fn({ url: proofData.result.attributedTo }, opts)
-        claimData.profile.display = `@${personData.preferredUsername}@${new URL(proofData.result.url).hostname}`
+        claimData.profile.display = `@${personData.preferredUsername}@${new URL(claimData.proof.request.uri).hostname}`
         break
       }
 
       case 'Person':
-        claimData.profile.display = `@${proofData.result.preferredUsername}@${new URL(proofData.result.url).hostname}`
+        claimData.profile.display = `@${proofData.result.preferredUsername}@${new URL(claimData.proof.request.uri).hostname}`
         break
 
       default:
@@ -95,7 +95,7 @@ export const functions = {
     }
 
     // Attempt to fetch and process the instance's NodeInfo data
-    const nodeinfo = await _processNodeinfo(new URL(proofData.result.url).hostname)
+    const nodeinfo = await _processNodeinfo(new URL(claimData.proof.request.uri).hostname)
     if (nodeinfo) {
       claimData.about.name = nodeinfo.software.name
       claimData.about.id = nodeinfo.software.name
