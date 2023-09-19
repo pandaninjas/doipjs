@@ -4664,8 +4664,12 @@ var doip = (function (exports, openpgp$1, fetcher) {
       switch (proofData.result.type) {
         case 'Note': {
           claimData.profile.uri = proofData.result.attributedTo;
-          const personData = await fetcher__namespace.activitypub.fn({ url: proofData.result.attributedTo }, opts);
-          claimData.profile.display = `@${personData.preferredUsername}@${new URL(claimData.proof.request.uri).hostname}`;
+          claimData.profile.display = proofData.result.attributedTo;
+          const personData = await fetcher__namespace.activitypub.fn({ url: proofData.result.attributedTo }, opts)
+            .catch(_ => null);
+          if (personData) {
+            claimData.profile.display = `@${personData.preferredUsername}@${new URL(claimData.proof.request.uri).hostname}`;
+          }
           break
         }
 

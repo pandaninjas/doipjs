@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.4] - 2023-09-19
+### Fixed
+- Allow the activitypub Person request to fail
+
 ## [1.0.3] - 2023-09-19
 ### Fixed
 - Avoid using potentially missing URL for ActivityPub postprocessing
