@@ -79,10 +79,11 @@ export class Claim {
   /**
    * @function
    * @param {object} claimObject
+   * @returns {Claim | Error}
    * @example
-   * const claimAlt = doip.Claim(JSON.stringify(claim));
+   * doip.Claim.fromJSON(JSON.stringify(claim));
    */
-  static fromJson (claimObject) {
+  static fromJSON (claimObject) {
     /** @type {Claim} */
     let claim
     let result

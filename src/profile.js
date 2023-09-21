@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import { PublicKeyFetchMethod, PublicKeyEncoding, PublicKeyType } from './enums.js'
+import { Persona } from './persona.js'
 
 /**
  * A profile of personas with identity claims
@@ -137,6 +138,36 @@ export class Profile {
 
   /**
    * @function
+   * @param {object} profileObject
+   * @returns {Profile | Error}
+   * @example
+   * doip.Profile.fromJSON(JSON.stringify(profile));
+   */
+  static fromJSON (profileObject) {
+    /** @type {Profile} */
+    let profile
+    let result
+
+    if (typeof profileObject === 'object' && 'profileVersion' in profileObject) {
+      switch (profileObject.profileVersion) {
+        case 2:
+          result = importJsonProfileVersion2(profileObject)
+          if (result instanceof Error) {
+            throw result
+          }
+          profile = result
+          break
+
+        default:
+          throw new Error('Invalid profile version')
+      }
+    }
+
+    return profile
+  }
+
+  /**
+   * @function
    * @param {string} name
    * @param {string} url
    */
@@ -170,4 +201,24 @@ export class Profile {
       verifiers: this.verifiers
     }
   }
+}
+
+/**
+ * @param {object} profileObject
+ * @returns {Profile | Error}
+ */
+function importJsonProfileVersion2 (profileObject) {
+  if (!('profileVersion' in profileObject && profileObject.profileVersion === 2)) {
+    return new Error('Invalid profile')
+  }
+
+  const personas = profileObject.personas.map(x => Persona.fromJSON(x, 2))
+
+  const profile = new Profile(profileObject.profileType, profileObject.identifier, personas)
+
+  profile.primaryPersonaIndex = profileObject.primaryPersonaIndex
+  profile.publicKey = profileObject.publicKey
+  profile.verifiers = profileObject.verifiers
+
+  return profile
 }

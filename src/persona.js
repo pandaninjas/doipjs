@@ -13,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+import { Claim } from './claim.js'
+
 /**
  * A persona with identity claims
  * @class
@@ -70,6 +72,37 @@ export class Persona {
      * @public
      */
     this.isRevoked = false
+  }
+
+  /**
+   * @function
+   * @param {object} personaObject
+   * @param {number} profileVersion
+   * @returns {Persona | Error}
+   * @example
+   * doip.Persona.fromJSON(JSON.stringify(persona), 2);
+   */
+  static fromJSON (personaObject, profileVersion) {
+    /** @type {Persona} */
+    let persona
+    let result
+
+    if (typeof personaObject === 'object' && profileVersion) {
+      switch (profileVersion) {
+        case 2:
+          result = importJsonPersonaVersion2(personaObject)
+          if (result instanceof Error) {
+            throw result
+          }
+          persona = result
+          break
+
+        default:
+          throw new Error('Invalid persona version')
+      }
+    }
+
+    return persona
   }
 
   /**
@@ -135,4 +168,22 @@ export class Persona {
       claims: this.claims.map(x => x.toJSON())
     }
   }
+}
+
+/**
+ * @param {object} personaObject
+ * @returns {Persona | Error}
+ */
+function importJsonPersonaVersion2 (personaObject) {
+  const claims = personaObject.claims.map(x => Claim.fromJSON(x))
+
+  const persona = new Persona(personaObject.name, claims)
+
+  persona.identifier = personaObject.identifier
+  persona.email = personaObject.email
+  persona.description = personaObject.description
+  persona.avatarUrl = personaObject.avatarUrl
+  persona.isRevoked = personaObject.isRevoked
+
+  return persona
 }
