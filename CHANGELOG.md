@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2023-09-21
+### Changed
+- Unify fromJSON() for Profile, Persona and Claim classes
+
 ## [1.0.4] - 2023-09-19
 ### Fixed
 - Allow the activitypub Person request to fail
