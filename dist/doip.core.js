@@ -2591,7 +2591,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
               if (parseInt(match[0].split('$')[2]) > 12) continue
 
               const hashPromise = bcryptVerify({
-                password: fingerprintURI,
+                password: fingerprintURI.toLowerCase(),
                 hash: match[0]
               })
                 .then(result => result)
@@ -2604,6 +2604,28 @@ var doip = (function (exports, openpgp$1, fetcher) {
             } catch (err) {
               result = false;
             }
+
+            // Accept mixed-case fingerprints until deadline
+            if (!result) {
+              try {
+                // Patch until promise.race properly works on WASM
+                if (parseInt(match[0].split('$')[2]) > 12) continue
+
+                const hashPromise = bcryptVerify({
+                  password: fingerprintURI,
+                  hash: match[0]
+                })
+                  .then(result => result)
+                  .catch(_ => false);
+
+                result = await Promise.race([hashPromise, timeoutPromise]).then((result) => {
+                  clearTimeout(timeoutHandle);
+                  return result
+                });
+              } catch (err) {
+                result = false;
+              }
+            }
             break
 
           case 'argon2':
@@ -2612,7 +2634,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
           case 'argon2id':
             try {
               const hashPromise = argon2Verify({
-                password: fingerprintURI,
+                password: fingerprintURI.toLowerCase(),
                 hash: match[0]
               })
                 .then(result => result)
@@ -2624,6 +2646,25 @@ var doip = (function (exports, openpgp$1, fetcher) {
               });
             } catch (err) {
               result = false;
+            }
+
+            // Accept mixed-case fingerprints until deadline
+            if (!result) {
+              try {
+                const hashPromise = argon2Verify({
+                  password: fingerprintURI,
+                  hash: match[0]
+                })
+                  .then(result => result)
+                  .catch(_ => false);
+
+                result = await Promise.race([hashPromise, timeoutPromise]).then((result) => {
+                  clearTimeout(timeoutHandle);
+                  return result
+                });
+              } catch (err) {
+                result = false;
+              }
             }
             break
         }
