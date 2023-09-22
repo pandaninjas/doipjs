@@ -50,6 +50,8 @@ describe('verifications.run', () => {
   it('should verify a plaintext proof', async () => {
     const result = await verifications.run(plaintextCorrectProofData, claimData, fingerprint)
     expect(result.result).to.be.true
+    const result2 = await verifications.run(plaintextCorrectProofData, claimData, fingerprint.toUpperCase())
+    expect(result2.result).to.be.true
   })
   // issue #22
   it('should handle a plaintext proof with whitespace', async () => {
@@ -63,6 +65,8 @@ describe('verifications.run', () => {
   it('should verify a argon2-hashed proof', async () => {
     const result = await verifications.run(argon2CorrectProofData, claimData, fingerprint)
     expect(result.result).to.be.true
+    const result2 = await verifications.run(argon2CorrectProofData, claimData, fingerprint.toUpperCase())
+    expect(result2.result).to.be.true
   })
   it('should reject a wrong argon2-hashed proof', async () => {
     const result = await verifications.run(argon2IncorrectProofData, claimData, fingerprint)
@@ -71,6 +75,8 @@ describe('verifications.run', () => {
   it('should verify a bcrypt-hashed proof', async () => {
     const result = await verifications.run(bcryptCorrectProofData, claimData, fingerprint)
     expect(result.result).to.be.true
+    const result2 = await verifications.run(bcryptCorrectProofData, claimData, fingerprint.toUpperCase())
+    expect(result2.result).to.be.true
   })
   it('should reject a wrong bcrypt-hashed proof', async () => {
     const result = await verifications.run(bcryptIncorrectProofData, claimData, fingerprint)
