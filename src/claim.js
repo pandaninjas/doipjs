@@ -267,8 +267,15 @@ export class Claim {
           viaProxy: proofData.viaProxy
         }
 
-        // Post process the data
+        // Validate the result
         const def = _data[claimData.about.id]
+        if (def.functions?.validate && verificationResult.completed && verificationResult.result) {
+          try {
+            (verificationResult.result = await def.functions.validate(claimData, proofData, verificationResult, opts))
+          } catch (_) {}
+        }
+
+        // Post process the data
         if (def.functions?.postprocess) {
           try {
             ({ claimData, proofData } = await def.functions.postprocess(claimData, proofData, opts))
