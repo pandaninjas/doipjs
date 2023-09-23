@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2023-09-23
+Bump necessary due to tag-related glitch in git forge
+
 ## [1.2.0] - 2023-09-23
 ### Added
 - Allow service providers to validate the claim verification result (useful for forks)
