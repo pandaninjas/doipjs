@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2023-09-23
+### Added
+- Allow service providers to validate the claim verification result (useful for forks)
+- Support for Forgejo claims
+
 ## [1.1.1] - 2023-09-22
 ### Fixed
 - Normalize case before hashed proof verification

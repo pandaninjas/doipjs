@@ -3004,14 +3004,14 @@ var doip = (function (exports, openpgp$1, fetcher) {
   limitations under the License.
   */
 
-  const reURI$k = /^dns:([a-zA-Z0-9.\-_]*)(?:\?(.*))?/;
+  const reURI$l = /^dns:([a-zA-Z0-9.\-_]*)(?:\?(.*))?/;
 
   /**
    * @function
    * @param {string} uri
    */
-  function processURI$k (uri) {
-    const match = uri.match(reURI$k);
+  function processURI$l (uri) {
+    const match = uri.match(reURI$l);
 
     return new ServiceProvider({
       about: {
@@ -3024,7 +3024,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$k.toString(),
+        uriRegularExpression: reURI$l.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -3049,7 +3049,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
     })
   }
 
-  const tests$k = [
+  const tests$l = [
     {
       uri: 'dns:domain.org',
       shouldMatch: true
@@ -3066,9 +3066,9 @@ var doip = (function (exports, openpgp$1, fetcher) {
 
   var dns = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$k,
-    reURI: reURI$k,
-    tests: tests$k
+    processURI: processURI$l,
+    reURI: reURI$l,
+    tests: tests$l
   });
 
   /*
@@ -3087,14 +3087,14 @@ var doip = (function (exports, openpgp$1, fetcher) {
   limitations under the License.
   */
 
-  const reURI$j = /^irc:\/\/(.*)\/([a-zA-Z0-9\-[\]\\`_^{|}]*)/;
+  const reURI$k = /^irc:\/\/(.*)\/([a-zA-Z0-9\-[\]\\`_^{|}]*)/;
 
   /**
    * @function
    * @param {string} uri
    */
-  function processURI$j (uri) {
-    const match = uri.match(reURI$j);
+  function processURI$k (uri) {
+    const match = uri.match(reURI$k);
 
     return new ServiceProvider({
       about: {
@@ -3107,7 +3107,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$j.toString(),
+        uriRegularExpression: reURI$k.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -3133,7 +3133,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
     })
   }
 
-  const tests$j = [
+  const tests$k = [
     {
       uri: 'irc://chat.ircserver.org/Alice1',
       shouldMatch: true
@@ -3154,9 +3154,9 @@ var doip = (function (exports, openpgp$1, fetcher) {
 
   var irc = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$j,
-    reURI: reURI$j,
-    tests: tests$j
+    processURI: processURI$k,
+    reURI: reURI$k,
+    tests: tests$k
   });
 
   /*
@@ -3175,14 +3175,14 @@ var doip = (function (exports, openpgp$1, fetcher) {
   limitations under the License.
   */
 
-  const reURI$i = /^xmpp:([a-zA-Z0-9.\-_]*)@([a-zA-Z0-9.\-_]*)(?:\?(.*))?/;
+  const reURI$j = /^xmpp:([a-zA-Z0-9.\-_]*)@([a-zA-Z0-9.\-_]*)(?:\?(.*))?/;
 
   /**
    * @function
    * @param {string} uri
    */
-  function processURI$i (uri) {
-    const match = uri.match(reURI$i);
+  function processURI$j (uri) {
+    const match = uri.match(reURI$j);
 
     return new ServiceProvider({
       about: {
@@ -3196,7 +3196,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
         qr: uri
       },
       claim: {
-        uriRegularExpression: reURI$i.toString(),
+        uriRegularExpression: reURI$j.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -3221,7 +3221,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
     })
   }
 
-  const tests$i = [
+  const tests$j = [
     {
       uri: 'xmpp:alice@domain.org',
       shouldMatch: true
@@ -3238,9 +3238,9 @@ var doip = (function (exports, openpgp$1, fetcher) {
 
   var xmpp = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$i,
-    reURI: reURI$i,
-    tests: tests$i
+    processURI: processURI$j,
+    reURI: reURI$j,
+    tests: tests$j
   });
 
   /*
@@ -3259,14 +3259,14 @@ var doip = (function (exports, openpgp$1, fetcher) {
   limitations under the License.
   */
 
-  const reURI$h = /^matrix:u\/(?:@)?([^@:]*:[^?]*)(\?.*)?/;
+  const reURI$i = /^matrix:u\/(?:@)?([^@:]*:[^?]*)(\?.*)?/;
 
   /**
    * @function
    * @param {string} uri
    */
-  function processURI$h (uri) {
-    const match = uri.match(reURI$h);
+  function processURI$i (uri) {
+    const match = uri.match(reURI$i);
 
     if (!match[2]) {
       return null
@@ -3296,7 +3296,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$h.toString(),
+        uriRegularExpression: reURI$i.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -3322,7 +3322,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
     })
   }
 
-  const tests$h = [
+  const tests$i = [
     {
       uri:
         'matrix:u/alice:matrix.domain.org?org.keyoxide.r=123:domain.org&org.keyoxide.e=123',
@@ -3349,9 +3349,9 @@ var doip = (function (exports, openpgp$1, fetcher) {
 
   var matrix = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$h,
-    reURI: reURI$h,
-    tests: tests$h
+    processURI: processURI$i,
+    reURI: reURI$i,
+    tests: tests$i
   });
 
   /*
@@ -3370,14 +3370,14 @@ var doip = (function (exports, openpgp$1, fetcher) {
   limitations under the License.
   */
 
-  const reURI$g = /https:\/\/t.me\/([A-Za-z0-9_]{5,32})\?proof=([A-Za-z0-9_]{5,32})/;
+  const reURI$h = /https:\/\/t.me\/([A-Za-z0-9_]{5,32})\?proof=([A-Za-z0-9_]{5,32})/;
 
   /**
    * @function
    * @param {string} uri
    */
-  function processURI$g (uri) {
-    const match = uri.match(reURI$g);
+  function processURI$h (uri) {
+    const match = uri.match(reURI$h);
 
     return new ServiceProvider({
       about: {
@@ -3391,7 +3391,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
         qr: `https://t.me/${match[1]}`
       },
       claim: {
-        uriRegularExpression: reURI$g.toString(),
+        uriRegularExpression: reURI$h.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -3417,7 +3417,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
     })
   }
 
-  const tests$g = [
+  const tests$h = [
     {
       uri: 'https://t.me/alice?proof=foobar',
       shouldMatch: true
@@ -3442,9 +3442,9 @@ var doip = (function (exports, openpgp$1, fetcher) {
 
   var telegram = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$g,
-    reURI: reURI$g,
-    tests: tests$g
+    processURI: processURI$h,
+    reURI: reURI$h,
+    tests: tests$h
   });
 
   /*
@@ -3463,14 +3463,14 @@ var doip = (function (exports, openpgp$1, fetcher) {
   limitations under the License.
   */
 
-  const reURI$f = /^https:\/\/twitter\.com\/(.*)\/status\/([0-9]*)(?:\?.*)?/;
+  const reURI$g = /^https:\/\/twitter\.com\/(.*)\/status\/([0-9]*)(?:\?.*)?/;
 
   /**
    * @function
    * @param {string} uri
    */
-  function processURI$f (uri) {
-    const match = uri.match(reURI$f);
+  function processURI$g (uri) {
+    const match = uri.match(reURI$g);
 
     const urlsp = new URLSearchParams();
     urlsp.set('url', match[0]);
@@ -3488,7 +3488,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$f.toString(),
+        uriRegularExpression: reURI$g.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -3515,7 +3515,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
     })
   }
 
-  const tests$f = [
+  const tests$g = [
     {
       uri: 'https://twitter.com/alice/status/1234567890123456789',
       shouldMatch: true
@@ -3532,9 +3532,9 @@ var doip = (function (exports, openpgp$1, fetcher) {
 
   var twitter = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$f,
-    reURI: reURI$f,
-    tests: tests$f
+    processURI: processURI$g,
+    reURI: reURI$g,
+    tests: tests$g
   });
 
   /*
@@ -3553,14 +3553,14 @@ var doip = (function (exports, openpgp$1, fetcher) {
   limitations under the License.
   */
 
-  const reURI$e = /^https:\/\/(?:www\.)?reddit\.com\/user\/(.*)\/comments\/(.*)\/(.*)\/?/;
+  const reURI$f = /^https:\/\/(?:www\.)?reddit\.com\/user\/(.*)\/comments\/(.*)\/(.*)\/?/;
 
   /**
    * @function
    * @param {string} uri
    */
-  function processURI$e (uri) {
-    const match = uri.match(reURI$e);
+  function processURI$f (uri) {
+    const match = uri.match(reURI$f);
 
     return new ServiceProvider({
       about: {
@@ -3574,7 +3574,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$e.toString(),
+        uriRegularExpression: reURI$f.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -3600,7 +3600,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
     })
   }
 
-  const tests$e = [
+  const tests$f = [
     {
       uri: 'https://www.reddit.com/user/Alice/comments/123456/post',
       shouldMatch: true
@@ -3625,9 +3625,9 @@ var doip = (function (exports, openpgp$1, fetcher) {
 
   var reddit = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$e,
-    reURI: reURI$e,
-    tests: tests$e
+    processURI: processURI$f,
+    reURI: reURI$f,
+    tests: tests$f
   });
 
   /*
@@ -3646,14 +3646,14 @@ var doip = (function (exports, openpgp$1, fetcher) {
   limitations under the License.
   */
 
-  const reURI$d = /^https:\/\/liberapay\.com\/(.*)\/?/;
+  const reURI$e = /^https:\/\/liberapay\.com\/(.*)\/?/;
 
   /**
    * @function
    * @param {string} uri
    */
-  function processURI$d (uri) {
-    const match = uri.match(reURI$d);
+  function processURI$e (uri) {
+    const match = uri.match(reURI$e);
 
     return new ServiceProvider({
       about: {
@@ -3667,7 +3667,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$d.toString(),
+        uriRegularExpression: reURI$e.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -3693,7 +3693,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
     })
   }
 
-  const tests$d = [
+  const tests$e = [
     {
       uri: 'https://liberapay.com/alice',
       shouldMatch: true
@@ -3710,9 +3710,9 @@ var doip = (function (exports, openpgp$1, fetcher) {
 
   var liberapay = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$d,
-    reURI: reURI$d,
-    tests: tests$d
+    processURI: processURI$e,
+    reURI: reURI$e,
+    tests: tests$e
   });
 
   /*
@@ -3731,14 +3731,14 @@ var doip = (function (exports, openpgp$1, fetcher) {
   limitations under the License.
   */
 
-  const reURI$c = /^https:\/\/lichess\.org\/@\/(.*)\/?/;
+  const reURI$d = /^https:\/\/lichess\.org\/@\/(.*)\/?/;
 
   /**
    * @function
    * @param {string} uri
    */
-  function processURI$c (uri) {
-    const match = uri.match(reURI$c);
+  function processURI$d (uri) {
+    const match = uri.match(reURI$d);
 
     return new ServiceProvider({
       about: {
@@ -3751,7 +3751,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$c.toString(),
+        uriRegularExpression: reURI$d.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -3777,7 +3777,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
     })
   }
 
-  const tests$c = [
+  const tests$d = [
     {
       uri: 'https://lichess.org/@/Alice',
       shouldMatch: true
@@ -3794,9 +3794,9 @@ var doip = (function (exports, openpgp$1, fetcher) {
 
   var lichess = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$c,
-    reURI: reURI$c,
-    tests: tests$c
+    processURI: processURI$d,
+    reURI: reURI$d,
+    tests: tests$d
   });
 
   /*
@@ -3815,14 +3815,14 @@ var doip = (function (exports, openpgp$1, fetcher) {
   limitations under the License.
   */
 
-  const reURI$b = /^https:\/\/news\.ycombinator\.com\/user\?id=(.*)\/?/;
+  const reURI$c = /^https:\/\/news\.ycombinator\.com\/user\?id=(.*)\/?/;
 
   /**
    * @function
    * @param {string} uri
    */
-  function processURI$b (uri) {
-    const match = uri.match(reURI$b);
+  function processURI$c (uri) {
+    const match = uri.match(reURI$c);
 
     return new ServiceProvider({
       about: {
@@ -3836,7 +3836,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$b.toString(),
+        uriRegularExpression: reURI$c.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -3862,7 +3862,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
     })
   }
 
-  const tests$b = [
+  const tests$c = [
     {
       uri: 'https://news.ycombinator.com/user?id=Alice',
       shouldMatch: true
@@ -3879,9 +3879,9 @@ var doip = (function (exports, openpgp$1, fetcher) {
 
   var hackernews = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$b,
-    reURI: reURI$b,
-    tests: tests$b
+    processURI: processURI$c,
+    reURI: reURI$c,
+    tests: tests$c
   });
 
   /*
@@ -3900,14 +3900,14 @@ var doip = (function (exports, openpgp$1, fetcher) {
   limitations under the License.
   */
 
-  const reURI$a = /^https:\/\/lobste\.rs\/u\/(.*)\/?/;
+  const reURI$b = /^https:\/\/lobste\.rs\/u\/(.*)\/?/;
 
   /**
    * @function
    * @param {string} uri
    */
-  function processURI$a (uri) {
-    const match = uri.match(reURI$a);
+  function processURI$b (uri) {
+    const match = uri.match(reURI$b);
 
     return new ServiceProvider({
       about: {
@@ -3921,7 +3921,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$a.toString(),
+        uriRegularExpression: reURI$b.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -3947,7 +3947,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
     })
   }
 
-  const tests$a = [
+  const tests$b = [
     {
       uri: 'https://lobste.rs/u/Alice',
       shouldMatch: true
@@ -3964,9 +3964,9 @@ var doip = (function (exports, openpgp$1, fetcher) {
 
   var lobsters = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$a,
-    reURI: reURI$a,
-    tests: tests$a
+    processURI: processURI$b,
+    reURI: reURI$b,
+    tests: tests$b
   });
 
   /*
@@ -3985,14 +3985,14 @@ var doip = (function (exports, openpgp$1, fetcher) {
   limitations under the License.
   */
 
-  const reURI$9 = /^https:\/\/(.*)\/(.*)\/(.*)\/?/;
+  const reURI$a = /^https:\/\/(.*)\/(.*)\/(.*)\/?/;
 
   /**
    * @function
    * @param {string} uri
    */
-  function processURI$9 (uri) {
-    const match = uri.match(reURI$9);
+  function processURI$a (uri) {
+    const match = uri.match(reURI$a);
 
     return new ServiceProvider({
       about: {
@@ -4006,7 +4006,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$9.toString().toString(),
+        uriRegularExpression: reURI$a.toString().toString(),
         uriIsAmbiguous: true
       },
       proof: {
@@ -4032,7 +4032,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
     })
   }
 
-  const tests$9 = [
+  const tests$a = [
     {
       uri: 'https://domain.org/alice/post',
       shouldMatch: true
@@ -4049,6 +4049,104 @@ var doip = (function (exports, openpgp$1, fetcher) {
 
   var forem = /*#__PURE__*/Object.freeze({
     __proto__: null,
+    processURI: processURI$a,
+    reURI: reURI$a,
+    tests: tests$a
+  });
+
+  /*
+  Copyright 2023 Yarmo Mackenbach
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  */
+
+  const reURI$9 = /^https:\/\/(.*)\/(.*)\/(.*)\/?/;
+
+  /**
+   * @function
+   * @param {string} uri
+   */
+  function processURI$9 (uri) {
+    const match = uri.match(reURI$9);
+
+    return new ServiceProvider({
+      about: {
+        id: 'forgejo',
+        name: 'Forgejo',
+        homepage: 'https://forgejo.org'
+      },
+      profile: {
+        display: `${match[2]}@${match[1]}`,
+        uri: `https://${match[1]}/${match[2]}`,
+        qr: null
+      },
+      claim: {
+        uriRegularExpression: reURI$9.toString(),
+        uriIsAmbiguous: true
+      },
+      proof: {
+        request: {
+          uri,
+          fetcher: Fetcher.HTTP,
+          accessRestriction: ProofAccessRestriction.NOCORS,
+          data: {
+            url: `https://${match[1]}/api/v1/repos/${match[2]}/${match[3]}`,
+            format: ProofFormat.JSON
+          }
+        },
+        response: {
+          format: ProofFormat.JSON
+        },
+        target: [{
+          format: ClaimFormat.URI,
+          encoding: EntityEncodingFormat.PLAIN,
+          relation: ClaimRelation.EQUALS,
+          path: ['description']
+        }]
+      }
+    })
+  }
+
+  const functions$1 = {
+    validate: async (/** @type {ServiceProvider} */ claimData, proofData, opts) => {
+      const url = `https://${new URL(claimData.proof.request.uri).hostname}/api/forgejo/v1/version`;
+      const forgejoData = await fetcher__namespace.http.fn({ url, format: ProofFormat.JSON }, opts);
+      return forgejoData && 'version' in forgejoData
+    }
+  };
+
+  const tests$9 = [
+    {
+      uri: 'https://domain.org/alice/forgejo_proof',
+      shouldMatch: true
+    },
+    {
+      uri: 'https://domain.org/alice/forgejo_proof/',
+      shouldMatch: true
+    },
+    {
+      uri: 'https://domain.org/alice/other_proof',
+      shouldMatch: true
+    },
+    {
+      uri: 'https://domain.org/alice',
+      shouldMatch: false
+    }
+  ];
+
+  var forgejo = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    functions: functions$1,
     processURI: processURI$9,
     reURI: reURI$9,
     tests: tests$9
@@ -5079,7 +5177,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
     hackernews,
     lobsters,
     forem,
-    // forgejo,
+    forgejo,
     gitea,
     gitlab,
     github,
@@ -5435,8 +5533,15 @@ var doip = (function (exports, openpgp$1, fetcher) {
             viaProxy: proofData.viaProxy
           };
 
-          // Post process the data
+          // Validate the result
           const def = _data[claimData.about.id];
+          if (def.functions?.validate && verificationResult.completed && verificationResult.result) {
+            try {
+              (verificationResult.result = await def.functions.validate(claimData, proofData, verificationResult, opts$1));
+            } catch (_) {}
+          }
+
+          // Post process the data
           if (def.functions?.postprocess) {
             try {
               ({ claimData, proofData } = await def.functions.postprocess(claimData, proofData, opts$1));
