@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import * as E from '../enums.js'
+import { fetcher } from '../index.js'
 import { ServiceProvider } from '../serviceProvider.js'
 
 export const reURI = /^https:\/\/(.*)\/(.*)\/(.*)\/?/
@@ -61,6 +62,14 @@ export function processURI (uri) {
       }]
     }
   })
+}
+
+export const functions = {
+  validate: async (/** @type {ServiceProvider} */ claimData, proofData, opts) => {
+    const url = `https://${new URL(claimData.proof.request.uri).hostname}/api/forgejo/v1/version`
+    const forgejoData = await fetcher.http.fn({ url, format: E.ProofFormat.JSON }, opts)
+    return forgejoData && 'version' in forgejoData
+  }
 }
 
 export const tests = [

@@ -25,7 +25,7 @@ import * as lichess from './lichess.js'
 import * as hackernews from './hackernews.js'
 import * as lobsters from './lobsters.js'
 import * as forem from './forem.js'
-// import * as forgejo from './forgejo.js'
+import * as forgejo from './forgejo.js'
 import * as gitea from './gitea.js'
 import * as gitlab from './gitlab.js'
 import * as github from './github.js'
@@ -49,7 +49,7 @@ const _data = {
   hackernews,
   lobsters,
   forem,
-  // forgejo,
+  forgejo,
   gitea,
   gitlab,
   github,
