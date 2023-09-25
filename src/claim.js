@@ -332,15 +332,13 @@ export class Claim {
     let displayName = this._uri
     let displayUrl = null
     let displayServiceProviderName = null
+    let displayServiceProviderId = null
 
-    if (this._status >= 200 && this._status < 300) {
+    if (!this.isAmbiguous() || (this._status >= 200 && this._status < 300)) {
       displayName = this._matches[0].profile.display
       displayUrl = this._matches[0].profile.uri
       displayServiceProviderName = this._matches[0].about.name
-    } else if (this._status === ClaimStatus.MATCHED && !this.isAmbiguous()) {
-      displayName = this._matches[0].profile.display
-      displayUrl = this._matches[0].profile.uri
-      displayServiceProviderName = this._matches[0].about.name
+      displayServiceProviderId = this._matches[0].about.id
     }
 
     return {
@@ -352,7 +350,8 @@ export class Claim {
       display: {
         name: displayName,
         url: displayUrl,
-        serviceProviderName: displayServiceProviderName
+        serviceProviderName: displayServiceProviderName,
+        serviceProviderId: displayServiceProviderId
       }
     }
   }
