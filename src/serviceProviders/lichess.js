@@ -27,8 +27,9 @@ export function processURI (uri) {
 
   return new ServiceProvider({
     about: {
-      id: 'web',
-      name: 'lichess'
+      id: 'lichess',
+      name: 'Lichess',
+      homepage: 'https://lichess.org'
     },
     profile: {
       display: match[1],

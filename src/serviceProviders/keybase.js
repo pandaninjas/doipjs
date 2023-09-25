@@ -27,8 +27,9 @@ export function processURI (uri) {
 
   return new ServiceProvider({
     about: {
-      id: 'web',
-      name: 'keybase'
+      id: 'keybase',
+      name: 'keybase',
+      homepage: 'https://keybase.io'
     },
     profile: {
       display: match[1],
