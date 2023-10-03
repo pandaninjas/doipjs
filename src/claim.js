@@ -313,12 +313,13 @@ export class Claim {
    * @returns {boolean}
    */
   isAmbiguous () {
-    if (this._status === ClaimStatus.INIT) {
+    if (this._status < ClaimStatus.MATCHED) {
       throw new Error('The claim has not been matched yet')
     }
     if (this._matches.length === 0) {
       throw new Error('The claim has no matches')
     }
+    if (this._status >= 200 && this._status < 300) return false
     return this._matches.length > 1 || this._matches[0].claim.uriIsAmbiguous
   }
 
@@ -334,7 +335,7 @@ export class Claim {
     let displayServiceProviderName = null
     let displayServiceProviderId = null
 
-    if (!this.isAmbiguous() || (this._status >= 200 && this._status < 300)) {
+    if (this._status >= ClaimStatus.MATCHED && this._matches.length > 0 && !this.isAmbiguous()) {
       displayName = this._matches[0].profile.display
       displayUrl = this._matches[0].profile.uri
       displayServiceProviderName = this._matches[0].about.name
