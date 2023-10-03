@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.2] - 2023-10-03
+### Fixed
+- Service provider information for Lichess and Keybase
+- Display data logic in claim toJSON
+
 ## [1.2.1] - 2023-09-23
 Bump necessary due to tag-related glitch in git forge
 
