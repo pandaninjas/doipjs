@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.4] - 2023-10-04
+### Changed
+- Claim display information
+
 ## [1.2.3] - 2023-10-03
 ### Fixed
 - Claim ambiguity logic
