@@ -330,14 +330,16 @@ export class Claim {
    * @returns {object}
    */
   toJSON () {
-    let displayName = this._uri
-    let displayUrl = null
+    let displayProfileName = this._uri
+    let displayProfileUrl = null
+    let displayProofUrl = null
     let displayServiceProviderName = null
     let displayServiceProviderId = null
 
     if (this._status >= ClaimStatus.MATCHED && this._matches.length > 0 && !this.isAmbiguous()) {
-      displayName = this._matches[0].profile.display
-      displayUrl = this._matches[0].profile.uri
+      displayProfileName = this._matches[0].profile.display
+      displayProfileUrl = this._matches[0].profile.uri
+      displayProofUrl = this._matches[0].proof.request.uri
       displayServiceProviderName = this._matches[0].about.name
       displayServiceProviderId = this._matches[0].about.id
     }
@@ -349,8 +351,9 @@ export class Claim {
       matches: this._matches.map(x => x.toJSON()),
       status: this._status,
       display: {
-        name: displayName,
-        url: displayUrl,
+        profileName: displayProfileName,
+        profileUrl: displayProfileUrl,
+        proofUrl: displayProofUrl,
         serviceProviderName: displayServiceProviderName,
         serviceProviderId: displayServiceProviderId
       }
