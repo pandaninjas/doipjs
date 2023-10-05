@@ -5751,6 +5751,12 @@ var doip = (function (exports, openpgp$1, fetcher) {
        */
       this.avatarUrl = null;
       /**
+       * Theme color
+       * @type {string | null}
+       * @public
+       */
+      this.themeColor = null;
+      /**
        * List of identity claims
        * @type {import('./claim.js').Claim[]}
        * @public
@@ -5854,6 +5860,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
         email: this.email,
         description: this.description,
         avatarUrl: this.avatarUrl,
+        themeColor: this.themeColor,
         isRevoked: this.isRevoked,
         claims: this.claims.map(x => x.toJSON())
       }
@@ -5873,6 +5880,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
     persona.email = personaObject.email;
     persona.description = personaObject.description;
     persona.avatarUrl = personaObject.avatarUrl;
+    persona.themeColor = personaObject.avatarUrl;
     persona.isRevoked = personaObject.isRevoked;
 
     return persona
@@ -9742,6 +9750,8 @@ var doip = (function (exports, openpgp$1, fetcher) {
     const profileName = payloadJson['http://ariadne.id/name'];
     /** @type {string} */
     const profileDescription = payloadJson['http://ariadne.id/description'];
+    /** @type {string} */
+    const profileThemeColor = payloadJson['http://ariadne.id/color'];
     /** @type {string[]} */
     const profileClaims = payloadJson['http://ariadne.id/claims'];
 
@@ -9750,6 +9760,9 @@ var doip = (function (exports, openpgp$1, fetcher) {
     const pe = new Persona(profileName, profileClaimsParsed);
     if (profileDescription) {
       pe.setDescription(profileDescription);
+    }
+    if (profileThemeColor && /^#([0-9A-F]{3}){1,2}$/i.test(profileThemeColor)) {
+      pe.themeColor = profileThemeColor;
     }
 
     const profile = new Profile(ProfileType.ASP, uri, [pe]);

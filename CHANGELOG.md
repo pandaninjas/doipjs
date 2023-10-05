@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.5] - 2023-10-05
+### Added
+- Support for theme color
+
 ## [1.2.4] - 2023-10-04
 ### Changed
 - Claim display information

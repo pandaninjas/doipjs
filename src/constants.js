@@ -22,4 +22,4 @@ limitations under the License.
  * doip.js library version
  * @constant {string}
  */
-export const version = '1.2.4'
+export const version = '1.2.5'
