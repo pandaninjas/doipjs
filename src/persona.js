@@ -61,6 +61,12 @@ export class Persona {
      */
     this.avatarUrl = null
     /**
+     * Theme color
+     * @type {string | null}
+     * @public
+     */
+    this.themeColor = null
+    /**
      * List of identity claims
      * @type {import('./claim.js').Claim[]}
      * @public
@@ -164,6 +170,7 @@ export class Persona {
       email: this.email,
       description: this.description,
       avatarUrl: this.avatarUrl,
+      themeColor: this.themeColor,
       isRevoked: this.isRevoked,
       claims: this.claims.map(x => x.toJSON())
     }
@@ -183,6 +190,7 @@ function importJsonPersonaVersion2 (personaObject) {
   persona.email = personaObject.email
   persona.description = personaObject.description
   persona.avatarUrl = personaObject.avatarUrl
+  persona.themeColor = personaObject.avatarUrl
   persona.isRevoked = personaObject.isRevoked
 
   return persona

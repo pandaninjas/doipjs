@@ -130,6 +130,8 @@ export async function parseProfileJws (profileJws, uri) {
   const profileName = payloadJson['http://ariadne.id/name']
   /** @type {string} */
   const profileDescription = payloadJson['http://ariadne.id/description']
+  /** @type {string} */
+  const profileThemeColor = payloadJson['http://ariadne.id/color']
   /** @type {string[]} */
   const profileClaims = payloadJson['http://ariadne.id/claims']
 
@@ -138,6 +140,9 @@ export async function parseProfileJws (profileJws, uri) {
   const pe = new Persona(profileName, profileClaimsParsed)
   if (profileDescription) {
     pe.setDescription(profileDescription)
+  }
+  if (profileThemeColor && /^#([0-9A-F]{3}){1,2}$/i.test(profileThemeColor)) {
+    pe.themeColor = profileThemeColor
   }
 
   const profile = new Profile(ProfileType.ASP, uri, [pe])
