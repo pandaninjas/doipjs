@@ -13,8 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+import isFQDN from 'validator/lib/isFQDN.js'
+import { parse } from 'node-html-parser'
 import { PublicKeyFetchMethod, PublicKeyEncoding, PublicKeyType } from './enums.js'
 import { Persona } from './persona.js'
+import { fetchASPE } from './asp.js'
 
 /**
  * A profile of personas with identity claims
@@ -221,4 +224,51 @@ function importJsonProfileVersion2 (profileObject) {
   profile.verifiers = profileObject.verifiers
 
   return profile
+}
+
+/**
+ * Resolve a profile identifier and return a [Profile]
+ * @param {string} id
+ * @returns {Promise<Profile | null>}
+ */
+export async function resolve (id) {
+  /** @type {string | null} */
+  let aliasedId = null
+
+  // Attempt resolving as alias
+  if (isFQDN(id)) {
+    aliasedId = await resolveToAlias(id)
+  }
+
+  const finalId = aliasedId ?? id
+
+  // Attempting resolving as ASPE
+  if (/^aspe:(:?.*)/.test(finalId)) {
+    return await fetchASPE(finalId)
+  }
+
+  return null
+}
+
+/**
+ * @param {string} id
+ * @returns {Promise<string | null>}
+ */
+async function resolveToAlias (id) {
+  const url = new URL(`https://${id}`)
+  const res = await fetch(url)
+    .then(async res => {
+      if (res.status >= 400) return null
+      return await res.text()
+    })
+    .catch(_ => null)
+
+  if (!res) return null
+
+  const dom = parse(res)
+  const meta = dom.querySelector('meta[name="ariadne-profile-id"]')
+
+  if (!meta) return null
+
+  return meta.attributes.content
 }
