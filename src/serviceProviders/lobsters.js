@@ -16,7 +16,7 @@ limitations under the License.
 import * as E from '../enums.js'
 import { ServiceProvider } from '../serviceProvider.js'
 
-export const reURI = /^https:\/\/lobste\.rs\/u\/(.*)\/?/
+export const reURI = /^https:\/\/lobste\.rs\/(:?~|u\/)(.*)\/?/
 
 /**
  * @function
@@ -33,7 +33,7 @@ export function processURI (uri) {
     },
     profile: {
       display: match[1],
-      uri,
+      uri: `https://lobste.rs/~${match[1]}`,
       qr: null
     },
     claim: {
@@ -42,11 +42,11 @@ export function processURI (uri) {
     },
     proof: {
       request: {
-        uri: `https://lobste.rs/u/${match[1]}.json`,
+        uri: `https://lobste.rs/~${match[1]}.json`,
         fetcher: E.Fetcher.HTTP,
         accessRestriction: E.ProofAccessRestriction.NOCORS,
         data: {
-          url: `https://lobste.rs/u/${match[1]}.json`,
+          url: `https://lobste.rs/~${match[1]}.json`,
           format: E.ProofFormat.JSON
         }
       },
@@ -65,12 +65,20 @@ export function processURI (uri) {
 
 export const tests = [
   {
+    uri: 'https://lobste.rs/~Alice',
+    shouldMatch: true
+  },
+  {
     uri: 'https://lobste.rs/u/Alice',
     shouldMatch: true
   },
   {
     uri: 'https://lobste.rs/u/Alice/',
     shouldMatch: true
+  },
+  {
+    uri: 'https://domain.org/~Alice',
+    shouldMatch: false
   },
   {
     uri: 'https://domain.org/u/Alice',
