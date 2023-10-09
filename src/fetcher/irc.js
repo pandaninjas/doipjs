@@ -56,7 +56,7 @@ export async function fn (data, opts) {
         showErrors: false,
         debug: false
       })
-      const reKey = /[a-zA-Z0-9\-_]+\s+:\s(openpgp4fpr|aspe:.*)/
+      const reKey = /[a-zA-Z0-9\-_]+\s+:\s((?:openpgp4fpr|aspe):.*)/
       const reEnd = /End\sof\s.*\staxonomy./
       const keys = []
 

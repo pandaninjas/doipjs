@@ -16,7 +16,7 @@ limitations under the License.
 import * as E from '../enums.js'
 import { ServiceProvider } from '../serviceProvider.js'
 
-export const reURI = /^https:\/\/lobste\.rs\/(:?~|u\/)(.*)\/?/
+export const reURI = /^https:\/\/lobste\.rs\/(?:~|u\/)(.*)\/?/
 
 /**
  * @function
