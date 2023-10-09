@@ -31,7 +31,7 @@ export function processURI (uri) {
       name: 'IRC'
     },
     profile: {
-      display: `irc://${match[1]}/${match[2]}`,
+      display: `${match[1]}/${match[2]}`,
       uri,
       qr: null
     },
