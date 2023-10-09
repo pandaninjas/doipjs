@@ -1,8 +1,8 @@
+when:
+  branch: main
+  event: tag
 steps:
   prepare:
-    when:
-      branch: main
-      event: tag
     image: node
     commands:
       - yarn --pure-lockfile
