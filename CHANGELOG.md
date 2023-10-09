@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.6] - 2023-10-09
+### Added
+- JSON schemas for common objects
+### Changed
+- Additional Github proof location (proof.md)
+### Fixed
+- IRC compatibility with ASP profiles
+- IRC profile display value
+- Lobste.rs profile URL value
+
 ## [1.2.5] - 2023-10-05
 ### Added
 - Support for theme color
