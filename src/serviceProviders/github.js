@@ -53,12 +53,20 @@ export function processURI (uri) {
       response: {
         format: E.ProofFormat.JSON
       },
-      target: [{
-        format: E.ClaimFormat.URI,
-        encoding: E.EntityEncodingFormat.PLAIN,
-        relation: E.ClaimRelation.CONTAINS,
-        path: ['files', 'openpgp.md', 'content']
-      }]
+      target: [
+        {
+          format: E.ClaimFormat.URI,
+          encoding: E.EntityEncodingFormat.PLAIN,
+          relation: E.ClaimRelation.CONTAINS,
+          path: ['files', 'proof.md', 'content']
+        },
+        {
+          format: E.ClaimFormat.URI,
+          encoding: E.EntityEncodingFormat.PLAIN,
+          relation: E.ClaimRelation.CONTAINS,
+          path: ['files', 'openpgp.md', 'content']
+        }
+      ]
     }
   })
 }
