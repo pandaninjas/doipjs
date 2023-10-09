@@ -2728,7 +2728,7 @@ var doipFetchers = (function (exports) {
 	 * doip.js library version
 	 * @constant {string}
 	 */
-	const version = '1.2.6';
+	const version = '1.2.7';
 
 	/*
 	Copyright 2022 Yarmo Mackenbach
@@ -23629,7 +23629,7 @@ var doipFetchers = (function (exports) {
 	        showErrors: false,
 	        debug: false
 	      });
-	      const reKey = /[a-zA-Z0-9\-_]+\s+:\s(openpgp4fpr|aspe:.*)/;
+	      const reKey = /[a-zA-Z0-9\-_]+\s+:\s((?:openpgp4fpr|aspe):.*)/;
 	      const reEnd = /End\sof\s.*\staxonomy./;
 	      const keys = [];
 

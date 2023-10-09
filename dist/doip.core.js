@@ -3901,7 +3901,7 @@ var doip = (function (exports, openpgp$1, fetcher) {
   limitations under the License.
   */
 
-  const reURI$b = /^https:\/\/lobste\.rs\/(:?~|u\/)(.*)\/?/;
+  const reURI$b = /^https:\/\/lobste\.rs\/(?:~|u\/)(.*)\/?/;
 
   /**
    * @function
