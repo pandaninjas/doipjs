@@ -36,7 +36,7 @@ export function processURI (uri) {
       name: 'ASPE'
     },
     profile: {
-      display: match[1],
+      display: uri,
       uri,
       qr: null
     },
