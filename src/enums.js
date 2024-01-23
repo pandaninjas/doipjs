@@ -40,6 +40,8 @@ export const ProxyPolicy = {
 export const Fetcher = {
   /** HTTP requests to ActivityPub */
   ACTIVITYPUB: 'activitypub',
+  /** ASPE HTTP requests */
+  ASPE: 'aspe',
   /** DNS module from Node.js */
   DNS: 'dns',
   /** GraphQL over HTTP requests */

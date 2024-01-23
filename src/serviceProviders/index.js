@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+import * as aspe from './aspe.js'
 import * as openpgp from './openpgp.js'
 import * as dns from './dns.js'
 import * as irc from './irc.js'
@@ -38,6 +39,7 @@ import * as keybase from './keybase.js'
 import * as opencollective from './opencollective.js'
 
 const _data = {
+  aspe,
   openpgp,
   dns,
   irc,
