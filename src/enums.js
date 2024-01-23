@@ -40,6 +40,8 @@ export const ProxyPolicy = {
 export const Fetcher = {
   /** HTTP requests to ActivityPub */
   ACTIVITYPUB: 'activitypub',
+  /** ASPE HTTP requests */
+  ASPE: 'aspe',
   /** DNS module from Node.js */
   DNS: 'dns',
   /** GraphQL over HTTP requests */
@@ -50,6 +52,8 @@ export const Fetcher = {
   IRC: 'irc',
   /** HTTP request to Matrix API */
   MATRIX: 'matrix',
+  /** HKP and WKS request for OpenPGP */
+  OPENPGP: 'openpgp',
   /** HTTP request to Telegram API */
   TELEGRAM: 'telegram',
   /** XMPP module from Node.js */
@@ -196,4 +200,14 @@ export const PublicKeyFetchMethod = {
   WKD: 'wkd',
   HTTP: 'http',
   NONE: 'none'
+}
+
+/**
+ * Protocol to query OpenPGP public keys
+ * @readonly
+ * @enum {string}
+ */
+export const OpenPgpQueryProtocol = {
+  HKP: 'hkp',
+  WKD: 'wkd'
 }
