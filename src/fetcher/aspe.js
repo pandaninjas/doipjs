@@ -20,6 +20,8 @@ import { parseProfileJws } from '../asp.js'
 
 export const timeout = 5000
 
+const reURI = /^aspe:([a-zA-Z0-9.\-_]*):([a-zA-Z0-9]*)/
+
 /**
  * Execute a fetch request
  * @function
@@ -39,7 +41,6 @@ export async function fn (data, opts) {
   })
 
   const fetchPromise = new Promise((resolve, reject) => {
-    const reURI = /^aspe:([a-zA-Z0-9.\-_]*):([a-zA-Z0-9]*)/
     const match = data.aspeUri.match(reURI)
 
     if (!data.aspeUri || !reURI.test(data.aspeUri) || !isFQDN(match[1])) {

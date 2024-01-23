@@ -18,15 +18,15 @@ import { ServiceProvider } from '../serviceProvider.js'
 
 export const reURI = /^(.*)/
 
+const reURIHkp = /^openpgp4fpr:(?:0x)?([a-zA-Z0-9.\-_]*)/
+const reURIWkdDirect = /^https:\/\/(.*)\/.well-known\/openpgpkey\/hu\/([a-zA-Z0-9]*)(?:\?l=(.*))?/
+const reURIWkdAdvanced = /^https:\/\/(openpgpkey.*)\/.well-known\/openpgpkey\/(.*)\/hu\/([a-zA-Z0-9]*)(?:\?l=(.*))?/
+
 /**
  * @function
  * @param {string} uri
  */
 export function processURI (uri) {
-  const reURIHkp = /^openpgp4fpr:(?:0x)?([a-zA-Z0-9.\-_]*)/
-  const reURIWkdDirect = /^https:\/\/(.*)\/.well-known\/openpgpkey\/hu\/([a-zA-Z0-9]*)(?:\?l=(.*))?/
-  const reURIWkdAdvanced = /^https:\/\/(openpgpkey.*)\/.well-known\/openpgpkey\/(.*)\/hu\/([a-zA-Z0-9]*)(?:\?l=(.*))?/
-
   let reURI = null
   let mode = null
   let match = null
