@@ -89,8 +89,7 @@ export async function fn (data, opts) {
     })()
   })
 
-  return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+  return Promise.race([fetchPromise, timeoutPromise]).finally(() => {
     clearTimeout(timeoutHandle)
-    return result
   })
 }
