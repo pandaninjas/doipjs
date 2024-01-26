@@ -15,7 +15,6 @@
       "default": "./src/fetcher/index.minimal.js"
     }
   },
-  "packageManager": "yarn@1.22.19",
   "dependencies": {
     "@openpgp/hkp-client": "^0.0.3",
     "@openpgp/wkd-client": "^0.0.4",
