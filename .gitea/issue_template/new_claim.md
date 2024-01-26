@@ -5,7 +5,7 @@ title: '[NEW CLAIM] '
 ref: 'dev'
 labels:
   - Status/Backlog
-  - 'Status/New Claim'
+  - 'Type/New Claim'
 ---
 
 ### Service provider
