@@ -4,7 +4,7 @@ about: 'Report a bug'
 title: '[BUG] '
 ref: 'dev'
 labels:
-  - Status/Backlog
+  - 'Status/Needs Triage'
   - Type/Bug
 ---
 

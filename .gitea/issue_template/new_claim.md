@@ -4,7 +4,7 @@ about: 'Suggest a new service provider or website for identity verification'
 title: '[NEW CLAIM] '
 ref: 'dev'
 labels:
-  - Status/Backlog
+  - 'Status/Needs Triage'
   - 'Type/New Claim'
 ---
 

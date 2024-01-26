@@ -4,7 +4,7 @@ about: 'Report a claim no longer verifying, or not verifying as it should'
 title: '[CLAIM BUG] '
 ref: 'dev'
 labels:
-  - Status/Backlog
+  - 'Status/Needs Triage'
   - Type/Bug
 ---
 
