@@ -13,6 +13,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+/**
+ * ASPE service provider
+ *
+ * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/aspe/)
+ * @module serviceProviders/aspe
+ * @example
+ * import { ServiceProviderDefinitions } from 'doipjs';
+ * const sp = ServiceProviderDefinitions.data.activitypub.processURI('aspe:domain.example:abc123def456');
+ */
+
 import isFQDN from 'validator/lib/isFQDN.js'
 import * as E from '../enums.js'
 import { ServiceProvider } from '../serviceProvider.js'

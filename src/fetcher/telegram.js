@@ -13,15 +13,24 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+/**
+ * Fetch proofs using Telegram groups
+ * @module fetcher/telegram
+ * @example
+ * import { fetcher } from 'doipjs';
+ * const data = await fetcher.telegram.fn({ user: 'alice', chat: 'alice_identity_proof' });
+ */
+
 import axios from 'axios'
 import isAscii from 'validator/lib/isAscii.js'
 import { version } from '../constants.js'
 import * as Types from '../types.js'
 
 /**
- * Timeout after which the fetch is aborted
+ * Default timeout after which the fetch is aborted
  * @constant
  * @type {number}
+ * @default 5000
  */
 export const timeout = 5000
 
@@ -30,8 +39,8 @@ export const timeout = 5000
  * @function
  * @async
  * @param {object} data - Data used in the request
- * @param {string} data.chat - Telegram public chat username
- * @param {string} data.user - Telegram user username
+ * @param {string} data.chat - Telegram public group name (slug)
+ * @param {string} data.user - Telegram username
  * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
  * @param {Types.VerificationConfig} [opts] - Options used to enable the request
  * @returns {Promise<object|string>} The fetched Telegram object

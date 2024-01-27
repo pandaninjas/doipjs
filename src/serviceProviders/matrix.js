@@ -13,6 +13,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+/**
+ * Matrix service provider
+ *
+ * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/matrix/)
+ * @module serviceProviders/matrix
+ * @example
+ * import { ServiceProviderDefinitions } from 'doipjs';
+ * const sp = ServiceProviderDefinitions.data.matrix.processURI('matrix:u/...');
+ */
+
 import * as E from '../enums.js'
 import { ServiceProvider } from '../serviceProvider.js'
 

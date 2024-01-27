@@ -13,6 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+/**
+ * Fetch proofs from XMPP accounts
+ * @module fetcher/xmpp
+ * @example
+ * import { fetcher } from 'doipjs';
+ * const data = await fetcher.xmpp.fn({ id: 'alice@domain.example' });
+ */
+
 import { client, xml } from '@xmpp/client'
 import debug from '@xmpp/debug'
 import isFQDN from 'validator/lib/isFQDN.js'
@@ -20,9 +28,10 @@ import isAscii from 'validator/lib/isAscii.js'
 import * as Types from '../types.js'
 
 /**
- * Timeout after which the fetch is aborted
+ * Default timeout after which the fetch is aborted
  * @constant
  * @type {number}
+ * @default 5000
  */
 export const timeout = 5000
 
@@ -31,6 +40,7 @@ let iqCaller = null
 
 /**
  * Start the XMPP client
+ * @ignore
  * @function
  * @async
  * @param {Types.XmppClaimVerificationConfig} params - XMPP claim verification config

@@ -18,7 +18,7 @@ import { Persona } from './persona.js'
 import * as Types from './types.js'
 
 /**
- * @class [Types.Profile]
+ * @class
  * @classdesc A profile of personas with identity claims
  * @param {Array<Persona>} personas - Personas of the profile
  * @public
@@ -157,6 +157,7 @@ export class Profile {
 }
 
 /**
+ * @ignore
  * @param {object} profileObject - JSON representation of the profile
  * @returns {Profile | Error} Parsed profile
  */

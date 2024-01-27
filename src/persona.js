@@ -184,6 +184,7 @@ export class Persona {
 }
 
 /**
+ * @ignore
  * @param {object} personaObject - JSON representation of a persona
  * @returns {Persona | Error} Parsed persona
  */

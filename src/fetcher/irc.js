@@ -13,14 +13,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+/**
+ * Fetch proofs using IRC
+ * @module fetcher/irc
+ * @example
+ * import { fetcher } from 'doipjs';
+ * const data = await fetcher.irc.fn({ nick: 'alice', domain: 'domain.example' });
+ */
+
 import irc from 'irc-upd'
 import isAscii from 'validator/lib/isAscii.js'
 import * as Types from '../types.js'
 
 /**
- * Timeout after which the fetch is aborted
+ * Default timeout after which the fetch is aborted
  * @constant
  * @type {number}
+ * @default 20000
  */
 export const timeout = 20000
 

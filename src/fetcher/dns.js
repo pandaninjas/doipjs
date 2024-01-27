@@ -13,14 +13,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+/**
+ * Fetch proofs using DNS TXT records
+ * @module fetcher/dns
+ * @example
+ * import { fetcher } from 'doipjs';
+ * const data = await fetcher.dns.fn({ domain: 'domain.example' });
+ */
+
 import { isBrowser } from 'browser-or-node'
 import dns from 'dns'
 import * as Types from '../types.js'
 
 /**
- * Timeout after which the fetch is aborted
+ * Default timeout after which the fetch is aborted
  * @constant
  * @type {number}
+ * @default 5000
  */
 export const timeout = 5000
 

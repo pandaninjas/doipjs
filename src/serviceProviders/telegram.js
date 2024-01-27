@@ -13,6 +13,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+/**
+ * Telegram service provider
+ *
+ * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/telegram/)
+ * @module serviceProviders/telegram
+ * @example
+ * import { ServiceProviderDefinitions } from 'doipjs';
+ * const sp = ServiceProviderDefinitions.data.telegram.processURI('https://t.me/alice?proof=mygroup');
+ */
+
 import * as E from '../enums.js'
 import { ServiceProvider } from '../serviceProvider.js'
 

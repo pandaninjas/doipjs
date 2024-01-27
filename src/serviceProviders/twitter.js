@@ -13,6 +13,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+/**
+ * Twitter service provider
+ *
+ * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/twitter/)
+ * @module serviceProviders/twitter
+ * @example
+ * import { ServiceProviderDefinitions } from 'doipjs';
+ * const sp = ServiceProviderDefinitions.data.twitter.processURI('https://twitter.com/alice/status/123456789');
+ */
+
 import * as E from '../enums.js'
 import { ServiceProvider } from '../serviceProvider.js'
 

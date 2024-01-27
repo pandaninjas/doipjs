@@ -13,6 +13,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+/**
+ * OpenCollective service provider
+ *
+ * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/opencollective/)
+ * @module serviceProviders/opencollective
+ * @example
+ * import { ServiceProviderDefinitions } from 'doipjs';
+ * const sp = ServiceProviderDefinitions.data.opencollective.processURI('https://opencollective.com/alice');
+ */
+
 import * as E from '../enums.js'
 import { ServiceProvider } from '../serviceProvider.js'
 

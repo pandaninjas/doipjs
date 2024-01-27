@@ -13,6 +13,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+/**
+ * Lobste.rs service provider
+ *
+ * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/lobsters/)
+ * @module serviceProviders/lobsters
+ * @example
+ * import { ServiceProviderDefinitions } from 'doipjs';
+ * const sp = ServiceProviderDefinitions.data.lobsters.processURI('https://lobste.rs/~alice');
+ */
+
 import * as E from '../enums.js'
 import { ServiceProvider } from '../serviceProvider.js'
 

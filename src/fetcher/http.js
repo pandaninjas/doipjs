@@ -13,15 +13,24 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+/**
+ * Fetch proofs using HTTP requests
+ * @module fetcher/http
+ * @example
+ * import { fetcher } from 'doipjs';
+ * const data = await fetcher.http.fn({ url: 'https://domain.example/data.json', format: 'json' });
+ */
+
 import axios from 'axios'
 import { ProofFormat } from '../enums.js'
 import { version } from '../constants.js'
 import * as Types from '../types.js'
 
 /**
- * Timeout after which the fetch is aborted
+ * Default timeout after which the fetch is aborted
  * @constant
  * @type {number}
+ * @default 5000
  */
 export const timeout = 5000
 

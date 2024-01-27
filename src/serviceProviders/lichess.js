@@ -13,6 +13,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+/**
+ * Lichess service provider
+ *
+ * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/lichess/)
+ * @module serviceProviders/lichess
+ * @example
+ * import { ServiceProviderDefinitions } from 'doipjs';
+ * const sp = ServiceProviderDefinitions.data.lichess.processURI('https://lichess.org/@/alice');
+ */
+
 import * as E from '../enums.js'
 import { ServiceProvider } from '../serviceProvider.js'
 

@@ -363,6 +363,7 @@ export class Claim {
 }
 
 /**
+ * @ignore
  * @param {object} claimObject - JSON representation of a claim
  * @returns {Claim | Error} Parsed claim
  */
@@ -404,6 +405,7 @@ function importJsonClaimVersion1 (claimObject) {
 }
 
 /**
+ * @ignore
  * @param {object} claimObject - JSON representation of a claim
  * @returns {Claim | Error} Parsed claim
  */

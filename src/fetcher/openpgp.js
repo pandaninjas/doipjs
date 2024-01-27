@@ -13,6 +13,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+/**
+ * Fetch proofs from OpenPGP notations
+ * @module fetcher/openpgp
+ * @example
+ * import { fetcher, enums as E } from 'doipjs';
+ *
+ * const hkpProtocol = E.OpenPgpQueryProtocol.HKP;
+ * const hkpUrl = 'https://keys.openpgp.org/vks/v1/by-fingerprint/ABC123DEF456';
+ * const hkpData = await fetcher.openpgp.fn({ url: hkpUrl, protocol: hkpProtocol });
+ *
+ * const wkdProtocol = E.OpenPgpQueryProtocol.WKD;
+ * const wkdUrl = 'https://domain.example/.well-known/openpgpkey/hu/kei1q4tipxxu1yj79k9kfukdhfy631xe?l=alice';
+ * const wkdData = await fetcher.openpgp.fn({ url: wkdUrl, protocol: wkdProtocol });
+ */
+
 import axios from 'axios'
 import { readKey } from 'openpgp'
 import { OpenPgpQueryProtocol } from '../enums.js'
@@ -21,9 +36,10 @@ import { parsePublicKey } from '../openpgp.js'
 import * as Types from '../types.js'
 
 /**
- * Timeout after which the fetch is aborted
+ * Default timeout after which the fetch is aborted
  * @constant
  * @type {number}
+ * @default 5000
  */
 export const timeout = 5000
 
