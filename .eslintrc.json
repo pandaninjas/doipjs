@@ -4,7 +4,10 @@
     "es2021": true,
     "node": true
   },
-  "extends": "standard",
+  "extends": [
+    "standard",
+    "plugin:jsdoc/recommended"
+  ],
   "overrides": [
   ],
   "parserOptions": {
@@ -12,5 +15,8 @@
     "sourceType": "module"
   },
   "rules": {
-  }
+  },
+  "plugins": [
+      "jsdoc"
+  ]
 }
