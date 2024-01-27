@@ -27,7 +27,7 @@ import { Claim } from './claim.js'
 export class Persona {
   /**
    * @param {string} name
-   * @param {import('./claim.js').Claim[]} claims
+   * @param {Claim[]} claims
    */
   constructor (name, claims) {
     /**
@@ -68,7 +68,7 @@ export class Persona {
     this.themeColor = null
     /**
      * List of identity claims
-     * @type {import('./claim.js').Claim[]}
+     * @type {Claim[]}
      * @public
      */
     this.claims = claims
@@ -145,7 +145,7 @@ export class Persona {
 
   /**
    * @function
-   * @param {import('./claim.js').Claim} claim
+   * @param {Claim} claim
    */
   addClaim (claim) {
     this.claims.push(claim)

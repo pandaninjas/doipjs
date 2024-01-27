@@ -13,13 +13,22 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import { PublicKeyFetchMethod, PublicKeyEncoding, PublicKeyType } from './enums.js'
+import { PublicKey } from 'openpgp'
+import * as joseMod from 'jose'
+import { PublicKeyFetchMethod, PublicKeyEncoding, PublicKeyType, ProfileType } from './enums.js'
 import { Persona } from './persona.js'
+
+/**
+ * The online verifier instance of identity profiles like Keyoxide's web interface
+ * @typedef {Object} ProfileVerifier
+ * @property {string} name - Name of the profile verifier
+ * @property {string} url - URL to the profile verifier
+ */
 
 /**
  * A profile of personas with identity claims
  * @function
- * @param {Array<import('./persona.js').Persona>} personas
+ * @param {Array<Persona>} personas
  * @public
  * @example
  * const claim = Claim('https://alice.tld', '123');
@@ -30,9 +39,9 @@ export class Profile {
   /**
    * Create a new profile
    * @function
-   * @param {import('./enums.js').ProfileType} profileType
+   * @param {ProfileType} profileType
    * @param {string} identifier
-   * @param {Array<import('./persona.js').Persona>} personas
+   * @param {Array<Persona>} personas
    * @public
    */
   constructor (profileType, identifier, personas) {
@@ -44,7 +53,7 @@ export class Profile {
     this.profileVersion = 2
     /**
      * Profile version
-     * @type {import('./enums.js').ProfileType}
+     * @type {ProfileType}
      * @public
      */
     this.profileType = profileType
@@ -56,7 +65,7 @@ export class Profile {
     this.identifier = identifier
     /**
      * List of personas
-     * @type {Array<import('./persona.js').Persona>}
+     * @type {Array<Persona>}
      * @public
      */
     this.personas = personas || []
@@ -98,7 +107,7 @@ export class Profile {
       encodedKey: null,
       /**
        * The raw cryptographic key as object (to be removed during toJSON())
-       * @type {import('openpgp').PublicKey | import('jose').JWK | null}
+       * @type {PublicKey | joseMod.JWK | null}
        * @public
        */
       key: null,
@@ -130,7 +139,7 @@ export class Profile {
     }
     /**
      * List of verifier URLs
-     * @type {{name: string, url: string}[]}
+     * @type {ProfileVerifier[]}
      * @public
      */
     this.verifiers = []

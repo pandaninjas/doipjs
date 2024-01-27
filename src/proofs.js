@@ -17,6 +17,7 @@ import { isNode } from 'browser-or-node'
 import { fetcher } from './index.js'
 import { generateProxyURL } from './utils.js'
 import { ProxyPolicy, ProofAccessRestriction } from './enums.js'
+import { ServiceProvider } from './serviceProvider.js'
 
 /**
  * @module proofs
@@ -29,7 +30,7 @@ import { ProxyPolicy, ProofAccessRestriction } from './enums.js'
  * choose the right approach to fetch the proof. An error will be thrown if no
  * approach is possible.
  * @async
- * @param {import('./serviceProvider.js').ServiceProvider} data - Data from a claim definition
+ * @param {ServiceProvider} data - Data from a claim definition
  * @param {object} opts - Options to enable the request
  * @returns {Promise<object|string>}
  */
@@ -42,7 +43,7 @@ export async function fetch (data, opts) {
 }
 
 /**
- * @param {import('./serviceProvider.js').ServiceProvider} data - Data from a claim definition
+ * @param {ServiceProvider} data - Data from a claim definition
  * @param {object} opts - Options to enable the request
  * @returns {Promise<object|string>}
  */
@@ -85,7 +86,7 @@ const handleBrowserRequests = (data, opts) => {
 }
 
 /**
- * @param {import('./serviceProvider.js').ServiceProvider} data - Data from a claim definition
+ * @param {ServiceProvider} data - Data from a claim definition
  * @param {object} opts - Options to enable the request
  * @returns {Promise<object|string>}
  */
@@ -106,7 +107,7 @@ const handleNodeRequests = (data, opts) => {
 }
 
 /**
- * @param {import('./serviceProvider.js').ServiceProvider} data - Data from a claim definition
+ * @param {ServiceProvider} data - Data from a claim definition
  * @param {object} opts - Options to enable the request
  * @returns {Promise<object|string>}
  */
@@ -132,7 +133,7 @@ const createDefaultRequestPromise = (data, opts) => {
 }
 
 /**
- * @param {import('./serviceProvider.js').ServiceProvider} data - Data from a claim definition
+ * @param {ServiceProvider} data - Data from a claim definition
  * @param {object} opts - Options to enable the request
  * @returns {Promise<object|string>}
  */
@@ -171,7 +172,7 @@ const createProxyRequestPromise = (data, opts) => {
 }
 
 /**
- * @param {import('./serviceProvider.js').ServiceProvider} data - Data from a claim definition
+ * @param {ServiceProvider} data - Data from a claim definition
  * @param {object} opts - Options to enable the request
  * @returns {Promise<object|string>}
  */

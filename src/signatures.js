@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import { readCleartextMessage, verify } from 'openpgp'
+import { CleartextMessage, PublicKey, readCleartextMessage, verify } from 'openpgp'
 import { Claim } from './claim.js'
 import { fetchURI } from './openpgp.js'
 import { Profile } from './profile.js'
@@ -28,10 +28,10 @@ import { Persona } from './persona.js'
  * Extract the profile from a signature and fetch the associated key
  * @async
  * @param {string} signature - The plaintext signature to parse
- * @returns {Promise<import('./profile.js').Profile>}
+ * @returns {Promise<Profile>}
  */
 export async function parse (signature) {
-  /** @type {import('openpgp').CleartextMessage} */
+  /** @type {CleartextMessage} */
   let sigData
 
   // Read the signature
@@ -84,7 +84,7 @@ export async function parse (signature) {
   if (sigKeys.length > 0) {
     try {
       obtainedKey.query = sigKeys[0]
-      /** @type {import('openpgp').PublicKey} */
+      /** @type {PublicKey} */
       obtainedKey.data = (await fetchURI(obtainedKey.query)).publicKey.key
       obtainedKey.method = obtainedKey.query.split(':')[0]
     } catch (e) {}

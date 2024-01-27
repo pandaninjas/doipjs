@@ -13,8 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import axios from 'axios'
+import axios, * as axiosMod from 'axios'
 import { decodeProtectedHeader, importJWK, compactVerify, calculateJwkThumbprint } from 'jose'
+import * as joseMod from 'jose'
 import { base32, base64url } from 'rfc4648'
 import { Claim } from './claim.js'
 import { Persona } from './persona.js'
@@ -57,12 +58,12 @@ export async function fetchASPE (uri) {
         responseType: 'text'
       }
     )
-      .then((/** @type {import('axios').AxiosResponse} */ response) => {
+      .then((/** @type {axiosMod.AxiosResponse} */ response) => {
         if (response.status === 200) {
           return response
         }
       })
-      .then((/** @type {import('axios').AxiosResponse} */ response) => response.data)
+      .then((/** @type {axiosMod.AxiosResponse} */ response) => response.data)
   } catch (e) {
     throw new Error(`Error fetching Keybase key: ${e.message}`)
   }
@@ -171,7 +172,7 @@ export async function parseProfileJws (profileJws, uri) {
 /**
  * Compute the fingerprint for JWK keys
  * @function
- * @param {import('jose').JWK} key
+ * @param {joseMod.JWK} key
  * @returns {Promise<string>}
  */
 export async function computeJwkFingerprint (key) {

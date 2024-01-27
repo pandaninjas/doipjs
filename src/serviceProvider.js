@@ -13,6 +13,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+import { ClaimFormat, ClaimRelation, EntityEncodingFormat, ProofAccessRestriction, ProofFormat } from "./enums"
+
+/**
+ * The method to find the proof inside the response data
+ * @typedef {Object} ProofTarget
+ * @property {ClaimFormat} format - How the response data is formatted
+ * @property {EntityEncodingFormat} encoding - How the response data is encoded
+ * @property {ClaimRelation} relation - How the proof is related to the response data
+ * @property {string[]} path - Path to the proof inside the response data object
+ */
+
 /**
  * A service provider matched to an identity claim
  * @class
@@ -104,7 +115,7 @@ export class ServiceProvider {
         fetcher: spObj.proof.request.fetcher,
         /**
          * Type of access restriction
-         * @type {import('./enums.js').ProofAccessRestriction}
+         * @type {ProofAccessRestriction}
          */
         accessRestriction: spObj.proof.request.accessRestriction,
         /**
@@ -120,13 +131,13 @@ export class ServiceProvider {
       response: {
         /**
          * Expected format of the proof
-         * @type {import('./enums.js').ProofFormat}
+         * @type {ProofFormat}
          */
         format: spObj.proof.response.format
       },
       /**
        * Details about the target located in the response
-       * @type {{format: import('./enums.js').ClaimFormat, encoding: import('./enums.js').EntityEncodingFormat, relation: import('./enums.js').ClaimRelation, path: string[]}[]}
+       * @type {ProofTarget[]}
        */
       target: spObj.proof.target
     }

@@ -18,6 +18,7 @@ import { isUri } from 'valid-url'
 import mergeOptions from 'merge-options'
 import { fetch } from './proofs.js'
 import { run } from './verifications.js'
+import * as verificationsMod from './verifications.js'
 import { list, data as _data } from './serviceProviders/index.js'
 import { opts as _opts } from './defaults.js'
 import { ClaimStatus } from './enums.js'
@@ -71,7 +72,7 @@ export class Claim {
      */
     this._status = ClaimStatus.INIT
     /**
-     * @type {import('./serviceProvider.js').ServiceProvider[]}
+     * @type {ServiceProvider[]}
      */
     this._matches = []
   }
@@ -245,6 +246,7 @@ export class Claim {
 
       let claimData = this._matches[index]
 
+      /** @type {verificationsMod.VerificationResult} */
       let verificationResult = null
       let proofData = null
       let proofFetchError
@@ -286,7 +288,7 @@ export class Claim {
         verificationResult = verificationResult || {
           result: false,
           completed: true,
-          proof: {},
+          proof: null,
           errors: [proofFetchError]
         }
       }
