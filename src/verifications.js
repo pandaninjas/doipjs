@@ -18,6 +18,7 @@ import { ClaimFormat, EntityEncodingFormat, ClaimRelation, ProofFormat } from '.
 import { bcryptVerify, argon2Verify } from 'hash-wasm'
 import { decodeHTML, decodeXML } from 'entities'
 import { ServiceProvider } from './serviceProvider.js'
+import * as Types from './types.js'
 
 /**
  * @module verifications
@@ -25,35 +26,11 @@ import { ServiceProvider } from './serviceProvider.js'
  */
 
 /**
- * Parameters needed to perform the proof verification
- * @typedef {object} VerificationParams
- * @property {string} target
- * @property {ClaimFormat} claimFormat
- * @property {EntityEncodingFormat} proofEncodingFormat
- * @property {ClaimRelation} [claimRelation]
- */
-
-/**
- * Result of the proof verification
- * @typedef {Object} VerificationResult
- * @property {boolean} result
- * @property {boolean} completed
- * @property {VerificationResultProof} [proof]
- * @property {any[]} errors
- */
-
-/**
- * Information about the proof in the proof verification result
- * @typedef {Object} VerificationResultProof
- * @property {string} fetcher
- * @property {boolean} viaProxy
- */
-
-/**
+ * Check if string contains the proof
  * @function
- * @param {string} data
- * @param {VerificationParams} params
- * @returns {Promise<boolean>}
+ * @param {string} data - Data potentially containing the proof
+ * @param {Types.VerificationParams} params - Verification parameters
+ * @returns {Promise<boolean>} Whether the proof was found in the string
  */
 const containsProof = async (data, params) => {
   const fingerprintFormatted = generateClaim(params.target, params.claimFormat)
@@ -237,11 +214,12 @@ const containsProof = async (data, params) => {
 }
 
 /**
+ * Run a JSON object through the verification process
  * @function
- * @param {any} proofData
- * @param {string[]} checkPath
- * @param {VerificationParams} params
- * @returns {Promise<boolean>}
+ * @param {any} proofData - Data potentially containing the proof
+ * @param {string[]} checkPath - Paths to check for proof
+ * @param {Types.VerificationParams} params - Verification parameters
+ * @returns {Promise<boolean>} Whether the proof was found in the object
  */
 const runJSON = async (proofData, checkPath, params) => {
   if (!proofData) {
@@ -288,15 +266,15 @@ const runJSON = async (proofData, checkPath, params) => {
 }
 
 /**
- * Run the verification by finding the formatted fingerprint in the proof
+ * Run the verification by searching for the proof in the fetched data
  * @async
- * @param {object} proofData            - The proof data
- * @param {ServiceProvider} claimData   - The claim data
- * @param {string} fingerprint          - The fingerprint
- * @returns {Promise<VerificationResult>}
+ * @param {object} proofData - The proof data
+ * @param {ServiceProvider} claimData - The claim data
+ * @param {string} fingerprint - The fingerprint
+ * @returns {Promise<Types.VerificationResult>} Result of the verification
  */
 export async function run (proofData, claimData, fingerprint) {
-  /** @type {VerificationResult} */
+  /** @type {Types.VerificationResult} */
   const res = {
     result: false,
     completed: false,

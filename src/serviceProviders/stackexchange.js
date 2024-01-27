@@ -21,7 +21,8 @@ const reStackExchange = /\.stackexchange$/
 
 /**
  * @function
- * @param {string} uri
+ * @param {string} uri - Claim URI to process
+ * @returns {ServiceProvider} The service provider information based on the claim URI
  */
 export function processURI (uri) {
   const [, domain, id] = uri.match(reURI)

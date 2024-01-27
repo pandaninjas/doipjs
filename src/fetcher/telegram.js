@@ -16,22 +16,25 @@ limitations under the License.
 import axios from 'axios'
 import isAscii from 'validator/lib/isAscii.js'
 import { version } from '../constants.js'
+import * as Types from '../types.js'
 
+/**
+ * Timeout after which the fetch is aborted
+ * @constant
+ * @type {number}
+ */
 export const timeout = 5000
 
 /**
  * Execute a fetch request
  * @function
  * @async
- * @param {object} data                          - Data used in the request
- * @param {string} data.chat                     - Telegram public chat username
- * @param {string} data.user                     - Telegram user username
- * @param {number} [data.fetcherTimeout]         - Optional timeout for the fetcher
- * @param {object} opts                          - Options used to enable the request
- * @param {object} opts.claims
- * @param {object} opts.claims.telegram
- * @param {string} opts.claims.telegram.token    - The Telegram Bot API token
- * @returns {Promise<object|string>}
+ * @param {object} data - Data used in the request
+ * @param {string} data.chat - Telegram public chat username
+ * @param {string} data.user - Telegram user username
+ * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
+ * @param {Types.VerificationConfig} [opts] - Options used to enable the request
+ * @returns {Promise<object|string>} The fetched Telegram object
  */
 export async function fn (data, opts) {
   let timeoutHandle

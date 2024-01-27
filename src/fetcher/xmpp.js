@@ -17,18 +17,31 @@ import { client, xml } from '@xmpp/client'
 import debug from '@xmpp/debug'
 import isFQDN from 'validator/lib/isFQDN.js'
 import isAscii from 'validator/lib/isAscii.js'
+import * as Types from '../types.js'
 
+/**
+ * Timeout after which the fetch is aborted
+ * @constant
+ * @type {number}
+ */
 export const timeout = 5000
 
 let xmpp = null
 let iqCaller = null
 
-const xmppStart = async (service, username, password) => {
+/**
+ * Start the XMPP client
+ * @function
+ * @async
+ * @param {Types.XmppClaimVerificationConfig} params - XMPP claim verification config
+ * @returns {Promise<object>} The fetched proofs from an XMPP account
+ */
+const xmppStart = async (params) => {
   return new Promise((resolve, reject) => {
     const xmpp = client({
-      service,
-      username,
-      password
+      service: params.service,
+      username: params.username,
+      password: params.password
     })
     if (process.env.NODE_ENV !== 'production') {
       debug(xmpp, true)
@@ -48,16 +61,11 @@ const xmppStart = async (service, username, password) => {
  * Execute a fetch request
  * @function
  * @async
- * @param {object} data                       - Data used in the request
- * @param {string} data.id                    - The identifier of the targeted account
- * @param {number} [data.fetcherTimeout]      - Optional timeout for the fetcher
- * @param {object} opts                       - Options used to enable the request
- * @param {object} opts.claims
- * @param {object} opts.claims.xmpp
- * @param {string} opts.claims.xmpp.service   - The server hostname on which the library can log in
- * @param {string} opts.claims.xmpp.username  - The username used to log in
- * @param {string} opts.claims.xmpp.password  - The password used to log in
- * @returns {Promise<object>}
+ * @param {object} data - Data used in the request
+ * @param {string} data.id - The identifier of the targeted account
+ * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
+ * @param {Types.VerificationConfig} [opts] - Options used to enable the request
+ * @returns {Promise<Array<string>>} The fetched proofs from an XMPP account
  */
 export async function fn (data, opts) {
   try {
@@ -69,11 +77,7 @@ export async function fn (data, opts) {
   }
 
   if (!xmpp || xmpp.status !== 'online') {
-    const xmppStartRes = await xmppStart(
-      opts.claims.xmpp.service,
-      opts.claims.xmpp.username,
-      opts.claims.xmpp.password
-    )
+    const xmppStartRes = await xmppStart(opts.claims.xmpp)
     xmpp = xmppStartRes.xmpp
     iqCaller = xmppStartRes.iqCaller
   }

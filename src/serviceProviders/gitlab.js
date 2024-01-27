@@ -20,7 +20,8 @@ export const reURI = /^https:\/\/(.*)\/(.*)\/gitlab_proof\/?/
 
 /**
  * @function
- * @param {string} uri
+ * @param {string} uri - Claim URI to process
+ * @returns {ServiceProvider} The service provider information based on the claim URI
  */
 export function processURI (uri) {
   const match = uri.match(reURI)
@@ -41,7 +42,6 @@ export function processURI (uri) {
       uriIsAmbiguous: true
     },
     proof: {
-      uri,
       request: {
         fetcher: E.Fetcher.HTTP,
         accessRestriction: E.ProofAccessRestriction.NONE,

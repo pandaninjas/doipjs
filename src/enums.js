@@ -115,7 +115,7 @@ export const ClaimFormat = {
 }
 
 /**
- * How to find the claim inside the proof's JSON data
+ * How to find the proof inside the fetched data
  * @readonly
  * @enum {string}
  */

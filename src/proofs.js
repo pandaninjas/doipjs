@@ -18,6 +18,7 @@ import { fetcher } from './index.js'
 import { generateProxyURL } from './utils.js'
 import { ProxyPolicy, ProofAccessRestriction } from './enums.js'
 import { ServiceProvider } from './serviceProvider.js'
+import * as Types from './types.js'
 
 /**
  * @module proofs
@@ -31,8 +32,8 @@ import { ServiceProvider } from './serviceProvider.js'
  * approach is possible.
  * @async
  * @param {ServiceProvider} data - Data from a claim definition
- * @param {object} opts - Options to enable the request
- * @returns {Promise<object|string>}
+ * @param {Types.VerificationConfig} opts - Options to enable the request
+ * @returns {Promise<object|string>} Fetched proof data
  */
 export async function fetch (data, opts) {
   if (isNode) {
@@ -45,7 +46,7 @@ export async function fetch (data, opts) {
 /**
  * @param {ServiceProvider} data - Data from a claim definition
  * @param {object} opts - Options to enable the request
- * @returns {Promise<object|string>}
+ * @returns {Promise<object|string>} Fetched proof data
  */
 const handleBrowserRequests = (data, opts) => {
   switch (opts.proxy.policy) {
@@ -88,7 +89,7 @@ const handleBrowserRequests = (data, opts) => {
 /**
  * @param {ServiceProvider} data - Data from a claim definition
  * @param {object} opts - Options to enable the request
- * @returns {Promise<object|string>}
+ * @returns {Promise<object|string>} Fetched proof data
  */
 const handleNodeRequests = (data, opts) => {
   switch (opts.proxy.policy) {
@@ -109,7 +110,7 @@ const handleNodeRequests = (data, opts) => {
 /**
  * @param {ServiceProvider} data - Data from a claim definition
  * @param {object} opts - Options to enable the request
- * @returns {Promise<object|string>}
+ * @returns {Promise<object|string>} Fetched proof data
  */
 const createDefaultRequestPromise = (data, opts) => {
   return new Promise((resolve, reject) => {
@@ -135,7 +136,7 @@ const createDefaultRequestPromise = (data, opts) => {
 /**
  * @param {ServiceProvider} data - Data from a claim definition
  * @param {object} opts - Options to enable the request
- * @returns {Promise<object|string>}
+ * @returns {Promise<object|string>} Fetched proof data
  */
 const createProxyRequestPromise = (data, opts) => {
   return new Promise((resolve, reject) => {
@@ -174,7 +175,7 @@ const createProxyRequestPromise = (data, opts) => {
 /**
  * @param {ServiceProvider} data - Data from a claim definition
  * @param {object} opts - Options to enable the request
- * @returns {Promise<object|string>}
+ * @returns {Promise<object|string>} Fetched proof data
  */
 const createFallbackRequestPromise = (data, opts) => {
   return new Promise((resolve, reject) => {

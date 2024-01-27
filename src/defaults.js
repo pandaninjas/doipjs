@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import { ProxyPolicy } from './enums.js'
+import * as Types from './types.js'
 
 /**
  * Contains default values
@@ -21,26 +22,9 @@ import { ProxyPolicy } from './enums.js'
  */
 
 /**
- * The default options used throughout the library
- * @constant {object}
- * @property {object} proxy                           - Options related to the proxy
- * @property {string|null} proxy.hostname             - The hostname of the proxy
- * @property {string} proxy.policy                    - The policy that defines when to use a proxy ({@link module:enums~ProxyPolicy|here})
- * @property {object} claims                          - Options related to claim verification
- * @property {object} claims.activitypub              - Options related to the verification of activitypub claims
- * @property {string|null} claims.activitypub.url     - The URL of the verifier account
- * @property {string|null} claims.activitypub.privateKey - The private key to sign the request
- * @property {object} claims.irc                      - Options related to the verification of IRC claims
- * @property {string|null} claims.irc.nick            - The nick that the library uses to connect to the IRC server
- * @property {object} claims.matrix                   - Options related to the verification of Matrix claims
- * @property {string|null} claims.matrix.instance     - The server hostname on which the library can log in
- * @property {string|null} claims.matrix.accessToken  - The access token required to identify the library ({@link https://www.matrix.org/docs/guides/client-server-api|Matrix docs})
- * @property {object} claims.telegram                 - Options related to the verification of Telegram claims
- * @property {string|null} claims.telegram.token      - The Telegram API's token ({@link https://core.telegram.org/bots/api#authorizing-your-bot|Telegram docs})
- * @property {object} claims.xmpp                     - Options related to the verification of XMPP claims
- * @property {string|null} claims.xmpp.service        - The server hostname on which the library can log in
- * @property {string|null} claims.xmpp.username       - The username used to log in
- * @property {string|null} claims.xmpp.password       - The password used to log in
+ * The default claim verification config used throughout the library
+ * @constant
+ * @type {Types.VerificationConfig}
  */
 export const opts = {
   proxy: {

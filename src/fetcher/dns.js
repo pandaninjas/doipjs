@@ -15,17 +15,24 @@ limitations under the License.
 */
 import { isBrowser } from 'browser-or-node'
 import dns from 'dns'
+import * as Types from '../types.js'
 
+/**
+ * Timeout after which the fetch is aborted
+ * @constant
+ * @type {number}
+ */
 export const timeout = 5000
 
 /**
  * Execute a fetch request
  * @function
  * @async
- * @param {object} data         - Data used in the request
- * @param {string} data.domain  - The targeted domain
- * @param {number} [data.fetcherTimeout]  - Optional timeout for the fetcher
- * @returns {Promise<object>}
+ * @param {object} data - Data used in the request
+ * @param {string} data.domain - The targeted domain
+ * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
+ * @param {Types.VerificationConfig} [opts] - Options used to enable the request
+ * @returns {Promise<object>} The fetched DNS records
  */
 export async function fn (data, opts) {
   if (isBrowser) {

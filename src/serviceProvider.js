@@ -13,140 +13,44 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import { ClaimFormat, ClaimRelation, EntityEncodingFormat, ProofAccessRestriction, ProofFormat } from "./enums"
-
-/**
- * The method to find the proof inside the response data
- * @typedef {Object} ProofTarget
- * @property {ClaimFormat} format - How the response data is formatted
- * @property {EntityEncodingFormat} encoding - How the response data is encoded
- * @property {ClaimRelation} relation - How the proof is related to the response data
- * @property {string[]} path - Path to the proof inside the response data object
- */
+import * as Types from './types.js'
 
 /**
  * A service provider matched to an identity claim
  * @class
- * @constructor
  * @public
  */
 export class ServiceProvider {
   /**
-   * @param {object} spObj
+   * @param {Types.ServiceProviderObject} serviceProviderObject - JSON representation of a {@link ServiceProvider}
    */
-  constructor (spObj) {
+  constructor (serviceProviderObject) {
     /**
      * Details about the service provider
-     * @property {object}
+     * @type {Types.ServiceProviderAbout}
      */
-    this.about = {
-      /**
-       * Identifier of the service provider (no whitespace or symbols, lowercase)
-       * @type {string}
-       */
-      id: spObj.about.id,
-      /**
-       * Full name of the service provider
-       * @type {string}
-       */
-      name: spObj.about.name,
-      /**
-       * URL to the homepage of the service provider
-       * @type {string | null}
-       */
-      homepage: spObj.about.homepage || null
-    }
+    this.about = serviceProviderObject.about
     /**
-     * What the profile would look like if the match is correct
-     * @property {object}
+     * What the profile would look like if a claim matches this service provider
+     * @type {Types.ServiceProviderProfile}
      */
-    this.profile = {
-      /**
-       * Profile name to be displayed
-       * @type {string}
-       */
-      display: spObj.profile.display,
-      /**
-       * URI or URL for public access to the profile
-       * @type {string}
-       */
-      uri: spObj.profile.uri,
-      /**
-       * URI or URL associated with the profile usually served as a QR code
-       * @type {string | null}
-       */
-      qr: spObj.profile.qr || null
-    }
+    this.profile = serviceProviderObject.profile
     /**
-     * Details from the claim matching process
-     * @property {object}
+     * Information about the claim matching process
+     * @type {Types.ServiceProviderClaim}
      */
-    this.claim = {
-      /**
-       * Regular expression used to parse the URI
-       * @type {string}
-       */
-      uriRegularExpression: spObj.claim.uriRegularExpression,
-      /**
-       * Whether this match automatically excludes other matches
-       * @type {boolean}
-       */
-      uriIsAmbiguous: spObj.claim.uriIsAmbiguous
-    }
+    this.claim = serviceProviderObject.claim
     /**
      * Information for the proof verification process
-     * @property {object}
+     * @type {Types.ServiceProviderProof}
      */
-    this.proof = {
-      /**
-       * Details to request the potential proof
-       * @property {object}
-       */
-      request: {
-        /**
-         * Location of the proof
-         * @type {string | null}
-         */
-        uri: spObj.proof.request.uri,
-        /**
-         * Fetcher to be used to request the proof
-         * @type {string}
-         */
-        fetcher: spObj.proof.request.fetcher,
-        /**
-         * Type of access restriction
-         * @type {ProofAccessRestriction}
-         */
-        accessRestriction: spObj.proof.request.accessRestriction,
-        /**
-         * Data needed by the fetcher or proxy to request the proof
-         * @type {object}
-         */
-        data: spObj.proof.request.data
-      },
-      /**
-       * Details about the expected response
-       * @property {object}
-       */
-      response: {
-        /**
-         * Expected format of the proof
-         * @type {ProofFormat}
-         */
-        format: spObj.proof.response.format
-      },
-      /**
-       * Details about the target located in the response
-       * @type {ProofTarget[]}
-       */
-      target: spObj.proof.target
-    }
+    this.proof = serviceProviderObject.proof
   }
 
   /**
-   * Get a JSON representation of the ServiceProvider object
+   * Get a JSON representation of the {@link ServiceProvider}
    * @function
-   * @returns {object}
+   * @returns {Types.ServiceProviderObject} JSON representation of a {@link ServiceProvider}
    */
   toJSON () {
     return {

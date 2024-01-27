@@ -21,8 +21,8 @@ export const reURI = /^https:\/\/(.*)\/?/
 
 /**
  * @function
- * @param {string} uri
- * @returns {ServiceProvider}
+ * @param {string} uri - Claim URI to process
+ * @returns {ServiceProvider} The service provider information based on the claim URI
  */
 export function processURI (uri) {
   return new ServiceProvider({

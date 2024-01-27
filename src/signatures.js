@@ -28,7 +28,7 @@ import { Persona } from './persona.js'
  * Extract the profile from a signature and fetch the associated key
  * @async
  * @param {string} signature - The plaintext signature to parse
- * @returns {Promise<Profile>}
+ * @returns {Promise<Profile>} The profile obtained from the signature
  */
 export async function parse (signature) {
   /** @type {CleartextMessage} */

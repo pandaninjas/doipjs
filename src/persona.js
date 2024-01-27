@@ -16,9 +16,8 @@ limitations under the License.
 import { Claim } from './claim.js'
 
 /**
- * A persona with identity claims
  * @class
- * @constructor
+ * @classdesc A persona with identity claims
  * @public
  * @example
  * const claim = Claim('https://alice.tld', '123');
@@ -26,8 +25,8 @@ import { Claim } from './claim.js'
  */
 export class Persona {
   /**
-   * @param {string} name
-   * @param {Claim[]} claims
+   * @param {string} name - Name of the persona
+   * @param {Claim[]} claims - Claims of the persona
    */
   constructor (name, claims) {
     /**
@@ -81,10 +80,11 @@ export class Persona {
   }
 
   /**
+   * Parse a JSON object and convert it into a persona
    * @function
-   * @param {object} personaObject
-   * @param {number} profileVersion
-   * @returns {Persona | Error}
+   * @param {object} personaObject - JSON representation of a persona
+   * @param {number} profileVersion - Version of the Profile containing the persona
+   * @returns {Persona | Error} Parsed persona
    * @example
    * doip.Persona.fromJSON(JSON.stringify(persona), 2);
    */
@@ -112,46 +112,52 @@ export class Persona {
   }
 
   /**
+   * Set the persona's identifier
    * @function
-   * @param {string} identifier
+   * @param {string} identifier - Identifier of the persona
    */
   setIdentifier (identifier) {
     this.identifier = identifier
   }
 
   /**
+   * Set the persona's description
    * @function
-   * @param {string} description
+   * @param {string} description - Description of the persona
    */
   setDescription (description) {
     this.description = description
   }
 
   /**
+   * Set the persona's email address
    * @function
-   * @param {string} email
+   * @param {string} email - Email address of the persona
    */
   setEmailAddress (email) {
     this.email = email
   }
 
   /**
+   * Set the URL to the persona's avatar
    * @function
-   * @param {string} avatarUrl
+   * @param {string} avatarUrl - URL to the persona's avatar
    */
   setAvatarUrl (avatarUrl) {
     this.avatarUrl = avatarUrl
   }
 
   /**
+   * Add a claim
    * @function
-   * @param {Claim} claim
+   * @param {Claim} claim - Claim to add
    */
   addClaim (claim) {
     this.claims.push(claim)
   }
 
   /**
+   * Revoke the persona
    * @function
    */
   revoke () {
@@ -159,9 +165,9 @@ export class Persona {
   }
 
   /**
-   * Get a JSON representation of the Profile object
+   * Get a JSON representation of the persona
    * @function
-   * @returns {object}
+   * @returns {object} JSON representation of the persona
    */
   toJSON () {
     return {
@@ -178,8 +184,8 @@ export class Persona {
 }
 
 /**
- * @param {object} personaObject
- * @returns {Persona | Error}
+ * @param {object} personaObject - JSON representation of a persona
+ * @returns {Persona | Error} Parsed persona
  */
 function importJsonPersonaVersion2 (personaObject) {
   const claims = personaObject.claims.map(x => Claim.fromJSON(x))

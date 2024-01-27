@@ -129,9 +129,9 @@ describe('openpgp.fetchURI', () => {
 })
 
 describe('openpgp.fetchHKP', () => {
-  it('should be a function (2 arguments)', () => {
+  it('should be a function (1 required argument, 1 optional argument)', () => {
     expect(openpgp.fetchHKP).to.be.a('function')
-    expect(openpgp.fetchHKP).to.have.length(2)
+    expect(openpgp.fetchHKP).to.have.length(1)
   })
   it('should return a Key object when provided a valid fingerprint', async () => {
     expect(await openpgp.fetchHKP(pubKeyFingerprint)).to.be.instanceOf(

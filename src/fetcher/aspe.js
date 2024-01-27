@@ -17,7 +17,13 @@ import axios from 'axios'
 import isFQDN from 'validator/lib/isFQDN.js'
 import { version } from '../constants.js'
 import { parseProfileJws } from '../asp.js'
+import * as Types from '../types.js'
 
+/**
+ * Timeout after which the fetch is aborted
+ * @constant
+ * @type {number}
+ */
 export const timeout = 5000
 
 const reURI = /^aspe:([a-zA-Z0-9.\-_]*):([a-zA-Z0-9]*)/
@@ -26,10 +32,11 @@ const reURI = /^aspe:([a-zA-Z0-9.\-_]*):([a-zA-Z0-9]*)/
  * Execute a fetch request
  * @function
  * @async
- * @param {object} data           - Data used in the request
- * @param {string} data.aspeUri   - ASPE URI of the targeted profile
- * @param {number} [data.fetcherTimeout]  - Optional timeout for the fetcher
- * @returns {Promise<object|string>}
+ * @param {object} data - Data used in the request
+ * @param {string} data.aspeUri - ASPE URI of the targeted profile
+ * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
+ * @param {Types.VerificationConfig} [opts] - Options used to enable the request
+ * @returns {Promise<object>} The fetched claims from an ASP profile
  */
 export async function fn (data, opts) {
   let timeoutHandle

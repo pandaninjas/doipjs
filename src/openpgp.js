@@ -31,17 +31,16 @@ import { Persona } from './persona.js'
 /**
  * Fetch a public key using keyservers
  * @function
- * @param {string} identifier                         - Fingerprint or email address
- * @param {string} [keyserverDomain=keys.openpgp.org] - Domain of the keyserver
- * @returns {Promise<Profile>}
+ * @param {string} identifier - Fingerprint or email address
+ * @param {string} [keyserverDomain] - Domain of the keyserver
+ * @returns {Promise<Profile>} The profile from the fetched OpenPGP key
  * @example
  * const key1 = doip.keys.fetchHKP('alice@domain.tld');
  * const key2 = doip.keys.fetchHKP('123abc123abc');
+ * const key3 = doip.keys.fetchHKP('123abc123abc', 'pgpkeys.eu');
  */
-export async function fetchHKP (identifier, keyserverDomain) {
-  const keyserverBaseUrl = keyserverDomain
-    ? `https://${keyserverDomain}`
-    : 'https://keys.openpgp.org'
+export async function fetchHKP (identifier, keyserverDomain = 'keys.openpgp.org') {
+  const keyserverBaseUrl = `https://${keyserverDomain ?? 'keys.openpgp.org'}`
 
   const hkp = new HKP(keyserverBaseUrl)
   const lookupOpts = {
@@ -76,7 +75,7 @@ export async function fetchHKP (identifier, keyserverDomain) {
  * Fetch a public key using Web Key Directory
  * @function
  * @param {string} identifier - Identifier of format 'username@domain.tld`
- * @returns {Promise<Profile>}
+ * @returns {Promise<Profile>} The profile from the fetched OpenPGP key
  * @example
  * const key = doip.keys.fetchWKD('alice@domain.tld');
  */
@@ -113,9 +112,9 @@ export async function fetchWKD (identifier) {
 /**
  * Fetch a public key from Keybase
  * @function
- * @param {string} username     - Keybase username
- * @param {string} fingerprint  - Fingerprint of key
- * @returns {Promise<Profile>}
+ * @param {string} username - Keybase username
+ * @param {string} fingerprint - Fingerprint of key
+ * @returns {Promise<Profile>} The profile from the fetched OpenPGP key
  * @example
  * const key = doip.keys.fetchKeybase('alice', '123abc123abc');
  */
@@ -155,10 +154,10 @@ export async function fetchKeybase (username, fingerprint) {
 }
 
 /**
- * Get a public key from plaintext data
+ * Get a public key from armored public key text data
  * @function
  * @param {string} rawKeyContent - Plaintext ASCII-formatted public key data
- * @returns {Promise<Profile>}
+ * @returns {Promise<Profile>} The profile from the armored public key
  * @example
  * const plainkey = `-----BEGIN PGP PUBLIC KEY BLOCK-----
  *
@@ -185,7 +184,7 @@ export async function fetchPlaintext (rawKeyContent) {
  * Fetch a public key using an URI
  * @function
  * @param {string} uri - URI that defines the location of the key
- * @returns {Promise<Profile>}
+ * @returns {Promise<Profile>} The profile from the fetched OpenPGP key
  * @example
  * const key1 = doip.keys.fetchURI('hkp:alice@domain.tld');
  * const key2 = doip.keys.fetchURI('hkp:123abc123abc');
@@ -231,7 +230,7 @@ export async function fetchURI (uri) {
  * This function will also try and parse the input as a plaintext key
  * @function
  * @param {string} identifier - URI that defines the location of the key
- * @returns {Promise<Profile>}
+ * @returns {Promise<Profile>} The profile from the fetched OpenPGP key
  * @example
  * const key1 = doip.keys.fetch('alice@domain.tld');
  * const key2 = doip.keys.fetch('123abc123abc');
@@ -273,7 +272,7 @@ export async function fetch (identifier) {
  * Process a public key to get a profile
  * @function
  * @param {PublicKey} publicKey - The public key to parse
- * @returns {Promise<Profile>}
+ * @returns {Promise<Profile>} The profile from the processed OpenPGP key
  * @example
  * const key = doip.keys.fetchURI('hkp:alice@domain.tld');
  * const profile = doip.keys.parsePublicKey(key);

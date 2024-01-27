@@ -13,22 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import { PublicKey } from 'openpgp'
-import * as joseMod from 'jose'
 import { PublicKeyFetchMethod, PublicKeyEncoding, PublicKeyType, ProfileType } from './enums.js'
 import { Persona } from './persona.js'
+import * as Types from './types.js'
 
 /**
- * The online verifier instance of identity profiles like Keyoxide's web interface
- * @typedef {Object} ProfileVerifier
- * @property {string} name - Name of the profile verifier
- * @property {string} url - URL to the profile verifier
- */
-
-/**
- * A profile of personas with identity claims
- * @function
- * @param {Array<Persona>} personas
+ * @class [Types.Profile]
+ * @classdesc A profile of personas with identity claims
+ * @param {Array<Persona>} personas - Personas of the profile
  * @public
  * @example
  * const claim = Claim('https://alice.tld', '123');
@@ -39,17 +31,12 @@ export class Profile {
   /**
    * Create a new profile
    * @function
-   * @param {ProfileType} profileType
-   * @param {string} identifier
-   * @param {Array<Persona>} personas
+   * @param {ProfileType} profileType - Type of profile (ASP, OpenPGP, etc.)
+   * @param {string} identifier - Profile identifier (fingerprint, URI, etc.)
+   * @param {Array<Persona>} personas - Personas of the profile
    * @public
    */
   constructor (profileType, identifier, personas) {
-    /**
-     * Profile version
-     * @type {number}
-     * @public
-     */
     this.profileVersion = 2
     /**
      * Profile version
@@ -77,78 +64,34 @@ export class Profile {
     this.primaryPersonaIndex = personas.length > 0 ? 0 : -1
     /**
      * The cryptographic key associated with the profile
-     * @property {object}
+     * @type {Types.ProfilePublicKey}
      * @public
      */
     this.publicKey = {
-      /**
-       * The type of cryptographic key
-       * @type {PublicKeyType}
-       * @public
-       */
       keyType: PublicKeyType.NONE,
-      /**
-       * The fingerprint of the cryptographic key
-       * @type {string | null}
-       * @public
-       */
       fingerprint: null,
-      /**
-       * The encoding of the cryptographic key
-       * @type {PublicKeyEncoding}
-       * @public
-       */
       encoding: PublicKeyEncoding.NONE,
-      /**
-       * The encoded cryptographic key
-       * @type {string | null}
-       * @public
-       */
       encodedKey: null,
-      /**
-       * The raw cryptographic key as object (to be removed during toJSON())
-       * @type {PublicKey | joseMod.JWK | null}
-       * @public
-       */
       key: null,
-      /**
-       * Details on how to fetch the public key
-       * @property {object}
-       * @public
-       */
       fetch: {
-        /**
-         * The method to fetch the key
-         * @type {PublicKeyFetchMethod}
-         * @public
-         */
         method: PublicKeyFetchMethod.NONE,
-        /**
-         * The query to fetch the key
-         * @type {string | null}
-         * @public
-         */
         query: null,
-        /**
-         * The URL the method eventually resolved to
-         * @type {string | null}
-         * @public
-         */
         resolvedUrl: null
       }
     }
     /**
      * List of verifier URLs
-     * @type {ProfileVerifier[]}
+     * @type {Types.ProfileVerifier[]}
      * @public
      */
     this.verifiers = []
   }
 
   /**
+   * Parse a JSON object and convert it into a profile
    * @function
-   * @param {object} profileObject
-   * @returns {Profile | Error}
+   * @param {object} profileObject - JSON representation of a profile
+   * @returns {Profile | Error} Parsed profile
    * @example
    * doip.Profile.fromJSON(JSON.stringify(profile));
    */
@@ -176,18 +119,19 @@ export class Profile {
   }
 
   /**
+   * Add profile verifier to the profile
    * @function
-   * @param {string} name
-   * @param {string} url
+   * @param {string} name - Name of the verifier
+   * @param {string} url - URL of the verifier
    */
   addVerifier (name, url) {
     this.verifiers.push({ name, url })
   }
 
   /**
-   * Get a JSON representation of the Profile object
+   * Get a JSON representation of the profile
    * @function
-   * @returns {object}
+   * @returns {object} JSON representation of the profile
    */
   toJSON () {
     return {
@@ -213,8 +157,8 @@ export class Profile {
 }
 
 /**
- * @param {object} profileObject
- * @returns {Profile | Error}
+ * @param {object} profileObject - JSON representation of the profile
+ * @returns {Profile | Error} Parsed profile
  */
 function importJsonProfileVersion2 (profileObject) {
   if (!('profileVersion' in profileObject && profileObject.profileVersion === 2)) {

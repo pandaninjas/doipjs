@@ -24,7 +24,8 @@ const reURIWkdAdvanced = /^https:\/\/(openpgpkey.*)\/.well-known\/openpgpkey\/(.
 
 /**
  * @function
- * @param {string} uri
+ * @param {string} uri - Claim URI to process
+ * @returns {ServiceProvider} The service provider information based on the claim URI
  */
 export function processURI (uri) {
   let reURI = null

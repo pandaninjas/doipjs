@@ -15,22 +15,25 @@ limitations under the License.
 */
 import irc from 'irc-upd'
 import isAscii from 'validator/lib/isAscii.js'
+import * as Types from '../types.js'
 
+/**
+ * Timeout after which the fetch is aborted
+ * @constant
+ * @type {number}
+ */
 export const timeout = 20000
 
 /**
  * Execute a fetch request
  * @function
  * @async
- * @param {object} data                 - Data used in the request
- * @param {string} data.nick            - The nick of the targeted account
- * @param {string} data.domain          - The domain on which the targeted account is registered
+ * @param {object} data - Data used in the request
+ * @param {string} data.nick - The nick of the targeted account
+ * @param {string} data.domain - The domain on which the targeted account is registered
  * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
- * @param {object} opts                 - Options used to enable the request
- * @param {object} opts.claims
- * @param {object} opts.claims.irc
- * @param {string} opts.claims.irc.nick - The nick to be used by the library to log in
- * @returns {Promise<object>}
+ * @param {Types.VerificationConfig} [opts] - Options used to enable the request
+ * @returns {Promise<string[]>} The fetched proofs from an IRC account
  */
 export async function fn (data, opts) {
   let timeoutHandle

@@ -18,11 +18,11 @@ import { isUri } from 'valid-url'
 import mergeOptions from 'merge-options'
 import { fetch } from './proofs.js'
 import { run } from './verifications.js'
-import * as verificationsMod from './verifications.js'
 import { list, data as _data } from './serviceProviders/index.js'
 import { opts as _opts } from './defaults.js'
 import { ClaimStatus } from './enums.js'
 import { ServiceProvider } from './serviceProvider.js'
+import * as Types from './types.js'
 
 /**
  * @class
@@ -31,17 +31,16 @@ import { ServiceProvider } from './serviceProvider.js'
  * @property {string} fingerprint     - The fingerprint to verify the claim against
  * @property {number} status          - The current status code of the claim
  * @property {Array<object>} matches  - The claim definitions matched against the URI
+ * @example
+ * const claim = doip.Claim();
+ * const claim = doip.Claim('dns:domain.tld?type=TXT');
+ * const claim = doip.Claim('dns:domain.tld?type=TXT', '123abc123abc');
  */
 export class Claim {
   /**
    * Initialize a Claim object
-   * @constructor
    * @param {string} [uri]          - The URI of the identity claim
    * @param {string} [fingerprint]  - The fingerprint of the OpenPGP key
-   * @example
-   * const claim = doip.Claim();
-   * const claim = doip.Claim('dns:domain.tld?type=TXT');
-   * const claim = doip.Claim('dns:domain.tld?type=TXT', '123abc123abc');
    */
   constructor (uri, fingerprint) {
     // Verify validity of URI
@@ -79,8 +78,8 @@ export class Claim {
 
   /**
    * @function
-   * @param {object} claimObject
-   * @returns {Claim | Error}
+   * @param {object} claimObject - JSON representation of a claim
+   * @returns {Claim | Error} Parsed claim
    * @example
    * doip.Claim.fromJSON(JSON.stringify(claim));
    */
@@ -218,7 +217,7 @@ export class Claim {
    * regardless of the result.
    * @async
    * @function
-   * @param {object} [opts] - Options for proxy, fetchers
+   * @param {Types.VerificationConfig} [opts] - Options for proxy, fetchers
    */
   async verify (opts) {
     if (this._status === ClaimStatus.INIT) {
@@ -246,7 +245,7 @@ export class Claim {
 
       let claimData = this._matches[index]
 
-      /** @type {verificationsMod.VerificationResult} */
+      /** @type {Types.VerificationResult} */
       let verificationResult = null
       let proofData = null
       let proofFetchError
@@ -312,7 +311,7 @@ export class Claim {
    * of the candidates is unambiguous. An ambiguous claim should never be
    * displayed in an user interface when its result is negative.
    * @function
-   * @returns {boolean}
+   * @returns {boolean} Whether the claim is ambiguous
    */
   isAmbiguous () {
     if (this._status < ClaimStatus.MATCHED) {
@@ -329,7 +328,7 @@ export class Claim {
    * Get a JSON representation of the Claim object. Useful when transferring
    * data between instances/machines.
    * @function
-   * @returns {object}
+   * @returns {object} JSON reprentation of the claim
    */
   toJSON () {
     let displayProfileName = this._uri
@@ -364,8 +363,8 @@ export class Claim {
 }
 
 /**
- * @param {object} claimObject
- * @returns {Claim | Error}
+ * @param {object} claimObject - JSON representation of a claim
+ * @returns {Claim | Error} Parsed claim
  */
 function importJsonClaimVersion1 (claimObject) {
   if (!('claimVersion' in claimObject && claimObject.claimVersion === 1)) {
@@ -405,8 +404,8 @@ function importJsonClaimVersion1 (claimObject) {
 }
 
 /**
- * @param {object} claimObject
- * @returns {Claim | Error}
+ * @param {object} claimObject - JSON representation of a claim
+ * @returns {Claim | Error} Parsed claim
  */
 function importJsonClaimVersion2 (claimObject) {
   if (!('claimVersion' in claimObject && claimObject.claimVersion === 2)) {

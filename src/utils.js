@@ -15,6 +15,7 @@ limitations under the License.
 */
 import isFQDN from 'validator/lib/isFQDN.js'
 import { ClaimFormat } from './enums.js'
+import * as Types from './types.js'
 
 /**
  * @module utils
@@ -22,13 +23,10 @@ import { ClaimFormat } from './enums.js'
 
 /**
  * Generate an URL to request data from a proxy server
- * @param {string} type                 - The name of the fetcher the proxy must use
- * @param {object} data                 - The data the proxy must provide to the fetcher
- * @param {object} opts                 - Options to enable the request
- * @param {object} opts.proxy           - Proxy related options
- * @param {object} opts.proxy.scheme    - The scheme used by the proxy server
- * @param {object} opts.proxy.hostname  - The hostname of the proxy server
- * @returns {string}
+ * @param {string} type - The name of the fetcher the proxy must use
+ * @param {object} data - The data the proxy must provide to the fetcher
+ * @param {Types.VerificationConfig} opts - Options to enable the request
+ * @returns {string} Generated proxy URL
  */
 export function generateProxyURL (type, data, opts) {
   try {
@@ -43,7 +41,7 @@ export function generateProxyURL (type, data, opts) {
     queryStrings.push(`${key}=${encodeURIComponent(data[key])}`)
   })
 
-  const scheme = opts.proxy.scheme ? opts.proxy.scheme : 'https'
+  const scheme = opts.proxy.scheme ?? 'https'
 
   return `${scheme}://${opts.proxy.hostname}/api/3/get/${type}?${queryStrings.join(
     '&'
@@ -52,9 +50,9 @@ export function generateProxyURL (type, data, opts) {
 
 /**
  * Generate the string that must be found in the proof to verify a claim
- * @param {string} fingerprint  - The fingerprint of the claim
- * @param {string} format       - The claim's format (see {@link module:enums~ClaimFormat|enums.ClaimFormat})
- * @returns {string}
+ * @param {string} fingerprint - The fingerprint of the claim
+ * @param {ClaimFormat} format - The claim's format (see {@link ClaimFormat})
+ * @returns {string} Generate claim
  */
 export function generateClaim (fingerprint, format) {
   switch (format) {
@@ -72,8 +70,8 @@ export function generateClaim (fingerprint, format) {
 
 /**
  * Get the URIs from a string and return them as an array
- * @param {string} text         - The text that may contain URIs
- * @returns {Array<string>}
+ * @param {string} text - The text that may contain URIs
+ * @returns {Array<string>} List of URIs extracted from input
  */
 export function getUriFromString (text) {
   const re = /((([A-Za-z0-9]+:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www\.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w\-_]*)?\??(?:[-+=&;%@.\w_]*)#?(?:[.!/\\\w]*))?)/gi

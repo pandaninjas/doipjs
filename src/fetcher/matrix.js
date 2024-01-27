@@ -17,23 +17,25 @@ import axios from 'axios'
 import isFQDN from 'validator/lib/isFQDN.js'
 import isAscii from 'validator/lib/isAscii.js'
 import { version } from '../constants.js'
+import * as Types from '../types.js'
 
+/**
+ * Timeout after which the fetch is aborted
+ * @constant
+ * @type {number}
+ */
 export const timeout = 5000
 
 /**
  * Execute a fetch request
  * @function
  * @async
- * @param {object} data                           - Data used in the request
- * @param {string} data.eventId                   - The identifier of the targeted post
- * @param {string} data.roomId                    - The identifier of the room containing the targeted post
- * @param {number} [data.fetcherTimeout]          - Optional timeout for the fetcher
- * @param {object} opts                           - Options used to enable the request
- * @param {object} opts.claims
- * @param {object} opts.claims.matrix
- * @param {string} opts.claims.matrix.instance    - The server hostname on which the library can log in
- * @param {string} opts.claims.matrix.accessToken - The access token required to identify the library ({@link https://www.matrix.org/docs/guides/client-server-api|Matrix docs})
- * @returns {Promise<object>}
+ * @param {object} data - Data used in the request
+ * @param {string} data.eventId - The identifier of the targeted post
+ * @param {string} data.roomId - The identifier of the room containing the targeted post
+ * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
+ * @param {Types.VerificationConfig} [opts] - Options used to enable the request
+ * @returns {Promise<object>} The fetched Matrix object
  */
 export async function fn (data, opts) {
   let timeoutHandle

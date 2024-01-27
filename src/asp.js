@@ -33,9 +33,9 @@ const SupportedCryptoAlg = ['EdDSA', 'ES256', 'ES256K', 'ES384', 'ES512']
  * Fetch a public key using Web Key Directory
  * @function
  * @param {string} uri - ASPE URI
- * @returns {Promise<Profile>}
+ * @returns {Promise<Profile>} The fetched profile
  * @example
- * const key = doip.aspe.fetchASPE('aspe:domain.tld:1234567890');
+ * const key = await doip.aspe.fetchASPE('aspe:domain.example:1234567890');
  */
 export async function fetchASPE (uri) {
   const re = /aspe:(.*):(.*)/
@@ -77,13 +77,13 @@ export async function fetchASPE (uri) {
 }
 
 /**
- * Fetch a public key using Web Key Directory
+ * Parse a JWS and extract the profile it contains
  * @function
  * @param {string} profileJws - Compact-Serialized profile JWS
- * @param {string} uri    - The ASPE URI associated with the profile
- * @returns {Promise<Profile>}
+ * @param {string} uri - The ASPE URI associated with the profile
+ * @returns {Promise<Profile>} The extracted profile
  * @example
- * const key = doip.aspe.parseProfileJws('...');
+ * const key = await doip.aspe.parseProfileJws('...');
  */
 export async function parseProfileJws (profileJws, uri) {
   const matches = uri.match(/aspe:(.*):(.*)/)
@@ -172,8 +172,8 @@ export async function parseProfileJws (profileJws, uri) {
 /**
  * Compute the fingerprint for JWK keys
  * @function
- * @param {joseMod.JWK} key
- * @returns {Promise<string>}
+ * @param {joseMod.JWK} key - The JWK public key for which to compute the fingerprint
+ * @returns {Promise<string>} The computed fingerprint
  */
 export async function computeJwkFingerprint (key) {
   const thumbprint = await calculateJwkThumbprint(key, 'sha512')
