@@ -1,21 +1,17 @@
 # doip.js
 
+[![status-badge](https://ci.codeberg.org/api/badges/5907/status.svg)](https://ci.codeberg.org/repos/5907)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=flat)](https://codeberg.org/keyoxide/doipjs/src/branch/main/LICENSE)
+[![Mastodon Follow](https://img.shields.io/mastodon/follow/247838?domain=https%3A%2F%2Ffosstodon.org&style=flat)](https://fosstodon.org/@keyoxide)
+[![Open Collective backers and sponsors](https://img.shields.io/opencollective/all/keyoxide?style=flat)](https://opencollective.com/keyoxide)
+
 ![](static/doip.png)
 ![](doip.png)
 
-doip.js allows websites and Node.js projects to verify decentralized online
-identities based on OpenPGP.
-
-Source code available at [codeberg.org](https://codeberg.org/keyoxide/doipjs).
+[doip.js](https://codeberg.org/keyoxide/doipjs) allows websites and Node.js projects to verify decentralized online
+identities.
 
 Documentation available at [js.doip.rocks](https://js.doip.rocks).
-
-## Features
-
-- Verify online identities using decentralized technology
-- Based on [OpenPGP](https://www.openpgp.org), a widely-used cryptographic standard
-- Regex-based service provider detection
-- [Mocha](https://mochajs.org) tests
 
 ## Installation (node)
 
@@ -56,32 +52,32 @@ const verifyIdentity = async (url, fp) => {
 verifyIdentity('dns:doip.rocks', '9f0048ac0b23301e1f77e994909f6bd6f80f485d')
 ```
 
-This snippet works and will verify the [doip.rocks](https://doip.rocks) domain as
+This snippet verifies the [doip.rocks](https://doip.rocks) domain as
 bidirectionally linked to Yarmo's cryptographic key.
 
-## About Keyoxide
+## Contributing
 
-[Keyoxide](https://keyoxide.org/), made by Yarmo Mackenbach, is a modern, secure
-and privacy-friendly platform to establish decentralized online identities using
-a novel concept know as [DOIP](doip.md). In an effort to make this technology
-accessible for other projects and stimulate the emergence of both complementary
-and competing projects, this project-agnostic library is
-[published on codeberg.org](https://codeberg.org/keyoxide/doipjs) and open
-sourced under the
-[Apache-2.0](https://codeberg.org/keyoxide/doipjs/src/branch/main/LICENSE)
-license.
+Anyone can contribute!
 
-## Community
+Developers are invited to:
 
-There's a [Keyoxide Matrix room](https://matrix.to/#/#keyoxide:matrix.org) where
-we discuss everything DOIP and Keyoxide.
+- fork the repository and play around
+- submit PRs to [implement new features or fix bugs](https://codeberg.org/keyoxide/doipjs/issues)
 
-## Donate
+If you are new to contributing to open source software, we'd love to help you! To get started, here's a [list of "good first issues"](https://codeberg.org/keyoxide/doipjs/issues?q=&type=all&state=open&labels=183598) that you could look into.
 
-Please consider [donating](https://liberapay.com/Keyoxide/) if you think this
-project is a step in the right direction for the internet.
+Everyone is invited to:
 
-## Funding
+- find and [report bugs](https://codeberg.org/keyoxide/doipjs/issues/new/choose)
+- suggesting [new features](https://codeberg.org/keyoxide/doipjs/issues/new/choose)
+- [help with translations](https://translate.codeberg.org/projects/keyoxide/)
+- [improve documentation](https://codeberg.org/keyoxide/keyoxide-docs)
+- start using open source software and promote it
 
-This library was realized with funding from
-[NLnet](https://nlnet.nl/project/Keyoxide/).
+Please note that this project has a [Code of Conduct](https://codeberg.org/keyoxide/web/src/branch/main/CODE_OF_CONDUCT.md) that all contributors agree to abide when participating.
+
+## About the Keyoxide project
+
+The Keyoxide project strives for a healthier internet for all and has made its efforts fully [open source](https://codeberg.org/keyoxide). Our [community](https://docs.keyoxide.org/community/) is open and welcoming, feel free to say hi!
+
+Funding for the project comes from the [NLnet foundation](https://nlnet.nl/), [NGI0](https://www.ngi.eu/) and the people supporting our [OpenCollective](https://opencollective.com/keyoxide). The project is grateful for all your support.
