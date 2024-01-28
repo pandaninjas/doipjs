@@ -1,5 +1,8 @@
 {
-  "plugins": ["plugins/markdown"],
+  "plugins": [
+    "plugins/markdown",
+    "node_modules/jsdoc-tsimport-plugin"
+  ],
   "source": {
     "include": ["./src", "./README.md"]
   },

@@ -26,7 +26,6 @@ import isURL from 'validator/lib/isURL.js'
 import { isNode } from 'browser-or-node'
 import crypto from 'crypto'
 import { version } from '../constants.js'
-import * as Types from '../types.js'
 
 /**
  * Default timeout after which the fetch is aborted
@@ -43,7 +42,7 @@ export const timeout = 5000
  * @param {object} data - Data used in the request
  * @param {string} data.url - The URL of the account to verify
  * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
- * @param {Types.VerificationConfig} [opts] - Options used to enable the request
+ * @param {import('../types').VerificationConfig} [opts] - Options used to enable the request
  * @returns {Promise<object>} The fetched ActivityPub object
  */
 export async function fn (data, opts) {

@@ -13,7 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import * as Types from './types.js'
 
 /**
  * A service provider matched to an identity claim
@@ -22,27 +21,27 @@ import * as Types from './types.js'
  */
 export class ServiceProvider {
   /**
-   * @param {Types.ServiceProviderObject} serviceProviderObject - JSON representation of a {@link ServiceProvider}
+   * @param {import('./types').ServiceProviderObject} serviceProviderObject - JSON representation of a {@link ServiceProvider}
    */
   constructor (serviceProviderObject) {
     /**
      * Details about the service provider
-     * @type {Types.ServiceProviderAbout}
+     * @type {import('./types').ServiceProviderAbout}
      */
     this.about = serviceProviderObject.about
     /**
      * What the profile would look like if a claim matches this service provider
-     * @type {Types.ServiceProviderProfile}
+     * @type {import('./types').ServiceProviderProfile}
      */
     this.profile = serviceProviderObject.profile
     /**
      * Information about the claim matching process
-     * @type {Types.ServiceProviderClaim}
+     * @type {import('./types').ServiceProviderClaim}
      */
     this.claim = serviceProviderObject.claim
     /**
      * Information for the proof verification process
-     * @type {Types.ServiceProviderProof}
+     * @type {import('./types').ServiceProviderProof}
      */
     this.proof = serviceProviderObject.proof
   }
@@ -50,7 +49,7 @@ export class ServiceProvider {
   /**
    * Get a JSON representation of the {@link ServiceProvider}
    * @function
-   * @returns {Types.ServiceProviderObject} JSON representation of a {@link ServiceProvider}
+   * @returns {import('./types').ServiceProviderObject} JSON representation of a {@link ServiceProvider}
    */
   toJSON () {
     return {

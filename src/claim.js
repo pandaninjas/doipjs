@@ -22,7 +22,6 @@ import { list, data as _data } from './serviceProviders/index.js'
 import { opts as _opts } from './defaults.js'
 import { ClaimStatus } from './enums.js'
 import { ServiceProvider } from './serviceProvider.js'
-import * as Types from './types.js'
 
 /**
  * @class
@@ -217,7 +216,7 @@ export class Claim {
    * regardless of the result.
    * @async
    * @function
-   * @param {Types.VerificationConfig} [opts] - Options for proxy, fetchers
+   * @param {import('./types').VerificationConfig} [opts] - Options for proxy, fetchers
    */
   async verify (opts) {
     if (this._status === ClaimStatus.INIT) {
@@ -245,7 +244,7 @@ export class Claim {
 
       let claimData = this._matches[index]
 
-      /** @type {Types.VerificationResult} */
+      /** @type {import('./types').VerificationResult} */
       let verificationResult = null
       let proofData = null
       let proofFetchError

@@ -15,7 +15,6 @@ limitations under the License.
 */
 import { PublicKeyFetchMethod, PublicKeyEncoding, PublicKeyType, ProfileType } from './enums.js'
 import { Persona } from './persona.js'
-import * as Types from './types.js'
 
 /**
  * @class
@@ -64,7 +63,7 @@ export class Profile {
     this.primaryPersonaIndex = personas.length > 0 ? 0 : -1
     /**
      * The cryptographic key associated with the profile
-     * @type {Types.ProfilePublicKey}
+     * @type {import('./types').ProfilePublicKey}
      * @public
      */
     this.publicKey = {
@@ -81,7 +80,7 @@ export class Profile {
     }
     /**
      * List of verifier URLs
-     * @type {Types.ProfileVerifier[]}
+     * @type {import('./types').ProfileVerifier[]}
      * @public
      */
     this.verifiers = []

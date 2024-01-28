@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import { ProxyPolicy } from './enums.js'
-import * as Types from './types.js'
 
 /**
  * Contains default values
@@ -24,7 +23,7 @@ import * as Types from './types.js'
 /**
  * The default claim verification config used throughout the library
  * @constant
- * @type {Types.VerificationConfig}
+ * @type {import('./types').VerificationConfig}
  */
 export const opts = {
   proxy: {

@@ -25,7 +25,6 @@ import { client, xml } from '@xmpp/client'
 import debug from '@xmpp/debug'
 import isFQDN from 'validator/lib/isFQDN.js'
 import isAscii from 'validator/lib/isAscii.js'
-import * as Types from '../types.js'
 
 /**
  * Default timeout after which the fetch is aborted
@@ -43,7 +42,7 @@ let iqCaller = null
  * @ignore
  * @function
  * @async
- * @param {Types.XmppClaimVerificationConfig} params - XMPP claim verification config
+ * @param {import('../types').XmppClaimVerificationConfig} params - XMPP claim verification config
  * @returns {Promise<object>} The fetched proofs from an XMPP account
  */
 const xmppStart = async (params) => {
@@ -74,7 +73,7 @@ const xmppStart = async (params) => {
  * @param {object} data - Data used in the request
  * @param {string} data.id - The identifier of the targeted account
  * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
- * @param {Types.VerificationConfig} [opts] - Options used to enable the request
+ * @param {import('../types').VerificationConfig} [opts] - Options used to enable the request
  * @returns {Promise<Array<string>>} The fetched proofs from an XMPP account
  */
 export async function fn (data, opts) {

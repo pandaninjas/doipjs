@@ -15,7 +15,6 @@ limitations under the License.
 */
 import isFQDN from 'validator/lib/isFQDN.js'
 import { ClaimFormat } from './enums.js'
-import * as Types from './types.js'
 
 /**
  * @module utils
@@ -25,7 +24,7 @@ import * as Types from './types.js'
  * Generate an URL to request data from a proxy server
  * @param {string} type - The name of the fetcher the proxy must use
  * @param {object} data - The data the proxy must provide to the fetcher
- * @param {Types.VerificationConfig} opts - Options to enable the request
+ * @param {import('./types').VerificationConfig} opts - Options to enable the request
  * @returns {string} Generated proxy URL
  */
 export function generateProxyURL (type, data, opts) {
@@ -51,7 +50,7 @@ export function generateProxyURL (type, data, opts) {
 /**
  * Generate the string that must be found in the proof to verify a claim
  * @param {string} fingerprint - The fingerprint of the claim
- * @param {ClaimFormat} format - The claim's format (see {@link ClaimFormat})
+ * @param {ClaimFormat} format - The claim's format
  * @returns {string} Generate claim
  */
 export function generateClaim (fingerprint, format) {

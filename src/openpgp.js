@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-import axios, * as axiosMod from 'axios'
+import axios from 'axios'
 import { isUri } from 'valid-url'
 import { readKey, PublicKey } from 'openpgp'
 import HKP from '@openpgp/hkp-client'
@@ -128,12 +128,12 @@ export async function fetchKeybase (username, fingerprint) {
         responseType: 'text'
       }
     )
-      .then((/** @type {axiosMod.AxiosResponse} */ response) => {
+      .then((/** @type {import('axios').AxiosResponse} */ response) => {
         if (response.status === 200) {
           return response
         }
       })
-      .then((/** @type {axiosMod.AxiosResponse} */ response) => response.data)
+      .then((/** @type {import('axios').AxiosResponse} */ response) => response.data)
   } catch (e) {
     throw new Error(`Error fetching Keybase key: ${e.message}`)
   }

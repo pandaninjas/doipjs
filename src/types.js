@@ -18,9 +18,7 @@ limitations under the License.
  * @module types
  */
 
-import { PublicKey } from 'openpgp'
-import * as joseMod from 'jose'
-import { ClaimFormat, ClaimRelation, EntityEncodingFormat, ProofAccessRestriction, ProofFormat, ProxyPolicy, PublicKeyEncoding, PublicKeyFetchMethod, PublicKeyType } from './enums.js'
+import { PublicKeyType, PublicKeyEncoding, PublicKeyFetchMethod, ProxyPolicy, ClaimFormat, EntityEncodingFormat, ClaimRelation, ProofAccessRestriction, ProofFormat } from './enums'
 
 /**
  * Service provider
@@ -84,7 +82,7 @@ import { ClaimFormat, ClaimRelation, EntityEncodingFormat, ProofAccessRestrictio
  * @property {PublicKeyEncoding} encoding - The encoding of the cryptographic key
  * @property {string} [fingerprint] - The fingerprint of the cryptographic key
  * @property {string} [encodedKey] - The encoded cryptographic key
- * @property {PublicKey | joseMod.JWK} [key] - The raw cryptographic key as object (to be removed during toJSON())
+ * @property {import('openpgp').PublicKey | import('jose').JWK} [key] - The raw cryptographic key as object (to be removed during toJSON())
  * @property {ProfilePublicKeyFetch} fetch - Details on how to fetch the public key
  */
 
@@ -108,7 +106,7 @@ import { ClaimFormat, ClaimRelation, EntityEncodingFormat, ProofAccessRestrictio
  * @typedef {object} ProxyVerificationConfig
  * @property {string} [scheme] - The scheme to use for proxy requests
  * @property {string} [hostname] - The hostname of the proxy
- * @property {ProxyPolicy} policy - The policy that defines when to use a proxy ({@link module:enums~ProxyPolicy|here})
+ * @property {ProxyPolicy} policy - The policy that defines when to use a proxy
  */
 
 /**

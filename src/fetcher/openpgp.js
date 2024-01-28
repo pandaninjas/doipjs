@@ -33,7 +33,6 @@ import { readKey } from 'openpgp'
 import { OpenPgpQueryProtocol } from '../enums.js'
 import { version } from '../constants.js'
 import { parsePublicKey } from '../openpgp.js'
-import * as Types from '../types.js'
 
 /**
  * Default timeout after which the fetch is aborted
@@ -51,7 +50,7 @@ export const timeout = 5000
  * @param {string} data.url - The URL pointing at targeted content
  * @param {OpenPgpQueryProtocol} data.protocol - The protocol used to access the targeted content
  * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
- * @param {Types.VerificationConfig} [opts] - Options used to enable the request
+ * @param {import('../types').VerificationConfig} [opts] - Options used to enable the request
  * @returns {Promise<object>} The fetched notations from an OpenPGP key
  */
 export async function fn (data, opts) {

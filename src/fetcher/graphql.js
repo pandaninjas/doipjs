@@ -23,7 +23,6 @@ limitations under the License.
 
 import axios from 'axios'
 import { version } from '../constants.js'
-import * as Types from '../types.js'
 
 /**
  * Default timeout after which the fetch is aborted
@@ -41,7 +40,7 @@ export const timeout = 5000
  * @param {string} data.url - The URL pointing at the GraphQL HTTP endpoint
  * @param {string} data.query - The GraphQL query to fetch the data containing the proof
  * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
- * @param {Types.VerificationConfig} [opts] - Options used to enable the request
+ * @param {import('../types').VerificationConfig} [opts] - Options used to enable the request
  * @returns {Promise<object>} The fetched GraphQL object
  */
 export async function fn (data, opts) {

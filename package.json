@@ -51,6 +51,7 @@
     "eslint-plugin-promise": "^6.1.1",
     "husky": "^7.0.0",
     "jsdoc": "^4.0.2",
+    "jsdoc-tsimport-plugin": "^1.0.5",
     "license-check-and-add": "^4.0.3",
     "lint-staged": "^11.0.0",
     "minify": "^9.1",

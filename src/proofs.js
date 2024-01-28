@@ -18,7 +18,6 @@ import { fetcher } from './index.js'
 import { generateProxyURL } from './utils.js'
 import { ProxyPolicy, ProofAccessRestriction } from './enums.js'
 import { ServiceProvider } from './serviceProvider.js'
-import * as Types from './types.js'
 
 /**
  * @module proofs
@@ -32,7 +31,7 @@ import * as Types from './types.js'
  * approach is possible.
  * @async
  * @param {ServiceProvider} data - Data from a claim definition
- * @param {Types.VerificationConfig} opts - Options to enable the request
+ * @param {import('./types').VerificationConfig} opts - Options to enable the request
  * @returns {Promise<object|string>} Fetched proof data
  */
 export async function fetch (data, opts) {

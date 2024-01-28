@@ -18,7 +18,6 @@ import { ClaimFormat, EntityEncodingFormat, ClaimRelation, ProofFormat } from '.
 import { bcryptVerify, argon2Verify } from 'hash-wasm'
 import { decodeHTML, decodeXML } from 'entities'
 import { ServiceProvider } from './serviceProvider.js'
-import * as Types from './types.js'
 
 /**
  * @module verifications
@@ -29,7 +28,7 @@ import * as Types from './types.js'
  * Check if string contains the proof
  * @function
  * @param {string} data - Data potentially containing the proof
- * @param {Types.VerificationParams} params - Verification parameters
+ * @param {import('./types').VerificationParams} params - Verification parameters
  * @returns {Promise<boolean>} Whether the proof was found in the string
  */
 const containsProof = async (data, params) => {
@@ -218,7 +217,7 @@ const containsProof = async (data, params) => {
  * @function
  * @param {any} proofData - Data potentially containing the proof
  * @param {string[]} checkPath - Paths to check for proof
- * @param {Types.VerificationParams} params - Verification parameters
+ * @param {import('./types').VerificationParams} params - Verification parameters
  * @returns {Promise<boolean>} Whether the proof was found in the object
  */
 const runJSON = async (proofData, checkPath, params) => {
@@ -271,10 +270,10 @@ const runJSON = async (proofData, checkPath, params) => {
  * @param {object} proofData - The proof data
  * @param {ServiceProvider} claimData - The claim data
  * @param {string} fingerprint - The fingerprint
- * @returns {Promise<Types.VerificationResult>} Result of the verification
+ * @returns {Promise<import('./types').VerificationResult>} Result of the verification
  */
 export async function run (proofData, claimData, fingerprint) {
-  /** @type {Types.VerificationResult} */
+  /** @type {import('./types').VerificationResult} */
   const res = {
     result: false,
     completed: false,
