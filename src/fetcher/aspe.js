@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * Fetch proofs from {@link module:profile~Profile} obtained through ASPE
+ * Fetch proofs from Profile obtained through ASPE
  * @module fetcher/aspe
  * @example
  * import { fetcher } from 'doipjs';
@@ -38,7 +38,6 @@ const reURI = /^aspe:([a-zA-Z0-9.\-_]*):([a-zA-Z0-9]*)/
 /**
  * Execute a fetch request
  * @function
- * @async
  * @param {object} data - Data used in the request
  * @param {string} data.aspeUri - ASPE URI of the targeted profile
  * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher

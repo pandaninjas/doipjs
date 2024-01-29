@@ -82,7 +82,7 @@ export async function fetchASPE (uri) {
  * @param {string} uri - The ASPE URI associated with the profile
  * @returns {Promise<Profile>} The extracted profile
  * @example
- * const key = await doip.aspe.parseProfileJws('...');
+ * const key = await doip.aspe.parseProfileJws('...', 'aspe:domain.example:123');
  */
 export async function parseProfileJws (profileJws, uri) {
   const matches = uri.match(/aspe:(.*):(.*)/)
@@ -132,7 +132,7 @@ export async function parseProfileJws (profileJws, uri) {
   const profileDescription = payloadJson['http://ariadne.id/description']
   /** @type {string} */
   const profileThemeColor = payloadJson['http://ariadne.id/color']
-  /** @type {string[]} */
+  /** @type {Array<string>} */
   const profileClaims = payloadJson['http://ariadne.id/claims']
 
   const profileClaimsParsed = profileClaims.map(x => new Claim(x, uri))

@@ -35,7 +35,6 @@ export const timeout = 5000
 /**
  * Execute a GraphQL query via HTTP request
  * @function
- * @async
  * @param {object} data - Data used in the request
  * @param {string} data.url - The URL pointing at the GraphQL HTTP endpoint
  * @param {string} data.query - The GraphQL query to fetch the data containing the proof

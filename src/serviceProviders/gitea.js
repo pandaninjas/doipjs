@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * Gitea service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/gitea/)
+ * Gitea service provider ({@link https://docs.keyoxide.org/service-providers/gitea/|Keyoxide docs})
  * @module serviceProviders/gitea
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

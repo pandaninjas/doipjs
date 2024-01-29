@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * Reddit service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/reddit/)
+ * Reddit service provider ({@link https://docs.keyoxide.org/service-providers/reddit/|Keyoxide docs})
  * @module serviceProviders/reddit
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

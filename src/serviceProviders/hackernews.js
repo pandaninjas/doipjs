@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * Hackernews service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/hackernews/)
+ * Hackernews service provider ({@link https://docs.keyoxide.org/service-providers/hackernews/|Keyoxide docs})
  * @module serviceProviders/hackernews
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

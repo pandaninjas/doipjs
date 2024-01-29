@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * ActivityPub service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/activitypub/)
+ * ActivityPub service provider ({@link https://docs.keyoxide.org/service-providers/activitypub/|Keyoxide docs})
  * @module serviceProviders/activitypub
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

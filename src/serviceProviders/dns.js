@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * DNS service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/dns/)
+ * DNS service provider ({@link https://docs.keyoxide.org/service-providers/dns/|Keyoxide docs})
  * @module serviceProviders/dns
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * Forem service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/forem/)
+ * Forem service provider ({@link https://docs.keyoxide.org/service-providers/forem/|Keyoxide docs})
  * @module serviceProviders/forem
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

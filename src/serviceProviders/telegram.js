@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * Telegram service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/telegram/)
+ * Telegram service provider ({@link https://docs.keyoxide.org/service-providers/telegram/|Keyoxide docs})
  * @module serviceProviders/telegram
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

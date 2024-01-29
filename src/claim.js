@@ -70,15 +70,16 @@ export class Claim {
      */
     this._status = ClaimStatus.INIT
     /**
-     * @type {ServiceProvider[]}
+     * @type {Array<ServiceProvider>}
      */
     this._matches = []
   }
 
   /**
    * @function
-   * @param {object} claimObject - JSON representation of a claim
-   * @returns {Claim | Error} Parsed claim
+   * @param {*} claimObject - JSON representation of a claim
+   * @returns {Claim} Parsed claim
+   * @throws Will throw an error if the JSON object can't be coerced into a Claim
    * @example
    * doip.Claim.fromJSON(JSON.stringify(claim));
    */
@@ -214,7 +215,6 @@ export class Claim {
    * checked for the fingerprint. The verification stops when either a positive
    * result was obtained, or an unambiguous claim definition was processed
    * regardless of the result.
-   * @async
    * @function
    * @param {import('./types').VerificationConfig} [opts] - Options for proxy, fetchers
    */
@@ -244,7 +244,7 @@ export class Claim {
 
       let claimData = this._matches[index]
 
-      /** @type {import('./types').VerificationResult} */
+      /** @type {import('./types').VerificationResult | null} */
       let verificationResult = null
       let proofData = null
       let proofFetchError

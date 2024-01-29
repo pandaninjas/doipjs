@@ -18,7 +18,6 @@ import { Claim } from './claim.js'
 /**
  * @class
  * @classdesc A persona with identity claims
- * @public
  * @example
  * const claim = Claim('https://alice.tld', '123');
  * const pers = Persona('Alice', 'About Alice', [claim]);
@@ -26,7 +25,7 @@ import { Claim } from './claim.js'
 export class Persona {
   /**
    * @param {string} name - Name of the persona
-   * @param {Claim[]} claims - Claims of the persona
+   * @param {Array<Claim>} claims - Claims of the persona
    */
   constructor (name, claims) {
     /**
@@ -67,7 +66,7 @@ export class Persona {
     this.themeColor = null
     /**
      * List of identity claims
-     * @type {Claim[]}
+     * @type {Array<Claim>}
      * @public
      */
     this.claims = claims

@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * Discourse service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/discourse/)
+ * Discourse service provider ({@link https://docs.keyoxide.org/service-providers/discourse/|Keyoxide docs})
  * @module serviceProviders/discourse
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

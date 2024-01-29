@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * Liberapay service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/liberapay/)
+ * Liberapay service provider ({@link https://docs.keyoxide.org/service-providers/liberapay/|Keyoxide docs})
  * @module serviceProviders/liberapay
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

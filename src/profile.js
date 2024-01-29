@@ -20,7 +20,6 @@ import { Persona } from './persona.js'
  * @class
  * @classdesc A profile of personas with identity claims
  * @param {Array<Persona>} personas - Personas of the profile
- * @public
  * @example
  * const claim = Claim('https://alice.tld', '123');
  * const pers = Persona('Alice', 'About Alice', [claim]);
@@ -80,7 +79,7 @@ export class Profile {
     }
     /**
      * List of verifier URLs
-     * @type {import('./types').ProfileVerifier[]}
+     * @type {Array<import('./types').ProfileVerifier>}
      * @public
      */
     this.verifiers = []

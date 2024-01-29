@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * Github service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/github/)
+ * Github service provider ({@link https://docs.keyoxide.org/service-providers/github/|Keyoxide docs})
  * @module serviceProviders/github
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

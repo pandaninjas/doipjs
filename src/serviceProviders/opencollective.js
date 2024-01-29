@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * OpenCollective service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/opencollective/)
+ * OpenCollective service provider ({@link https://docs.keyoxide.org/service-providers/opencollective/|Keyoxide docs})
  * @module serviceProviders/opencollective
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

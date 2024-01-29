@@ -215,8 +215,8 @@ const containsProof = async (data, params) => {
 /**
  * Run a JSON object through the verification process
  * @function
- * @param {any} proofData - Data potentially containing the proof
- * @param {string[]} checkPath - Paths to check for proof
+ * @param {*} proofData - Data potentially containing the proof
+ * @param {Array<string>} checkPath - Paths to check for proof
  * @param {import('./types').VerificationParams} params - Verification parameters
  * @returns {Promise<boolean>} Whether the proof was found in the object
  */
@@ -266,7 +266,6 @@ const runJSON = async (proofData, checkPath, params) => {
 
 /**
  * Run the verification by searching for the proof in the fetched data
- * @async
  * @param {object} proofData - The proof data
  * @param {ServiceProvider} claimData - The claim data
  * @param {string} fingerprint - The fingerprint

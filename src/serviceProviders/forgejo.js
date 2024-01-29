@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * Forgejo service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/forgejo/)
+ * Forgejo service provider ({@link https://docs.keyoxide.org/service-providers/forgejo/|Keyoxide docs})
  * @module serviceProviders/forgejo
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

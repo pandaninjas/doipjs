@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * IRC service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/irc/)
+ * IRC service provider ({@link https://docs.keyoxide.org/service-providers/irc/|Keyoxide docs})
  * @module serviceProviders/irc
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

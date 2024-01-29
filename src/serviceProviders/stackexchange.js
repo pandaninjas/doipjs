@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * StackExchange service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/stackexchange/)
+ * StackExchange service provider ({@link https://docs.keyoxide.org/service-providers/stackexchange/|Keyoxide docs})
  * @module serviceProviders/stackexchange
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

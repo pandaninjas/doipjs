@@ -35,13 +35,12 @@ export const timeout = 20000
 /**
  * Execute a fetch request
  * @function
- * @async
  * @param {object} data - Data used in the request
  * @param {string} data.nick - The nick of the targeted account
  * @param {string} data.domain - The domain on which the targeted account is registered
  * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
  * @param {import('../types').VerificationConfig} [opts] - Options used to enable the request
- * @returns {Promise<string[]>} The fetched proofs from an IRC account
+ * @returns {Promise<Array<string>>} The fetched proofs from an IRC account
  */
 export async function fn (data, opts) {
   let timeoutHandle

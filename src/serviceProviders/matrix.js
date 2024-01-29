@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * Matrix service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/matrix/)
+ * Matrix service provider ({@link https://docs.keyoxide.org/service-providers/matrix/|Keyoxide docs})
  * @module serviceProviders/matrix
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

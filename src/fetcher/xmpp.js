@@ -41,17 +41,12 @@ let iqCaller = null
  * Start the XMPP client
  * @ignore
  * @function
- * @async
  * @param {import('../types').XmppClaimVerificationConfig} params - XMPP claim verification config
  * @returns {Promise<object>} The fetched proofs from an XMPP account
  */
 const xmppStart = async (params) => {
   return new Promise((resolve, reject) => {
-    const xmpp = client({
-      service: params.service,
-      username: params.username,
-      password: params.password
-    })
+    const xmpp = client({ ...params })
     if (process.env.NODE_ENV !== 'production') {
       debug(xmpp, true)
     }
@@ -69,7 +64,6 @@ const xmppStart = async (params) => {
 /**
  * Execute a fetch request
  * @function
- * @async
  * @param {object} data - Data used in the request
  * @param {string} data.id - The identifier of the targeted account
  * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher

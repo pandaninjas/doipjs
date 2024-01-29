@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * ORCiD service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/orcid/)
+ * ORCiD service provider ({@link https://docs.keyoxide.org/service-providers/orcid/|Keyoxide docs})
  * @module serviceProviders/orcid
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

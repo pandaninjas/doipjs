@@ -36,7 +36,6 @@ export const timeout = 5000
 /**
  * Execute a fetch request
  * @function
- * @async
  * @param {object} data - Data used in the request
  * @param {string} data.chat - Telegram public group name (slug)
  * @param {string} data.user - Telegram username

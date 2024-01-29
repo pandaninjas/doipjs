@@ -57,7 +57,7 @@ import { PublicKeyType, PublicKeyEncoding, PublicKeyFetchMethod, ProxyPolicy, Cl
  * @typedef {object} ServiceProviderProof
  * @property {ServiceProviderProofRequest} request - Details to request the potential proof
  * @property {ServiceProviderProofResponse} response - Details about the expected response
- * @property {ProofTarget[]} target - Details about the target located in the response
+ * @property {Array<ProofTarget>} target - Details about the target located in the response
  */
 
 /**
@@ -175,7 +175,7 @@ import { PublicKeyType, PublicKeyEncoding, PublicKeyFetchMethod, ProxyPolicy, Cl
  * @property {boolean} result - Whether the proof was found and the claim verified
  * @property {boolean} completed - Whether the verification process completed without errors
  * @property {VerificationResultProof} [proof] - Details about the proof and how it was fetched
- * @property {any[]} errors - Errors that ocurred during the verification process
+ * @property {Array<any>} errors - Errors that ocurred during the verification process
  */
 
 /**
@@ -191,7 +191,7 @@ import { PublicKeyType, PublicKeyEncoding, PublicKeyFetchMethod, ProxyPolicy, Cl
  * @property {ClaimFormat} format - How the response data is formatted
  * @property {EntityEncodingFormat} encoding - How the response data is encoded
  * @property {ClaimRelation} relation - How the proof is related to the response data
- * @property {string[]} path - Path to the proof inside the response data object
+ * @property {Array<string>} path - Path to the proof inside the response data object
  */
 
 export const Types = {}

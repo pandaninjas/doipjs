@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * Keybase service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/keybase/)
+ * Keybase service provider ({@link https://docs.keyoxide.org/service-providers/keybase/|Keyoxide docs})
  * @module serviceProviders/keybase
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * Twitter service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/twitter/)
+ * Twitter service provider ({@link https://docs.keyoxide.org/service-providers/twitter/|Keyoxide docs})
  * @module serviceProviders/twitter
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

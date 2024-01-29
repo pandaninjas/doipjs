@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * Lichess service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/lichess/)
+ * Lichess service provider ({@link https://docs.keyoxide.org/service-providers/lichess/|Keyoxide docs})
  * @module serviceProviders/lichess
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

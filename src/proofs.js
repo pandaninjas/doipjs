@@ -29,7 +29,6 @@ import { ServiceProvider } from './serviceProvider.js'
  * the `data` parameter and the proxy policy set in the `opts` parameter to
  * choose the right approach to fetch the proof. An error will be thrown if no
  * approach is possible.
- * @async
  * @param {ServiceProvider} data - Data from a claim definition
  * @param {import('./types').VerificationConfig} opts - Options to enable the request
  * @returns {Promise<object|string>} Fetched proof data

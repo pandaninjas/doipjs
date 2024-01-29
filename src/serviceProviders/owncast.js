@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * Owncast service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/owncast/)
+ * Owncast service provider ({@link https://docs.keyoxide.org/service-providers/owncast/|Keyoxide docs})
  * @module serviceProviders/owncast
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

@@ -37,7 +37,6 @@ export const timeout = 5000
 /**
  * Execute a fetch request
  * @function
- * @async
  * @param {object} data - Data used in the request
  * @param {string} data.eventId - The identifier of the targeted post
  * @param {string} data.roomId - The identifier of the room containing the targeted post

@@ -13,6 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+/**
+ * @module doipjs
+ * @license Apache-2.0
+ */
 export { Profile } from './profile.js'
 export { Persona } from './persona.js'
 export { Claim } from './claim.js'

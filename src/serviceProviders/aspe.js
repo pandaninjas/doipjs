@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * ASPE service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/aspe/)
+ * ASPE service provider ({@link https://docs.keyoxide.org/service-providers/aspe/|Keyoxide docs})
  * @module serviceProviders/aspe
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

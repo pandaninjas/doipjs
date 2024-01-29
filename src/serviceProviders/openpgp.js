@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * OpenPGP service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/openpgp/)
+ * OpenPGP service provider ({@link https://docs.keyoxide.org/service-providers/openpgp/|Keyoxide docs})
  * @module serviceProviders/openpgp
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

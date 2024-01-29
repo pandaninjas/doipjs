@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * Lobste.rs service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/lobsters/)
+ * Lobste.rs service provider ({@link https://docs.keyoxide.org/service-providers/lobsters/|Keyoxide docs})
  * @module serviceProviders/lobsters
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

@@ -22,7 +22,6 @@ import { ProxyPolicy } from './enums.js'
 
 /**
  * The default claim verification config used throughout the library
- * @constant
  * @type {import('./types').VerificationConfig}
  */
 export const opts = {

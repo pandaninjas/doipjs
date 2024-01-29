@@ -35,7 +35,6 @@ export const timeout = 5000
 /**
  * Execute a fetch request
  * @function
- * @async
  * @param {object} data - Data used in the request
  * @param {string} data.domain - The targeted domain
  * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher

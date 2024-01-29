@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * Gitlab service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/gitlab/)
+ * Gitlab service provider ({@link https://docs.keyoxide.org/service-providers/gitlab/|Keyoxide docs})
  * @module serviceProviders/gitlab
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';

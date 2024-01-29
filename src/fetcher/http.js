@@ -36,7 +36,6 @@ export const timeout = 5000
 /**
  * Execute a fetch request
  * @function
- * @async
  * @param {object} data - Data used in the request
  * @param {string} data.url - The URL pointing at targeted content
  * @param {string} data.format - The format of the targeted content

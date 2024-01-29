@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 /**
- * XMPP service provider
- *
- * Link: [Keyoxide documentation](https://docs.keyoxide.org/service-providers/xmpp/)
+ * XMPP service provider ({@link https://docs.keyoxide.org/service-providers/xmpp/|Keyoxide docs})
  * @module serviceProviders/xmpp
  * @example
  * import { ServiceProviderDefinitions } from 'doipjs';
