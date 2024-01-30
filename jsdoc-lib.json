@@ -15,21 +15,26 @@
     }
   },
   "opts": {
-    "template": "node_modules/clean-jsdoc-theme",
-    "theme_opts": {
-      "theme": "light",
-      "menu": [
-        {
-          "title": "Source code",
-          "link": "https://codeberg.org/keyoxide/doipjs",
-          "target": "_blank"
-        },
-        {
-          "title": "Keyoxide",
-          "link": "https://keyoxide.org",
-          "target": "_blank"
-        }
-      ]
+    "template": "node_modules/docdash",
+    "destination": "docs/"
+  },
+  "docdash": {
+    "collapse": true,
+    "meta": {
+      "title": "doipjs",
+      "description": "Documentation for the doip.js library"
+    },
+    "menu": {
+      "Keyoxide": {
+        "href":"https://keyoxide.org",
+        "target":"_blank",
+        "class":"menu-item"
+      },
+      "Keyoxide docs": {
+        "href":"https://docs.keyoxide.org",
+        "target":"_blank",
+        "class":"menu-item"
+      }
     }
   }
 }
