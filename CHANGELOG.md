@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.9] - 2024-02-01
+### Added
+- ORCiD identity claims
+### Changed
+- Improved code documentation
+- Optimized creation of Regexp instances
+### Fixed
+- Bad promise timeout logic
+- Dependencies cleaned up
+
 ## [1.2.8] - 2024-01-23
 ### Added
 - OpenPGP and ASP claims

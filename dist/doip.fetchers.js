@@ -6002,7 +6002,7 @@ var doipFetchers = (function (exports) {
    * doip.js library version
    * @constant {string}
    */
-  const version = '1.2.8';
+  const version = '1.2.9';
 
   /*
   Copyright 2022 Yarmo Mackenbach
@@ -6019,22 +6019,31 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Fetch proofs using ActivityPub HTTP requests
+   * @module fetcher/activitypub
+   * @example
+   * import { fetcher } from 'doipjs';
+   * const data = await fetcher.activitypub.fn({ url: 'https://domain.example/@alice' });
+   */
 
+
+  /**
+   * Default timeout after which the fetch is aborted
+   * @constant
+   * @type {number}
+   * @default 5000
+   */
   const timeout$b = 5000;
 
   /**
    * Execute a fetch request
    * @function
-   * @async
-   * @param {object} data                           - Data used in the request
-   * @param {string} data.url                       - The URL of the account to verify
-   * @param {number} [data.fetcherTimeout]          - Optional timeout for the fetcher
-   * @param {object} opts                           - Options used to enable the request
-   * @param {object} opts.claims
-   * @param {object} opts.claims.activitypub
-   * @param {string} opts.claims.activitypub.url    - The URL of the verifier account
-   * @param {string} opts.claims.activitypub.privateKey   - The private key to sign the request
-   * @returns {Promise<object>}
+   * @param {object} data - Data used in the request
+   * @param {string} data.url - The URL of the account to verify
+   * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
+   * @param {import('../types').VerificationConfig} [opts] - Options used to enable the request
+   * @returns {Promise<object>} The fetched ActivityPub object
    */
   async function fn$a (data, opts) {
     let timeoutHandle;
@@ -6090,9 +6099,8 @@ var doipFetchers = (function (exports) {
       })();
     });
 
-    return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+    return Promise.race([fetchPromise, timeoutPromise]).finally(() => {
       clearTimeout(timeoutHandle);
-      return result
     })
   }
 
@@ -7701,7 +7709,7 @@ var doipFetchers = (function (exports) {
   };
 
   /**
-   * How to find the claim inside the proof's JSON data
+   * How to find the proof inside the fetched data
    * @readonly
    * @enum {string}
    */
@@ -7815,18 +7823,16 @@ var doipFetchers = (function (exports) {
   */
 
   /**
-   * A persona with identity claims
    * @class
-   * @constructor
-   * @public
+   * @classdesc A persona with identity claims
    * @example
    * const claim = Claim('https://alice.tld', '123');
    * const pers = Persona('Alice', 'About Alice', [claim]);
    */
   class Persona {
     /**
-     * @param {string} name
-     * @param {import('./claim.js').Claim[]} claims
+     * @param {string} name - Name of the persona
+     * @param {Array<Claim>} claims - Claims of the persona
      */
     constructor (name, claims) {
       /**
@@ -7867,7 +7873,7 @@ var doipFetchers = (function (exports) {
       this.themeColor = null;
       /**
        * List of identity claims
-       * @type {import('./claim.js').Claim[]}
+       * @type {Array<Claim>}
        * @public
        */
       this.claims = claims;
@@ -7880,10 +7886,11 @@ var doipFetchers = (function (exports) {
     }
 
     /**
+     * Parse a JSON object and convert it into a persona
      * @function
-     * @param {object} personaObject
-     * @param {number} profileVersion
-     * @returns {Persona | Error}
+     * @param {object} personaObject - JSON representation of a persona
+     * @param {number} profileVersion - Version of the Profile containing the persona
+     * @returns {Persona | Error} Parsed persona
      * @example
      * doip.Persona.fromJSON(JSON.stringify(persona), 2);
      */
@@ -7911,46 +7918,52 @@ var doipFetchers = (function (exports) {
     }
 
     /**
+     * Set the persona's identifier
      * @function
-     * @param {string} identifier
+     * @param {string} identifier - Identifier of the persona
      */
     setIdentifier (identifier) {
       this.identifier = identifier;
     }
 
     /**
+     * Set the persona's description
      * @function
-     * @param {string} description
+     * @param {string} description - Description of the persona
      */
     setDescription (description) {
       this.description = description;
     }
 
     /**
+     * Set the persona's email address
      * @function
-     * @param {string} email
+     * @param {string} email - Email address of the persona
      */
     setEmailAddress (email) {
       this.email = email;
     }
 
     /**
+     * Set the URL to the persona's avatar
      * @function
-     * @param {string} avatarUrl
+     * @param {string} avatarUrl - URL to the persona's avatar
      */
     setAvatarUrl (avatarUrl) {
       this.avatarUrl = avatarUrl;
     }
 
     /**
+     * Add a claim
      * @function
-     * @param {import('./claim.js').Claim} claim
+     * @param {Claim} claim - Claim to add
      */
     addClaim (claim) {
       this.claims.push(claim);
     }
 
     /**
+     * Revoke the persona
      * @function
      */
     revoke () {
@@ -7958,9 +7971,9 @@ var doipFetchers = (function (exports) {
     }
 
     /**
-     * Get a JSON representation of the Profile object
+     * Get a JSON representation of the persona
      * @function
-     * @returns {object}
+     * @returns {object} JSON representation of the persona
      */
     toJSON () {
       return {
@@ -7977,8 +7990,9 @@ var doipFetchers = (function (exports) {
   }
 
   /**
-   * @param {object} personaObject
-   * @returns {Persona | Error}
+   * @ignore
+   * @param {object} personaObject - JSON representation of a persona
+   * @returns {Persona | Error} Parsed persona
    */
   function importJsonPersonaVersion2 (personaObject) {
     const claims = personaObject.claims.map(x => Claim.fromJSON(x));
@@ -8012,10 +8026,9 @@ var doipFetchers = (function (exports) {
   */
 
   /**
-   * A profile of personas with identity claims
-   * @function
-   * @param {Array<import('./persona.js').Persona>} personas
-   * @public
+   * @class
+   * @classdesc A profile of personas with identity claims
+   * @param {Array<Persona>} personas - Personas of the profile
    * @example
    * const claim = Claim('https://alice.tld', '123');
    * const pers = Persona('Alice', 'About Alice', [claim]);
@@ -8025,21 +8038,16 @@ var doipFetchers = (function (exports) {
     /**
      * Create a new profile
      * @function
-     * @param {import('./enums.js').ProfileType} profileType
-     * @param {string} identifier
-     * @param {Array<import('./persona.js').Persona>} personas
+     * @param {ProfileType} profileType - Type of profile (ASP, OpenPGP, etc.)
+     * @param {string} identifier - Profile identifier (fingerprint, URI, etc.)
+     * @param {Array<Persona>} personas - Personas of the profile
      * @public
      */
     constructor (profileType, identifier, personas) {
-      /**
-       * Profile version
-       * @type {number}
-       * @public
-       */
       this.profileVersion = 2;
       /**
        * Profile version
-       * @type {import('./enums.js').ProfileType}
+       * @type {ProfileType}
        * @public
        */
       this.profileType = profileType;
@@ -8051,7 +8059,7 @@ var doipFetchers = (function (exports) {
       this.identifier = identifier;
       /**
        * List of personas
-       * @type {Array<import('./persona.js').Persona>}
+       * @type {Array<Persona>}
        * @public
        */
       this.personas = personas || [];
@@ -8063,78 +8071,34 @@ var doipFetchers = (function (exports) {
       this.primaryPersonaIndex = personas.length > 0 ? 0 : -1;
       /**
        * The cryptographic key associated with the profile
-       * @property {object}
+       * @type {import('./types').ProfilePublicKey}
        * @public
        */
       this.publicKey = {
-        /**
-         * The type of cryptographic key
-         * @type {PublicKeyType}
-         * @public
-         */
         keyType: PublicKeyType.NONE,
-        /**
-         * The fingerprint of the cryptographic key
-         * @type {string | null}
-         * @public
-         */
         fingerprint: null,
-        /**
-         * The encoding of the cryptographic key
-         * @type {PublicKeyEncoding}
-         * @public
-         */
         encoding: PublicKeyEncoding.NONE,
-        /**
-         * The encoded cryptographic key
-         * @type {string | null}
-         * @public
-         */
         encodedKey: null,
-        /**
-         * The raw cryptographic key as object (to be removed during toJSON())
-         * @type {import('openpgp').PublicKey | import('jose').JWK | null}
-         * @public
-         */
         key: null,
-        /**
-         * Details on how to fetch the public key
-         * @property {object}
-         * @public
-         */
         fetch: {
-          /**
-           * The method to fetch the key
-           * @type {PublicKeyFetchMethod}
-           * @public
-           */
           method: PublicKeyFetchMethod.NONE,
-          /**
-           * The query to fetch the key
-           * @type {string | null}
-           * @public
-           */
           query: null,
-          /**
-           * The URL the method eventually resolved to
-           * @type {string | null}
-           * @public
-           */
           resolvedUrl: null
         }
       };
       /**
        * List of verifier URLs
-       * @type {{name: string, url: string}[]}
+       * @type {Array<import('./types').ProfileVerifier>}
        * @public
        */
       this.verifiers = [];
     }
 
     /**
+     * Parse a JSON object and convert it into a profile
      * @function
-     * @param {object} profileObject
-     * @returns {Profile | Error}
+     * @param {object} profileObject - JSON representation of a profile
+     * @returns {Profile | Error} Parsed profile
      * @example
      * doip.Profile.fromJSON(JSON.stringify(profile));
      */
@@ -8162,18 +8126,19 @@ var doipFetchers = (function (exports) {
     }
 
     /**
+     * Add profile verifier to the profile
      * @function
-     * @param {string} name
-     * @param {string} url
+     * @param {string} name - Name of the verifier
+     * @param {string} url - URL of the verifier
      */
     addVerifier (name, url) {
       this.verifiers.push({ name, url });
     }
 
     /**
-     * Get a JSON representation of the Profile object
+     * Get a JSON representation of the profile
      * @function
-     * @returns {object}
+     * @returns {object} JSON representation of the profile
      */
     toJSON () {
       return {
@@ -8199,8 +8164,9 @@ var doipFetchers = (function (exports) {
   }
 
   /**
-   * @param {object} profileObject
-   * @returns {Profile | Error}
+   * @ignore
+   * @param {object} profileObject - JSON representation of the profile
+   * @returns {Profile | Error} Parsed profile
    */
   function importJsonProfileVersion2 (profileObject) {
     if (!('profileVersion' in profileObject && profileObject.profileVersion === 2)) {
@@ -8233,129 +8199,43 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+
   /**
    * A service provider matched to an identity claim
    * @class
-   * @constructor
    * @public
    */
   class ServiceProvider {
     /**
-     * @param {object} spObj
+     * @param {import('./types').ServiceProviderObject} serviceProviderObject - JSON representation of a {@link ServiceProvider}
      */
-    constructor (spObj) {
+    constructor (serviceProviderObject) {
       /**
        * Details about the service provider
-       * @property {object}
+       * @type {import('./types').ServiceProviderAbout}
        */
-      this.about = {
-        /**
-         * Identifier of the service provider (no whitespace or symbols, lowercase)
-         * @type {string}
-         */
-        id: spObj.about.id,
-        /**
-         * Full name of the service provider
-         * @type {string}
-         */
-        name: spObj.about.name,
-        /**
-         * URL to the homepage of the service provider
-         * @type {string | null}
-         */
-        homepage: spObj.about.homepage || null
-      };
+      this.about = serviceProviderObject.about;
       /**
-       * What the profile would look like if the match is correct
-       * @property {object}
+       * What the profile would look like if a claim matches this service provider
+       * @type {import('./types').ServiceProviderProfile}
        */
-      this.profile = {
-        /**
-         * Profile name to be displayed
-         * @type {string}
-         */
-        display: spObj.profile.display,
-        /**
-         * URI or URL for public access to the profile
-         * @type {string}
-         */
-        uri: spObj.profile.uri,
-        /**
-         * URI or URL associated with the profile usually served as a QR code
-         * @type {string | null}
-         */
-        qr: spObj.profile.qr || null
-      };
+      this.profile = serviceProviderObject.profile;
       /**
-       * Details from the claim matching process
-       * @property {object}
+       * Information about the claim matching process
+       * @type {import('./types').ServiceProviderClaim}
        */
-      this.claim = {
-        /**
-         * Regular expression used to parse the URI
-         * @type {string}
-         */
-        uriRegularExpression: spObj.claim.uriRegularExpression,
-        /**
-         * Whether this match automatically excludes other matches
-         * @type {boolean}
-         */
-        uriIsAmbiguous: spObj.claim.uriIsAmbiguous
-      };
+      this.claim = serviceProviderObject.claim;
       /**
        * Information for the proof verification process
-       * @property {object}
+       * @type {import('./types').ServiceProviderProof}
        */
-      this.proof = {
-        /**
-         * Details to request the potential proof
-         * @property {object}
-         */
-        request: {
-          /**
-           * Location of the proof
-           * @type {string | null}
-           */
-          uri: spObj.proof.request.uri,
-          /**
-           * Fetcher to be used to request the proof
-           * @type {string}
-           */
-          fetcher: spObj.proof.request.fetcher,
-          /**
-           * Type of access restriction
-           * @type {import('./enums.js').ProofAccessRestriction}
-           */
-          accessRestriction: spObj.proof.request.accessRestriction,
-          /**
-           * Data needed by the fetcher or proxy to request the proof
-           * @type {object}
-           */
-          data: spObj.proof.request.data
-        },
-        /**
-         * Details about the expected response
-         * @property {object}
-         */
-        response: {
-          /**
-           * Expected format of the proof
-           * @type {import('./enums.js').ProofFormat}
-           */
-          format: spObj.proof.response.format
-        },
-        /**
-         * Details about the target located in the response
-         * @type {{format: import('./enums.js').ClaimFormat, encoding: import('./enums.js').EntityEncodingFormat, relation: import('./enums.js').ClaimRelation, path: string[]}[]}
-         */
-        target: spObj.proof.target
-      };
+      this.proof = serviceProviderObject.proof;
     }
 
     /**
-     * Get a JSON representation of the ServiceProvider object
+     * Get a JSON representation of the {@link ServiceProvider}
      * @function
-     * @returns {object}
+     * @returns {import('./types').ServiceProviderObject} JSON representation of a {@link ServiceProvider}
      */
     toJSON () {
       return {
@@ -8382,15 +8262,24 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * ASPE service provider ({@link https://docs.keyoxide.org/service-providers/aspe/|Keyoxide docs})
+   * @module serviceProviders/aspe
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.activitypub.processURI('aspe:domain.example:abc123def456');
+   */
 
-  const reURI$n = /^aspe:([a-zA-Z0-9.\-_]*):([a-zA-Z0-9]*)/;
+
+  const reURI$p = /^aspe:([a-zA-Z0-9.\-_]*):([a-zA-Z0-9]*)/;
 
   /**
    * @function
-   * @param {string} uri
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$n (uri) {
-    const match = uri.match(reURI$n);
+  function processURI$o (uri) {
+    const match = uri.match(reURI$p);
 
     if (!isFQDN(match[1])) {
       return null
@@ -8402,12 +8291,12 @@ var doipFetchers = (function (exports) {
         name: 'ASPE'
       },
       profile: {
-        display: match[1],
+        display: uri,
         uri,
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$n.toString(),
+        uriRegularExpression: reURI$p.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -8432,7 +8321,7 @@ var doipFetchers = (function (exports) {
     })
   }
 
-  const tests$n = [
+  const tests$o = [
     {
       uri: 'aspe:domain.tld:abc123def456',
       shouldMatch: true
@@ -8453,9 +8342,9 @@ var doipFetchers = (function (exports) {
 
   var aspe$1 = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$n,
-    reURI: reURI$n,
-    tests: tests$n
+    processURI: processURI$o,
+    reURI: reURI$p,
+    tests: tests$o
   });
 
   /*
@@ -8473,18 +8362,27 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * OpenPGP service provider ({@link https://docs.keyoxide.org/service-providers/openpgp/|Keyoxide docs})
+   * @module serviceProviders/openpgp
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.openpgp.processURI('openpgp4fpr:ABC123DEF456');
+   */
 
-  const reURI$m = /^(.*)/;
+
+  const reURI$o = /^(.*)/;
+
+  const reURIHkp = /^openpgp4fpr:(?:0x)?([a-zA-Z0-9.\-_]*)/;
+  const reURIWkdDirect = /^https:\/\/(.*)\/.well-known\/openpgpkey\/hu\/([a-zA-Z0-9]*)(?:\?l=(.*))?/;
+  const reURIWkdAdvanced = /^https:\/\/(openpgpkey.*)\/.well-known\/openpgpkey\/(.*)\/hu\/([a-zA-Z0-9]*)(?:\?l=(.*))?/;
 
   /**
    * @function
-   * @param {string} uri
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$m (uri) {
-    const reURIHkp = /^openpgp4fpr:(?:0x)?([a-zA-Z0-9.\-_]*)/;
-    const reURIWkdDirect = /^https:\/\/(.*)\/.well-known\/openpgpkey\/hu\/([a-zA-Z0-9]*)(?:\?l=(.*))?/;
-    const reURIWkdAdvanced = /^https:\/\/(openpgpkey.*)\/.well-known\/openpgpkey\/(.*)\/hu\/([a-zA-Z0-9]*)(?:\?l=(.*))?/;
-
+  function processURI$n (uri) {
     let reURI = null;
     let mode = null;
     let match = null;
@@ -8587,7 +8485,7 @@ var doipFetchers = (function (exports) {
     return output
   }
 
-  const tests$m = [
+  const tests$n = [
     {
       uri: 'openpgp4fpr:123456789',
       shouldMatch: true
@@ -8629,9 +8527,9 @@ var doipFetchers = (function (exports) {
 
   var openpgp$1 = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$m,
-    reURI: reURI$m,
-    tests: tests$m
+    processURI: processURI$n,
+    reURI: reURI$o,
+    tests: tests$n
   });
 
   /*
@@ -8649,15 +8547,24 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * DNS service provider ({@link https://docs.keyoxide.org/service-providers/dns/|Keyoxide docs})
+   * @module serviceProviders/dns
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.dns.processURI('dns:domain.example?type=TXT');
+   */
 
-  const reURI$l = /^dns:([a-zA-Z0-9.\-_]*)(?:\?(.*))?/;
+
+  const reURI$n = /^dns:([a-zA-Z0-9.\-_]*)(?:\?(.*))?/;
 
   /**
    * @function
-   * @param {string} uri
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$l (uri) {
-    const match = uri.match(reURI$l);
+  function processURI$m (uri) {
+    const match = uri.match(reURI$n);
 
     return new ServiceProvider({
       about: {
@@ -8670,7 +8577,7 @@ var doipFetchers = (function (exports) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$l.toString(),
+        uriRegularExpression: reURI$n.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -8695,7 +8602,7 @@ var doipFetchers = (function (exports) {
     })
   }
 
-  const tests$l = [
+  const tests$m = [
     {
       uri: 'dns:domain.org',
       shouldMatch: true
@@ -8712,9 +8619,9 @@ var doipFetchers = (function (exports) {
 
   var dns$3 = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$l,
-    reURI: reURI$l,
-    tests: tests$l
+    processURI: processURI$m,
+    reURI: reURI$n,
+    tests: tests$m
   });
 
   /*
@@ -8732,15 +8639,24 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * IRC service provider ({@link https://docs.keyoxide.org/service-providers/irc/|Keyoxide docs})
+   * @module serviceProviders/irc
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.irc.processURI('irc://domain.example/alice');
+   */
 
-  const reURI$k = /^irc:\/\/(.*)\/([a-zA-Z0-9\-[\]\\`_^{|}]*)/;
+
+  const reURI$m = /^irc:\/\/(.*)\/([a-zA-Z0-9\-[\]\\`_^{|}]*)/;
 
   /**
    * @function
-   * @param {string} uri
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$k (uri) {
-    const match = uri.match(reURI$k);
+  function processURI$l (uri) {
+    const match = uri.match(reURI$m);
 
     return new ServiceProvider({
       about: {
@@ -8753,7 +8669,7 @@ var doipFetchers = (function (exports) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$k.toString(),
+        uriRegularExpression: reURI$m.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -8779,7 +8695,7 @@ var doipFetchers = (function (exports) {
     })
   }
 
-  const tests$k = [
+  const tests$l = [
     {
       uri: 'irc://chat.ircserver.org/Alice1',
       shouldMatch: true
@@ -8800,9 +8716,9 @@ var doipFetchers = (function (exports) {
 
   var irc$2 = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$k,
-    reURI: reURI$k,
-    tests: tests$k
+    processURI: processURI$l,
+    reURI: reURI$m,
+    tests: tests$l
   });
 
   /*
@@ -8820,15 +8736,24 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * XMPP service provider ({@link https://docs.keyoxide.org/service-providers/xmpp/|Keyoxide docs})
+   * @module serviceProviders/xmpp
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.xmpp.processURI('xmpp:alice@domain.example');
+   */
 
-  const reURI$j = /^xmpp:([a-zA-Z0-9.\-_]*)@([a-zA-Z0-9.\-_]*)(?:\?(.*))?/;
+
+  const reURI$l = /^xmpp:([a-zA-Z0-9.\-_]*)@([a-zA-Z0-9.\-_]*)(?:\?(.*))?/;
 
   /**
    * @function
-   * @param {string} uri
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$j (uri) {
-    const match = uri.match(reURI$j);
+  function processURI$k (uri) {
+    const match = uri.match(reURI$l);
 
     return new ServiceProvider({
       about: {
@@ -8842,7 +8767,7 @@ var doipFetchers = (function (exports) {
         qr: uri
       },
       claim: {
-        uriRegularExpression: reURI$j.toString(),
+        uriRegularExpression: reURI$l.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -8867,7 +8792,7 @@ var doipFetchers = (function (exports) {
     })
   }
 
-  const tests$j = [
+  const tests$k = [
     {
       uri: 'xmpp:alice@domain.org',
       shouldMatch: true
@@ -8884,9 +8809,9 @@ var doipFetchers = (function (exports) {
 
   var xmpp$2 = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$j,
-    reURI: reURI$j,
-    tests: tests$j
+    processURI: processURI$k,
+    reURI: reURI$l,
+    tests: tests$k
   });
 
   /*
@@ -8904,15 +8829,24 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Matrix service provider ({@link https://docs.keyoxide.org/service-providers/matrix/|Keyoxide docs})
+   * @module serviceProviders/matrix
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.matrix.processURI('matrix:u/...');
+   */
 
-  const reURI$i = /^matrix:u\/(?:@)?([^@:]*:[^?]*)(\?.*)?/;
+
+  const reURI$k = /^matrix:u\/(?:@)?([^@:]*:[^?]*)(\?.*)?/;
 
   /**
    * @function
-   * @param {string} uri
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$i (uri) {
-    const match = uri.match(reURI$i);
+  function processURI$j (uri) {
+    const match = uri.match(reURI$k);
 
     if (!match[2]) {
       return null
@@ -8942,7 +8876,7 @@ var doipFetchers = (function (exports) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$i.toString(),
+        uriRegularExpression: reURI$k.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -8968,7 +8902,7 @@ var doipFetchers = (function (exports) {
     })
   }
 
-  const tests$i = [
+  const tests$j = [
     {
       uri:
         'matrix:u/alice:matrix.domain.org?org.keyoxide.r=123:domain.org&org.keyoxide.e=123',
@@ -8995,9 +8929,9 @@ var doipFetchers = (function (exports) {
 
   var matrix$1 = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$i,
-    reURI: reURI$i,
-    tests: tests$i
+    processURI: processURI$j,
+    reURI: reURI$k,
+    tests: tests$j
   });
 
   /*
@@ -9015,15 +8949,24 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Telegram service provider ({@link https://docs.keyoxide.org/service-providers/telegram/|Keyoxide docs})
+   * @module serviceProviders/telegram
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.telegram.processURI('https://t.me/alice?proof=mygroup');
+   */
 
-  const reURI$h = /https:\/\/t.me\/([A-Za-z0-9_]{5,32})\?proof=([A-Za-z0-9_]{5,32})/;
+
+  const reURI$j = /https:\/\/t.me\/([A-Za-z0-9_]{5,32})\?proof=([A-Za-z0-9_]{5,32})/;
 
   /**
    * @function
-   * @param {string} uri
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$h (uri) {
-    const match = uri.match(reURI$h);
+  function processURI$i (uri) {
+    const match = uri.match(reURI$j);
 
     return new ServiceProvider({
       about: {
@@ -9037,7 +8980,7 @@ var doipFetchers = (function (exports) {
         qr: `https://t.me/${match[1]}`
       },
       claim: {
-        uriRegularExpression: reURI$h.toString(),
+        uriRegularExpression: reURI$j.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -9063,7 +9006,7 @@ var doipFetchers = (function (exports) {
     })
   }
 
-  const tests$h = [
+  const tests$i = [
     {
       uri: 'https://t.me/alice?proof=foobar',
       shouldMatch: true
@@ -9088,9 +9031,9 @@ var doipFetchers = (function (exports) {
 
   var telegram$1 = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$h,
-    reURI: reURI$h,
-    tests: tests$h
+    processURI: processURI$i,
+    reURI: reURI$j,
+    tests: tests$i
   });
 
   /*
@@ -9108,15 +9051,24 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Twitter service provider ({@link https://docs.keyoxide.org/service-providers/twitter/|Keyoxide docs})
+   * @module serviceProviders/twitter
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.twitter.processURI('https://twitter.com/alice/status/123456789');
+   */
 
-  const reURI$g = /^https:\/\/twitter\.com\/(.*)\/status\/([0-9]*)(?:\?.*)?/;
+
+  const reURI$i = /^https:\/\/twitter\.com\/(.*)\/status\/([0-9]*)(?:\?.*)?/;
 
   /**
    * @function
-   * @param {string} uri
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$g (uri) {
-    const match = uri.match(reURI$g);
+  function processURI$h (uri) {
+    const match = uri.match(reURI$i);
 
     const urlsp = new URLSearchParams();
     urlsp.set('url', match[0]);
@@ -9134,7 +9086,7 @@ var doipFetchers = (function (exports) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$g.toString(),
+        uriRegularExpression: reURI$i.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -9161,7 +9113,7 @@ var doipFetchers = (function (exports) {
     })
   }
 
-  const tests$g = [
+  const tests$h = [
     {
       uri: 'https://twitter.com/alice/status/1234567890123456789',
       shouldMatch: true
@@ -9178,9 +9130,9 @@ var doipFetchers = (function (exports) {
 
   var twitter = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$g,
-    reURI: reURI$g,
-    tests: tests$g
+    processURI: processURI$h,
+    reURI: reURI$i,
+    tests: tests$h
   });
 
   /*
@@ -9198,15 +9150,24 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Reddit service provider ({@link https://docs.keyoxide.org/service-providers/reddit/|Keyoxide docs})
+   * @module serviceProviders/reddit
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.reddit.processURI('https://reddit.com/...');
+   */
 
-  const reURI$f = /^https:\/\/(?:www\.)?reddit\.com\/user\/(.*)\/comments\/(.*)\/(.*)\/?/;
+
+  const reURI$h = /^https:\/\/(?:www\.)?reddit\.com\/user\/(.*)\/comments\/(.*)\/(.*)\/?/;
 
   /**
    * @function
-   * @param {string} uri
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$f (uri) {
-    const match = uri.match(reURI$f);
+  function processURI$g (uri) {
+    const match = uri.match(reURI$h);
 
     return new ServiceProvider({
       about: {
@@ -9220,7 +9181,7 @@ var doipFetchers = (function (exports) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$f.toString(),
+        uriRegularExpression: reURI$h.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -9246,7 +9207,7 @@ var doipFetchers = (function (exports) {
     })
   }
 
-  const tests$f = [
+  const tests$g = [
     {
       uri: 'https://www.reddit.com/user/Alice/comments/123456/post',
       shouldMatch: true
@@ -9271,9 +9232,9 @@ var doipFetchers = (function (exports) {
 
   var reddit = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$f,
-    reURI: reURI$f,
-    tests: tests$f
+    processURI: processURI$g,
+    reURI: reURI$h,
+    tests: tests$g
   });
 
   /*
@@ -9291,15 +9252,24 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Liberapay service provider ({@link https://docs.keyoxide.org/service-providers/liberapay/|Keyoxide docs})
+   * @module serviceProviders/liberapay
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.liberapay.processURI('https://liberapay.com/alice');
+   */
 
-  const reURI$e = /^https:\/\/liberapay\.com\/(.*)\/?/;
+
+  const reURI$g = /^https:\/\/liberapay\.com\/(.*)\/?/;
 
   /**
    * @function
-   * @param {string} uri
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$e (uri) {
-    const match = uri.match(reURI$e);
+  function processURI$f (uri) {
+    const match = uri.match(reURI$g);
 
     return new ServiceProvider({
       about: {
@@ -9313,7 +9283,7 @@ var doipFetchers = (function (exports) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$e.toString(),
+        uriRegularExpression: reURI$g.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -9339,7 +9309,7 @@ var doipFetchers = (function (exports) {
     })
   }
 
-  const tests$e = [
+  const tests$f = [
     {
       uri: 'https://liberapay.com/alice',
       shouldMatch: true
@@ -9356,9 +9326,9 @@ var doipFetchers = (function (exports) {
 
   var liberapay = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$e,
-    reURI: reURI$e,
-    tests: tests$e
+    processURI: processURI$f,
+    reURI: reURI$g,
+    tests: tests$f
   });
 
   /*
@@ -9376,15 +9346,24 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Lichess service provider ({@link https://docs.keyoxide.org/service-providers/lichess/|Keyoxide docs})
+   * @module serviceProviders/lichess
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.lichess.processURI('https://lichess.org/@/alice');
+   */
 
-  const reURI$d = /^https:\/\/lichess\.org\/@\/(.*)\/?/;
+
+  const reURI$f = /^https:\/\/lichess\.org\/@\/(.*)\/?/;
 
   /**
    * @function
-   * @param {string} uri
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$d (uri) {
-    const match = uri.match(reURI$d);
+  function processURI$e (uri) {
+    const match = uri.match(reURI$f);
 
     return new ServiceProvider({
       about: {
@@ -9398,7 +9377,7 @@ var doipFetchers = (function (exports) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$d.toString(),
+        uriRegularExpression: reURI$f.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -9424,7 +9403,7 @@ var doipFetchers = (function (exports) {
     })
   }
 
-  const tests$d = [
+  const tests$e = [
     {
       uri: 'https://lichess.org/@/Alice',
       shouldMatch: true
@@ -9441,9 +9420,9 @@ var doipFetchers = (function (exports) {
 
   var lichess = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$d,
-    reURI: reURI$d,
-    tests: tests$d
+    processURI: processURI$e,
+    reURI: reURI$f,
+    tests: tests$e
   });
 
   /*
@@ -9461,15 +9440,24 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Hackernews service provider ({@link https://docs.keyoxide.org/service-providers/hackernews/|Keyoxide docs})
+   * @module serviceProviders/hackernews
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.hackernews.processURI('https://news.ycombinator.com/user?id=alice');
+   */
 
-  const reURI$c = /^https:\/\/news\.ycombinator\.com\/user\?id=(.*)\/?/;
+
+  const reURI$e = /^https:\/\/news\.ycombinator\.com\/user\?id=(.*)\/?/;
 
   /**
    * @function
-   * @param {string} uri
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$c (uri) {
-    const match = uri.match(reURI$c);
+  function processURI$d (uri) {
+    const match = uri.match(reURI$e);
 
     return new ServiceProvider({
       about: {
@@ -9483,7 +9471,7 @@ var doipFetchers = (function (exports) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$c.toString(),
+        uriRegularExpression: reURI$e.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -9509,7 +9497,7 @@ var doipFetchers = (function (exports) {
     })
   }
 
-  const tests$c = [
+  const tests$d = [
     {
       uri: 'https://news.ycombinator.com/user?id=Alice',
       shouldMatch: true
@@ -9526,9 +9514,9 @@ var doipFetchers = (function (exports) {
 
   var hackernews = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$c,
-    reURI: reURI$c,
-    tests: tests$c
+    processURI: processURI$d,
+    reURI: reURI$e,
+    tests: tests$d
   });
 
   /*
@@ -9546,15 +9534,24 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Lobste.rs service provider ({@link https://docs.keyoxide.org/service-providers/lobsters/|Keyoxide docs})
+   * @module serviceProviders/lobsters
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.lobsters.processURI('https://lobste.rs/~alice');
+   */
 
-  const reURI$b = /^https:\/\/lobste\.rs\/(?:~|u\/)(.*)\/?/;
+
+  const reURI$d = /^https:\/\/lobste\.rs\/(?:~|u\/)(.*)\/?/;
 
   /**
    * @function
-   * @param {string} uri
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$b (uri) {
-    const match = uri.match(reURI$b);
+  function processURI$c (uri) {
+    const match = uri.match(reURI$d);
 
     return new ServiceProvider({
       about: {
@@ -9568,7 +9565,7 @@ var doipFetchers = (function (exports) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$b.toString(),
+        uriRegularExpression: reURI$d.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -9594,7 +9591,7 @@ var doipFetchers = (function (exports) {
     })
   }
 
-  const tests$b = [
+  const tests$c = [
     {
       uri: 'https://lobste.rs/~Alice',
       shouldMatch: true
@@ -9619,9 +9616,9 @@ var doipFetchers = (function (exports) {
 
   var lobsters = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$b,
-    reURI: reURI$b,
-    tests: tests$b
+    processURI: processURI$c,
+    reURI: reURI$d,
+    tests: tests$c
   });
 
   /*
@@ -9639,15 +9636,24 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Forem service provider ({@link https://docs.keyoxide.org/service-providers/forem/|Keyoxide docs})
+   * @module serviceProviders/forem
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.forem.processURI('https://domain.example/alice/title');
+   */
 
-  const reURI$a = /^https:\/\/(.*)\/(.*)\/(.*)\/?/;
+
+  const reURI$c = /^https:\/\/(.*)\/(.*)\/(.*)\/?/;
 
   /**
    * @function
-   * @param {string} uri
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$a (uri) {
-    const match = uri.match(reURI$a);
+  function processURI$b (uri) {
+    const match = uri.match(reURI$c);
 
     return new ServiceProvider({
       about: {
@@ -9661,7 +9667,7 @@ var doipFetchers = (function (exports) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$a.toString().toString(),
+        uriRegularExpression: reURI$c.toString().toString(),
         uriIsAmbiguous: true
       },
       proof: {
@@ -9687,7 +9693,7 @@ var doipFetchers = (function (exports) {
     })
   }
 
-  const tests$a = [
+  const tests$b = [
     {
       uri: 'https://domain.org/alice/post',
       shouldMatch: true
@@ -9704,9 +9710,9 @@ var doipFetchers = (function (exports) {
 
   var forem = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$a,
-    reURI: reURI$a,
-    tests: tests$a
+    processURI: processURI$b,
+    reURI: reURI$c,
+    tests: tests$b
   });
 
   /*
@@ -9724,15 +9730,24 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Forgejo service provider ({@link https://docs.keyoxide.org/service-providers/forgejo/|Keyoxide docs})
+   * @module serviceProviders/forgejo
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.forgejo.processURI('https://domain.example/alice/repo');
+   */
 
-  const reURI$9 = /^https:\/\/(.*)\/(.*)\/(.*)\/?/;
+
+  const reURI$b = /^https:\/\/(.*)\/(.*)\/(.*)\/?/;
 
   /**
    * @function
-   * @param {string} uri
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$9 (uri) {
-    const match = uri.match(reURI$9);
+  function processURI$a (uri) {
+    const match = uri.match(reURI$b);
 
     return new ServiceProvider({
       about: {
@@ -9746,7 +9761,7 @@ var doipFetchers = (function (exports) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$9.toString(),
+        uriRegularExpression: reURI$b.toString(),
         uriIsAmbiguous: true
       },
       proof: {
@@ -9780,7 +9795,7 @@ var doipFetchers = (function (exports) {
     }
   };
 
-  const tests$9 = [
+  const tests$a = [
     {
       uri: 'https://domain.org/alice/forgejo_proof',
       shouldMatch: true
@@ -9802,9 +9817,9 @@ var doipFetchers = (function (exports) {
   var forgejo = /*#__PURE__*/Object.freeze({
     __proto__: null,
     functions: functions$1,
-    processURI: processURI$9,
-    reURI: reURI$9,
-    tests: tests$9
+    processURI: processURI$a,
+    reURI: reURI$b,
+    tests: tests$a
   });
 
   /*
@@ -9822,15 +9837,24 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Gitea service provider ({@link https://docs.keyoxide.org/service-providers/gitea/|Keyoxide docs})
+   * @module serviceProviders/gitea
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.gitea.processURI('https://domain.example/alice/repo');
+   */
 
-  const reURI$8 = /^https:\/\/(.*)\/(.*)\/(.*)\/?/;
+
+  const reURI$a = /^https:\/\/(.*)\/(.*)\/(.*)\/?/;
 
   /**
    * @function
-   * @param {string} uri
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$8 (uri) {
-    const match = uri.match(reURI$8);
+  function processURI$9 (uri) {
+    const match = uri.match(reURI$a);
 
     return new ServiceProvider({
       about: {
@@ -9844,7 +9868,7 @@ var doipFetchers = (function (exports) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$8.toString(),
+        uriRegularExpression: reURI$a.toString(),
         uriIsAmbiguous: true
       },
       proof: {
@@ -9870,7 +9894,7 @@ var doipFetchers = (function (exports) {
     })
   }
 
-  const tests$8 = [
+  const tests$9 = [
     {
       uri: 'https://domain.org/alice/gitea_proof',
       shouldMatch: true
@@ -9891,9 +9915,9 @@ var doipFetchers = (function (exports) {
 
   var gitea = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$8,
-    reURI: reURI$8,
-    tests: tests$8
+    processURI: processURI$9,
+    reURI: reURI$a,
+    tests: tests$9
   });
 
   /*
@@ -9911,15 +9935,24 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Gitlab service provider ({@link https://docs.keyoxide.org/service-providers/gitlab/|Keyoxide docs})
+   * @module serviceProviders/gitlab
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.gitlab.processURI('https://domain.example/alice/repo');
+   */
 
-  const reURI$7 = /^https:\/\/(.*)\/(.*)\/gitlab_proof\/?/;
+
+  const reURI$9 = /^https:\/\/(.*)\/(.*)\/gitlab_proof\/?/;
 
   /**
    * @function
-   * @param {string} uri
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$7 (uri) {
-    const match = uri.match(reURI$7);
+  function processURI$8 (uri) {
+    const match = uri.match(reURI$9);
 
     return new ServiceProvider({
       about: {
@@ -9933,11 +9966,10 @@ var doipFetchers = (function (exports) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$7.toString(),
+        uriRegularExpression: reURI$9.toString(),
         uriIsAmbiguous: true
       },
       proof: {
-        uri,
         request: {
           fetcher: Fetcher.HTTP,
           accessRestriction: ProofAccessRestriction.NONE,
@@ -9959,7 +9991,7 @@ var doipFetchers = (function (exports) {
     })
   }
 
-  const tests$7 = [
+  const tests$8 = [
     {
       uri: 'https://gitlab.domain.org/alice/gitlab_proof',
       shouldMatch: true
@@ -9976,9 +10008,9 @@ var doipFetchers = (function (exports) {
 
   var gitlab = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$7,
-    reURI: reURI$7,
-    tests: tests$7
+    processURI: processURI$8,
+    reURI: reURI$9,
+    tests: tests$8
   });
 
   /*
@@ -9996,15 +10028,24 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Github service provider ({@link https://docs.keyoxide.org/service-providers/github/|Keyoxide docs})
+   * @module serviceProviders/github
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.github.processURI('https://gist.github.com/alice/title');
+   */
 
-  const reURI$6 = /^https:\/\/gist\.github\.com\/(.*)\/(.*)\/?/;
+
+  const reURI$8 = /^https:\/\/gist\.github\.com\/(.*)\/(.*)\/?/;
 
   /**
    * @function
-   * @param {string} uri
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$6 (uri) {
-    const match = uri.match(reURI$6);
+  function processURI$7 (uri) {
+    const match = uri.match(reURI$8);
 
     return new ServiceProvider({
       about: {
@@ -10018,7 +10059,7 @@ var doipFetchers = (function (exports) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$6.toString(),
+        uriRegularExpression: reURI$8.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -10052,7 +10093,7 @@ var doipFetchers = (function (exports) {
     })
   }
 
-  const tests$6 = [
+  const tests$7 = [
     {
       uri: 'https://gist.github.com/Alice/123456789',
       shouldMatch: true
@@ -10069,9 +10110,9 @@ var doipFetchers = (function (exports) {
 
   var github = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$6,
-    reURI: reURI$6,
-    tests: tests$6
+    processURI: processURI$7,
+    reURI: reURI$8,
+    tests: tests$7
   });
 
   /*
@@ -10089,15 +10130,23 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * ActivityPub service provider ({@link https://docs.keyoxide.org/service-providers/activitypub/|Keyoxide docs})
+   * @module serviceProviders/activitypub
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.activitypub.processURI('https://domain.example/@alice');
+   */
 
-  const reURI$5 = /^https:\/\/(.*)\/?/;
+
+  const reURI$7 = /^https:\/\/(.*)\/?/;
 
   /**
    * @function
-   * @param {string} uri
-   * @returns {ServiceProvider}
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$5 (uri) {
+  function processURI$6 (uri) {
     return new ServiceProvider({
       about: {
         id: 'activitypub',
@@ -10110,7 +10159,7 @@ var doipFetchers = (function (exports) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$5.toString().toString(),
+        uriRegularExpression: reURI$7.toString().toString(),
         uriIsAmbiguous: true
       },
       proof: {
@@ -10296,7 +10345,7 @@ var doipFetchers = (function (exports) {
     }
   };
 
-  const tests$5 = [
+  const tests$6 = [
     {
       uri: 'https://domain.org',
       shouldMatch: true
@@ -10334,9 +10383,9 @@ var doipFetchers = (function (exports) {
   var activitypub = /*#__PURE__*/Object.freeze({
     __proto__: null,
     functions: functions,
-    processURI: processURI$5,
-    reURI: reURI$5,
-    tests: tests$5
+    processURI: processURI$6,
+    reURI: reURI$7,
+    tests: tests$6
   });
 
   /*
@@ -10354,16 +10403,24 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Discourse service provider ({@link https://docs.keyoxide.org/service-providers/discourse/|Keyoxide docs})
+   * @module serviceProviders/discourse
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.activitypub.processURI('https://domain.example/u/alice');
+   */
 
-  const reURI$4 = /^https:\/\/(.*)\/u\/(.*)\/?/;
+
+  const reURI$6 = /^https:\/\/(.*)\/u\/(.*)\/?/;
 
   /**
    * @function
-   * @param {string} uri
-   * @returns {ServiceProvider}
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$4 (uri) {
-    const match = uri.match(reURI$4);
+  function processURI$5 (uri) {
+    const match = uri.match(reURI$6);
 
     return new ServiceProvider({
       about: {
@@ -10377,7 +10434,7 @@ var doipFetchers = (function (exports) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$4.toString().toString(),
+        uriRegularExpression: reURI$6.toString().toString(),
         uriIsAmbiguous: true
       },
       proof: {
@@ -10403,7 +10460,7 @@ var doipFetchers = (function (exports) {
     })
   }
 
-  const tests$4 = [
+  const tests$5 = [
     {
       uri: 'https://domain.org/u/alice',
       shouldMatch: true
@@ -10420,9 +10477,9 @@ var doipFetchers = (function (exports) {
 
   var discourse = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$4,
-    reURI: reURI$4,
-    tests: tests$4
+    processURI: processURI$5,
+    reURI: reURI$6,
+    tests: tests$5
   });
 
   /*
@@ -10440,15 +10497,24 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Owncast service provider ({@link https://docs.keyoxide.org/service-providers/owncast/|Keyoxide docs})
+   * @module serviceProviders/owncast
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.owncast.processURI('https://domain.example');
+   */
 
-  const reURI$3 = /^https:\/\/(.*)/;
+
+  const reURI$5 = /^https:\/\/(.*)/;
 
   /**
    * @function
-   * @param {string} uri
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$3 (uri) {
-    const match = uri.match(reURI$3);
+  function processURI$4 (uri) {
+    const match = uri.match(reURI$5);
 
     return new ServiceProvider({
       about: {
@@ -10462,7 +10528,7 @@ var doipFetchers = (function (exports) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$3.toString(),
+        uriRegularExpression: reURI$5.toString(),
         uriIsAmbiguous: true
       },
       proof: {
@@ -10488,7 +10554,7 @@ var doipFetchers = (function (exports) {
     })
   }
 
-  const tests$3 = [
+  const tests$4 = [
     {
       uri: 'https://live.domain.org',
       shouldMatch: true
@@ -10509,9 +10575,9 @@ var doipFetchers = (function (exports) {
 
   var owncast = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$3,
-    reURI: reURI$3,
-    tests: tests$3
+    processURI: processURI$4,
+    reURI: reURI$5,
+    tests: tests$4
   });
 
   /*
@@ -10529,16 +10595,25 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * StackExchange service provider ({@link https://docs.keyoxide.org/service-providers/stackexchange/|Keyoxide docs})
+   * @module serviceProviders/stackexchange
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.stackexchange.processURI('https://stackoverflow.com/users/123/alice');
+   */
 
-  const reURI$2 = /^https:\/\/(.*(?:askubuntu|mathoverflow|serverfault|stackapps|stackoverflow|superuser)|.+\.stackexchange)\.com\/users\/(\d+)/;
+
+  const reURI$4 = /^https:\/\/(.*(?:askubuntu|mathoverflow|serverfault|stackapps|stackoverflow|superuser)|.+\.stackexchange)\.com\/users\/(\d+)/;
   const reStackExchange = /\.stackexchange$/;
 
   /**
    * @function
-   * @param {string} uri
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$2 (uri) {
-    const [, domain, id] = uri.match(reURI$2);
+  function processURI$3 (uri) {
+    const [, domain, id] = uri.match(reURI$4);
     const site = domain.replace(reStackExchange, '');
 
     return new ServiceProvider({
@@ -10553,7 +10628,7 @@ var doipFetchers = (function (exports) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$2.toString(),
+        uriRegularExpression: reURI$4.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -10579,7 +10654,7 @@ var doipFetchers = (function (exports) {
     })
   }
 
-  const tests$2 = [
+  const tests$3 = [
     {
       uri: 'https://stackoverflow.com/users/1234',
       shouldMatch: true
@@ -10637,9 +10712,9 @@ var doipFetchers = (function (exports) {
 
   var stackexchange = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$2,
-    reURI: reURI$2,
-    tests: tests$2
+    processURI: processURI$3,
+    reURI: reURI$4,
+    tests: tests$3
   });
 
   /*
@@ -10657,15 +10732,24 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Keybase service provider ({@link https://docs.keyoxide.org/service-providers/keybase/|Keyoxide docs})
+   * @module serviceProviders/keybase
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.keybase.processURI('https://keybase.io/alice');
+   */
 
-  const reURI$1 = /^https:\/\/keybase.io\/(.*)\/?/;
+
+  const reURI$3 = /^https:\/\/keybase.io\/(.*)\/?/;
 
   /**
    * @function
-   * @param {string} uri
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI$1 (uri) {
-    const match = uri.match(reURI$1);
+  function processURI$2 (uri) {
+    const match = uri.match(reURI$3);
 
     return new ServiceProvider({
       about: {
@@ -10679,7 +10763,7 @@ var doipFetchers = (function (exports) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI$1.toString(),
+        uriRegularExpression: reURI$3.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -10705,7 +10789,7 @@ var doipFetchers = (function (exports) {
     })
   }
 
-  const tests$1 = [
+  const tests$2 = [
     {
       uri: 'https://keybase.io/Alice',
       shouldMatch: true
@@ -10722,9 +10806,9 @@ var doipFetchers = (function (exports) {
 
   var keybase = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    processURI: processURI$1,
-    reURI: reURI$1,
-    tests: tests$1
+    processURI: processURI$2,
+    reURI: reURI$3,
+    tests: tests$2
   });
 
   /*
@@ -10742,15 +10826,24 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * OpenCollective service provider ({@link https://docs.keyoxide.org/service-providers/opencollective/|Keyoxide docs})
+   * @module serviceProviders/opencollective
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.opencollective.processURI('https://opencollective.com/alice');
+   */
 
-  const reURI = /^https:\/\/opencollective\.com\/(.*)\/?/;
+
+  const reURI$2 = /^https:\/\/opencollective\.com\/(.*)\/?/;
 
   /**
    * @function
-   * @param {string} uri
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
    */
-  function processURI (uri) {
-    const match = uri.match(reURI);
+  function processURI$1 (uri) {
+    const match = uri.match(reURI$2);
 
     return new ServiceProvider({
       about: {
@@ -10764,7 +10857,7 @@ var doipFetchers = (function (exports) {
         qr: null
       },
       claim: {
-        uriRegularExpression: reURI.toString(),
+        uriRegularExpression: reURI$2.toString(),
         uriIsAmbiguous: false
       },
       proof: {
@@ -10790,7 +10883,7 @@ var doipFetchers = (function (exports) {
     })
   }
 
-  const tests = [
+  const tests$1 = [
     {
       uri: 'https://opencollective.com/Alice',
       shouldMatch: true
@@ -10807,8 +10900,112 @@ var doipFetchers = (function (exports) {
 
   var opencollective = /*#__PURE__*/Object.freeze({
     __proto__: null,
+    processURI: processURI$1,
+    reURI: reURI$2,
+    tests: tests$1
+  });
+
+  /*
+  Copyright 2023 Tim Haase
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  */
+  /**
+   * ORCiD service provider ({@link https://docs.keyoxide.org/service-providers/orcid/|Keyoxide docs})
+   * @module serviceProviders/orcid
+   * @example
+   * import { ServiceProviderDefinitions } from 'doipjs';
+   * const sp = ServiceProviderDefinitions.data.orcid.processURI('https://orcid.org/123-456-789-123');
+   */
+
+
+  const reURI$1 = /^https:\/\/orcid\.org\/(.*)\/?/;
+
+  /**
+   * @function
+   * @param {string} uri - Claim URI to process
+   * @returns {ServiceProvider} The service provider information based on the claim URI
+   */
+  function processURI (uri) {
+    const match = uri.match(reURI$1);
+
+    return new ServiceProvider({
+      about: {
+        id: 'orcid',
+        name: 'ORCiD',
+        homepage: 'https://orcid.org/'
+      },
+      profile: {
+        display: match[1],
+        uri,
+        qr: null
+      },
+      claim: {
+        uriRegularExpression: reURI$1.toString(),
+        uriIsAmbiguous: false
+      },
+      proof: {
+        request: {
+          uri,
+          fetcher: Fetcher.HTTP,
+          accessRestriction: ProofAccessRestriction.NONE,
+          data: {
+            url: uri,
+            format: ProofFormat.JSON
+          }
+        },
+        response: {
+          format: ProofFormat.JSON
+        },
+        target: [{
+          format: ClaimFormat.URI,
+          encoding: EntityEncodingFormat.PLAIN,
+          relation: ClaimRelation.CONTAINS,
+          path: ['person', 'biography', 'content']
+        }, {
+          format: ClaimFormat.URI,
+          encoding: EntityEncodingFormat.PLAIN,
+          relation: ClaimRelation.EQUALS,
+          path: ['person', 'researcher-urls', 'researcher-url', 'url', 'value']
+        }, {
+          format: ClaimFormat.URI,
+          encoding: EntityEncodingFormat.PLAIN,
+          relation: ClaimRelation.EQUALS,
+          path: ['person', 'keywords', 'keyword', 'content']
+        }]
+      }
+    })
+  }
+
+  const tests = [
+    {
+      uri: 'https://orcid.org/0000-0000-0000-0000',
+      shouldMatch: true
+    },
+    {
+      uri: 'https://orcid.org/0000-0000-0000-0000/',
+      shouldMatch: true
+    },
+    {
+      uri: 'https://domain.org/0000-0000-0000-0000',
+      shouldMatch: false
+    }
+  ];
+
+  var orcid = /*#__PURE__*/Object.freeze({
+    __proto__: null,
     processURI: processURI,
-    reURI: reURI,
+    reURI: reURI$1,
     tests: tests
   });
 
@@ -10852,7 +11049,8 @@ var doipFetchers = (function (exports) {
     owncast,
     stackexchange,
     keybase,
-    opencollective
+    opencollective,
+    orcid
   };
 
   const list = Object.keys(_data);
@@ -10903,7 +11101,7 @@ var doipFetchers = (function (exports) {
    * Process a public key to get a profile
    * @function
    * @param {PublicKey} publicKey - The public key to parse
-   * @returns {Promise<Profile>}
+   * @returns {Promise<Profile>} The profile from the processed OpenPGP key
    * @example
    * const key = doip.keys.fetchURI('hkp:alice@domain.tld');
    * const profile = doip.keys.parsePublicKey(key);
@@ -10984,26 +11182,8 @@ var doipFetchers = (function (exports) {
    */
 
   /**
-   * The default options used throughout the library
-   * @constant {object}
-   * @property {object} proxy                           - Options related to the proxy
-   * @property {string|null} proxy.hostname             - The hostname of the proxy
-   * @property {string} proxy.policy                    - The policy that defines when to use a proxy ({@link module:enums~ProxyPolicy|here})
-   * @property {object} claims                          - Options related to claim verification
-   * @property {object} claims.activitypub              - Options related to the verification of activitypub claims
-   * @property {string|null} claims.activitypub.url     - The URL of the verifier account
-   * @property {string|null} claims.activitypub.privateKey - The private key to sign the request
-   * @property {object} claims.irc                      - Options related to the verification of IRC claims
-   * @property {string|null} claims.irc.nick            - The nick that the library uses to connect to the IRC server
-   * @property {object} claims.matrix                   - Options related to the verification of Matrix claims
-   * @property {string|null} claims.matrix.instance     - The server hostname on which the library can log in
-   * @property {string|null} claims.matrix.accessToken  - The access token required to identify the library ({@link https://www.matrix.org/docs/guides/client-server-api|Matrix docs})
-   * @property {object} claims.telegram                 - Options related to the verification of Telegram claims
-   * @property {string|null} claims.telegram.token      - The Telegram API's token ({@link https://core.telegram.org/bots/api#authorizing-your-bot|Telegram docs})
-   * @property {object} claims.xmpp                     - Options related to the verification of XMPP claims
-   * @property {string|null} claims.xmpp.service        - The server hostname on which the library can log in
-   * @property {string|null} claims.xmpp.username       - The username used to log in
-   * @property {string|null} claims.xmpp.password       - The password used to log in
+   * The default claim verification config used throughout the library
+   * @type {import('./types').VerificationConfig}
    */
   const opts = {
     proxy: {
@@ -11055,13 +11235,10 @@ var doipFetchers = (function (exports) {
 
   /**
    * Generate an URL to request data from a proxy server
-   * @param {string} type                 - The name of the fetcher the proxy must use
-   * @param {object} data                 - The data the proxy must provide to the fetcher
-   * @param {object} opts                 - Options to enable the request
-   * @param {object} opts.proxy           - Proxy related options
-   * @param {object} opts.proxy.scheme    - The scheme used by the proxy server
-   * @param {object} opts.proxy.hostname  - The hostname of the proxy server
-   * @returns {string}
+   * @param {string} type - The name of the fetcher the proxy must use
+   * @param {object} data - The data the proxy must provide to the fetcher
+   * @param {import('./types').VerificationConfig} opts - Options to enable the request
+   * @returns {string} Generated proxy URL
    */
   function generateProxyURL (type, data, opts) {
     try {
@@ -11076,7 +11253,7 @@ var doipFetchers = (function (exports) {
       queryStrings.push(`${key}=${encodeURIComponent(data[key])}`);
     });
 
-    const scheme = opts.proxy.scheme ? opts.proxy.scheme : 'https';
+    const scheme = opts.proxy.scheme ?? 'https';
 
     return `${scheme}://${opts.proxy.hostname}/api/3/get/${type}?${queryStrings.join(
     '&'
@@ -11085,9 +11262,9 @@ var doipFetchers = (function (exports) {
 
   /**
    * Generate the string that must be found in the proof to verify a claim
-   * @param {string} fingerprint  - The fingerprint of the claim
-   * @param {string} format       - The claim's format (see {@link module:enums~ClaimFormat|enums.ClaimFormat})
-   * @returns {string}
+   * @param {string} fingerprint - The fingerprint of the claim
+   * @param {ClaimFormat} format - The claim's format
+   * @returns {string} Generate claim
    */
   function generateClaim (fingerprint, format) {
     switch (format) {
@@ -11105,8 +11282,8 @@ var doipFetchers = (function (exports) {
 
   /**
    * Get the URIs from a string and return them as an array
-   * @param {string} text         - The text that may contain URIs
-   * @returns {Array<string>}
+   * @param {string} text - The text that may contain URIs
+   * @returns {Array<string>} List of URIs extracted from input
    */
   function getUriFromString (text) {
     const re = /((([A-Za-z0-9]+:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www\.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w\-_]*)?\??(?:[-+=&;%@.\w_]*)#?(?:[.!/\\\w]*))?)/gi;
@@ -12479,14 +12656,11 @@ var doipFetchers = (function (exports) {
    */
 
   /**
+   * Check if string contains the proof
    * @function
-   * @param {string} data
-   * @param {object} params
-   * @param {string} params.target
-   * @param {string} params.claimFormat
-   * @param {string} params.proofEncodingFormat
-   * @param {string} [params.claimRelation]
-   * @returns {Promise<boolean>}
+   * @param {string} data - Data potentially containing the proof
+   * @param {import('./types').VerificationParams} params - Verification parameters
+   * @returns {Promise<boolean>} Whether the proof was found in the string
    */
   const containsProof = async (data, params) => {
     const fingerprintFormatted = generateClaim(params.target, params.claimFormat);
@@ -12664,15 +12838,12 @@ var doipFetchers = (function (exports) {
   };
 
   /**
+   * Run a JSON object through the verification process
    * @function
-   * @param {any} proofData
-   * @param {string[]} checkPath
-   * @param {object} params
-   * @param {string} params.target
-   * @param {string} params.claimFormat
-   * @param {string} params.proofEncodingFormat
-   * @param {string} [params.claimRelation]
-   * @returns {Promise<boolean>}
+   * @param {*} proofData - Data potentially containing the proof
+   * @param {Array<string>} checkPath - Paths to check for proof
+   * @param {import('./types').VerificationParams} params - Verification parameters
+   * @returns {Promise<boolean>} Whether the proof was found in the object
    */
   const runJSON = async (proofData, checkPath, params) => {
     if (!proofData) {
@@ -12719,14 +12890,14 @@ var doipFetchers = (function (exports) {
   };
 
   /**
-   * Run the verification by finding the formatted fingerprint in the proof
-   * @async
-   * @param {object} proofData                                                - The proof data
-   * @param {import('./serviceProvider.js').ServiceProvider} claimData   - The claim data
-   * @param {string} fingerprint                                              - The fingerprint
-   * @returns {Promise<object>}
+   * Run the verification by searching for the proof in the fetched data
+   * @param {object} proofData - The proof data
+   * @param {ServiceProvider} claimData - The claim data
+   * @param {string} fingerprint - The fingerprint
+   * @returns {Promise<import('./types').VerificationResult>} Result of the verification
    */
   async function run (proofData, claimData, fingerprint) {
+    /** @type {import('./types').VerificationResult} */
     const res = {
       result: false,
       completed: false,
@@ -12809,10 +12980,9 @@ var doipFetchers = (function (exports) {
    * the `data` parameter and the proxy policy set in the `opts` parameter to
    * choose the right approach to fetch the proof. An error will be thrown if no
    * approach is possible.
-   * @async
-   * @param {import('./serviceProvider.js').ServiceProvider} data - Data from a claim definition
-   * @param {object} opts - Options to enable the request
-   * @returns {Promise<object|string>}
+   * @param {ServiceProvider} data - Data from a claim definition
+   * @param {import('./types').VerificationConfig} opts - Options to enable the request
+   * @returns {Promise<object|string>} Fetched proof data
    */
   async function fetch$2 (data, opts) {
     if (isNode_1) {
@@ -12823,9 +12993,9 @@ var doipFetchers = (function (exports) {
   }
 
   /**
-   * @param {import('./serviceProvider.js').ServiceProvider} data - Data from a claim definition
+   * @param {ServiceProvider} data - Data from a claim definition
    * @param {object} opts - Options to enable the request
-   * @returns {Promise<object|string>}
+   * @returns {Promise<object|string>} Fetched proof data
    */
   const handleBrowserRequests = (data, opts) => {
     switch (opts.proxy.policy) {
@@ -12866,9 +13036,9 @@ var doipFetchers = (function (exports) {
   };
 
   /**
-   * @param {import('./serviceProvider.js').ServiceProvider} data - Data from a claim definition
+   * @param {ServiceProvider} data - Data from a claim definition
    * @param {object} opts - Options to enable the request
-   * @returns {Promise<object|string>}
+   * @returns {Promise<object|string>} Fetched proof data
    */
   const handleNodeRequests = (data, opts) => {
     switch (opts.proxy.policy) {
@@ -12887,9 +13057,9 @@ var doipFetchers = (function (exports) {
   };
 
   /**
-   * @param {import('./serviceProvider.js').ServiceProvider} data - Data from a claim definition
+   * @param {ServiceProvider} data - Data from a claim definition
    * @param {object} opts - Options to enable the request
-   * @returns {Promise<object|string>}
+   * @returns {Promise<object|string>} Fetched proof data
    */
   const createDefaultRequestPromise = (data, opts) => {
     return new Promise((resolve, reject) => {
@@ -12913,9 +13083,9 @@ var doipFetchers = (function (exports) {
   };
 
   /**
-   * @param {import('./serviceProvider.js').ServiceProvider} data - Data from a claim definition
+   * @param {ServiceProvider} data - Data from a claim definition
    * @param {object} opts - Options to enable the request
-   * @returns {Promise<object|string>}
+   * @returns {Promise<object|string>} Fetched proof data
    */
   const createProxyRequestPromise = (data, opts) => {
     return new Promise((resolve, reject) => {
@@ -12951,9 +13121,9 @@ var doipFetchers = (function (exports) {
   };
 
   /**
-   * @param {import('./serviceProvider.js').ServiceProvider} data - Data from a claim definition
+   * @param {ServiceProvider} data - Data from a claim definition
    * @param {object} opts - Options to enable the request
-   * @returns {Promise<object|string>}
+   * @returns {Promise<object|string>} Fetched proof data
    */
   const createFallbackRequestPromise = (data, opts) => {
     return new Promise((resolve, reject) => {
@@ -12996,17 +13166,16 @@ var doipFetchers = (function (exports) {
    * @property {string} fingerprint     - The fingerprint to verify the claim against
    * @property {number} status          - The current status code of the claim
    * @property {Array<object>} matches  - The claim definitions matched against the URI
+   * @example
+   * const claim = doip.Claim();
+   * const claim = doip.Claim('dns:domain.tld?type=TXT');
+   * const claim = doip.Claim('dns:domain.tld?type=TXT', '123abc123abc');
    */
   class Claim {
     /**
      * Initialize a Claim object
-     * @constructor
      * @param {string} [uri]          - The URI of the identity claim
      * @param {string} [fingerprint]  - The fingerprint of the OpenPGP key
-     * @example
-     * const claim = doip.Claim();
-     * const claim = doip.Claim('dns:domain.tld?type=TXT');
-     * const claim = doip.Claim('dns:domain.tld?type=TXT', '123abc123abc');
      */
     constructor (uri, fingerprint) {
       // Verify validity of URI
@@ -13037,15 +13206,16 @@ var doipFetchers = (function (exports) {
        */
       this._status = ClaimStatus.INIT;
       /**
-       * @type {import('./serviceProvider.js').ServiceProvider[]}
+       * @type {Array<ServiceProvider>}
        */
       this._matches = [];
     }
 
     /**
      * @function
-     * @param {object} claimObject
-     * @returns {Claim | Error}
+     * @param {*} claimObject - JSON representation of a claim
+     * @returns {Claim} Parsed claim
+     * @throws Will throw an error if the JSON object can't be coerced into a Claim
      * @example
      * doip.Claim.fromJSON(JSON.stringify(claim));
      */
@@ -13181,9 +13351,8 @@ var doipFetchers = (function (exports) {
      * checked for the fingerprint. The verification stops when either a positive
      * result was obtained, or an unambiguous claim definition was processed
      * regardless of the result.
-     * @async
      * @function
-     * @param {object} [opts] - Options for proxy, fetchers
+     * @param {import('./types').VerificationConfig} [opts] - Options for proxy, fetchers
      */
     async verify (opts$1) {
       if (this._status === ClaimStatus.INIT) {
@@ -13211,6 +13380,7 @@ var doipFetchers = (function (exports) {
 
         let claimData = this._matches[index];
 
+        /** @type {import('./types').VerificationResult | null} */
         let verificationResult = null;
         let proofData = null;
         let proofFetchError;
@@ -13252,7 +13422,7 @@ var doipFetchers = (function (exports) {
           verificationResult = verificationResult || {
             result: false,
             completed: true,
-            proof: {},
+            proof: null,
             errors: [proofFetchError]
           };
         }
@@ -13276,7 +13446,7 @@ var doipFetchers = (function (exports) {
      * of the candidates is unambiguous. An ambiguous claim should never be
      * displayed in an user interface when its result is negative.
      * @function
-     * @returns {boolean}
+     * @returns {boolean} Whether the claim is ambiguous
      */
     isAmbiguous () {
       if (this._status < ClaimStatus.MATCHED) {
@@ -13293,7 +13463,7 @@ var doipFetchers = (function (exports) {
      * Get a JSON representation of the Claim object. Useful when transferring
      * data between instances/machines.
      * @function
-     * @returns {object}
+     * @returns {object} JSON reprentation of the claim
      */
     toJSON () {
       let displayProfileName = this._uri;
@@ -13328,8 +13498,9 @@ var doipFetchers = (function (exports) {
   }
 
   /**
-   * @param {object} claimObject
-   * @returns {Claim | Error}
+   * @ignore
+   * @param {object} claimObject - JSON representation of a claim
+   * @returns {Claim | Error} Parsed claim
    */
   function importJsonClaimVersion1 (claimObject) {
     if (!('claimVersion' in claimObject && claimObject.claimVersion === 1)) {
@@ -13369,8 +13540,9 @@ var doipFetchers = (function (exports) {
   }
 
   /**
-   * @param {object} claimObject
-   * @returns {Claim | Error}
+   * @ignore
+   * @param {object} claimObject - JSON representation of a claim
+   * @returns {Claim | Error} Parsed claim
    */
   function importJsonClaimVersion2 (claimObject) {
     if (!('claimVersion' in claimObject && claimObject.claimVersion === 2)) {
@@ -13406,13 +13578,13 @@ var doipFetchers = (function (exports) {
   const SupportedCryptoAlg = ['EdDSA', 'ES256', 'ES256K', 'ES384', 'ES512'];
 
   /**
-   * Fetch a public key using Web Key Directory
+   * Parse a JWS and extract the profile it contains
    * @function
    * @param {string} profileJws - Compact-Serialized profile JWS
-   * @param {string} uri    - The ASPE URI associated with the profile
-   * @returns {Promise<Profile>}
+   * @param {string} uri - The ASPE URI associated with the profile
+   * @returns {Promise<Profile>} The extracted profile
    * @example
-   * const key = doip.aspe.parseProfileJws('...');
+   * const key = await doip.aspe.parseProfileJws('...', 'aspe:domain.example:123');
    */
   async function parseProfileJws (profileJws, uri) {
     const matches = uri.match(/aspe:(.*):(.*)/);
@@ -13462,7 +13634,7 @@ var doipFetchers = (function (exports) {
     const profileDescription = payloadJson['http://ariadne.id/description'];
     /** @type {string} */
     const profileThemeColor = payloadJson['http://ariadne.id/color'];
-    /** @type {string[]} */
+    /** @type {Array<string>} */
     const profileClaims = payloadJson['http://ariadne.id/claims'];
 
     const profileClaimsParsed = profileClaims.map(x => new Claim(x, uri));
@@ -13499,10 +13671,10 @@ var doipFetchers = (function (exports) {
   }
 
   /**
-   * Compute the fingerprint for JWK keys
+   * Compute the fingerprint for {@link https://github.com/panva/jose/blob/main/docs/interfaces/types.JWK.md JWK} keys
    * @function
-   * @param {import('jose').JWK} key
-   * @returns {Promise<string>}
+   * @param {import('jose').JWK} key - The JWK public key for which to compute the fingerprint
+   * @returns {Promise<string>} The computed fingerprint
    */
   async function computeJwkFingerprint (key) {
     const thumbprint = await calculateJwkThumbprint(key, 'sha512');
@@ -13527,17 +13699,32 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Fetch proofs from Profile obtained through ASPE
+   * @module fetcher/aspe
+   * @example
+   * import { fetcher } from 'doipjs';
+   * const data = await fetcher.aspe.fn({ aspeUri: 'aspe:domain.example:abc123def456' });
+   */
 
+  /**
+   * Default timeout after which the fetch is aborted
+   * @constant
+   * @type {number}
+   * @default 5000
+   */
   const timeout$a = 5000;
+
+  const reURI = /^aspe:([a-zA-Z0-9.\-_]*):([a-zA-Z0-9]*)/;
 
   /**
    * Execute a fetch request
    * @function
-   * @async
-   * @param {object} data           - Data used in the request
-   * @param {string} data.aspeUri   - ASPE URI of the targeted profile
-   * @param {number} [data.fetcherTimeout]  - Optional timeout for the fetcher
-   * @returns {Promise<object|string>}
+   * @param {object} data - Data used in the request
+   * @param {string} data.aspeUri - ASPE URI of the targeted profile
+   * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
+   * @param {import('../types').VerificationConfig} [opts] - Options used to enable the request
+   * @returns {Promise<object>} The fetched claims from an ASP profile
    */
   async function fn$8 (data, opts) {
     let timeoutHandle;
@@ -13549,7 +13736,6 @@ var doipFetchers = (function (exports) {
     });
 
     const fetchPromise = new Promise((resolve, reject) => {
-      const reURI = /^aspe:([a-zA-Z0-9.\-_]*):([a-zA-Z0-9]*)/;
       const match = data.aspeUri.match(reURI);
 
       if (!data.aspeUri || !reURI.test(data.aspeUri) || !isFQDN(match[1])) {
@@ -13580,9 +13766,8 @@ var doipFetchers = (function (exports) {
         });
     });
 
-    return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+    return Promise.race([fetchPromise, timeoutPromise]).finally(() => {
       clearTimeout(timeoutHandle);
-      return result
     })
   }
 
@@ -13609,17 +13794,31 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Fetch proofs using DNS TXT records
+   * @module fetcher/dns
+   * @example
+   * import { fetcher } from 'doipjs';
+   * const data = await fetcher.dns.fn({ domain: 'domain.example' });
+   */
 
+
+  /**
+   * Default timeout after which the fetch is aborted
+   * @constant
+   * @type {number}
+   * @default 5000
+   */
   const timeout$9 = 5000;
 
   /**
    * Execute a fetch request
    * @function
-   * @async
-   * @param {object} data         - Data used in the request
-   * @param {string} data.domain  - The targeted domain
-   * @param {number} [data.fetcherTimeout]  - Optional timeout for the fetcher
-   * @returns {Promise<object>}
+   * @param {object} data - Data used in the request
+   * @param {string} data.domain - The targeted domain
+   * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
+   * @param {import('../types').VerificationConfig} [opts] - Options used to enable the request
+   * @returns {Promise<object>} The fetched DNS records
    */
   async function fn$7 (data, opts) {
     if (isBrowser_1) {
@@ -13650,9 +13849,8 @@ var doipFetchers = (function (exports) {
       });
     });
 
-    return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+    return Promise.race([fetchPromise, timeoutPromise]).finally(() => {
       clearTimeout(timeoutHandle);
-      return result
     })
   }
 
@@ -13677,18 +13875,32 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Fetch proofs using GraphQL queries
+   * @module fetcher/graphql
+   * @example
+   * import { fetcher } from 'doipjs';
+   * const data = await fetcher.graphql.fn({ url: 'https://domain.example/graphql/v2', query: '{ "query": "..." }' });
+   */
 
+
+  /**
+   * Default timeout after which the fetch is aborted
+   * @constant
+   * @type {number}
+   * @default 5000
+   */
   const timeout$8 = 5000;
 
   /**
    * Execute a GraphQL query via HTTP request
    * @function
-   * @async
-   * @param {object} data         - Data used in the request
-   * @param {string} data.url     - The URL pointing at the GraphQL HTTP endpoint
-   * @param {string} data.query   - The GraphQL query to fetch the data containing the proof
-   * @param {number} [data.fetcherTimeout]  - Optional timeout for the fetcher
-   * @returns {Promise<object|string>}
+   * @param {object} data - Data used in the request
+   * @param {string} data.url - The URL pointing at the GraphQL HTTP endpoint
+   * @param {string} data.query - The GraphQL query to fetch the data containing the proof
+   * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
+   * @param {import('../types').VerificationConfig} [opts] - Options used to enable the request
+   * @returns {Promise<object>} The fetched GraphQL object
    */
   async function fn$6 (data, opts) {
     let timeoutHandle;
@@ -13730,9 +13942,8 @@ var doipFetchers = (function (exports) {
         });
     });
 
-    return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+    return Promise.race([fetchPromise, timeoutPromise]).finally(() => {
       clearTimeout(timeoutHandle);
-      return result
     })
   }
 
@@ -13757,18 +13968,32 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Fetch proofs using HTTP requests
+   * @module fetcher/http
+   * @example
+   * import { fetcher } from 'doipjs';
+   * const data = await fetcher.http.fn({ url: 'https://domain.example/data.json', format: 'json' });
+   */
 
+
+  /**
+   * Default timeout after which the fetch is aborted
+   * @constant
+   * @type {number}
+   * @default 5000
+   */
   const timeout$7 = 5000;
 
   /**
    * Execute a fetch request
    * @function
-   * @async
-   * @param {object} data         - Data used in the request
-   * @param {string} data.url     - The URL pointing at targeted content
-   * @param {string} data.format  - The format of the targeted content
-   * @param {number} [data.fetcherTimeout]  - Optional timeout for the fetcher
-   * @returns {Promise<object|string>}
+   * @param {object} data - Data used in the request
+   * @param {string} data.url - The URL pointing at targeted content
+   * @param {string} data.format - The format of the targeted content
+   * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
+   * @param {import('../types').VerificationConfig} [opts] - Options used to enable the request
+   * @returns {Promise<object|string>} The fetched JSON object or text
    */
   async function fn$5 (data, opts) {
     let timeoutHandle;
@@ -13824,9 +14049,8 @@ var doipFetchers = (function (exports) {
       }
     });
 
-    return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+    return Promise.race([fetchPromise, timeoutPromise]).finally(() => {
       clearTimeout(timeoutHandle);
-      return result
     })
   }
 
@@ -32385,22 +32609,32 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Fetch proofs using IRC
+   * @module fetcher/irc
+   * @example
+   * import { fetcher } from 'doipjs';
+   * const data = await fetcher.irc.fn({ nick: 'alice', domain: 'domain.example' });
+   */
 
+
+  /**
+   * Default timeout after which the fetch is aborted
+   * @constant
+   * @type {number}
+   * @default 20000
+   */
   const timeout$6 = 20000;
 
   /**
    * Execute a fetch request
    * @function
-   * @async
-   * @param {object} data                 - Data used in the request
-   * @param {string} data.nick            - The nick of the targeted account
-   * @param {string} data.domain          - The domain on which the targeted account is registered
+   * @param {object} data - Data used in the request
+   * @param {string} data.nick - The nick of the targeted account
+   * @param {string} data.domain - The domain on which the targeted account is registered
    * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
-   * @param {object} opts                 - Options used to enable the request
-   * @param {object} opts.claims
-   * @param {object} opts.claims.irc
-   * @param {string} opts.claims.irc.nick - The nick to be used by the library to log in
-   * @returns {Promise<object>}
+   * @param {import('../types').VerificationConfig} [opts] - Options used to enable the request
+   * @returns {Promise<Array<string>>} The fetched proofs from an IRC account
    */
   async function fn$4 (data, opts) {
     let timeoutHandle;
@@ -32450,9 +32684,8 @@ var doipFetchers = (function (exports) {
       }
     });
 
-    return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+    return Promise.race([fetchPromise, timeoutPromise]).finally(() => {
       clearTimeout(timeoutHandle);
-      return result
     })
   }
 
@@ -32477,23 +32710,32 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Fetch proofs using Matrix messages
+   * @module fetcher/matrix
+   * @example
+   * import { fetcher } from 'doipjs';
+   * const data = await fetcher.matrix.fn({ eventId: '$abc123def456', roomId: '!dBfQZxCoGVmSTujfiv:matrix.org' });
+   */
 
+
+  /**
+   * Default timeout after which the fetch is aborted
+   * @constant
+   * @type {number}
+   * @default 5000
+   */
   const timeout$5 = 5000;
 
   /**
    * Execute a fetch request
    * @function
-   * @async
-   * @param {object} data                           - Data used in the request
-   * @param {string} data.eventId                   - The identifier of the targeted post
-   * @param {string} data.roomId                    - The identifier of the room containing the targeted post
-   * @param {number} [data.fetcherTimeout]          - Optional timeout for the fetcher
-   * @param {object} opts                           - Options used to enable the request
-   * @param {object} opts.claims
-   * @param {object} opts.claims.matrix
-   * @param {string} opts.claims.matrix.instance    - The server hostname on which the library can log in
-   * @param {string} opts.claims.matrix.accessToken - The access token required to identify the library ({@link https://www.matrix.org/docs/guides/client-server-api|Matrix docs})
-   * @returns {Promise<object>}
+   * @param {object} data - Data used in the request
+   * @param {string} data.eventId - The identifier of the targeted post
+   * @param {string} data.roomId - The identifier of the room containing the targeted post
+   * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
+   * @param {import('../types').VerificationConfig} [opts] - Options used to enable the request
+   * @returns {Promise<object>} The fetched Matrix object
    */
   async function fn$3 (data, opts) {
     let timeoutHandle;
@@ -32532,9 +32774,8 @@ var doipFetchers = (function (exports) {
         });
     });
 
-    return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+    return Promise.race([fetchPromise, timeoutPromise]).finally(() => {
       clearTimeout(timeoutHandle);
-      return result
     })
   }
 
@@ -32559,18 +32800,39 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Fetch proofs from OpenPGP notations
+   * @module fetcher/openpgp
+   * @example
+   * import { fetcher, enums as E } from 'doipjs';
+   *
+   * const hkpProtocol = E.OpenPgpQueryProtocol.HKP;
+   * const hkpUrl = 'https://keys.openpgp.org/vks/v1/by-fingerprint/ABC123DEF456';
+   * const hkpData = await fetcher.openpgp.fn({ url: hkpUrl, protocol: hkpProtocol });
+   *
+   * const wkdProtocol = E.OpenPgpQueryProtocol.WKD;
+   * const wkdUrl = 'https://domain.example/.well-known/openpgpkey/hu/kei1q4tipxxu1yj79k9kfukdhfy631xe?l=alice';
+   * const wkdData = await fetcher.openpgp.fn({ url: wkdUrl, protocol: wkdProtocol });
+   */
 
+
+  /**
+   * Default timeout after which the fetch is aborted
+   * @constant
+   * @type {number}
+   * @default 5000
+   */
   const timeout$4 = 5000;
 
   /**
    * Execute a fetch request
    * @function
-   * @async
-   * @param {object} data           - Data used in the request
-   * @param {string} data.url       - The URL pointing at targeted content
-   * @param {OpenPgpQueryProtocol} data.protocol  - The protocol used to access the targeted content
-   * @param {number} [data.fetcherTimeout]  - Optional timeout for the fetcher
-   * @returns {Promise<object|string>}
+   * @param {object} data - Data used in the request
+   * @param {string} data.url - The URL pointing at targeted content
+   * @param {OpenPgpQueryProtocol} data.protocol - The protocol used to access the targeted content
+   * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
+   * @param {import('../types').VerificationConfig} [opts] - Options used to enable the request
+   * @returns {Promise<object>} The fetched notations from an OpenPGP key
    */
   async function fn$2 (data, opts) {
     let timeoutHandle;
@@ -32645,9 +32907,8 @@ var doipFetchers = (function (exports) {
       }
     });
 
-    return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+    return Promise.race([fetchPromise, timeoutPromise]).finally(() => {
       clearTimeout(timeoutHandle);
-      return result
     })
   }
 
@@ -32672,22 +32933,32 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Fetch proofs using Telegram groups
+   * @module fetcher/telegram
+   * @example
+   * import { fetcher } from 'doipjs';
+   * const data = await fetcher.telegram.fn({ user: 'alice', chat: 'alice_identity_proof' });
+   */
 
+
+  /**
+   * Default timeout after which the fetch is aborted
+   * @constant
+   * @type {number}
+   * @default 5000
+   */
   const timeout$3 = 5000;
 
   /**
    * Execute a fetch request
    * @function
-   * @async
-   * @param {object} data                          - Data used in the request
-   * @param {string} data.chat                     - Telegram public chat username
-   * @param {string} data.user                     - Telegram user username
-   * @param {number} [data.fetcherTimeout]         - Optional timeout for the fetcher
-   * @param {object} opts                          - Options used to enable the request
-   * @param {object} opts.claims
-   * @param {object} opts.claims.telegram
-   * @param {string} opts.claims.telegram.token    - The Telegram Bot API token
-   * @returns {Promise<object|string>}
+   * @param {object} data - Data used in the request
+   * @param {string} data.chat - Telegram public group name (slug)
+   * @param {string} data.user - Telegram username
+   * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
+   * @param {import('../types').VerificationConfig} [opts] - Options used to enable the request
+   * @returns {Promise<object|string>} The fetched Telegram object
    */
   async function fn$1 (data, opts) {
     let timeoutHandle;
@@ -32755,9 +33026,8 @@ var doipFetchers = (function (exports) {
       })
     });
 
-    return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+    return Promise.race([fetchPromise, timeoutPromise]).finally(() => {
       clearTimeout(timeoutHandle);
-      return result
     })
   }
 
@@ -36226,19 +36496,36 @@ var doipFetchers = (function (exports) {
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  /**
+   * Fetch proofs from XMPP accounts
+   * @module fetcher/xmpp
+   * @example
+   * import { fetcher } from 'doipjs';
+   * const data = await fetcher.xmpp.fn({ id: 'alice@domain.example' });
+   */
 
+
+  /**
+   * Default timeout after which the fetch is aborted
+   * @constant
+   * @type {number}
+   * @default 5000
+   */
   const timeout = 5000;
 
   let xmpp = null;
   let iqCaller = null;
 
-  const xmppStart = async (service, username, password) => {
+  /**
+   * Start the XMPP client
+   * @ignore
+   * @function
+   * @param {import('../types').XmppClaimVerificationConfig} params - XMPP claim verification config
+   * @returns {Promise<object>} The fetched proofs from an XMPP account
+   */
+  const xmppStart = async (params) => {
     return new Promise((resolve, reject) => {
-      const xmpp = client_1({
-        service,
-        username,
-        password
-      });
+      const xmpp = client_1({ ...params });
       if (process.env.NODE_ENV !== 'production') {
         debug(xmpp, true);
       }
@@ -36256,17 +36543,11 @@ var doipFetchers = (function (exports) {
   /**
    * Execute a fetch request
    * @function
-   * @async
-   * @param {object} data                       - Data used in the request
-   * @param {string} data.id                    - The identifier of the targeted account
-   * @param {number} [data.fetcherTimeout]      - Optional timeout for the fetcher
-   * @param {object} opts                       - Options used to enable the request
-   * @param {object} opts.claims
-   * @param {object} opts.claims.xmpp
-   * @param {string} opts.claims.xmpp.service   - The server hostname on which the library can log in
-   * @param {string} opts.claims.xmpp.username  - The username used to log in
-   * @param {string} opts.claims.xmpp.password  - The password used to log in
-   * @returns {Promise<object>}
+   * @param {object} data - Data used in the request
+   * @param {string} data.id - The identifier of the targeted account
+   * @param {number} [data.fetcherTimeout] - Optional timeout for the fetcher
+   * @param {import('../types').VerificationConfig} [opts] - Options used to enable the request
+   * @returns {Promise<Array<string>>} The fetched proofs from an XMPP account
    */
   async function fn (data, opts) {
     try {
@@ -36278,11 +36559,7 @@ var doipFetchers = (function (exports) {
     }
 
     if (!xmpp || xmpp.status !== 'online') {
-      const xmppStartRes = await xmppStart(
-        opts.claims.xmpp.service,
-        opts.claims.xmpp.username,
-        opts.claims.xmpp.password
-      );
+      const xmppStartRes = await xmppStart(opts.claims.xmpp);
       xmpp = xmppStartRes.xmpp;
       iqCaller = xmppStartRes.iqCaller;
     }
@@ -36385,9 +36662,8 @@ var doipFetchers = (function (exports) {
       })();
     });
 
-    return Promise.race([fetchPromise, timeoutPromise]).then((result) => {
+    return Promise.race([fetchPromise, timeoutPromise]).finally(() => {
       clearTimeout(timeoutHandle);
-      return result
     })
   }
 
